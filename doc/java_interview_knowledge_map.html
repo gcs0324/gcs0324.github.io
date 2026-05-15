@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java 面试知识图谱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+
+:root {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --border-radius-lg: 10px;
+  --color-text-primary:    #1a1d23;
+  --color-text-secondary:  #5a6272;
+  --color-text-tertiary:   #9aa0ad;
+  --color-border-tertiary: rgba(0,0,0,0.07);
+  --color-border-secondary:rgba(0,0,0,0.13);
+  --color-background-secondary: #f7f8fa;
+  --color-background-tertiary:  #f0f2f5;
+}
+[data-theme="dark"] {
+  --color-text-primary:    #dde4f0;
+  --color-text-secondary:  #7d8fa8;
+  --color-text-tertiary:   #3d4f63;
+  --color-border-tertiary: rgba(255,255,255,0.07);
+  --color-border-secondary:rgba(255,255,255,0.14);
+  --color-background-secondary: #161b27;
+  --color-background-tertiary:  #1e2535;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-background-secondary); color: var(--color-text-primary);
+       font-family: var(--font-sans); min-height: 100vh; padding: 32px; }
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<style>
+  :root { --gap: 10px; }
+  .wrap { padding: 16px 0; font-family: var(--font-sans); }
+  .title-bar { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .title-bar h2 { font-size:18px; font-weight:500; color:var(--color-text-primary); margin:0; }
+  .badge { font-size:11px; padding:3px 8px; border-radius:20px; font-weight:500; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:14px; }
+  .card { border-radius:var(--border-radius-lg); border:0.5px solid var(--color-border-tertiary); background:var(--color-background-secondary); overflow:hidden; transition: box-shadow .15s; }
+  .card:hover { border-color:var(--color-border-secondary); }
+  .card-header { display:flex; align-items:center; gap:10px; padding:12px 14px 10px; cursor:pointer; user-select:none; }
+  .card-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:16px; }
+  .card-title { font-size:14px; font-weight:500; color:var(--color-text-primary); flex:1; }
+  .card-count { font-size:11px; padding:2px 7px; border-radius:12px; }
+  .chevron { font-size:12px; color:var(--color-text-tertiary); transition:transform .2s; }
+  .chevron.open { transform:rotate(180deg); }
+  .card-body { padding:0 14px 12px; display:none; }
+  .card-body.open { display:block; }
+  .sub-list { list-style:none; margin:0; padding:0; }
+  .sub-list li { display:flex; align-items:flex-start; gap:8px; padding:5px 0; border-bottom:0.5px solid var(--color-border-tertiary); font-size:13px; color:var(--color-text-secondary); line-height:1.45; }
+  .sub-list li:last-child { border-bottom:none; }
+  .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+
+  .c1 .card-icon { background:#EEEDFE; color:#534AB7; }
+  .c2 .card-icon { background:#E1F5EE; color:#0F6E56; }
+  .c3 .card-icon { background:#E6F1FB; color:#185FA5; }
+  .c4 .card-icon { background:#FAEEDA; color:#854F0B; }
+  .c5 .card-icon { background:#FAECE7; color:#993C1D; }
+  .c6 .card-icon { background:#FBEAF0; color:#993556; }
+  .c7 .card-icon { background:#EAF3DE; color:#3B6D11; }
+  .c8 .card-icon { background:#FCEBEB; color:#A32D2D; }
+  .c9 .card-icon { background:#F1EFE8; color:#5F5E5A; }
+  .c10 .card-icon { background:#E1F5EE; color:#085041; }
+  .c11 .card-icon { background:#EEEDFE; color:#3C3489; }
+  .c12 .card-icon { background:#FAEEDA; color:#633806; }
+
+  .c1 .card-count { background:#EEEDFE; color:#534AB7; }
+  .c2 .card-count { background:#E1F5EE; color:#0F6E56; }
+  .c3 .card-count { background:#E6F1FB; color:#185FA5; }
+  .c4 .card-count { background:#FAEEDA; color:#854F0B; }
+  .c5 .card-count { background:#FAECE7; color:#993C1D; }
+  .c6 .card-count { background:#FBEAF0; color:#993556; }
+  .c7 .card-count { background:#EAF3DE; color:#3B6D11; }
+  .c8 .card-count { background:#FCEBEB; color:#A32D2D; }
+  .c9 .card-count { background:#F1EFE8; color:#5F5E5A; }
+  .c10 .card-count { background:#E1F5EE; color:#085041; }
+  .c11 .card-count { background:#EEEDFE; color:#3C3489; }
+  .c12 .card-count { background:#FAEEDA; color:#633806; }
+
+  .c1 .dot { background:#534AB7; }
+  .c2 .dot { background:#0F6E56; }
+  .c3 .dot { background:#185FA5; }
+  .c4 .dot { background:#854F0B; }
+  .c5 .dot { background:#993C1D; }
+  .c6 .dot { background:#993556; }
+  .c7 .dot { background:#3B6D11; }
+  .c8 .dot { background:#A32D2D; }
+  .c9 .dot { background:#5F5E5A; }
+  .c10 .dot { background:#085041; }
+  .c11 .dot { background:#3C3489; }
+  .c12 .dot { background:#633806; }
+
+  .expand-all { font-size:12px; color:var(--color-text-secondary); cursor:pointer; background:none; border:0.5px solid var(--color-border-secondary); border-radius:6px; padding:4px 10px; }
+  .expand-all:hover { background:var(--color-background-secondary); }
+  .summary-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+  .summary-pill { font-size:11px; padding:3px 9px; border-radius:12px; font-weight:500; }
+</style>
+
+<div class="wrap">
+  <h2 style="font-size:0;height:0;overflow:hidden">Java 面试知识点全览</h2>
+  <div class="title-bar">
+    <div style="width:36px;height:36px;border-radius:10px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:20px">☕</div>
+    <h2>Java 面试知识点全览</h2>
+    <button class="expand-all" onclick="toggleAll()">展开全部</button>
+  </div>
+
+  <div class="summary-row">
+    <span class="summary-pill" style="background:#EEEDFE;color:#534AB7">12 大类</span>
+    <span class="summary-pill" style="background:#E1F5EE;color:#0F6E56">涵盖基础 → 架构</span>
+    <span class="summary-pill" style="background:#E6F1FB;color:#185FA5">点击卡片展开小类</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const categories = [
+  {
+    cls:'c1', icon:'🧱', title:'Java 基础',
+    subs:[
+      '数据类型：基本类型 / 包装类 / 自动装箱拆箱',
+      '面向对象：封装 / 继承 / 多态 / 抽象',
+      '接口与抽象类的区别',
+      '关键字：static / final / transient / volatile / synchronized',
+      '异常体系：Checked / Unchecked / 自定义异常',
+      '泛型：类型擦除 / 上下界通配符',
+      '枚举 / 注解（Annotation）原理',
+      '反射机制：Class / Method / Field / Constructor',
+      '内部类：静态内部类 / 匿名类 / 局部类',
+      'Java 8+ 新特性：Lambda / Stream / Optional / 函数式接口',
+      'Java 9-21 重要特性：模块化 / Record / Sealed class / 虚拟线程',
+    ]
+  },
+  {
+    cls:'c2', icon:'🔗', title:'集合框架',
+    subs:[
+      'Collection 体系：List / Set / Queue / Deque',
+      'Map 体系：HashMap / LinkedHashMap / TreeMap / ConcurrentHashMap',
+      'ArrayList vs LinkedList：数据结构 / 性能对比',
+      'HashMap 原理：数组+链表+红黑树 / 扩容机制 / 负载因子',
+      'HashSet / LinkedHashSet / TreeSet 原理',
+      'ConcurrentHashMap：分段锁 / CAS+synchronized',
+      'ArrayDeque 与 LinkedList 作为栈/队列',
+      'Collections 工具类 / Comparable vs Comparator',
+      '迭代器 Iterator / fail-fast / fail-safe 机制',
+    ]
+  },
+  {
+    cls:'c3', icon:'🧵', title:'并发与多线程',
+    subs:[
+      '线程创建：Thread / Runnable / Callable / Future',
+      '线程池：ThreadPoolExecutor 7 大参数 / 拒绝策略',
+      'Executor 框架：FixedThreadPool / CachedThreadPool / ScheduledThreadPool',
+      'synchronized：偏向锁 / 轻量级锁 / 重量级锁升级',
+      'volatile：可见性 / 禁止指令重排 / happens-before',
+      'Lock 体系：ReentrantLock / ReadWriteLock / StampedLock',
+      'AQS（AbstractQueuedSynchronizer）原理',
+      '并发容器：CopyOnWriteArrayList / BlockingQueue 系列',
+      '原子类：AtomicInteger / LongAdder / AtomicReference',
+      '并发工具：CountDownLatch / CyclicBarrier / Semaphore / Phaser',
+      '死锁：产生条件 / 检测 / 避免',
+      '线程本地变量：ThreadLocal / InheritableThreadLocal',
+      'CompletableFuture 异步编排',
+      'Java 21 虚拟线程（Project Loom）',
+    ]
+  },
+  {
+    cls:'c4', icon:'🏗', title:'JVM 原理',
+    subs:[
+      '内存区域：堆 / 方法区(元空间) / 栈 / PC寄存器 / 本地方法栈',
+      '对象创建过程：类加载检查 / 分配内存 / 初始化 / 设置对象头',
+      '对象内存布局：对象头 / 实例数据 / 对齐填充',
+      '垃圾回收算法：标记-清除 / 复制 / 标记-整理 / 分代收集',
+      'GC 收集器：Serial / Parallel / CMS / G1 / ZGC / Shenandoah',
+      '类加载机制：加载 / 验证 / 准备 / 解析 / 初始化',
+      '双亲委派模型 / 打破双亲委派',
+      'JIT 编译：解释执行 vs 编译执行 / 热点代码',
+      'OOM 类型与排查：堆溢出 / 栈溢出 / 元空间溢出',
+      'JVM 调优参数：-Xmx / -Xms / -XX:+UseG1GC 等',
+      '常用工具：jstack / jmap / jstat / Arthas',
+    ]
+  },
+  {
+    cls:'c5', icon:'🛢', title:'数据库 & SQL',
+    subs:[
+      'MySQL 存储引擎：InnoDB vs MyISAM',
+      '索引：B+ 树原理 / 聚簇索引 / 覆盖索引 / 索引下推',
+      '事务四大特性（ACID）',
+      '隔离级别：读未提交 / 读已提交 / 可重复读 / 串行化',
+      'MVCC 原理：undo log / read view',
+      '锁机制：表锁 / 行锁 / 间隙锁 / Next-Key Lock',
+      '慢查询优化：EXPLAIN 分析 / 索引失效场景',
+      '分库分表：垂直拆分 / 水平拆分 / Sharding-JDBC',
+      'SQL 调优：Join 原理 / 子查询优化',
+      'Redis 数据类型：String / Hash / List / Set / ZSet',
+      'Redis 持久化：RDB / AOF',
+      'Redis 高可用：主从 / 哨兵 / Cluster',
+      '缓存问题：穿透 / 击穿 / 雪崩 / 解决方案',
+      '分布式锁：RedLock / Lua 脚本原子性',
+    ]
+  },
+  {
+    cls:'c6', icon:'🌐', title:'Spring 全家桶',
+    subs:[
+      'Spring IOC：BeanFactory / ApplicationContext / Bean 生命周期',
+      'Spring AOP：JDK 动态代理 vs CGLIB / 切点 / 切面',
+      'Spring 事务：传播行为 / 隔离级别 / @Transactional 失效场景',
+      'Spring MVC：DispatcherServlet 请求处理流程',
+      'Spring Boot：自动配置原理 / @EnableAutoConfiguration / SPI',
+      'Spring Boot Starter 自定义',
+      'Spring Cloud：服务注册发现 / 负载均衡 / 网关 / 熔断',
+      'Nacos / Eureka / Consul 区别',
+      'Feign / OpenFeign 原理',
+      'Sentinel / Hystrix 熔断降级',
+      'Spring Security：认证 / 授权 / JWT',
+      'MyBatis：一级缓存 / 二级缓存 / 插件机制',
+      'MyBatis-Plus 常见用法',
+    ]
+  },
+  {
+    cls:'c7', icon:'🔀', title:'分布式 & 微服务',
+    subs:[
+      'CAP 定理 / BASE 理论',
+      '分布式事务：2PC / 3PC / TCC / SAGA / Seata',
+      'RPC 框架：Dubbo 架构 / gRPC / Thrift',
+      '服务注册发现原理',
+      '配置中心：Nacos Config / Apollo',
+      '消息队列：Kafka / RocketMQ / RabbitMQ 对比',
+      'Kafka：分区 / 副本 / Consumer Group / 消息顺序性',
+      'RocketMQ：事务消息 / 延迟消息 / 消息幂等',
+      '分布式 ID：雪花算法 / Leaf / UUID',
+      'API 网关：限流 / 鉴权 / 灰度发布',
+      '链路追踪：SkyWalking / Zipkin',
+      '幂等性设计方案',
+    ]
+  },
+  {
+    cls:'c8', icon:'🖧', title:'网络与 IO',
+    subs:[
+      'TCP/IP 四层模型 / OSI 七层模型',
+      'TCP 三次握手 / 四次挥手',
+      'TCP 可靠传输：滑动窗口 / 拥塞控制 / 重传机制',
+      'HTTP 1.0 / 1.1 / 2.0 / 3.0 区别',
+      'HTTPS：TLS 握手过程 / 证书链',
+      'BIO / NIO / AIO 区别',
+      'Netty：NIO 框架 / EventLoop / Pipeline / Handler',
+      'Selector / Channel / Buffer 核心概念',
+      'WebSocket 协议原理',
+      'DNS 解析过程',
+    ]
+  },
+  {
+    cls:'c9', icon:'🧩', title:'数据结构与算法',
+    subs:[
+      '常用数据结构：数组 / 链表 / 栈 / 队列 / 哈希表 / 树 / 图',
+      '排序算法：快排 / 归并 / 堆排 / 时间复杂度',
+      '二叉树：前中后序遍历 / 层序遍历 / BST / AVL / 红黑树',
+      '动态规划：背包 / LCS / 最长递增子序列',
+      '贪心算法经典题',
+      '双指针 / 滑动窗口 / 二分查找',
+      'BFS / DFS / 回溯',
+      '堆（优先队列）应用',
+      'LeetCode 高频题型归纳',
+    ]
+  },
+  {
+    cls:'c10', icon:'🔒', title:'设计模式',
+    subs:[
+      '创建型：单例 / 工厂 / 抽象工厂 / 建造者 / 原型',
+      '结构型：代理 / 装饰器 / 适配器 / 外观 / 组合 / 享元 / 桥接',
+      '行为型：观察者 / 策略 / 模板方法 / 责任链 / 命令 / 状态 / 迭代器',
+      '单例模式：饿汉 / 懒汉 / 双重检查锁 / 枚举单例',
+      '代理模式：静态代理 / JDK动态代理 / CGLIB',
+      '工厂模式：简单工厂 / 工厂方法 / 抽象工厂',
+      'Spring 中设计模式的应用',
+      '六大设计原则（SOLID + 迪米特）',
+    ]
+  },
+  {
+    cls:'c11', icon:'☸️', title:'云原生 & 运维',
+    subs:[
+      'Docker：镜像 / 容器 / Dockerfile / 网络模式',
+      'Kubernetes：Pod / Deployment / Service / Ingress',
+      'K8s 核心组件：APIServer / Scheduler / etcd / kubelet',
+      'CI/CD：Jenkins / GitHub Actions / ArgoCD',
+      '服务网格：Istio / Envoy',
+      'Linux 常用命令：ps / top / netstat / awk / grep',
+      '日志系统：ELK（Elasticsearch + Logstash + Kibana）',
+      '监控告警：Prometheus + Grafana',
+    ]
+  },
+  {
+    cls:'c12', icon:'📐', title:'系统设计 & 场景题',
+    subs:[
+      '短链接系统设计',
+      '秒杀系统设计：限流 / 库存扣减 / 消息队列削峰',
+      '分布式缓存系统设计',
+      '消息推送系统（Feed 流）',
+      '海量数据处理：位图 / 布隆过滤器 / 分治',
+      '排行榜设计（Redis ZSet）',
+      '支付系统设计：幂等 / 分布式事务',
+      '搜索系统：Elasticsearch 原理 / 倒排索引',
+      '高可用设计：降级 / 限流 / 熔断 / 超时重试',
+      '数据库选型：关系型 vs NoSQL vs NewSQL',
+    ]
+  },
+];
+
+let allOpen = false;
+
+function toggleAll() {
+  allOpen = !allOpen;
+  document.querySelectorAll('.card-body').forEach(b => b.classList.toggle('open', allOpen));
+  document.querySelectorAll('.chevron').forEach(c => c.classList.toggle('open', allOpen));
+  document.querySelector('.expand-all').textContent = allOpen ? '收起全部' : '展开全部';
+}
+
+function toggle(idx) {
+  const body = document.getElementById('body-'+idx);
+  const ch = document.getElementById('ch-'+idx);
+  body.classList.toggle('open');
+  ch.classList.toggle('open');
+}
+
+const grid = document.getElementById('grid');
+categories.forEach((cat, i) => {
+  const card = document.createElement('div');
+  card.className = 'card ' + cat.cls;
+  card.innerHTML = `
+    <div class="card-header" onclick="toggle(${i})">
+      <div class="card-icon">${cat.icon}</div>
+      <div class="card-title">${cat.title}</div>
+      <span class="card-count">${cat.subs.length} 项</span>
+      <span class="chevron" id="ch-${i}">▼</span>
+    </div>
+    <div class="card-body" id="body-${i}">
+      <ul class="sub-list">
+        ${cat.subs.map(s => `<li><span class="dot"></span><span>${s}</span></li>`).join('')}
+      </ul>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+
+</body>
+</html>

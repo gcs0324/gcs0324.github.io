@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeetCode · Java 数据结构 &amp; API 速查</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--tx); font-family:'Sora',sans-serif; line-height:1.6; }
+
+header {
+  padding:50px 64px 34px; border-bottom:1px solid var(--bd);
+  position:relative; overflow:hidden;
+}
+header::before {
+  content:'LEETCODE'; position:absolute; right:40px; top:50%; transform:translateY(-50%);
+  font-family:'IBM Plex Mono',monospace; font-size:110px; font-weight:500;
+  color:var(--watermark); letter-spacing:-0.04em; pointer-events:none;
+}
+.htag {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.07em;
+  color:var(--blue); background:var(--blue-bg); border:1px solid var(--blue-b);
+  border-radius:3px; padding:3px 8px; display:inline-block; margin-bottom:14px;
+}
+h1 { font-size:32px; font-weight:700; letter-spacing:-0.03em; color:var(--tx); margin-bottom:8px; }
+.subtitle { font-size:13px; color:var(--tx2); max-width:560px; }
+
+nav {
+  padding:0 64px; border-bottom:1px solid var(--bd);
+  display:flex; gap:0; overflow-x:auto; flex-wrap:wrap;
+}
+nav a {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3);
+  text-decoration:none; padding:12px 14px; border-bottom:2px solid transparent;
+  white-space:nowrap; transition:color .15s,border-color .15s; letter-spacing:0.03em;
+}
+nav a:hover { color:var(--tx); border-color:var(--bd2); }
+
+main { padding:48px 64px; max-width:1080px; }
+
+.sec {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3);
+  letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:22px; margin-top:60px;
+  padding-bottom:10px; border-bottom:1px solid var(--bd);
+}
+.sec:first-child { margin-top:0; }
+
+/* ── DS Block ── */
+.ds {
+  background:var(--bg2); border:1px solid var(--bd);
+  border-radius:14px; overflow:hidden; margin-bottom:4px;
+}
+.ds-head { padding:24px 28px 0; }
+.ds-meta { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.ds-badge {
+  font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:500;
+  padding:4px 11px; border-radius:6px; border:1px solid; flex-shrink:0;
+}
+.ds-name { font-size:18px; font-weight:700; }
+.ds-sub  { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3); margin-top:2px; }
+
+/* init line */
+.init-box {
+  background:rgba(255,255,255,0.03); border:1px solid var(--bd);
+  border-radius:6px; padding:9px 14px; margin-bottom:16px;
+  font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--tx2);
+  line-height:1.7;
+}
+.init-box .kw  { color:var(--purple); }
+.init-box .tp  { color:var(--blue); }
+.init-box .cm  { color:var(--tx3); }
+
+/* body: two cols */
+.ds-body {
+  border-top:1px solid var(--bd); margin-top:16px;
+  display:grid; grid-template-columns:1fr 1fr; gap:0;
+}
+.ds-col { padding:20px 28px; border-right:1px solid var(--bd); }
+.ds-col:last-child { border-right:none; }
+.col-t {
+  font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3);
+  letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;
+}
+
+/* method table */
+.mtbl { width:100%; border-collapse:collapse; }
+.mtbl tr { border-bottom:1px solid var(--bd); }
+.mtbl tr:last-child { border-bottom:none; }
+.mtbl tr:hover td { background:rgba(255,255,255,0.015); }
+.mtbl td { padding:7px 0; vertical-align:top; font-size:12px; line-height:1.6; }
+.mtbl td:first-child {
+  font-family:'IBM Plex Mono',monospace; font-size:12px;
+  padding-right:14px; white-space:nowrap; width:1%;
+}
+.mtbl td:last-child { color:var(--tx2); }
+
+.cx { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx3); background:rgba(255,255,255,0.04); border:1px solid var(--bd); border-radius:3px; padding:1px 5px; white-space:nowrap; }
+
+/* patterns */
+.pat-list { display:flex; flex-direction:column; gap:8px; }
+.pat { }
+.pat-name { font-size:12px; font-weight:500; color:var(--tx); margin-bottom:3px; }
+.pat-code {
+  font-family:'IBM Plex Mono',monospace; font-size:11px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--bd);
+  border-radius:5px; padding:8px 12px; color:var(--tx2); line-height:1.7;
+  white-space:pre;
+}
+.kw  { color:var(--purple); }
+.tp  { color:var(--blue); }
+.cm  { color:var(--tx3); }
+.str { color:var(--green); }
+.num { color:var(--orange); }
+.fn  { color:var(--yellow); }
+
+/* scene chips */
+.chips { display:flex; flex-wrap:wrap; gap:6px; padding:14px 28px; border-top:1px solid var(--bd); }
+.chip {
+  font-size:11px; padding:3px 9px; border-radius:20px;
+  background:rgba(255,255,255,0.04); color:var(--tx2); border:1px solid var(--bd);
+}
+
+/* color themes */
+.c-red    { --ac:var(--red);    --ac-bg:var(--red-bg);    --ac-b:var(--red-b); }
+.c-orange { --ac:var(--orange); --ac-bg:var(--orange-bg); --ac-b:var(--orange-b); }
+.c-yellow { --ac:var(--yellow); --ac-bg:var(--yellow-bg); --ac-b:var(--yellow-b); }
+.c-green  { --ac:var(--green);  --ac-bg:var(--green-bg);  --ac-b:var(--green-b); }
+.c-blue   { --ac:var(--blue);   --ac-bg:var(--blue-bg);   --ac-b:var(--blue-b); }
+.c-purple { --ac:var(--purple); --ac-bg:var(--purple-bg); --ac-b:var(--purple-b); }
+.c-pink   { --ac:var(--pink);   --ac-bg:var(--pink-bg);   --ac-b:var(--pink-b); }
+.c-teal   { --ac:var(--teal);   --ac-bg:var(--teal-bg);   --ac-b:var(--teal-b); }
+.c-amber  { --ac:var(--amber);  --ac-bg:var(--amber-bg);  --ac-b:var(--amber-b); }
+
+.ds .ds-badge { background:var(--ac-bg); color:var(--ac); border-color:var(--ac-b); }
+.ds .ds-name  { color:var(--ac); }
+.ds .mtbl td:first-child { color:var(--ac); }
+
+/* ── Tip / Note box ── */
+.note {
+  margin-top:16px; background:rgba(76,201,240,0.05);
+  border:1px solid rgba(76,201,240,0.15); border-radius:8px;
+  padding:14px 18px; display:flex; gap:10px; align-items:flex-start;
+}
+.note-icon {
+  font-family:'IBM Plex Mono',monospace; font-size:10px;
+  color:var(--blue); background:var(--blue-bg); border:1px solid var(--blue-b);
+  border-radius:3px; padding:2px 6px; flex-shrink:0; margin-top:2px;
+}
+.note p { font-size:12px; color:var(--tx2); line-height:1.75; }
+.note strong { color:var(--tx); font-weight:500; }
+code { font-family:'IBM Plex Mono',monospace; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid var(--bd); border-radius:3px; padding:1px 5px; color:var(--tx); }
+
+/* ── complexity table ── */
+.ctbl-wrap { background:var(--bg2); border:1px solid var(--bd); border-radius:12px; overflow:hidden; }
+table.ctbl { width:100%; border-collapse:collapse; font-size:12px; }
+table.ctbl th {
+  font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:500; color:var(--tx3);
+  text-align:left; padding:9px 14px; border-bottom:1px solid var(--bd); letter-spacing:0.05em;
+}
+table.ctbl td { padding:9px 14px; border-bottom:1px solid var(--bd); color:var(--tx2); vertical-align:middle; }
+table.ctbl tr:last-child td { border-bottom:none; }
+table.ctbl tr:hover td { background:rgba(255,255,255,0.015); }
+table.ctbl td:first-child { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--tx); white-space:nowrap; }
+table.ctbl td:nth-child(2) { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--green); }
+table.ctbl td:nth-child(3) { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--orange); }
+
+.on  { color:var(--green)  !important; }
+.ologn { color:var(--blue) !important; }
+.o1  { color:var(--teal)   !important; }
+.on2 { color:var(--red)    !important; }
+
+footer { padding:22px 64px; border-top:1px solid var(--bd); display:flex; justify-content:space-between; align-items:center; }
+footer span { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3); }
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="htag">ALGORITHM · JAVA</div>
+  <h1>LeetCode Java 数据结构 &amp; API 速查</h1>
+  <p class="subtitle">LeetCode 刷题常用数据结构、Java 接口方法与典型代码模板，覆盖数组、链表、栈、队列、堆、哈希、树、图、并查集、字典树。</p>
+</header>
+
+<nav>
+  <a href="#array">Array</a>
+  <a href="#string">String</a>
+  <a href="#linked">LinkedList</a>
+  <a href="#stack">Stack / Deque</a>
+  <a href="#queue">Queue / PQ</a>
+  <a href="#map">HashMap</a>
+  <a href="#set">HashSet</a>
+  <a href="#treemap">TreeMap</a>
+  <a href="#graph">Graph</a>
+  <a href="#uf">Union-Find</a>
+  <a href="#trie">Trie</a>
+  <a href="#bits">位运算</a>
+  <a href="#cplx">复杂度速查</a>
+</nav>
+
+<main>
+
+<!-- ══ ARRAY ══ -->
+<div class="sec" id="array">01 · Array &amp; ArrayList</div>
+<div class="ds c-blue">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">ARR</div>
+      <div>
+        <div class="ds-name">Array / ArrayList</div>
+        <div class="ds-sub">随机访问 O(1) · 连续内存 · 最高频使用</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="kw">int</span>[] a = <span class="kw">new int</span>[n];　　　　　　　　　　　　　<span class="cm">// 固定长度数组</span>
+<span class="tp">int</span>[] a = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};　　　　　　　　　　　　　<span class="cm">// 字面量初始化</span>
+<span class="tp">List</span>&lt;<span class="tp">Integer</span>&gt; list = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();　　<span class="cm">// 动态数组</span>
+<span class="tp">List</span>&lt;<span class="tp">Integer</span>&gt; list = <span class="tp">Arrays</span>.<span class="fn">asList</span>(<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>);　<span class="cm">// 固定大小 List（不可 add/remove）</span>
+<span class="tp">int</span>[][] grid = <span class="kw">new int</span>[m][n];　　　　　　　　　<span class="cm">// 二维数组</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">常用方法</div>
+      <table class="mtbl">
+        <tr><td>Arrays.sort(a)</td><td>原地排序，基础类型用双轴快排，对象用 TimSort <span class="cx">O(n log n)</span></td></tr>
+        <tr><td>Arrays.sort(a, (x,y)-&gt;y-x)</td><td>自定义比较器（只支持对象数组）</td></tr>
+        <tr><td>Arrays.fill(a, val)</td><td>填充数组，常用于初始化 dp 数组</td></tr>
+        <tr><td>Arrays.copyOf(a, len)</td><td>复制数组，长度不同时截断或补零</td></tr>
+        <tr><td>Arrays.copyOfRange(a, from, to)</td><td>复制子数组，左闭右开</td></tr>
+        <tr><td>Arrays.binarySearch(a, key)</td><td>二分查找，数组必须有序，返回下标或负值</td></tr>
+        <tr><td>Collections.sort(list)</td><td>排序 List，支持 Comparator</td></tr>
+        <tr><td>Collections.reverse(list)</td><td>反转 List</td></tr>
+        <tr><td>Collections.max / min</td><td>求最大/最小值</td></tr>
+        <tr><td>list.subList(from, to)</td><td>子列表视图，左闭右开，修改会影响原 list</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">常见模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">双指针</div>
+          <div class="pat-code"><span class="kw">int</span> l = <span class="num">0</span>, r = a.length - <span class="num">1</span>;
+<span class="kw">while</span> (l &lt; r) {
+    <span class="cm">// 根据条件移动 l 或 r</span>
+    <span class="kw">if</span> (condition) l++;
+    <span class="kw">else</span> r--;
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">前缀和</div>
+          <div class="pat-code"><span class="kw">int</span>[] pre = <span class="kw">new int</span>[n + <span class="num">1</span>];
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++)
+    pre[i+<span class="num">1</span>] = pre[i] + a[i];
+<span class="cm">// 区间 [l,r] 之和</span>
+<span class="kw">int</span> sum = pre[r+<span class="num">1</span>] - pre[l];</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">滑动窗口</div>
+          <div class="pat-code"><span class="kw">int</span> l = <span class="num">0</span>, ans = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; n; r++) {
+    <span class="cm">// 加入 a[r]</span>
+    <span class="kw">while</span> (invalid) { <span class="cm">// 收缩左边</span>
+        <span class="cm">// 移出 a[l]</span>
+        l++;
+    }
+    ans = Math.<span class="fn">max</span>(ans, r - l + <span class="num">1</span>);
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">两数之和</span><span class="chip">三数之和</span><span class="chip">接雨水</span>
+    <span class="chip">最长不重复子串</span><span class="chip">子数组最大和</span><span class="chip">区间问题</span>
+  </div>
+</div>
+
+<!-- ══ STRING ══ -->
+<div class="sec" id="string">02 · String &amp; StringBuilder</div>
+<div class="ds c-green">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">STR</div>
+      <div>
+        <div class="ds-name">String / StringBuilder</div>
+        <div class="ds-sub">不可变字符串 / 可变缓冲区 · 拼接必用 SB</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="tp">String</span> s = <span class="str">"hello"</span>;
+<span class="tp">char</span>[] cs = s.<span class="fn">toCharArray</span>();　　　　　　　<span class="cm">// 转字符数组便于操作</span>
+<span class="tp">StringBuilder</span> sb = <span class="kw">new</span> <span class="tp">StringBuilder</span>();
+<span class="tp">StringBuilder</span> sb = <span class="kw">new</span> <span class="tp">StringBuilder</span>(s);　<span class="cm">// 从字符串初始化</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">String 方法</div>
+      <table class="mtbl">
+        <tr><td>s.charAt(i)</td><td>获取第 i 个字符，O(1)</td></tr>
+        <tr><td>s.length()</td><td>字符串长度</td></tr>
+        <tr><td>s.substring(l, r)</td><td>截取 [l, r) 子串，O(n)</td></tr>
+        <tr><td>s.indexOf(t)</td><td>子串位置，-1 表示不存在</td></tr>
+        <tr><td>s.contains(t)</td><td>是否包含子串</td></tr>
+        <tr><td>s.startsWith / endsWith</td><td>前缀/后缀判断</td></tr>
+        <tr><td>s.split(regex)</td><td>按正则分割，返回 String[]</td></tr>
+        <tr><td>s.trim()</td><td>去除首尾空格</td></tr>
+        <tr><td>s.toLowerCase / toUpperCase</td><td>大小写转换</td></tr>
+        <tr><td>s.toCharArray()</td><td>转 char[]，便于原地修改</td></tr>
+        <tr><td>String.valueOf(x)</td><td>数字转字符串</td></tr>
+        <tr><td>Integer.parseInt(s)</td><td>字符串转整数</td></tr>
+        <tr><td>String.join(",", list)</td><td>拼接集合，指定分隔符</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">StringBuilder 方法 &amp; 模板</div>
+      <table class="mtbl">
+        <tr><td>sb.append(x)</td><td>追加任意类型，链式调用</td></tr>
+        <tr><td>sb.insert(i, x)</td><td>在位置 i 插入</td></tr>
+        <tr><td>sb.delete(l, r)</td><td>删除 [l, r) 范围</td></tr>
+        <tr><td>sb.deleteCharAt(i)</td><td>删除第 i 个字符</td></tr>
+        <tr><td>sb.reverse()</td><td>反转，O(n)</td></tr>
+        <tr><td>sb.charAt(i) / setCharAt</td><td>读/写单个字符</td></tr>
+        <tr><td>sb.toString()</td><td>转 String</td></tr>
+        <tr><td>sb.length()</td><td>当前长度</td></tr>
+      </table>
+      <div class="pat" style="margin-top:12px">
+        <div class="pat-name">回溯构造字符串</div>
+        <div class="pat-code"><span class="kw">void</span> <span class="fn">dfs</span>(<span class="tp">StringBuilder</span> sb) {
+    <span class="kw">if</span> (done) { res.<span class="fn">add</span>(sb.<span class="fn">toString</span>()); <span class="kw">return</span>; }
+    sb.<span class="fn">append</span>(ch);
+    <span class="fn">dfs</span>(sb);
+    sb.<span class="fn">deleteCharAt</span>(sb.<span class="fn">length</span>()-<span class="num">1</span>); <span class="cm">// 回溯</span>
+}</div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">回文串判断</span><span class="chip">异位词</span><span class="chip">括号生成</span>
+    <span class="chip">字符串压缩</span><span class="chip">KMP / 滑窗匹配</span>
+  </div>
+</div>
+
+<!-- ══ LINKEDLIST ══ -->
+<div class="sec" id="linked">03 · LinkedList &amp; 链表节点</div>
+<div class="ds c-orange">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">LNK</div>
+      <div>
+        <div class="ds-name">LinkedList / ListNode</div>
+        <div class="ds-sub">LeetCode 链表题用自定义节点 · Java LinkedList 兼作 Deque</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="cm">// LeetCode 标准节点定义</span>
+<span class="kw">class</span> <span class="tp">ListNode</span> {
+    <span class="kw">int</span> val;
+    <span class="tp">ListNode</span> next;
+    <span class="tp">ListNode</span>(<span class="kw">int</span> val) { <span class="kw">this</span>.val = val; }
+}
+<span class="cm">// 带哨兵头节点（处理边界最方便）</span>
+<span class="tp">ListNode</span> dummy = <span class="kw">new</span> <span class="tp">ListNode</span>(<span class="num">0</span>);
+dummy.next = head;
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">常见操作</div>
+      <table class="mtbl">
+        <tr><td>遍历</td><td><code>for (ListNode p = head; p != null; p = p.next)</code></td></tr>
+        <tr><td>插入节点</td><td><code>newNode.next = p.next; p.next = newNode;</code></td></tr>
+        <tr><td>删除节点</td><td><code>p.next = p.next.next;</code>（p 为前驱）</td></tr>
+        <tr><td>反转链表</td><td>三指针：pre / cur / next 迭代反转</td></tr>
+        <tr><td>找中点</td><td>快慢指针：slow 每次走 1，fast 走 2</td></tr>
+        <tr><td>判断环</td><td>快慢指针相遇即有环（Floyd 判圈）</td></tr>
+        <tr><td>环入口</td><td>相遇后一指针回 head，同步走再次相遇处即入口</td></tr>
+        <tr><td>合并有序链表</td><td>双指针比较，dummy 头串联</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">常见模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">反转链表（迭代）</div>
+          <div class="pat-code"><span class="tp">ListNode</span> pre = <span class="kw">null</span>, cur = head;
+<span class="kw">while</span> (cur != <span class="kw">null</span>) {
+    <span class="tp">ListNode</span> nxt = cur.next;
+    cur.next = pre;
+    pre = cur; cur = nxt;
+}
+<span class="kw">return</span> pre;</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">快慢指针找中点</div>
+          <div class="pat-code"><span class="tp">ListNode</span> slow = head, fast = head;
+<span class="kw">while</span> (fast != <span class="kw">null</span> &amp;&amp; fast.next != <span class="kw">null</span>) {
+    slow = slow.next;
+    fast = fast.next.next;
+}
+<span class="cm">// slow 即中点</span></div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">删除倒数第 N 个节点</div>
+          <div class="pat-code"><span class="tp">ListNode</span> dummy = <span class="kw">new</span> <span class="tp">ListNode</span>(<span class="num">0</span>);
+dummy.next = head;
+<span class="tp">ListNode</span> fast = dummy, slow = dummy;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt;= n; i++) fast = fast.next;
+<span class="kw">while</span> (fast != <span class="kw">null</span>) { slow=slow.next; fast=fast.next; }
+slow.next = slow.next.next;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">反转链表</span><span class="chip">环形链表</span><span class="chip">合并 K 个链表</span>
+    <span class="chip">回文链表</span><span class="chip">LRU 缓存</span>
+  </div>
+</div>
+
+<!-- ══ STACK ══ -->
+<div class="sec" id="stack">04 · Stack / Deque（单调栈）</div>
+<div class="ds c-red">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">STK</div>
+      <div>
+        <div class="ds-name">Stack / Deque</div>
+        <div class="ds-sub">推荐用 ArrayDeque 代替 Stack（无同步开销）</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="tp">Deque</span>&lt;<span class="tp">Integer</span>&gt; stack = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();  <span class="cm">// 栈（用 Deque 模拟）</span>
+<span class="tp">Deque</span>&lt;<span class="tp">Integer</span>&gt; dq    = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();  <span class="cm">// 双端队列</span>
+<span class="tp">Deque</span>&lt;<span class="tp">Integer</span>&gt; mono  = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();  <span class="cm">// 单调栈</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">Deque API（当作栈使用）</div>
+      <table class="mtbl">
+        <tr><td>push(x) / offerFirst</td><td>压栈（头部插入）</td></tr>
+        <tr><td>pop() / pollFirst</td><td>弹栈（头部弹出），空时 pop 抛异常，poll 返 null</td></tr>
+        <tr><td>peek() / peekFirst</td><td>查看栈顶，不弹出</td></tr>
+        <tr><td>offerLast / pollLast</td><td>尾部操作，当作队列时使用</td></tr>
+        <tr><td>isEmpty()</td><td>判空</td></tr>
+        <tr><td>size()</td><td>元素数量</td></tr>
+      </table>
+      <div class="note" style="margin-top:12px">
+        <span class="note-icon">NOTE</span>
+        <p>LeetCode 中 <strong>Stack 类已过时</strong>，用 <code>Deque&lt;T&gt; st = new ArrayDeque&lt;&gt;()</code>，push/pop/peek 语义不变。</p>
+      </div>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">单调栈模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">下一个更大元素（单调递减栈）</div>
+          <div class="pat-code"><span class="kw">int</span>[] ans = <span class="kw">new int</span>[n];
+<span class="tp">Arrays</span>.<span class="fn">fill</span>(ans, -<span class="num">1</span>);
+<span class="tp">Deque</span>&lt;<span class="tp">Integer</span>&gt; st = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+    <span class="kw">while</span> (!st.<span class="fn">isEmpty</span>() &amp;&amp; a[st.<span class="fn">peek</span>()] &lt; a[i]) {
+        ans[st.<span class="fn">pop</span>()] = a[i];
+    }
+    st.<span class="fn">push</span>(i);
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">括号合法性验证</div>
+          <div class="pat-code"><span class="tp">Deque</span>&lt;<span class="tp">Character</span>&gt; st = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">char</span> c : s.<span class="fn">toCharArray</span>()) {
+    <span class="kw">if</span> (c == <span class="str">'('</span>) st.<span class="fn">push</span>(c);
+    <span class="kw">else if</span> (st.<span class="fn">isEmpty</span>()) <span class="kw">return false</span>;
+    <span class="kw">else</span> st.<span class="fn">pop</span>();
+}
+<span class="kw">return</span> st.<span class="fn">isEmpty</span>();</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">下一个更大元素</span><span class="chip">柱状图最大矩形</span>
+    <span class="chip">括号匹配</span><span class="chip">每日温度</span><span class="chip">接雨水</span>
+  </div>
+</div>
+
+<!-- ══ QUEUE / PQ ══ -->
+<div class="sec" id="queue">05 · Queue / PriorityQueue（堆）</div>
+<div class="ds c-yellow">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">PQ</div>
+      <div>
+        <div class="ds-name">Queue / PriorityQueue</div>
+        <div class="ds-sub">BFS 用 Queue · 贪心 / Top-K 用 PQ（默认小根堆）</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="tp">Queue</span>&lt;<span class="tp">Integer</span>&gt; q  = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();　　　　　 <span class="cm">// BFS 队列</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; minH = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;();　<span class="cm">// 小根堆（默认）</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; maxH = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;((a,b) -&gt; b - a); <span class="cm">// 大根堆</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="kw">int</span>[]&gt;  pq   = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;((a,b) -&gt; a[<span class="num">1</span>] - b[<span class="num">1</span>]); <span class="cm">// 按第二元素排</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">API</div>
+      <table class="mtbl">
+        <tr><td>offer(x) / add(x)</td><td>入队 / 入堆，offer 失败返 false，add 抛异常</td></tr>
+        <tr><td>poll() / remove()</td><td>出队 / 出堆（最小元素），空时 poll 返 null</td></tr>
+        <tr><td>peek() / element()</td><td>查看堆顶，不弹出</td></tr>
+        <tr><td>isEmpty() / size()</td><td>判空 / 大小</td></tr>
+        <tr><td>contains(x)</td><td>O(n) 查找，PQ 不支持 O(1) 查找</td></tr>
+      </table>
+      <div class="note" style="margin-top:12px">
+        <span class="note-icon">NOTE</span>
+        <p>PriorityQueue <strong>不保证整体有序</strong>，只保证堆顶最小/最大。迭代顺序不是排序顺序，需要 poll 才能逐个取出。</p>
+      </div>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">常见模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">BFS 层序遍历</div>
+          <div class="pat-code"><span class="tp">Queue</span>&lt;<span class="tp">TreeNode</span>&gt; q = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();
+q.<span class="fn">offer</span>(root);
+<span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+    <span class="kw">int</span> sz = q.<span class="fn">size</span>();　<span class="cm">// 当前层节点数</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; sz; i++) {
+        <span class="tp">TreeNode</span> node = q.<span class="fn">poll</span>();
+        <span class="kw">if</span> (node.left  != <span class="kw">null</span>) q.<span class="fn">offer</span>(node.left);
+        <span class="kw">if</span> (node.right != <span class="kw">null</span>) q.<span class="fn">offer</span>(node.right);
+    }
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">Top-K 最大元素（小根堆维护）</div>
+          <div class="pat-code"><span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; pq = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span> x : nums) {
+    pq.<span class="fn">offer</span>(x);
+    <span class="kw">if</span> (pq.<span class="fn">size</span>() &gt; k) pq.<span class="fn">poll</span>(); <span class="cm">// 弹出最小</span>
+}
+<span class="cm">// pq 中剩余 k 个最大元素</span></div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">Dijkstra 最短路</div>
+          <div class="pat-code"><span class="tp">PriorityQueue</span>&lt;<span class="kw">int</span>[]&gt; pq =
+    <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;((a,b) -&gt; a[<span class="num">1</span>]-b[<span class="num">1</span>]);
+pq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{src, <span class="num">0</span>});
+<span class="kw">while</span> (!pq.<span class="fn">isEmpty</span>()) {
+    <span class="kw">int</span>[] cur = pq.<span class="fn">poll</span>();
+    <span class="cm">// 松弛邻居...</span>
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">BFS 最短路</span><span class="chip">Top-K 频率</span><span class="chip">合并 K 个有序链表</span>
+    <span class="chip">Dijkstra</span><span class="chip">数据流中位数（双堆）</span>
+  </div>
+</div>
+
+<!-- ══ HASHMAP ══ -->
+<div class="sec" id="map">06 · HashMap / LinkedHashMap</div>
+<div class="ds c-teal">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">MAP</div>
+      <div>
+        <div class="ds-name">HashMap / LinkedHashMap</div>
+        <div class="ds-sub">O(1) 读写 · 频率统计 · 记忆化搜索核心</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="tp">Map</span>&lt;<span class="tp">Integer</span>, <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+<span class="tp">Map</span>&lt;<span class="tp">String</span>,  <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+<span class="tp">Map</span>&lt;<span class="tp">Integer</span>, <span class="tp">List</span>&lt;<span class="tp">Integer</span>&gt;&gt; graph = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;(); <span class="cm">// 邻接表</span>
+<span class="tp">Map</span>&lt;<span class="tp">Integer</span>, <span class="tp">Integer</span>&gt; lru = <span class="kw">new</span> <span class="tp">LinkedHashMap</span>&lt;&gt;();   <span class="cm">// 保序</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">API</div>
+      <table class="mtbl">
+        <tr><td>put(k, v)</td><td>插入/更新，返回旧值（无则 null）</td></tr>
+        <tr><td>get(k)</td><td>取值，key 不存在返回 null</td></tr>
+        <tr><td>getOrDefault(k, def)</td><td>取值，不存在返回默认值（最常用）</td></tr>
+        <tr><td>containsKey(k)</td><td>是否含 key</td></tr>
+        <tr><td>remove(k)</td><td>删除并返回 value</td></tr>
+        <tr><td>putIfAbsent(k, v)</td><td>key 不存在才放入</td></tr>
+        <tr><td>merge(k, 1, Integer::sum)</td><td>计数神器：不存在放 1，存在则加 1</td></tr>
+        <tr><td>computeIfAbsent(k, f)</td><td>key 不存在时用 f 生成 value（建邻接表）</td></tr>
+        <tr><td>keySet() / values()</td><td>所有 key / 所有 value 集合</td></tr>
+        <tr><td>entrySet()</td><td>遍历 Map.Entry，同时取 k 和 v</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">常见模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">频率统计（三种写法）</div>
+          <div class="pat-code"><span class="cm">// 写法 1：getOrDefault</span>
+map.<span class="fn">put</span>(x, map.<span class="fn">getOrDefault</span>(x, <span class="num">0</span>) + <span class="num">1</span>);
+<span class="cm">// 写法 2：merge（最简）</span>
+map.<span class="fn">merge</span>(x, <span class="num">1</span>, <span class="tp">Integer</span>::sum);
+<span class="cm">// 写法 3：computeIfAbsent</span>
+map.<span class="fn">computeIfAbsent</span>(x, k -> <span class="num">0</span>);
+map.<span class="fn">put</span>(x, map.<span class="fn">get</span>(x) + <span class="num">1</span>);</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">建邻接表</div>
+          <div class="pat-code"><span class="tp">Map</span>&lt;<span class="tp">Integer</span>, <span class="tp">List</span>&lt;<span class="tp">Integer</span>&gt;&gt; g = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span>[] e : edges) {
+    g.<span class="fn">computeIfAbsent</span>(e[<span class="num">0</span>], k -> <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;()).<span class="fn">add</span>(e[<span class="num">1</span>]);
+    g.<span class="fn">computeIfAbsent</span>(e[<span class="num">1</span>], k -> <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;()).<span class="fn">add</span>(e[<span class="num">0</span>]);
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">遍历 entrySet</div>
+          <div class="pat-code"><span class="kw">for</span> (<span class="tp">Map.Entry</span>&lt;<span class="tp">String</span>, <span class="tp">Integer</span>&gt; e : map.<span class="fn">entrySet</span>()) {
+    <span class="tp">String</span> k = e.<span class="fn">getKey</span>();
+    <span class="kw">int</span>    v = e.<span class="fn">getValue</span>();
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">两数之和</span><span class="chip">字母异位词分组</span><span class="chip">最长连续序列</span>
+    <span class="chip">记忆化 DFS</span><span class="chip">前缀和 + Map</span><span class="chip">LRU 缓存</span>
+  </div>
+</div>
+
+<!-- ══ HASHSET ══ -->
+<div class="sec" id="set">07 · HashSet</div>
+<div class="ds c-purple">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">SET</div>
+      <div>
+        <div class="ds-name">HashSet / LinkedHashSet</div>
+        <div class="ds-sub">O(1) 去重 · 快速判断是否存在</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="tp">Set</span>&lt;<span class="tp">Integer</span>&gt; set = <span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;();
+<span class="tp">Set</span>&lt;<span class="tp">Integer</span>&gt; set = <span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;(<span class="tp">Arrays</span>.<span class="fn">asList</span>(<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>)); <span class="cm">// 初始化</span>
+<span class="tp">Set</span>&lt;<span class="tp">String</span>&gt;  vis = <span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;();　　　　　　　　　　　 <span class="cm">// BFS 访问标记</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">API</div>
+      <table class="mtbl">
+        <tr><td>add(x)</td><td>添加元素，已存在返回 false</td></tr>
+        <tr><td>contains(x)</td><td>O(1) 判断是否存在，最核心用法</td></tr>
+        <tr><td>remove(x)</td><td>删除元素，不存在返回 false</td></tr>
+        <tr><td>size() / isEmpty()</td><td>大小 / 判空</td></tr>
+        <tr><td>set.stream().sorted()</td><td>转有序流（不如 TreeSet）</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">常见模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">最长连续序列</div>
+          <div class="pat-code"><span class="tp">Set</span>&lt;<span class="tp">Integer</span>&gt; set = <span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span> x : nums) set.<span class="fn">add</span>(x);
+<span class="kw">int</span> ans = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">int</span> x : set) {
+    <span class="kw">if</span> (!set.<span class="fn">contains</span>(x-<span class="num">1</span>)) { <span class="cm">// 序列起点</span>
+        <span class="kw">int</span> len = <span class="num">1</span>;
+        <span class="kw">while</span> (set.<span class="fn">contains</span>(++x)) len++;
+        ans = <span class="tp">Math</span>.<span class="fn">max</span>(ans, len);
+    }
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">BFS 去重访问</div>
+          <div class="pat-code"><span class="tp">Set</span>&lt;<span class="tp">String</span>&gt; vis = <span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;();
+<span class="tp">Queue</span>&lt;<span class="tp">String</span>&gt; q = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();
+vis.<span class="fn">add</span>(start); q.<span class="fn">offer</span>(start);
+<span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+    <span class="tp">String</span> cur = q.<span class="fn">poll</span>();
+    <span class="kw">for</span> (<span class="tp">String</span> nxt : <span class="fn">neighbors</span>(cur))
+        <span class="kw">if</span> (vis.<span class="fn">add</span>(nxt)) q.<span class="fn">offer</span>(nxt);
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">快速判重</span><span class="chip">最长连续序列</span>
+    <span class="chip">BFS visited</span><span class="chip">单词接龙</span>
+  </div>
+</div>
+
+<!-- ══ TREEMAP ══ -->
+<div class="sec" id="treemap">08 · TreeMap / TreeSet（有序集合）</div>
+<div class="ds c-amber">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">TRE</div>
+      <div>
+        <div class="ds-name">TreeMap / TreeSet</div>
+        <div class="ds-sub">红黑树实现 · 有序 · O(log n) 操作 · 支持范围查询</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="tp">TreeMap</span>&lt;<span class="tp">Integer</span>, <span class="tp">Integer</span>&gt; tm = <span class="kw">new</span> <span class="tp">TreeMap</span>&lt;&gt;();
+<span class="tp">TreeSet</span>&lt;<span class="tp">Integer</span>&gt; ts = <span class="kw">new</span> <span class="tp">TreeSet</span>&lt;&gt;();
+<span class="tp">TreeMap</span>&lt;<span class="tp">Integer</span>, <span class="tp">Integer</span>&gt; tm = <span class="kw">new</span> <span class="tp">TreeMap</span>&lt;&gt;((a,b) -&gt; b-a); <span class="cm">// 逆序</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">TreeMap 核心 API</div>
+      <table class="mtbl">
+        <tr><td>put / get / remove</td><td>基本操作，O(log n)</td></tr>
+        <tr><td>firstKey() / lastKey()</td><td>最小 / 最大 key</td></tr>
+        <tr><td>floorKey(k)</td><td>≤ k 的最大 key，不存在返 null</td></tr>
+        <tr><td>ceilingKey(k)</td><td>≥ k 的最小 key</td></tr>
+        <tr><td>lowerKey(k)</td><td>&lt; k 的最大 key</td></tr>
+        <tr><td>higherKey(k)</td><td>&gt; k 的最小 key</td></tr>
+        <tr><td>subMap(lo, hi)</td><td>key 在 [lo, hi) 的子 Map 视图</td></tr>
+        <tr><td>headMap(k) / tailMap(k)</td><td>key &lt; k / key ≥ k 的子 Map</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">TreeSet 核心 API &amp; 模板</div>
+      <table class="mtbl">
+        <tr><td>add / remove / contains</td><td>O(log n)</td></tr>
+        <tr><td>first() / last()</td><td>最小 / 最大元素</td></tr>
+        <tr><td>floor(x) / ceiling(x)</td><td>≤x 最大 / ≥x 最小</td></tr>
+        <tr><td>lower(x) / higher(x)</td><td>&lt;x 最大 / &gt;x 最小</td></tr>
+        <tr><td>subSet / headSet / tailSet</td><td>范围子集视图</td></tr>
+      </table>
+      <div class="pat" style="margin-top:12px">
+        <div class="pat-name">差值最小（插入时查 floor/ceiling）</div>
+        <div class="pat-code"><span class="tp">TreeSet</span>&lt;<span class="tp">Integer</span>&gt; ts = <span class="kw">new</span> <span class="tp">TreeSet</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span> x : nums) {
+    <span class="tp">Integer</span> lo = ts.<span class="fn">floor</span>(x);
+    <span class="tp">Integer</span> hi = ts.<span class="fn">ceiling</span>(x);
+    <span class="kw">if</span> (lo != <span class="kw">null</span> &amp;&amp; x - lo &lt; t) <span class="kw">return true</span>;
+    <span class="kw">if</span> (hi != <span class="kw">null</span> &amp;&amp; hi - x &lt; t) <span class="kw">return true</span>;
+    ts.<span class="fn">add</span>(x);
+}</div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">差值最小（滑窗+TreeSet）</span><span class="chip">日程安排</span>
+    <span class="chip">区间插入/合并</span><span class="chip">数据流第 K 大</span>
+  </div>
+</div>
+
+<!-- ══ GRAPH ══ -->
+<div class="sec" id="graph">09 · 图（DFS / BFS / 拓扑排序）</div>
+<div class="ds c-pink">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">GRP</div>
+      <div>
+        <div class="ds-name">Graph</div>
+        <div class="ds-sub">邻接表建图 · DFS/BFS 遍历 · 拓扑排序</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="cm">// 邻接表（通用）</span>
+<span class="tp">List</span>&lt;<span class="tp">List</span>&lt;<span class="tp">Integer</span>&gt;&gt; g = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) g.<span class="fn">add</span>(<span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;());
+g.<span class="fn">get</span>(u).<span class="fn">add</span>(v); g.<span class="fn">get</span>(v).<span class="fn">add</span>(u); <span class="cm">// 无向图</span>
+<span class="cm">// 入度数组（拓扑排序用）</span>
+<span class="kw">int</span>[] indegree = <span class="kw">new int</span>[n];
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">DFS 模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">图 DFS（含 visited）</div>
+          <div class="pat-code"><span class="kw">boolean</span>[] vis = <span class="kw">new boolean</span>[n];
+<span class="kw">void</span> <span class="fn">dfs</span>(<span class="kw">int</span> u) {
+    vis[u] = <span class="kw">true</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> v : g.<span class="fn">get</span>(u)) {
+        <span class="kw">if</span> (!vis[v]) <span class="fn">dfs</span>(v);
+    }
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">网格 DFS（四方向）</div>
+          <div class="pat-code"><span class="kw">int</span>[][] dirs = {{<span class="num">0</span>,<span class="num">1</span>},{<span class="num">0</span>,-<span class="num">1</span>},{<span class="num">1</span>,<span class="num">0</span>},{-<span class="num">1</span>,<span class="num">0</span>}};
+<span class="kw">void</span> <span class="fn">dfs</span>(<span class="kw">int</span> r, <span class="kw">int</span> c) {
+    <span class="kw">if</span> (r &lt; <span class="num">0</span> || r >= m || c &lt; <span class="num">0</span> || c >= n) <span class="kw">return</span>;
+    <span class="kw">if</span> (grid[r][c] != <span class="str">'1'</span>) <span class="kw">return</span>;
+    grid[r][c] = <span class="str">'0'</span>; <span class="cm">// 标记已访问</span>
+    <span class="kw">for</span> (<span class="kw">int</span>[] d : dirs) <span class="fn">dfs</span>(r+d[<span class="num">0</span>], c+d[<span class="num">1</span>]);
+}</div>
+        </div>
+      </div>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">BFS &amp; 拓扑排序模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">拓扑排序（Kahn 算法）</div>
+          <div class="pat-code"><span class="tp">Queue</span>&lt;<span class="tp">Integer</span>&gt; q = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++)
+    <span class="kw">if</span> (indegree[i] == <span class="num">0</span>) q.<span class="fn">offer</span>(i);
+<span class="kw">int</span> cnt = <span class="num">0</span>;
+<span class="kw">while</span> (!q.<span class="fn">isEmpty</span>()) {
+    <span class="kw">int</span> u = q.<span class="fn">poll</span>(); cnt++;
+    <span class="kw">for</span> (<span class="kw">int</span> v : g.<span class="fn">get</span>(u))
+        <span class="kw">if</span> (--indegree[v] == <span class="num">0</span>) q.<span class="fn">offer</span>(v);
+}
+<span class="kw">return</span> cnt == n; <span class="cm">// false 说明有环</span></div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">DFS 判环（染色法）</div>
+          <div class="pat-code"><span class="cm">// 0=未访问 1=访问中 2=完成</span>
+<span class="kw">int</span>[] color = <span class="kw">new int</span>[n];
+<span class="kw">boolean</span> <span class="fn">hasCycle</span>(<span class="kw">int</span> u) {
+    color[u] = <span class="num">1</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> v : g.<span class="fn">get</span>(u)) {
+        <span class="kw">if</span> (color[v] == <span class="num">1</span>) <span class="kw">return true</span>;
+        <span class="kw">if</span> (color[v] == <span class="num">0</span> &amp;&amp; <span class="fn">hasCycle</span>(v)) <span class="kw">return true</span>;
+    }
+    color[u] = <span class="num">2</span>; <span class="kw">return false</span>;
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">岛屿数量</span><span class="chip">课程表（拓扑）</span><span class="chip">单词接龙（BFS）</span>
+    <span class="chip">腐烂的橘子</span><span class="chip">克隆图</span>
+  </div>
+</div>
+
+<!-- ══ UNION-FIND ══ -->
+<div class="sec" id="uf">10 · Union-Find 并查集</div>
+<div class="ds c-green">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">UF</div>
+      <div>
+        <div class="ds-name">Union-Find（DSU）</div>
+        <div class="ds-sub">路径压缩 + 按秩合并 · 近似 O(1) 操作</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="kw">int</span>[] parent = <span class="kw">new int</span>[n];
+<span class="kw">int</span>[] rank   = <span class="kw">new int</span>[n];
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) parent[i] = i; <span class="cm">// 初始化：自己是自己的父节点</span>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">完整模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">并查集标准实现</div>
+          <div class="pat-code"><span class="kw">int</span> <span class="fn">find</span>(<span class="kw">int</span> x) {
+    <span class="kw">if</span> (parent[x] != x)
+        parent[x] = <span class="fn">find</span>(parent[x]); <span class="cm">// 路径压缩</span>
+    <span class="kw">return</span> parent[x];
+}
+
+<span class="kw">boolean</span> <span class="fn">union</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) {
+    <span class="kw">int</span> px = <span class="fn">find</span>(x), py = <span class="fn">find</span>(y);
+    <span class="kw">if</span> (px == py) <span class="kw">return false</span>; <span class="cm">// 已连通</span>
+    <span class="kw">if</span> (rank[px] &lt; rank[py]) { <span class="kw">int</span> t=px; px=py; py=t; }
+    parent[py] = px;
+    <span class="kw">if</span> (rank[px] == rank[py]) rank[px]++;
+    <span class="kw">return true</span>;
+}
+
+<span class="kw">boolean</span> <span class="fn">connected</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) {
+    <span class="kw">return</span> <span class="fn">find</span>(x) == <span class="fn">find</span>(y);
+}</div>
+        </div>
+      </div>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">典型应用</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">统计连通分量数</div>
+          <div class="pat-code"><span class="kw">int</span> components = n; <span class="cm">// 初始 n 个</span>
+<span class="kw">for</span> (<span class="kw">int</span>[] e : edges) {
+    <span class="kw">if</span> (<span class="fn">union</span>(e[<span class="num">0</span>], e[<span class="num">1</span>])) components--;
+}
+<span class="cm">// components 即连通分量数</span></div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">判断图是否有环</div>
+          <div class="pat-code"><span class="kw">for</span> (<span class="kw">int</span>[] e : edges) {
+    <span class="kw">if</span> (!<span class="fn">union</span>(e[<span class="num">0</span>], e[<span class="num">1</span>])) {
+        <span class="cm">// 两点已连通，加边成环</span>
+        <span class="kw">return false</span>;
+    }
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">账户合并（字符串 key）</div>
+          <div class="pat-code"><span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; parent = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+<span class="cm">// find / union 同上，key 改为 String</span>
+<span class="cm">// 用 email 作为节点标识</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">连通分量数</span><span class="chip">冗余连接</span><span class="chip">账户合并</span>
+    <span class="chip">岛屿数量（也可 UF）</span><span class="chip">最小生成树（Kruskal）</span>
+  </div>
+</div>
+
+<!-- ══ TRIE ══ -->
+<div class="sec" id="trie">11 · Trie 字典树</div>
+<div class="ds c-blue">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">TRI</div>
+      <div>
+        <div class="ds-name">Trie（前缀树）</div>
+        <div class="ds-sub">插入/查找 O(L) · 前缀匹配利器</div>
+      </div>
+    </div>
+    <div class="init-box">
+<span class="kw">class</span> <span class="tp">Trie</span> {
+    <span class="tp">Trie</span>[] children = <span class="kw">new</span> <span class="tp">Trie</span>[<span class="num">26</span>];
+    <span class="kw">boolean</span> isEnd = <span class="kw">false</span>;
+}
+<span class="tp">Trie</span> root = <span class="kw">new</span> <span class="tp">Trie</span>();
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">完整实现</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">insert / search / startsWith</div>
+          <div class="pat-code"><span class="kw">void</span> <span class="fn">insert</span>(<span class="tp">String</span> word) {
+    <span class="tp">Trie</span> node = root;
+    <span class="kw">for</span> (<span class="kw">char</span> c : word.<span class="fn">toCharArray</span>()) {
+        <span class="kw">int</span> i = c - <span class="str">'a'</span>;
+        <span class="kw">if</span> (node.children[i] == <span class="kw">null</span>)
+            node.children[i] = <span class="kw">new</span> <span class="tp">Trie</span>();
+        node = node.children[i];
+    }
+    node.isEnd = <span class="kw">true</span>;
+}
+
+<span class="kw">boolean</span> <span class="fn">search</span>(<span class="tp">String</span> word) {
+    <span class="tp">Trie</span> node = root;
+    <span class="kw">for</span> (<span class="kw">char</span> c : word.<span class="fn">toCharArray</span>()) {
+        <span class="kw">int</span> i = c - <span class="str">'a'</span>;
+        <span class="kw">if</span> (node.children[i] == <span class="kw">null</span>) <span class="kw">return false</span>;
+        node = node.children[i];
+    }
+    <span class="kw">return</span> node.isEnd;
+}
+
+<span class="kw">boolean</span> <span class="fn">startsWith</span>(<span class="tp">String</span> prefix) {
+    <span class="tp">Trie</span> node = root;
+    <span class="kw">for</span> (<span class="kw">char</span> c : prefix.<span class="fn">toCharArray</span>()) {
+        <span class="kw">int</span> i = c - <span class="str">'a'</span>;
+        <span class="kw">if</span> (node.children[i] == <span class="kw">null</span>) <span class="kw">return false</span>;
+        node = node.children[i];
+    }
+    <span class="kw">return true</span>;
+}</div>
+        </div>
+      </div>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">使用场景 &amp; 变种</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">带通配符搜索（回溯）</div>
+          <div class="pat-code"><span class="kw">boolean</span> <span class="fn">searchWithDot</span>(<span class="tp">String</span> w, <span class="kw">int</span> idx, <span class="tp">Trie</span> node) {
+    <span class="kw">if</span> (idx == w.<span class="fn">length</span>()) <span class="kw">return</span> node.isEnd;
+    <span class="kw">char</span> c = w.<span class="fn">charAt</span>(idx);
+    <span class="kw">if</span> (c == <span class="str">'.'</span>) {
+        <span class="kw">for</span> (<span class="tp">Trie</span> ch : node.children)
+            <span class="kw">if</span> (ch != <span class="kw">null</span> &amp;&amp; <span class="fn">searchWithDot</span>(w, idx+<span class="num">1</span>, ch))
+                <span class="kw">return true</span>;
+        <span class="kw">return false</span>;
+    }
+    <span class="tp">Trie</span> nxt = node.children[c-<span class="str">'a'</span>];
+    <span class="kw">return</span> nxt != <span class="kw">null</span> &amp;&amp; <span class="fn">searchWithDot</span>(w, idx+<span class="num">1</span>, nxt);
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">常见场景</div>
+          <div class="pat-code"><span class="cm">// 1. 单词搜索 II（Trie + 回溯）</span>
+<span class="cm">// 2. 最长公共前缀</span>
+<span class="cm">// 3. 单词替换（replace with root）</span>
+<span class="cm">// 4. 键值映射（map 的 prefix 查询）</span>
+<span class="cm">// 5. 异或最大值（0/1 Trie）</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">实现 Trie（LeetCode 208）</span><span class="chip">单词搜索 II</span>
+    <span class="chip">添加与搜索单词</span><span class="chip">最大异或（0/1 Trie）</span>
+  </div>
+</div>
+
+<!-- ══ BITS ══ -->
+<div class="sec" id="bits">12 · 位运算速查</div>
+<div class="ds c-orange">
+  <div class="ds-head">
+    <div class="ds-meta">
+      <div class="ds-badge">BIT</div>
+      <div>
+        <div class="ds-name">位运算 Bit Manipulation</div>
+        <div class="ds-sub">O(1) 判断 · 状态压缩 · 不用额外空间</div>
+      </div>
+    </div>
+  </div>
+  <div class="ds-body">
+    <div class="ds-col">
+      <div class="col-t">常用技巧</div>
+      <table class="mtbl">
+        <tr><td>x &amp; 1</td><td>判断奇偶（结果 0=偶，1=奇）</td></tr>
+        <tr><td>x &amp; (x-1)</td><td>消除最低位的 1，判断 2 的幂：<code>x != 0 &amp;&amp; (x&amp;(x-1))==0</code></td></tr>
+        <tr><td>x &amp; (-x)</td><td>取最低位的 1（lowbit，树状数组用）</td></tr>
+        <tr><td>x ^ x = 0</td><td>自己异或自己为 0，找只出现一次的数</td></tr>
+        <tr><td>x ^ 0 = x</td><td>异或 0 不变</td></tr>
+        <tr><td>x &gt;&gt; 1</td><td>右移 = 除以 2（正数）</td></tr>
+        <tr><td>x &lt;&lt; 1</td><td>左移 = 乘以 2</td></tr>
+        <tr><td>1 &lt;&lt; i</td><td>第 i 位为 1 的掩码</td></tr>
+        <tr><td>(mask &gt;&gt; i) &amp; 1</td><td>取第 i 位的值</td></tr>
+        <tr><td>mask | (1 &lt;&lt; i)</td><td>把第 i 位置 1</td></tr>
+        <tr><td>mask &amp; ~(1 &lt;&lt; i)</td><td>把第 i 位清 0</td></tr>
+        <tr><td>Integer.bitCount(x)</td><td>统计 1 的个数（Java 内置，O(1)）</td></tr>
+      </table>
+    </div>
+    <div class="ds-col">
+      <div class="col-t">状态压缩模板</div>
+      <div class="pat-list">
+        <div class="pat">
+          <div class="pat-name">子集枚举</div>
+          <div class="pat-code"><span class="cm">// 枚举 [0,n) 所有子集</span>
+<span class="kw">for</span> (<span class="kw">int</span> mask = <span class="num">0</span>; mask &lt; (<span class="num">1</span> &lt;&lt; n); mask++) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> ((mask &gt;&gt; i &amp; <span class="num">1</span>) == <span class="num">1</span>) {
+            <span class="cm">// 第 i 个元素在子集中</span>
+        }
+    }
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">状压 DP（TSP / 划分等和子集）</div>
+          <div class="pat-code"><span class="kw">int</span>[] dp = <span class="kw">new int</span>[<span class="num">1</span> &lt;&lt; n];
+<span class="kw">for</span> (<span class="kw">int</span> mask = <span class="num">0</span>; mask &lt; (<span class="num">1</span> &lt;&lt; n); mask++) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        <span class="kw">if</span> ((mask &gt;&gt; i &amp; <span class="num">1</span>) == <span class="num">0</span>) { <span class="cm">// i 不在 mask 中</span>
+            <span class="kw">int</span> next = mask | (<span class="num">1</span> &lt;&lt; i);
+            dp[next] = ...; <span class="cm">// 转移</span>
+        }
+    }
+}</div>
+        </div>
+        <div class="pat">
+          <div class="pat-name">找只出现一次的数</div>
+          <div class="pat-code"><span class="kw">int</span> ans = <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">int</span> x : nums) ans ^= x;
+<span class="cm">// 所有成对数字异或消去，剩余即答案</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chips">
+    <span class="chip">只出现一次的数</span><span class="chip">子集</span><span class="chip">数字范围按位与</span>
+    <span class="chip">状压 DP</span><span class="chip">汉明距离</span><span class="chip">2 的幂</span>
+  </div>
+</div>
+
+<!-- ══ COMPLEXITY ══ -->
+<div class="sec" id="cplx">复杂度速查</div>
+<div class="ctbl-wrap">
+  <table class="ctbl">
+    <thead>
+      <tr><th>数据结构 / 操作</th><th>增</th><th>删</th><th>查（按 key）</th><th>查（范围）</th><th>备注</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Array（随机访问）</td><td class="on2">O(n) 中间插</td><td class="on2">O(n)</td><td class="o1">O(1)</td><td class="on2">O(n) 扫描</td><td>尾部操作 O(1)</td></tr>
+      <tr><td>ArrayList</td><td class="o1">O(1) 均摊尾</td><td class="on2">O(n) 中间</td><td class="o1">O(1)</td><td class="on2">O(n)</td><td>扩容时 O(n)</td></tr>
+      <tr><td>LinkedList</td><td class="o1">O(1) 已知位置</td><td class="o1">O(1) 已知位置</td><td class="on2">O(n)</td><td class="on2">O(n)</td><td>随机访问差</td></tr>
+      <tr><td>HashMap / HashSet</td><td class="o1">O(1) 均摊</td><td class="o1">O(1) 均摊</td><td class="o1">O(1) 均摊</td><td>—</td><td>哈希冲突时退化</td></tr>
+      <tr><td>TreeMap / TreeSet</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td>红黑树，支持 floor/ceiling</td></tr>
+      <tr><td>PriorityQueue</td><td class="ologn">O(log n)</td><td class="ologn">O(log n) poll</td><td class="o1">O(1) peek</td><td>—</td><td>堆，不保证整体有序</td></tr>
+      <tr><td>ArrayDeque（栈/队列）</td><td class="o1">O(1) 均摊</td><td class="o1">O(1)</td><td class="o1">O(1) 两端</td><td>—</td><td>双端队列，比 LinkedList 快</td></tr>
+      <tr><td>Trie（L=字符串长度）</td><td class="on">O(L)</td><td class="on">O(L)</td><td class="on">O(L)</td><td class="on">O(L) 前缀</td><td>空间换时间</td></tr>
+      <tr><td>Union-Find</td><td class="o1">O(α) 近似</td><td>—</td><td class="o1">O(α) 近似</td><td>—</td><td>α 为反阿克曼函数，极小</td></tr>
+      <tr><td>二分查找（有序数组）</td><td>—</td><td>—</td><td class="ologn">O(log n)</td><td class="ologn">O(log n)</td><td>Arrays.binarySearch</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="margin-top:16px;background:rgba(76,201,240,0.05);border:1px solid rgba(76,201,240,0.15);border-radius:8px;padding:14px 18px;display:flex;gap:10px;align-items:flex-start">
+  <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:1px">TIP</span>
+  <p style="font-size:12px;color:var(--tx2);line-height:1.75">
+    <strong style="color:var(--tx)">选择原则：</strong>
+    需要去重/快速判存在 → HashSet；频率统计 → HashMap；排序+范围查询 → TreeMap/TreeSet；堆顶极值/Top-K → PriorityQueue；LIFO → Deque 当栈；FIFO/BFS → Deque/LinkedList 当队列；前缀匹配 → Trie；连通性/合并 → UnionFind。
+  </p>
+</div>
+
+</main>
+
+<footer>
+  <span>LeetCode · Java 数据结构 &amp; API 速查</span>
+  <span>Java 17+ · 2024</span>
+</footer>
+
+</body>
+</html>

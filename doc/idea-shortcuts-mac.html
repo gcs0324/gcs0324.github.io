@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelliJ IDEA 快捷键 · macOS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap');
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--tx); font-family:'Sora',sans-serif; line-height:1.6; }
+
+/* ── Header ── */
+header {
+  padding:50px 64px 34px; border-bottom:1px solid var(--bd);
+  position:relative; overflow:hidden;
+}
+header::before {
+  content:'IDEA'; position:absolute; right:40px; top:50%; transform:translateY(-50%);
+  font-family:'IBM Plex Mono',monospace; font-size:150px; font-weight:500;
+  color:var(--watermark); letter-spacing:-0.05em; pointer-events:none;
+}
+.htag {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.07em;
+  color:var(--purple); background:var(--purple-bg); border:1px solid var(--purple-b);
+  border-radius:3px; padding:3px 8px; display:inline-block; margin-bottom:14px;
+}
+h1 { font-size:32px; font-weight:700; letter-spacing:-0.03em; color:var(--tx); margin-bottom:8px; }
+.subtitle { font-size:13px; color:var(--tx2); max-width:560px; }
+
+/* ── Key legend ── */
+.legend {
+  display:flex; gap:16px; flex-wrap:wrap; margin-top:16px;
+}
+.legend-item {
+  display:flex; align-items:center; gap:6px;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3);
+}
+
+/* ── Nav ── */
+nav {
+  padding:0 64px; border-bottom:1px solid var(--bd);
+  display:flex; flex-wrap:wrap;
+}
+nav a {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3);
+  text-decoration:none; padding:12px 14px; border-bottom:2px solid transparent;
+  white-space:nowrap; transition:color .15s,border-color .15s; letter-spacing:0.03em;
+}
+nav a:hover { color:var(--tx); border-color:var(--bd2); }
+
+/* ── Main ── */
+main { padding:48px 64px; max-width:1080px; }
+
+.sec {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3);
+  letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:20px; margin-top:56px;
+  padding-bottom:10px; border-bottom:1px solid var(--bd);
+}
+.sec:first-child { margin-top:0; }
+
+/* ── Section block ── */
+.blk {
+  background:var(--bg2); border:1px solid var(--bd); border-radius:12px;
+  overflow:hidden; margin-bottom:4px;
+}
+.blk-head {
+  padding:18px 24px 16px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--bd);
+}
+.blk-icon {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500;
+  padding:4px 10px; border-radius:5px; border:1px solid; flex-shrink:0;
+}
+.blk-title { font-size:14px; font-weight:600; }
+.blk-sub   { font-size:11px; color:var(--tx3); margin-top:1px; font-family:'IBM Plex Mono',monospace; }
+
+/* ── Shortcut grid ── */
+.sc-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:0;
+}
+.sc-col { padding:4px 0; }
+.sc-col:first-child { border-right:1px solid var(--bd); }
+
+.sc-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:9px 24px; gap:16px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:background .1s;
+}
+.sc-row:last-child { border-bottom:none; }
+.sc-row:hover { background:rgba(255,255,255,0.025); }
+
+.sc-desc { font-size:12.5px; color:var(--tx2); flex:1; min-width:0; }
+.sc-desc strong { color:var(--tx); font-weight:500; }
+
+/* ── Key caps ── */
+.keys {
+  display:flex; align-items:center; gap:3px; flex-shrink:0;
+}
+.k {
+  font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
+  border-bottom:2px solid rgba(255,255,255,0.2);
+  border-radius:5px; padding:2px 7px; color:var(--tx);
+  min-width:24px; text-align:center; line-height:1.6;
+  box-shadow:0 1px 2px rgba(0,0,0,0.4);
+}
+.k.mod { color:var(--ac, var(--tx2)); border-color:var(--ac-b, rgba(255,255,255,0.14)); background:var(--ac-bg, rgba(255,255,255,0.07)); }
+.plus { font-size:10px; color:var(--tx3); }
+
+/* color themes */
+.c-red    { --ac:var(--red);    --ac-bg:var(--red-bg);    --ac-b:var(--red-b); }
+.c-orange { --ac:var(--orange); --ac-bg:var(--orange-bg); --ac-b:var(--orange-b); }
+.c-yellow { --ac:var(--yellow); --ac-bg:var(--yellow-bg); --ac-b:var(--yellow-b); }
+.c-green  { --ac:var(--green);  --ac-bg:var(--green-bg);  --ac-b:var(--green-b); }
+.c-blue   { --ac:var(--blue);   --ac-bg:var(--blue-bg);   --ac-b:var(--blue-b); }
+.c-purple { --ac:var(--purple); --ac-bg:var(--purple-bg); --ac-b:var(--purple-b); }
+.c-pink   { --ac:var(--pink);   --ac-bg:var(--pink-bg);   --ac-b:var(--pink-b); }
+.c-teal   { --ac:var(--teal);   --ac-bg:var(--teal-bg);   --ac-b:var(--teal-b); }
+.c-amber  { --ac:var(--amber);  --ac-bg:var(--amber-bg);  --ac-b:var(--amber-b); }
+
+.blk .blk-icon { background:var(--ac-bg); color:var(--ac); border-color:var(--ac-b); }
+.blk .blk-title { color:var(--ac); }
+
+/* star mark for must-know */
+.star { color:var(--ac); margin-left:4px; font-size:11px; }
+
+footer { padding:22px 64px; border-top:1px solid var(--bd); display:flex; justify-content:space-between; align-items:center; }
+footer span { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx3); }
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="htag">INTELLIJ IDEA · macOS</div>
+  <h1>IDEA 快捷键速查 · Mac</h1>
+  <p class="subtitle">IntelliJ IDEA macOS 全快捷键速查，覆盖编辑、导航、重构、调试、版本控制等核心场景。</p>
+  <div class="legend">
+    <div class="legend-item"><span class="k">⌘</span> Command</div>
+    <div class="legend-item"><span class="k">⌥</span> Option (Alt)</div>
+    <div class="legend-item"><span class="k">⌃</span> Control</div>
+    <div class="legend-item"><span class="k">⇧</span> Shift</div>
+    <div class="legend-item"><span class="k">⏎</span> Enter / Return</div>
+    <div class="legend-item"><span class="k">⌫</span> Backspace / Delete</div>
+    <div class="legend-item"><span class="k">⎋</span> Escape</div>
+    <div class="legend-item" style="margin-left:8px;color:var(--yellow);font-family:'IBM Plex Mono',monospace;font-size:11px;">★ 高频必记</div>
+  </div>
+</header>
+
+<nav>
+  <a href="#general">通用 &amp; 搜索</a>
+  <a href="#edit">编辑</a>
+  <a href="#select">选择</a>
+  <a href="#nav">导航</a>
+  <a href="#refactor">重构</a>
+  <a href="#generate">生成</a>
+  <a href="#run">运行 &amp; 调试</a>
+  <a href="#debug">调试控制</a>
+  <a href="#git">Git &amp; VCS</a>
+  <a href="#panel">面板 &amp; 工具</a>
+  <a href="#multiEdit">多光标</a>
+</nav>
+
+<main>
+
+<!-- ══════════ 通用 & 搜索 ══════════ -->
+<div class="sec" id="general">01 · 通用 &amp; 全局搜索</div>
+<div class="blk c-purple">
+  <div class="blk-head">
+    <div class="blk-icon">SRCH</div>
+    <div>
+      <div class="blk-title">全局搜索入口</div>
+      <div class="blk-sub">日常最高频操作，优先记这一屏</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Search Everywhere</strong> — 搜一切（类/文件/方法/Action）<span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⇧</span><span class="plus">+</span><span class="k mod">⇧</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Find Action</strong> — 搜索任意 Action / 设置 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">A</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Class</strong> — 跳转到类 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">O</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to File</strong> — 跳转到文件 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">O</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Symbol</strong> — 跳转到方法/字段</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">O</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Find in Files</strong> — 全局文本搜索 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Replace in Files</strong> — 全局替换</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Find</strong> — 当前文件搜索 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Replace</strong> — 当前文件替换</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Recent Files</strong> — 最近打开文件 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">E</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 编辑 ══════════ -->
+<div class="sec" id="edit">02 · 代码编辑</div>
+<div class="blk c-blue">
+  <div class="blk-head">
+    <div class="blk-icon">EDIT</div>
+    <div>
+      <div class="blk-title">编辑 &amp; 补全</div>
+      <div class="blk-sub">代码补全、格式化、注释、行操作</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Basic Completion</strong> — 基础代码补全 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">Space</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Smart Completion</strong> — 智能补全（按类型过滤）</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">Space</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Show Intention Actions</strong> — 意图操作 / 快速修复 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">⏎</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Reformat Code</strong> — 格式化代码 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">L</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Optimize Imports</strong> — 整理 import <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">O</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Comment Line</strong> — 行注释 // <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">/</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Comment Block</strong> — 块注释 /* */</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">/</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Duplicate Line</strong> — 复制当前行 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">D</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Delete Line</strong> — 删除当前行 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌫</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Move Line Up / Down</strong> — 上下移行</div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">↑↓</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Move Statement Up / Down</strong> — 上下移语句块 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">↑↓</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Surround With</strong> — 包裹代码（if/try/for…）</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">T</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Unwrap / Remove</strong> — 移除包裹</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">Delete</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Live Template</strong> — 代码模板展开 <span class="star">★</span></div>
+        <div class="keys"><span class="k">Tab</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Postfix Completion</strong> — 后缀补全（.var .if .for…）<span class="star">★</span></div>
+        <div class="keys"><span class="k">Tab</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Toggle Case</strong> — 切换大小写</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">U</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Join Lines</strong> — 合并下一行到当前行</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">J</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Undo / Redo</strong></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">Z</span> <span class="plus">/</span> <span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">Z</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 选择 ══════════ -->
+<div class="sec" id="select">03 · 选择 &amp; 折叠</div>
+<div class="blk c-teal">
+  <div class="blk-head">
+    <div class="blk-icon">SEL</div>
+    <div>
+      <div class="blk-title">选择 &amp; 折叠</div>
+      <div class="blk-sub">扩展选择、结构化选择、代码折叠</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Extend / Shrink Selection</strong> — 按语法扩展/收缩选区 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">↑</span> <span class="plus">/</span> <span class="k mod">⌥</span><span class="plus">+</span><span class="k">↓</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select All</strong> — 全选</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">A</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select to Line Start / End</strong></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">←→</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select Next Occurrence</strong> — 选择下一个同名词 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">G</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select All Occurrences</strong> — 选择全部同名词</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⌘</span><span class="plus">+</span><span class="k">G</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Collapse / Expand</strong> — 折叠/展开当前代码块</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">-</span> <span class="plus">/</span> <span class="k mod">⌘</span><span class="plus">+</span><span class="k">+</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Collapse All / Expand All</strong> — 折叠/展开所有</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">-</span> <span class="plus">/</span> <span class="k mod">+</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Expand to Level</strong> — 展开到指定层级</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">1~5</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Column Select</strong> — 列块选择（矩形）</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">8</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 导航 ══════════ -->
+<div class="sec" id="nav">04 · 代码导航</div>
+<div class="blk c-green">
+  <div class="blk-head">
+    <div class="blk-icon">NAV</div>
+    <div>
+      <div class="blk-title">导航跳转</div>
+      <div class="blk-sub">跳转定义、实现、引用、历史</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Declaration</strong> — 跳转到声明/定义 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">B</span> 或 <span class="k mod">⌘</span><span class="plus">+</span><span class="k">Click</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Implementation</strong> — 跳转到实现类/方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">B</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Super</strong> — 跳转到父类/父方法</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">U</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Find Usages</strong> — 查找所有引用 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">F7</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Highlight Usages in File</strong> — 高亮当前文件引用</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F7</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Line</strong> — 跳转到行号</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">L</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Go to Method</strong> — 文件内跳转到方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F12</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Navigate Back / Forward</strong> — 前进/后退历史位置 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">←→</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Last Edit Location</strong> — 跳到上次编辑位置</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">⌫</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Next / Prev Error</strong> — 跳到下/上一个错误 <span class="star">★</span></div>
+        <div class="keys"><span class="k">F2</span> <span class="plus">/</span> <span class="k mod">⇧</span><span class="plus">+</span><span class="k">F2</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Toggle Bookmark</strong> — 打书签</div>
+        <div class="keys"><span class="k">F3</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Show Bookmarks</strong> — 查看书签列表</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F3</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Type Hierarchy</strong> — 类型继承层次</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">H</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Call Hierarchy</strong> — 调用层次</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">H</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 重构 ══════════ -->
+<div class="sec" id="refactor">05 · 重构</div>
+<div class="blk c-orange">
+  <div class="blk-head">
+    <div class="blk-icon">REF</div>
+    <div>
+      <div class="blk-title">Refactor</div>
+      <div class="blk-sub">重命名、提取、内联、移动</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Rename</strong> — 重命名（全局同步）<span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F6</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Refactor This</strong> — 打开重构菜单 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">T</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Extract Method</strong> — 提取方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">M</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Extract Variable</strong> — 提取变量 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">V</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Extract Constant</strong> — 提取常量</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">C</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Extract Field</strong> — 提取字段</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">F</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Extract Parameter</strong> — 提取参数</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">P</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Inline</strong> — 内联变量/方法</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">N</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Move</strong> — 移动类/方法</div>
+        <div class="keys"><span class="k">F6</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Copy</strong> — 复制类</div>
+        <div class="keys"><span class="k">F5</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Safe Delete</strong> — 安全删除（检查引用）</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">Delete</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Change Signature</strong> — 修改方法签名</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F6</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 生成 ══════════ -->
+<div class="sec" id="generate">06 · 代码生成</div>
+<div class="blk c-yellow">
+  <div class="blk-head">
+    <div class="blk-icon">GEN</div>
+    <div>
+      <div class="blk-title">Generate &amp; Inspect</div>
+      <div class="blk-sub">生成 getter/setter/构造器、查看参数信息</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Generate</strong> — 生成菜单（构造/getter/setter/toString/equals）<span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">N</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Override Methods</strong> — 实现/重写方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">O</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Implement Methods</strong> — 实现接口方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">I</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Parameter Info</strong> — 查看方法参数签名 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">P</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Quick Documentation</strong> — 查看 JavaDoc <span class="star">★</span></div>
+        <div class="keys"><span class="k">F1</span> 或 <span class="k mod">⌃</span><span class="plus">+</span><span class="k">J</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Quick Definition</strong> — 悬浮预览定义</div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">Space</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Show Error Description</strong> — 查看错误详情</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F1</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>View Type of Expression</strong> — 查看表达式类型</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">P</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 运行 ══════════ -->
+<div class="sec" id="run">07 · 运行 &amp; 调试启动</div>
+<div class="blk c-green">
+  <div class="blk-head">
+    <div class="blk-icon">RUN</div>
+    <div>
+      <div class="blk-title">Run &amp; Debug</div>
+      <div class="blk-sub">运行、调试、测试快捷启动</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Run</strong> — 运行当前配置 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Debug</strong> — 调试当前配置 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">D</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Run Context Config</strong> — 运行光标处的类/方法</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Stop</strong> — 停止运行</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F2</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Run... (Choose)</strong> — 选择并运行配置</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Debug... (Choose)</strong> — 选择并调试配置</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">D</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Run Tests in Class</strong> — 运行测试类</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Rerun Last Test</strong> — 重跑上次测试</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F10</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 调试控制 ══════════ -->
+<div class="sec" id="debug">08 · 调试控制</div>
+<div class="blk c-red">
+  <div class="blk-head">
+    <div class="blk-icon">DBG</div>
+    <div>
+      <div class="blk-title">Debug 调试控制</div>
+      <div class="blk-sub">断点、步进、表达式求值</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Toggle Breakpoint</strong> — 打/取消断点 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">F8</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>View Breakpoints</strong> — 查看所有断点</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F8</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Step Over</strong> — 单步跳过（不进入方法）<span class="star">★</span></div>
+        <div class="keys"><span class="k">F8</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Step Into</strong> — 步入方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k">F7</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Force Step Into</strong> — 强制步入（包括库）</div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F7</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Step Out</strong> — 步出当前方法 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F8</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Resume Program</strong> — 继续运行到下个断点 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k mod">⌘</span><span class="plus">+</span><span class="k">R</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Run to Cursor</strong> — 运行到光标处</div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">F9</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Evaluate Expression</strong> — 求值表达式 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">F8</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Smart Step Into</strong> — 智能步入（选择步入哪个方法）</div>
+        <div class="keys"><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F7</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ GIT ══════════ -->
+<div class="sec" id="git">09 · Git &amp; VCS</div>
+<div class="blk c-pink">
+  <div class="blk-head">
+    <div class="blk-icon">GIT</div>
+    <div>
+      <div class="blk-title">Version Control</div>
+      <div class="blk-sub">提交、diff、分支操作</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>VCS Operations Popup</strong> — VCS 操作菜单 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">V</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Commit</strong> — 提交代码 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">K</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Push</strong> — 推送 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">K</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Update Project</strong> — 拉取更新（git pull）</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">T</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Show Diff</strong> — 查看当前文件 diff</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">D</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Annotate / Blame</strong> — 查看每行 blame</div>
+        <div class="keys">右键 → Git → Annotate</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Show History</strong> — 查看文件 / 选区历史</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">!</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Rollback</strong> — 回滚当前修改</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">Z</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 面板工具 ══════════ -->
+<div class="sec" id="panel">10 · 面板 &amp; 工具窗口</div>
+<div class="blk c-amber">
+  <div class="blk-head">
+    <div class="blk-icon">WIN</div>
+    <div>
+      <div class="blk-title">工具窗口 &amp; 面板切换</div>
+      <div class="blk-sub">项目树、终端、结构、问题列表</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Project Window</strong> — 项目树 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">1</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Favorites</strong> — 收藏夹</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">2</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Find / Run Window</strong></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">3</span> / <span class="k">4</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Debug Window</strong></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">5</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Problems Window</strong> — 问题列表</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">6</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Structure Window</strong> — 当前文件结构 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">7</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Git Window</strong> — Git 面板</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">9</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Terminal</strong> — 打开终端 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">F12</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Hide All Windows</strong> — 隐藏所有工具窗口</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">F12</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select in Project Tree</strong> — 定位到项目树 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">F1</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Split Editor Right / Down</strong> — 分割编辑器</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⌥</span><span class="plus">+</span><span class="k">[</span> / <span class="k">]</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Close Tab</strong> — 关闭当前标签页 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k">W</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 多光标 ══════════ -->
+<div class="sec" id="multiEdit">11 · 多光标 &amp; 列编辑</div>
+<div class="blk c-purple">
+  <div class="blk-head">
+    <div class="blk-icon">MCR</div>
+    <div>
+      <div class="blk-title">多光标 Multi-Cursor</div>
+      <div class="blk-sub">同时编辑多处，批量重命名神器</div>
+    </div>
+  </div>
+  <div class="sc-grid">
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Add Caret Above / Below</strong> — 上/下行添加光标 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">↑↓</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Click to Add Caret</strong> — 鼠标点击添加光标</div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k">Click</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select Next Occurrence</strong> — 选下一个同词 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k">G</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Unselect Occurrence</strong> — 取消上一个选中</div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">G</span></div>
+      </div>
+    </div>
+    <div class="sc-col">
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Select All Occurrences</strong> — 全选同词一次性编辑 <span class="star">★</span></div>
+        <div class="keys"><span class="k mod">⌃</span><span class="plus">+</span><span class="k mod">⌘</span><span class="plus">+</span><span class="k">G</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Column Selection Mode</strong> — 开启列选模式（矩形选区）</div>
+        <div class="keys"><span class="k mod">⌘</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">8</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Clone Caret Down</strong> — 向下复制光标（连续多行）</div>
+        <div class="keys"><span class="k mod">⌥</span><span class="plus">+</span><span class="k mod">⇧</span><span class="plus">+</span><span class="k">Insert</span></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-desc"><strong>Escape</strong> — 退出多光标，回到单光标</div>
+        <div class="keys"><span class="k">⎋</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>IntelliJ IDEA · macOS 快捷键速查</span>
+  <span>IDEA 2023+ · macOS · ★ = 高频必记</span>
+</footer>
+
+</body>
+</html>

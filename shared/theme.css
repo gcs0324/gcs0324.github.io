@@ -1,0 +1,272 @@
+/* ═══════════════════════════════════════════════════════════════
+   shared/theme.css  —  统一亮/暗主题变量 + 切换按钮
+   所有 doc/*.html 和 index.html 引入此文件
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── LIGHT (default) ── */
+:root {
+  /* backgrounds */
+  --bg:  #f7f8fa;
+  --bg2: #ffffff;
+  --bg3: #f0f2f5;
+
+  /* borders — two naming conventions kept as aliases */
+  --bd:      rgba(0,0,0,0.08);
+  --bd2:     rgba(0,0,0,0.15);
+  --border:  rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+
+  /* text — two naming conventions */
+  --tx:   #1a1d23;
+  --tx2:  #5a6272;
+  --tx3:  #9aa0ad;
+  --text:      #1a1d23;
+  --text2:     #5a6272;
+  --text3:     #9aa0ad;
+  --text-muted:#9aa0ad;
+  --text-dim:  #5a6272;
+
+  /* surface aliases (interview file uses these) */
+  --surface:  #ffffff;
+  --surface2: #f0f2f5;
+
+  /* watermark for header::before pseudo-elements */
+  --watermark: rgba(0,0,0,0.028);
+
+  /* code blocks */
+  --code-bg: #f3f4f6;
+
+  /* accent (generic fallback) */
+  --accent: #165fa8;
+
+  /* ── named colors — light values ── */
+  --red:    #d63031;
+  --red-bg: #fff0f0;
+  --red-b:  #f5b8b8;
+
+  --orange:     #c0530a;
+  --ora-bg:     #fff4ed;
+  --ora-b:      #f8c8a0;
+  --orange-bg:  #fff4ed;   /* alias */
+  --orange-b:   #f8c8a0;
+
+  --green:      #0a7c52;
+  --grn-bg:     #edf9f3;
+  --grn-b:      #8fd4b4;
+  --green-bg:   #edf9f3;
+  --green-b:    #8fd4b4;
+
+  --blue:       #165fa8;
+  --blu-bg:     #edf3fd;
+  --blu-b:      #90bfef;
+  --blue-bg:    #edf3fd;
+  --blue-b:     #90bfef;
+
+  --purple:     #5e38c0;
+  --pur-bg:     #f1eefb;
+  --pur-b:      #b8a8ef;
+  --purple-bg:  #f1eefb;
+  --purple-b:   #b8a8ef;
+
+  --yellow:     #9a6e0a;
+  --yel-bg:     #fdf7e8;
+  --yel-b:      #e8cc78;
+  --yellow-bg:  #fdf7e8;
+  --yellow-b:   #e8cc78;
+
+  --pink:       #b0347a;
+  --pink-bg:    #fdf0f7;
+  --pink-b:     #efb8d8;
+
+  --teal:       #0e7a6e;
+  --teal-bg:    #edfaf8;
+  --teal-b:     #8fd8ce;
+
+  --amber:      #9a5c05;
+  --amber-bg:   #fdf4e4;
+  --amber-b:    #e8c87a;
+}
+
+/* ── DARK ── */
+[data-theme="dark"] {
+  --bg:  #0e1117;
+  --bg2: #161b27;
+  --bg3: #1e2535;
+
+  --bd:      rgba(255,255,255,0.07);
+  --bd2:     rgba(255,255,255,0.14);
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+
+  --tx:   #dde4f0;
+  --tx2:  #7d8fa8;
+  --tx3:  #3d4f63;
+  --text:      #dde4f0;
+  --text2:     #7d8fa8;
+  --text3:     #3d4f63;
+  --text-muted:#3d4f63;
+  --text-dim:  #7d8fa8;
+
+  --surface:  #161b27;
+  --surface2: #1e2535;
+
+  --watermark: rgba(255,255,255,0.04);
+  --code-bg:   #0d1117;
+  --accent:    #4cc9f0;
+
+  /* colors — vivid variants for dark backgrounds */
+  --red:    #ff6b6b;
+  --red-bg: rgba(255,107,107,0.10);
+  --red-b:  rgba(255,107,107,0.28);
+
+  --orange:    #ff9f43;
+  --ora-bg:    rgba(255,159,67,0.10);
+  --ora-b:     rgba(255,159,67,0.28);
+  --orange-bg: rgba(255,159,67,0.10);
+  --orange-b:  rgba(255,159,67,0.28);
+
+  --green:    #06d6a0;
+  --grn-bg:   rgba(6,214,160,0.10);
+  --grn-b:    rgba(6,214,160,0.28);
+  --green-bg: rgba(6,214,160,0.10);
+  --green-b:  rgba(6,214,160,0.28);
+
+  --blue:    #4cc9f0;
+  --blu-bg:  rgba(76,201,240,0.10);
+  --blu-b:   rgba(76,201,240,0.28);
+  --blue-bg: rgba(76,201,240,0.10);
+  --blue-b:  rgba(76,201,240,0.28);
+
+  --purple:    #a78bfa;
+  --pur-bg:    rgba(167,139,250,0.10);
+  --pur-b:     rgba(167,139,250,0.28);
+  --purple-bg: rgba(167,139,250,0.10);
+  --purple-b:  rgba(167,139,250,0.28);
+
+  --yellow:    #ffd166;
+  --yel-bg:    rgba(255,209,102,0.10);
+  --yel-b:     rgba(255,209,102,0.28);
+  --yellow-bg: rgba(255,209,102,0.10);
+  --yellow-b:  rgba(255,209,102,0.28);
+
+  --pink:    #f472b6;
+  --pink-bg: rgba(244,114,182,0.10);
+  --pink-b:  rgba(244,114,182,0.28);
+
+  --teal:    #2dd4bf;
+  --teal-bg: rgba(45,212,191,0.10);
+  --teal-b:  rgba(45,212,191,0.28);
+
+  --amber:    #f59e0b;
+  --amber-bg: rgba(245,158,11,0.10);
+  --amber-b:  rgba(245,158,11,0.28);
+}
+
+/* ── Theme toggle button ── */
+.theme-btn {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 9999;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--bd);
+  background: var(--bg2);
+  color: var(--tx2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  user-select: none;
+}
+.theme-btn:hover {
+  background: var(--bg3);
+  border-color: var(--bd2);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  transform: scale(1.08);
+}
+.theme-btn:active { transform: scale(0.95); }
+
+/* ── Smooth color transitions ── */
+body, header, nav, main, aside,
+.fw, .ovc, .tbl-wrap, .note, .speech, .arch, .sc, .diag,
+.sidebar, .card, .search-inner {
+  transition:
+    background-color 0.25s ease,
+    border-color     0.25s ease,
+    color            0.20s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   暗色模式下的组件覆盖
+   使用 [data-theme="dark"] + class 提升特异度，覆盖各文件硬编码颜色
+   ══════════════════════════════════════════════════════════════ */
+
+/* note 提示框 */
+[data-theme="dark"] .note.warn {
+  background: rgba(255,159,67,0.09);
+  border-color: rgba(255,159,67,0.28);
+}
+[data-theme="dark"] .note.info {
+  background: rgba(76,201,240,0.09);
+  border-color: rgba(76,201,240,0.28);
+}
+[data-theme="dark"] .note.good {
+  background: rgba(6,214,160,0.09);
+  border-color: rgba(6,214,160,0.28);
+}
+[data-theme="dark"] .note.bad {
+  background: rgba(255,107,107,0.09);
+  border-color: rgba(255,107,107,0.28);
+}
+
+/* speech 气泡 */
+[data-theme="dark"] .speech {
+  background: rgba(255,254,240,0.03);
+  border-color: rgba(255,209,102,0.22);
+  border-left-color: var(--yellow);
+}
+
+/* nav 底部阴影 */
+[data-theme="dark"] nav {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+/* 卡片阴影 */
+[data-theme="dark"] .fw {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* 代码块 */
+[data-theme="dark"] .sc,
+[data-theme="dark"] .arch {
+  background: var(--bg3);
+  border-color: var(--bd);
+}
+
+/* sticky nav background opacity */
+[data-theme="dark"] nav {
+  background: var(--bg2);
+}
+
+/* header background */
+[data-theme="dark"] header {
+  background: var(--bg2);
+  border-bottom-color: var(--bd);
+}
+
+/* table heading background */
+[data-theme="dark"] .tbl th {
+  background: var(--bg3);
+}
+
+/* body default background/color (for files that use var(--bg)/var(--tx)) */
+[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--tx);
+}

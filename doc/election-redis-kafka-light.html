@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选举机制 · Redis &amp; Kafka</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'ELECTION';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px;max-width:1080px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);}
+.sec:first-child{margin-top:0;}
+
+/* speech */
+.speech{background:linear-gradient(135deg,#fffef4,#fffff9);border:1px solid var(--yel-b);border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:14px;}
+.speech-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.speech-lbl::before{content:'💬 ';}
+.speech p{font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:8px;}
+.speech p:last-child{margin-bottom:0;}
+.speech strong{color:var(--tx);font-weight:600;}
+.speech em{color:var(--blue);font-style:normal;font-weight:500;}
+
+/* overview */
+.overview{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:4px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:18px 20px 14px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:16px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody p{font-size:12px;color:var(--tx2);line-height:1.8;margin-bottom:4px;}
+.ovbody p:last-child{margin-bottom:0;}
+.ovbody strong{color:var(--tx);font-weight:600;}
+
+/* flow */
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:4px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.fws{font-size:11px;color:var(--tx3);margin-top:1px;font-family:'IBM Plex Mono',monospace;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:8px 12px;color:var(--tx2);line-height:1.7;white-space:pre;}
+.cm{color:var(--tx3);}
+
+/* 2col */
+.f2{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--bd);}
+.fc{padding:18px 22px;border-right:1px solid var(--bd);}
+.fc:last-child{border-right:none;}
+.fcl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
+
+/* diag */
+.diag{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:18px;margin:12px 0;overflow-x:auto;}
+.diag svg{display:block;margin:0 auto;}
+
+/* themes */
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+
+/* note */
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+/* table */
+.tw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--tx2);text-align:left;padding:9px 14px;border-bottom:1px solid var(--bd);letter-spacing:.05em;background:var(--bg3);}
+td{padding:9px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;line-height:1.7;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+td:first-child{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx);white-space:nowrap;font-weight:600;}
+td strong{color:var(--tx);font-weight:600;}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid;display:inline-block;margin-right:2px;white-space:nowrap;}
+.chip.b{background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);}
+.chip.g{background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);}
+.chip.p{background:var(--pur-bg);color:var(--purple);border-color:var(--pur-b);}
+
+/* QA */
+.qa{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:4px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.qah{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;background:var(--bg3);}
+.qabdg{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;border:1px solid;}
+.qaht{font-size:14px;font-weight:600;}
+.qi{border-bottom:1px solid var(--bd);}
+.qi:last-child{border-bottom:none;}
+.qq{padding:14px 22px 8px;display:flex;align-items:flex-start;gap:8px;}
+.qn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#fff;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;font-weight:700;}
+.qt{font-size:13px;font-weight:600;color:var(--tx);}
+.qa-a{padding:0 22px 14px 40px;}
+.qa-a p{font-size:12.5px;color:var(--tx2);line-height:1.85;margin-bottom:7px;}
+.qa-a p:last-child{margin-bottom:0;}
+.qa-a strong{color:var(--tx);font-weight:600;}
+.ac{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:8px 12px;color:var(--tx2);line-height:1.75;margin-top:6px;white-space:pre-wrap;}
+
+.qa.q-r .qabdg,.qa.q-r .qaht{color:var(--red);}  .qa.q-r .qabdg{background:var(--red-bg);border-color:var(--red-b);}  .qa.q-r .qn{background:var(--red);}
+.qa.q-o .qabdg,.qa.q-o .qaht{color:var(--orange);} .qa.q-o .qabdg{background:var(--ora-bg);border-color:var(--ora-b);} .qa.q-o .qn{background:var(--orange);}
+.qa.q-b .qabdg,.qa.q-b .qaht{color:var(--blue);}  .qa.q-b .qabdg{background:var(--blu-bg);border-color:var(--blu-b);} .qa.q-b .qn{background:var(--blue);}
+.qa.q-g .qabdg,.qa.q-g .qaht{color:var(--green);} .qa.q-g .qabdg{background:var(--grn-bg);border-color:var(--grn-b);}.qa.q-g .qn{background:var(--green);}
+.qa.q-p .qabdg,.qa.q-p .qaht{color:var(--purple);}.qa.q-p .qabdg{background:var(--pur-bg);border-color:var(--pur-b);}.qa.q-p .qn{background:var(--purple);}
+
+footer{padding:20px 64px;border-top:1px solid var(--bd);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;margin-top:56px;}
+footer span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);}
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+<header>
+  <div class="htag">DISTRIBUTED SYSTEMS · ELECTION</div>
+  <h1>Redis &amp; Kafka 选举机制</h1>
+  <p class="subtitle">四套选举机制原理、流程图解、面试口述与高频面试题。</p>
+</header>
+<nav>
+  <a href="#ov">概览</a><a href="#s1">Sentinel 哨兵</a><a href="#s2">Redis Cluster</a>
+  <a href="#s3">Kafka Controller</a><a href="#s4">Partition Leader</a>
+  <a href="#cmp">横向对比</a><a href="#qa">面试题</a>
+</nav>
+<main>
+
+<!-- 概览 -->
+<div class="sec" id="ov">概览 · 四套选举机制</div>
+<div class="overview">
+  <div class="ovc c-r"><div class="ovh"><div class="ovtag">Redis · Sentinel</div><div class="ovname">哨兵领导者选举</div><div class="ovsub">先选 Leader 哨兵，再主导主从切换</div></div><div class="ovbody"><p>多个 Sentinel 监控主库，主库下线后先选出 <strong>Leader Sentinel</strong>，再由它决定哪个从库晋升。基于 <strong>Raft 变体</strong>，先到先得，≥ N/2+1 票成 Leader。</p></div></div>
+  <div class="ovc c-o"><div class="ovh"><div class="ovtag">Redis · Cluster</div><div class="ovname">集群主节点选举</div><div class="ovsub">从节点发起投票，直接竞选为新主</div></div><div class="ovbody"><p>主节点下线后，其从节点向其他<strong>主节点</strong>发起投票，复制偏移量越大越优先发起。<strong>无独立协调者</strong>，节点自治。</p></div></div>
+  <div class="ovc c-b"><div class="ovh"><div class="ovtag">Kafka · Controller</div><div class="ovname">Controller 控制器选举</div><div class="ovsub">集群唯一管理者，负责所有分区 Leader 分配</div></div><div class="ovbody"><p>旧版抢占 ZooKeeper 临时节点，新版 KRaft 使用标准 <strong>Raft 协议</strong>。Controller 是整个集群的"大脑"。</p></div></div>
+  <div class="ovc c-g"><div class="ovh"><div class="ovtag">Kafka · Partition</div><div class="ovname">Partition Leader 选举</div><div class="ovsub">Controller 任命制，毫秒级，无需投票</div></div><div class="ovbody"><p>Controller 从 ISR 列表<strong>按顺序取第一个存活副本</strong>直接指定为新 Leader，任命制而非选举制，速度最快。</p></div></div>
+</div>
+
+<!-- Sentinel -->
+<div class="sec" id="s1">Redis Sentinel · 哨兵选举</div>
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>Redis 哨兵的选举分两个阶段。<strong>第一阶段是判断主库是否真的下线</strong>，分主观下线和客观下线。主观下线是单个哨兵自己认为主库挂了，客观下线是超过 quorum 数量的哨兵都认为主库挂了才触发后续流程。之所以要两阶段，是为了防止网络抖动导致误判，毕竟一次切换代价很高。</p>
+  <p><strong>第二阶段是选 Leader 哨兵</strong>。所有哨兵基于 Raft 变体互相投票，每个哨兵每轮只能投一票，先到先得，拿到超过半数票的哨兵成为 Leader。<em>这个 Leader 是一次性的，只负责这一次切换，执行完毕身份自动失效，和 Raft 里持久存在的 Leader 不一样，更像临时指挥官。</em></p>
+  <p><strong>选新主库</strong>由 Leader 哨兵按三级优先级决定：slave-priority 最小的优先，然后是复制偏移量最大的，最后用 run_id 打平局。确定后发 <code>SLAVEOF NO ONE</code> 给新主，发 <code>SLAVEOF 新主地址</code> 给其他从库，通知客户端切换完成。</p>
+</div>
+<div class="diag">
+<svg viewBox="0 0 740 200" width="740" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ag" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#0a7c52" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="ay" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#9a6e0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="aw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#9aa0ad" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <text x="10" y="13" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">① ODOWN判定　② Leader投票　③ 评估从库　④ Failover</text>
+  <rect x="10" y="74" width="104" height="54" rx="7" fill="#fff0f0" stroke="#d63031" stroke-width="1.5"/>
+  <text x="62" y="97" text-anchor="middle" fill="#d63031" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="600">Master</text>
+  <text x="62" y="114" text-anchor="middle" fill="#d63031" font-size="10" font-family="IBM Plex Mono,monospace">✕ DOWN</text>
+  <rect x="166" y="16" width="112" height="52" rx="7" fill="#fdf7e8" stroke="#9a6e0a" stroke-width="1.8"/>
+  <text x="222" y="38" text-anchor="middle" fill="#9a6e0a" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="700">Sentinel 1</text>
+  <text x="222" y="55" text-anchor="middle" fill="#9a6e0a" font-size="10" font-family="IBM Plex Mono,monospace">★ Leader</text>
+  <rect x="166" y="96" width="112" height="44" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="222" y="121" text-anchor="middle" fill="#5a6272" font-size="12" font-family="IBM Plex Mono,monospace">Sentinel 2</text>
+  <rect x="166" y="158" width="112" height="34" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="222" y="179" text-anchor="middle" fill="#5a6272" font-size="12" font-family="IBM Plex Mono,monospace">Sentinel 3</text>
+  <line x1="166" y1="42" x2="114" y2="88" stroke="#d0d5de" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="166" y1="118" x2="114" y2="106" stroke="#d0d5de" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="166" y1="175" x2="114" y2="118" stroke="#d0d5de" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="72" y="64" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">PING</text>
+  <line x1="222" y1="96" x2="222" y2="68" stroke="#0a7c52" stroke-width="1.3" marker-end="url(#ag)"/>
+  <text x="234" y="85" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">vote</text>
+  <path d="M222 158 L222 68" stroke="#0a7c52" stroke-width="1.3" fill="none" marker-end="url(#ag)" stroke-dasharray="5 2"/>
+  <text x="234" y="140" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">vote</text>
+  <rect x="358" y="44" width="110" height="50" rx="7" fill="#f1eefb" stroke="#5e38c0" stroke-width="1.5"/>
+  <text x="413" y="66" text-anchor="middle" fill="#5e38c0" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="600">Slave A</text>
+  <text x="413" y="83" text-anchor="middle" fill="#5e38c0" font-size="10" font-family="IBM Plex Mono,monospace">offset 最大</text>
+  <rect x="358" y="124" width="110" height="44" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="413" y="149" text-anchor="middle" fill="#5a6272" font-size="12" font-family="IBM Plex Mono,monospace">Slave B</text>
+  <line x1="278" y1="42" x2="356" y2="68" stroke="#9a6e0a" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ay)"/>
+  <text x="286" y="38" fill="#9a6e0a" font-size="9" font-family="IBM Plex Mono,monospace">评估从库</text>
+  <rect x="536" y="58" width="130" height="52" rx="7" fill="#edf9f3" stroke="#0a7c52" stroke-width="1.8"/>
+  <text x="601" y="80" text-anchor="middle" fill="#0a7c52" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="700">New Master</text>
+  <text x="601" y="98" text-anchor="middle" fill="#0a7c52" font-size="10" font-family="IBM Plex Mono,monospace">Slave A 晋升</text>
+  <line x1="468" y1="69" x2="534" y2="78" stroke="#0a7c52" stroke-width="1.5" marker-end="url(#ag)"/>
+  <text x="468" y="60" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">SLAVEOF NO ONE</text>
+</svg>
+</div>
+<div class="fw c-r" style="margin-bottom:4px">
+  <div class="fwh"><div class="fwb">PHASE 1</div><div><div class="fwt">主库下线判定（SDOWN → ODOWN）</div><div class="fws">两阶段判定，防止误判</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">主观下线 SDOWN</div><div class="sd">单个哨兵在 <code>down-after-milliseconds</code>（默认 30s）内未收到 PING 响应，<strong>单方面</strong>标记为 SDOWN。可能是网络抖动，不能作为切换依据。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">客观下线 ODOWN</div><div class="sd">向所有哨兵发送 <code>SENTINEL is-master-down-by-addr</code>，收到 <strong>≥ quorum 个</strong>认同后升级为 ODOWN，触发 Leader 选举。</div></div></div>
+  </div>
+</div>
+<div class="fw c-r">
+  <div class="fwh"><div class="fwb">PHASE 2</div><div><div class="fwt">Leader Sentinel 选举 + Failover</div><div class="fws">Raft 变体，先到先得，一次性 Leader</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">3</div><div class="sline"></div></div><div class="sb"><div class="st">发起投票（epoch +1）</div><div class="sd">确认 ODOWN 的哨兵将<strong>配置纪元 epoch 加 1</strong>，向所有哨兵广播投票请求。每个哨兵每个 epoch 只能投一票，先到先得。若无人获得多数票，等待随机时间重新选举。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">4</div><div class="sline"></div></div><div class="sb"><div class="st">获得 ≥ N/2+1 票成为一次性 Leader</div><div class="sd">Leader Sentinel 是<strong>临时角色</strong>，只负责本次 Failover，执行完毕身份自动失效，所有哨兵恢复平等状态。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">5</div><div class="sline"></div></div><div class="sb"><div class="st">选出新主库（三级优先）</div><div class="sd">① <strong>slave-priority 最小</strong> → ② <strong>复制偏移量最大</strong>（数据最新）→ ③ <strong>run_id 字典序最小</strong>（打平局）</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">6</div><div class="sline"></div></div><div class="sb"><div class="st">执行 Failover</div><div class="sd">向新主发 <code>SLAVEOF NO ONE</code>，向其他从库发 <code>SLAVEOF 新主地址</code>，通过 Pub/Sub 通知客户端新主地址。</div></div></div>
+  </div>
+</div>
+<div class="note warn"><span class="nlbl">脑裂</span><p>网络分区时旧主库可能仍接受写入，恢复后数据丢失。配置 <code>min-replicas-to-write 1</code> + <code>min-replicas-max-lag 10</code> 可缓解。</p></div>
+
+<!-- Cluster -->
+<div class="sec" id="s2">Redis Cluster · 主节点选举</div>
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>Redis Cluster 的故障切换不依赖外部哨兵，完全靠节点自治。<strong>故障检测用的是 Gossip 协议</strong>，节点间互发心跳，超时未响应先标记 PFAIL，超过半数主节点都认为 PFAIL 了才升级为 FAIL。</p>
+  <p><strong>故障主节点的从节点发起竞选</strong>，向其他主节点拉票。关键点是：<em>复制偏移量越大的从节点，发起投票的等待时间越短</em>，所以它天然先拿到票。这个设计很巧妙，通过时间差自然筛选出数据最新的候选人，不需要集中比较。</p>
+  <p>获得超过半数主节点投票后，从节点晋升为主节点，接管原主节点负责的哈希槽，广播给整个集群。<strong>和 Sentinel 最大的区别是：Cluster 没有独立的协调者，从节点直接向其他主节点拉票，是纯去中心化设计。</strong></p>
+</div>
+<div class="diag">
+<svg viewBox="0 0 740 198" width="740" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ao" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#c0530a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="ag2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#0a7c52" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="aw2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#9aa0ad" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <text x="10" y="13" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">① Gossip FAIL　　② 从节点拉票　　③ 主节点投票　　④ 晋升接管 slot</text>
+  <rect x="10" y="70" width="106" height="54" rx="7" fill="#fff0f0" stroke="#d63031" stroke-width="1.5"/>
+  <text x="63" y="93" text-anchor="middle" fill="#d63031" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="600">Master A</text>
+  <text x="63" y="110" text-anchor="middle" fill="#d63031" font-size="10" font-family="IBM Plex Mono,monospace">✕ FAIL</text>
+  <rect x="160" y="24" width="118" height="50" rx="7" fill="#fdf7e8" stroke="#9a6e0a" stroke-width="1.8"/>
+  <text x="219" y="46" text-anchor="middle" fill="#9a6e0a" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="700">Slave A1</text>
+  <text x="219" y="63" text-anchor="middle" fill="#9a6e0a" font-size="10" font-family="IBM Plex Mono,monospace">offset最大 ★先发起</text>
+  <rect x="160" y="124" width="118" height="46" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="219" y="149" text-anchor="middle" fill="#5a6272" font-size="12" font-family="IBM Plex Mono,monospace">Slave A2</text>
+  <text x="219" y="163" text-anchor="middle" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">offset 较小</text>
+  <path d="M116 94 Q138 50 160 50" stroke="#d63031" stroke-width="1" stroke-dasharray="4 3" fill="none" marker-end="url(#aw2)"/>
+  <path d="M116 104 Q138 146 160 146" stroke="#d63031" stroke-width="1" stroke-dasharray="4 3" fill="none" marker-end="url(#aw2)"/>
+  <text x="102" y="72" fill="#d63031" font-size="9" font-family="IBM Plex Mono,monospace">FAIL广播</text>
+  <rect x="348" y="14" width="106" height="50" rx="7" fill="#edf9f3" stroke="#0a7c52" stroke-width="1.2"/>
+  <text x="401" y="36" text-anchor="middle" fill="#0a7c52" font-size="12" font-family="IBM Plex Mono,monospace">Master B</text>
+  <text x="401" y="53" text-anchor="middle" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">投票节点</text>
+  <rect x="348" y="134" width="106" height="50" rx="7" fill="#edf9f3" stroke="#0a7c52" stroke-width="1.2"/>
+  <text x="401" y="156" text-anchor="middle" fill="#0a7c52" font-size="12" font-family="IBM Plex Mono,monospace">Master C</text>
+  <text x="401" y="173" text-anchor="middle" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">投票节点</text>
+  <line x1="278" y1="48" x2="346" y2="36" stroke="#c0530a" stroke-width="1.3" marker-end="url(#ao)"/>
+  <line x1="278" y1="62" x2="346" y2="156" stroke="#c0530a" stroke-width="1.3" marker-end="url(#ao)"/>
+  <text x="280" y="40" fill="#c0530a" font-size="9" font-family="IBM Plex Mono,monospace">AUTH_REQUEST</text>
+  <line x1="348" y1="46" x2="280" y2="54" stroke="#0a7c52" stroke-width="1.3" marker-end="url(#ag2)"/>
+  <line x1="350" y1="146" x2="280" y2="66" stroke="#0a7c52" stroke-width="1.3" marker-end="url(#ag2)"/>
+  <text x="288" y="97" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">ACK ×2</text>
+  <rect x="534" y="62" width="130" height="54" rx="7" fill="#edf9f3" stroke="#0a7c52" stroke-width="1.8"/>
+  <text x="599" y="85" text-anchor="middle" fill="#0a7c52" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="700">New Master A</text>
+  <text x="599" y="102" text-anchor="middle" fill="#0a7c52" font-size="10" font-family="IBM Plex Mono,monospace">接管 slot 0~5461</text>
+  <line x1="454" y1="50" x2="532" y2="78" stroke="#0a7c52" stroke-width="1.5" marker-end="url(#ag2)"/>
+  <text x="454" y="44" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">≥N/2+1票 晋升</text>
+</svg>
+</div>
+<div class="fw c-o" style="margin-bottom:4px">
+  <div class="fwh"><div class="fwb">PHASE 1</div><div><div class="fwt">故障检测（Gossip 协议）</div><div class="fws">PFAIL → FAIL，多数主节点确认</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">PFAIL（可能下线）</div><div class="sd">节点在 <code>cluster-node-timeout</code>（默认 15s）内未收到 PONG，标记对方为 PFAIL，通过 Gossip 扩散。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">FAIL（确认下线）</div><div class="sd">当 <strong>≥ N/2+1 个主节点</strong>都报告 PFAIL，任意主节点将其升级为 FAIL 并广播，触发从节点选举。</div></div></div>
+  </div>
+</div>
+<div class="fw c-o">
+  <div class="fwh"><div class="fwb">PHASE 2</div><div><div class="fwt">从节点竞选主节点</div><div class="fws">偏移量大者时间差优先，去中心化投票</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">3</div><div class="sline"></div></div><div class="sb"><div class="st">发起时间差异化（天然优先权）</div><div class="sd">每个从节点发起延迟 = 固定 500ms + 随机量 + 偏移量惩罚。<strong>偏移量最大的从节点延迟最小，最先发起，自然先拿到票</strong>，无需集中评估。</div><div class="sc">delay = 500ms + random(0~500ms) + (MAX_OFFSET - my_offset) × 系数
+<span class="cm"># 偏移量越大 → 延迟越小 → 最先发起 → 先拿票</span></div></div></div>
+    <div class="step"><div class="sl"><div class="sn">4</div><div class="sline"></div></div><div class="sb"><div class="st">epoch +1，广播 FAILOVER_AUTH_REQUEST</div><div class="sd">每个主节点每 epoch 只投一票，先到先得。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">5</div><div class="sline"></div></div><div class="sb"><div class="st">获得 ≥ N/2+1 票晋升</div><div class="sd">执行 CLUSTER FAILOVER，接管原主节点的所有哈希槽，广播 PONG 通知全集群。</div></div></div>
+  </div>
+</div>
+<div class="note info"><span class="nlbl">关键区别</span><p>Redis Cluster <strong>没有独立协调者</strong>，从节点直接向其他主节点拉票，纯去中心化。只要存活主节点不足 N/2+1，选举失败，集群整体不可用。</p></div>
+
+<!-- Kafka Controller -->
+<div class="sec" id="s3">Kafka Controller · 控制器选举</div>
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>Kafka 的 Controller 是整个集群的"大脑"，所有分区 Leader 的选举、ISR 的变更、Broker 上下线处理都由它协调。</p>
+  <p><strong>旧版依赖 ZooKeeper</strong>：所有 Broker 启动时都去抢一个 ZooKeeper 临时节点，第一个写入成功的就是 Controller。ZK 保证写入原子性，Controller 宕机后临时节点自动删除，Broker 重新竞争。问题是依赖 ZK 运维复杂，分区数量有上限，元数据一致性也有短暂窗口。</p>
+  <p><strong>新版 KRaft 去掉了 ZooKeeper</strong>，改用内置 Raft 协议。预先配置几个节点组成 Controller Quorum，它们之间跑标准 Raft 选出 Active Controller，元数据变更写入 Raft 日志多数确认后才生效。<em>强一致，支持百万级分区，运维也简单了很多。</em></p>
+</div>
+<div class="diag">
+<svg viewBox="0 0 740 178" width="740" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ab" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#165fa8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="ay2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#9a6e0a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="aw3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#9aa0ad" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <text x="10" y="13" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">旧版 ZooKeeper 模式　　　　　　　　　　　　　　新版 KRaft 模式（Kafka 3.3+）</text>
+  <rect x="278" y="24" width="112" height="52" rx="7" fill="#edf3fd" stroke="#165fa8" stroke-width="1.5"/>
+  <text x="334" y="46" text-anchor="middle" fill="#165fa8" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="600">ZooKeeper</text>
+  <text x="334" y="63" text-anchor="middle" fill="#165fa8" font-size="10" font-family="IBM Plex Mono,monospace">/controller</text>
+  <rect x="18" y="106" width="90" height="48" rx="7" fill="#fdf7e8" stroke="#9a6e0a" stroke-width="1.5"/>
+  <text x="63" y="128" text-anchor="middle" fill="#9a6e0a" font-size="11" font-family="IBM Plex Mono,monospace" font-weight="700">Broker 1</text>
+  <text x="63" y="145" text-anchor="middle" fill="#9a6e0a" font-size="9" font-family="IBM Plex Mono,monospace">★ Controller</text>
+  <rect x="136" y="106" width="90" height="48" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="181" y="128" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Broker 2</text>
+  <text x="181" y="145" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">watch</text>
+  <rect x="256" y="106" width="90" height="48" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="301" y="128" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Broker 3</text>
+  <text x="301" y="145" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">watch</text>
+  <line x1="78" y1="106" x2="296" y2="60" stroke="#9a6e0a" stroke-width="1.5" marker-end="url(#ay2)"/>
+  <text x="126" y="74" fill="#9a6e0a" font-size="9" font-family="IBM Plex Mono,monospace">写入成功 ✓</text>
+  <line x1="181" y1="106" x2="318" y2="76" stroke="#d0d5de" stroke-width="1" marker-end="url(#aw3)"/>
+  <text x="212" y="95" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">✗ NodeExists</text>
+  <line x1="301" y1="106" x2="338" y2="76" stroke="#d0d5de" stroke-width="1" marker-end="url(#aw3)"/>
+  <!-- KRaft -->
+  <rect x="434" y="24" width="100" height="50" rx="7" fill="#fdf7e8" stroke="#9a6e0a" stroke-width="1.8"/>
+  <text x="484" y="45" text-anchor="middle" fill="#9a6e0a" font-size="11" font-family="IBM Plex Mono,monospace" font-weight="700">Active</text>
+  <text x="484" y="63" text-anchor="middle" fill="#9a6e0a" font-size="10" font-family="IBM Plex Mono,monospace">Controller</text>
+  <rect x="552" y="24" width="88" height="50" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="596" y="46" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Ctrl Node</text>
+  <text x="596" y="62" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">Follower</text>
+  <rect x="652" y="24" width="82" height="50" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="693" y="46" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Ctrl Node</text>
+  <text x="693" y="62" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">Follower</text>
+  <line x1="534" y1="49" x2="550" y2="49" stroke="#165fa8" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ab)"/>
+  <line x1="534" y1="54" x2="650" y2="54" stroke="#165fa8" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ab)"/>
+  <text x="536" y="40" fill="#165fa8" font-size="9" font-family="IBM Plex Mono,monospace">Raft 心跳+日志复制</text>
+  <rect x="434" y="106" width="82" height="42" rx="6" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="475" y="125" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Broker</text>
+  <text x="475" y="139" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">MetadataFetch</text>
+  <rect x="532" y="106" width="82" height="42" rx="6" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="573" y="125" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Broker</text>
+  <text x="573" y="139" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">MetadataFetch</text>
+  <line x1="475" y1="106" x2="475" y2="76" stroke="#d0d5de" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#aw3)"/>
+  <line x1="573" y1="106" x2="534" y2="76" stroke="#d0d5de" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#aw3)"/>
+</svg>
+</div>
+<div class="fw c-b" style="margin-bottom:4px">
+  <div class="fwh"><div class="fwb">旧版 ZK</div><div><div class="fwt">ZooKeeper 临时节点抢占</div><div class="fws">Kafka 2.8 以前</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">所有 Broker 竞争写入 /controller</div><div class="sd">Controller 失联后，所有存活 Broker 同时向 ZK 抢写 <code>/controller</code> 临时节点，写入自己的 broker_id 和 controller_epoch。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">第一个写入成功者成为 Controller</div><div class="sd">ZK 保证原子性，只有<strong>一个 Broker 成功</strong>，其余收到 NodeExistsException，转而 Watch 节点删除事件。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">3</div><div class="sline"></div></div><div class="sb"><div class="st">Controller 宕机 → 临时节点删除 → 重新抢占</div><div class="sd">Controller 会话超时，临时节点自动删除，所有 Watch 触发，重新竞争。</div></div></div>
+  </div>
+</div>
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">新版 KRaft</div><div><div class="fwt">内置 Raft 协议（Kafka 3.3+ 正式可用）</div><div class="fws">去除 ZooKeeper，Controller Quorum 节点池</div></div></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">Controller Quorum 节点池</div><div class="sd">配置文件预先指定若干 Broker 作为 Controller 候选节点（controller.quorum.voters），组成独立 Raft 共识组，普通 Broker 不参与。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">标准 Raft 选举</div><div class="sd">超时未收到 Leader 心跳 → 自增 term → 成为 Candidate → 发 RequestVote RPC → 收到多数票（≥ N/2+1）成为 <strong>Active Controller</strong>。</div><div class="sc">Follower ─(timeout)→ Candidate ─(RequestVote)→ 其他节点
+其他节点 ─(多数票)→ Active Controller ─(心跳)→ Follower</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">3</div><div class="sline"></div></div><div class="sb"><div class="st">元数据 Raft 日志复制</div><div class="sd">所有元数据变更写入 Raft 日志，多数节点确认后才生效，<strong>强一致</strong>，支持百万级分区。</div></div></div>
+  </div>
+</div>
+<div class="note good"><span class="nlbl">KRaft 优势</span><p>去除 ZooKeeper 后启动速度提升 2-3 倍，分区数量上限从约 20 万提升至<strong>百万级</strong>，运维大幅简化，元数据一致性更强。</p></div>
+
+<!-- Partition Leader -->
+<div class="sec" id="s4">Kafka Partition Leader · 分区领导者选举</div>
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>Kafka 的 Partition Leader 选举其实不算真正的选举，<strong>更准确地说是 Controller 的任命</strong>。Controller 不需要让副本之间投票，而是直接从 ISR 列表里按顺序找第一个存活的副本，发一条 LeaderAndIsr 命令指定它为新 Leader，整个过程毫秒级完成。</p>
+  <p>核心是 <strong>ISR（In-Sync Replicas）</strong>，只有 ISR 里的副本才能成为 Leader，保证新 Leader 数据是最新的，不会丢失已确认的消息。</p>
+  <p>有一个 <em>Unclean Leader Election（不洁选举）</em>的概念，ISR 为空时可以从非同步副本里选 Leader 保持可用性，但代价是可能丢数据。<strong>生产默认关闭，这是 CAP 中 CP 和 AP 的取舍。</strong>另外，<code>acks=all</code> 配合 <code>min.insync.replicas=2</code> 是保证消息不丢失的标准组合。</p>
+</div>
+<div class="diag">
+<svg viewBox="0 0 740 175" width="740" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ag3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#0a7c52" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="ab2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l6 3-6 3" fill="none" stroke="#165fa8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <text x="10" y="13" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">Controller 任命制：按 AR 顺序取第一个存活 ISR 成员，无需投票，毫秒级完成</text>
+  <rect x="10" y="60" width="118" height="54" rx="7" fill="#edf3fd" stroke="#165fa8" stroke-width="1.5"/>
+  <text x="69" y="82" text-anchor="middle" fill="#165fa8" font-size="12" font-family="IBM Plex Mono,monospace" font-weight="600">Controller</text>
+  <text x="69" y="100" text-anchor="middle" fill="#165fa8" font-size="10" font-family="IBM Plex Mono,monospace">感知Leader下线</text>
+  <rect x="186" y="14" width="222" height="152" rx="7" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="297" y="31" text-anchor="middle" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">AR 列表（按顺序遍历）</text>
+  <rect x="200" y="40" width="194" height="36" rx="5" fill="#fff0f0" stroke="#d63031" stroke-width="1"/>
+  <text x="297" y="56" text-anchor="middle" fill="#d63031" font-size="11" font-family="IBM Plex Mono,monospace">AR[0] Broker-1  ✕ DOWN</text>
+  <text x="297" y="70" text-anchor="middle" fill="#d63031" font-size="9" font-family="IBM Plex Mono,monospace">不在ISR / 已下线，跳过</text>
+  <rect x="200" y="88" width="194" height="38" rx="5" fill="#edf9f3" stroke="#0a7c52" stroke-width="1.5"/>
+  <text x="297" y="105" text-anchor="middle" fill="#0a7c52" font-size="11" font-family="IBM Plex Mono,monospace" font-weight="600">AR[1] Broker-2  ✓ ISR</text>
+  <text x="297" y="120" text-anchor="middle" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">★ 第一个存活ISR → 选为Leader</text>
+  <rect x="200" y="138" width="194" height="22" rx="5" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="297" y="153" text-anchor="middle" fill="#9aa0ad" font-size="10" font-family="IBM Plex Mono,monospace">AR[2] Broker-3  ISR（备选）</text>
+  <line x1="128" y1="87" x2="184" y2="87" stroke="#165fa8" stroke-width="1.3" marker-end="url(#ab2)"/>
+  <text x="130" y="80" fill="#165fa8" font-size="9" font-family="IBM Plex Mono,monospace">遍历AR</text>
+  <rect x="480" y="64" width="132" height="54" rx="7" fill="#edf9f3" stroke="#0a7c52" stroke-width="1.8"/>
+  <text x="546" y="87" text-anchor="middle" fill="#0a7c52" font-size="13" font-family="IBM Plex Mono,monospace" font-weight="700">New Leader</text>
+  <text x="546" y="104" text-anchor="middle" fill="#0a7c52" font-size="10" font-family="IBM Plex Mono,monospace">Broker-2</text>
+  <line x1="408" y1="107" x2="478" y2="90" stroke="#0a7c52" stroke-width="1.5" marker-end="url(#ag3)"/>
+  <text x="408" y="100" fill="#0a7c52" font-size="9" font-family="IBM Plex Mono,monospace">LeaderAndIsr 命令</text>
+  <rect x="640" y="34" width="94" height="38" rx="5" fill="#f7f8fa" stroke="#d0d5de" stroke-width="1"/>
+  <text x="687" y="51" text-anchor="middle" fill="#5a6272" font-size="11" font-family="IBM Plex Mono,monospace">Producer</text>
+  <text x="687" y="65" text-anchor="middle" fill="#9aa0ad" font-size="9" font-family="IBM Plex Mono,monospace">重新路由</text>
+  <line x1="640" y1="56" x2="614" y2="76" stroke="#d0d5de" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#ab2)"/>
+</svg>
+</div>
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">LEADER ELECTION</div><div><div class="fwt">Partition Leader 任命（Controller 直接指定）</div><div class="fws">ISR 保障数据安全，毫秒级切换</div></div></div>
+  <div class="f2">
+    <div class="fc">
+      <div class="fcl">核心概念</div>
+      <div class="steps" style="padding:0">
+        <div class="step"><div class="sl"><div class="sn">①</div><div class="sline"></div></div><div class="sb"><div class="st">AR（Assigned Replicas）</div><div class="sd">分区全部副本列表，创建时固定，顺序决定优先副本（Preferred Replica）。</div></div></div>
+        <div class="step"><div class="sl"><div class="sn">②</div><div class="sline"></div></div><div class="sb"><div class="st">ISR（In-Sync Replicas）</div><div class="sd">与 Leader 保持同步的副本集合。落后超过 <code>replica.lag.time.max.ms</code>（默认 30s）自动被踢出。</div></div></div>
+        <div class="step"><div class="sl"><div class="sn">③</div><div class="sline"></div></div><div class="sb"><div class="st">选举规则：按 AR 顺序取第一个 ISR 成员</div><div class="sd">Controller 直接发 LeaderAndIsr 命令，无需投票，毫秒级完成。</div></div></div>
+      </div>
+    </div>
+    <div class="fc">
+      <div class="fcl">特殊场景</div>
+      <div class="steps" style="padding:0">
+        <div class="step"><div class="sl"><div class="sn">A</div><div class="sline"></div></div><div class="sb"><div class="st">Unclean Leader Election</div><div class="sd">ISR 为空时，<code>unclean.leader.election.enable=true</code>（默认 false）可从 OSR 选 Leader，<strong>牺牲一致性换可用性</strong>，可能丢数据。</div></div></div>
+        <div class="step"><div class="sl"><div class="sn">B</div><div class="sline"></div></div><div class="sb"><div class="st">acks=all 与 ISR 的关系</div><div class="sd">生产者 <code>acks=all</code> 要求 ISR 内<strong>所有副本</strong>确认，配合 <code>min.insync.replicas=2</code>，是生产环境标准配置。</div></div></div>
+        <div class="step"><div class="sl"><div class="sn">C</div><div class="sline"></div></div><div class="sb"><div class="st">Preferred Leader Election</div><div class="sd">长期运行后 Leader 可能漂移，执行 preferred-replica-election 工具将 Leader 迁回 AR[0]，实现负载均衡。</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 对比 -->
+<div class="sec" id="cmp">横向对比</div>
+<div class="tw">
+  <table>
+    <thead><tr><th>维度</th><th>Redis Sentinel</th><th>Redis Cluster</th><th>Kafka Controller</th><th>Kafka Partition Leader</th></tr></thead>
+    <tbody>
+      <tr><td>触发条件</td><td>主库 ODOWN（≥ quorum 确认）</td><td>主节点 FAIL（≥ N/2+1 确认）</td><td>Controller 宕机/断连</td><td>Partition Leader 下线</td></tr>
+      <tr><td>选举方式</td><td><strong>投票制</strong> Raft 变体</td><td><strong>投票制</strong> Raft 变体</td><td><strong>抢占制</strong>（ZK）/ <strong>Raft</strong>（KRaft）</td><td><strong>任命制</strong> Controller 直接指定</td></tr>
+      <tr><td>参与者</td><td>所有 Sentinel</td><td>从节点发起 + 主节点投票</td><td>所有 Broker（ZK）/ Quorum 节点（KRaft）</td><td>Controller 决策，ISR 为候选池</td></tr>
+      <tr><td>核心依据</td><td>先发起者优先，随机延迟打散</td><td>复制偏移量大者先发起</td><td>先写入 ZK / Raft 日志最新</td><td>AR 顺序 + ISR 成员资格</td></tr>
+      <tr><td>选举耗时</td><td>秒级（ODOWN 判定 30s+）</td><td>秒级（FAIL 判定 15s+）</td><td>秒级（ZK）/ 亚秒（KRaft）</td><td><strong>毫秒级</strong></td></tr>
+      <tr><td>脑裂防护</td><td>epoch + min-replicas</td><td>epoch 保证新主覆盖旧主</td><td>controller_epoch 拒绝旧命令</td><td>ISR 机制保证数据一致</td></tr>
+      <tr><td>算法基础</td><td><span class="chip p">Raft 变体</span></td><td><span class="chip p">Raft 变体</span></td><td><span class="chip b">ZAB</span> <span class="chip p">Raft</span></td><td><span class="chip g">ISR 任命</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 面试题 -->
+<div class="sec" id="qa">高频面试题</div>
+
+<div class="qa q-r" style="margin-bottom:4px">
+  <div class="qah"><div class="qabdg">Q&amp;A</div><div class="qaht">Redis Sentinel 面试题</div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q1</span><span class="qt">为什么要分主观下线和客观下线两个阶段？</span></div><div class="qa-a"><p>单个哨兵的网络可能异常，只靠自己判断主库是否下线容易误判，<strong>误触发 Failover 代价很高</strong>（主从切换、数据同步、客户端重连）。客观下线要求超过 quorum 个哨兵都认同，相当于多人表决，可靠性大幅提升。这是典型的多数派思想，用分布式共识防止单点误判。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q2</span><span class="qt">Sentinel Leader 和新主库是怎么选出来的？有什么区别？</span></div><div class="qa-a"><p><strong>选 Leader Sentinel</strong>：哨兵间互相投票，Raft 变体，每个 epoch 只能投一票，先到先得，≥ N/2+1 票成为 Leader。目的是确保只有一个哨兵执行 Failover，避免并发操作冲突。这个 Leader 是一次性的，执行完自动失效。</p><p><strong>选新主库</strong>：由 Leader Sentinel 单独决定，不投票。按三级优先级：slave-priority 最小 → 复制偏移量最大 → run_id 最小。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q3</span><span class="qt">为什么建议哨兵节点数量为奇数？</span></div><div class="qa-a"><p>选举需要 ≥ N/2+1 票。3 个节点能容忍 1 个宕机（需 2 票），4 个节点也只能容忍 1 个宕机（需 3 票），两者容错能力一样，但 4 节点多一台机器浪费资源。<strong>奇数节点在相同容错能力下更经济。</strong></p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q4</span><span class="qt">如何缓解 Sentinel 模式的脑裂问题？</span></div><div class="qa-a"><p>脑裂：网络分区时旧主库仍接受写入，恢复后数据丢失。</p><div class="ac">min-replicas-to-write 1    <span class="cm"># 至少 1 个从库确认才写入</span>
+min-replicas-max-lag 10   <span class="cm"># 从库延迟超过 10s 则主库拒绝写入</span></div><p>分区期间旧主无从库可用，拒绝写入，缩小丢失窗口。是<strong>缓解而非根除</strong>。</p></div></div>
+</div>
+
+<div class="qa q-o" style="margin-bottom:4px">
+  <div class="qah"><div class="qabdg">Q&amp;A</div><div class="qaht">Redis Cluster 面试题</div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q1</span><span class="qt">Cluster 选举和 Sentinel 选举最大的区别是什么？</span></div><div class="qa-a"><p><strong>Sentinel</strong>：哨兵之间选 Leader 哨兵，再由 Leader 评估从库；有外部监控进程，从库偏移量由 Leader 集中比较。</p><p><strong>Cluster</strong>：故障主节点的从节点直接向其他主节点拉票，没有独立协调者；通过<strong>延迟发起时间</strong>实现偏移量大者优先，完全去中心化，更自治。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q2</span><span class="qt">什么情况下 Redis Cluster 整体不可用？</span></div><div class="qa-a"><p>① <strong>某个主节点下线且没有从节点</strong>：该主节点的哈希槽无人接管，集群进入 FAIL 状态；② <strong>存活主节点不足 N/2+1</strong>：选举需要多数主节点投票，不足则选举失败，集群整体不可用。这是 Cluster 的可用性边界。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q3</span><span class="qt">epoch 在 Cluster 中起什么作用？</span></div><div class="qa-a"><p>① <strong>唯一性</strong>：每个主节点每 epoch 只投一票，同一轮不可能出现两个候选人都获得多数票；② <strong>防脑裂</strong>：旧主恢复后 epoch 过期，其命令被其他节点忽略，防止数据回滚；③ <strong>配置收敛</strong>：节点交换配置时 epoch 大的覆盖 epoch 小的，集群最终一致。</p></div></div>
+</div>
+
+<div class="qa q-b" style="margin-bottom:4px">
+  <div class="qah"><div class="qabdg">Q&amp;A</div><div class="qaht">Kafka Controller 面试题</div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q1</span><span class="qt">旧版 ZK 选举 Controller 有什么问题？KRaft 怎么解决？</span></div><div class="qa-a"><p><strong>ZK 模式问题</strong>：① 运维复杂，需要单独维护 ZK 集群；② 约 20 万分区后性能下降；③ 大集群启动慢；④ ZK 与 Broker 间存在短暂元数据不一致。</p><p><strong>KRaft 解决</strong>：元数据存入 Kafka 内部 Raft 日志，Controller 即 Raft Leader，变更多数确认才生效，强一致；去掉 ZK 依赖，启动提速 2-3 倍，支持百万级分区。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q2</span><span class="qt">Controller 频繁切换（抖动）会有什么影响？</span></div><div class="qa-a"><p>每次选举触发大量分区 Leader 重选和元数据同步：① <strong>服务抖动</strong>：分区短暂不可写，Producer 重试；② <strong>性能下降</strong>：新 Controller 加载全量元数据，CPU/网络负载高；③ <strong>大集群影响更重</strong>：数万分区批量重选可能持续数十秒。常见原因：Controller 所在 Broker GC 过长、<code>zookeeper.session.timeout.ms</code> 设置过小。</p></div></div>
+</div>
+
+<div class="qa q-g" style="margin-bottom:4px">
+  <div class="qah"><div class="qabdg">Q&amp;A</div><div class="qaht">Kafka Partition Leader 面试题</div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q1</span><span class="qt">ISR 是什么？什么情况下副本被踢出 ISR？</span></div><div class="qa-a"><p>ISR 是<strong>与 Leader 保持同步的副本集合</strong>，Kafka 数据可靠性的核心保障，只有 ISR 内的副本才能成为 Leader。</p><p>Follower 在 <code>replica.lag.time.max.ms</code>（默认 30s）内未追上 Leader 最新 offset，自动移出 ISR。追上后重新加入，无需人工干预。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q2</span><span class="qt">acks=0/1/all 区别？生产环境如何选择？</span></div><div class="qa-a"><p><strong>acks=0</strong>：不等确认，吞吐最高，可能丢数据，适合日志等。<strong>acks=1</strong>（默认）：Leader 写入即确认，Follower 未同步时 Leader 宕机数据丢失。<strong>acks=all</strong>：ISR 内所有副本确认，最安全。</p><p><strong>生产推荐</strong>：核心业务用 <code>acks=all + min.insync.replicas=2 + replication.factor=3</code>，在可接受延迟内最大化数据安全。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q3</span><span class="qt">Unclean Leader Election 是什么？为什么默认关闭？</span></div><div class="qa-a"><p>ISR 为空时从非同步副本（OSR）选 Leader，代价是<strong>已确认消息可能丢失</strong>，违反持久性保证。这是 CAP 的取舍：<strong>关闭 = 优先 CP（一致性），开启 = 优先 AP（可用性）</strong>。金融/订单等核心业务保持关闭，日志收集等允许丢失的场景可以开启。</p></div></div>
+</div>
+
+<div class="qa q-p">
+  <div class="qah"><div class="qabdg">Q&amp;A</div><div class="qaht">综合 &amp; 设计类面试题</div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q1</span><span class="qt">这几套机制都用"多数派"原则，为什么？</span></div><div class="qa-a"><p>多数派是防脑裂的数学基础：<strong>任意两个多数派集合必然有交集</strong>，所以不可能同时产生两个都获得多数认可的 Leader。N 个节点中，多数派 = N/2+1，两个多数派之和 = N+2 > N，必然重叠，重叠节点不可能同时投两票。这是 Raft、Paxos、ZAB 等共识算法的数学基础。</p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q2</span><span class="qt">Kafka 和 Redis 选举机制最核心的区别是什么？</span></div><div class="qa-a"><p><strong>Redis</strong>：节点间对等投票，无中心协调者，秒级切换，解决主库不可用时的<strong>快速切换</strong>问题。</p><p><strong>Kafka Controller</strong>：先选出唯一 Controller 集中管理，KRaft 用标准 Raft，解决<strong>元数据一致性和集群管理</strong>问题。</p><p><strong>Kafka Partition Leader</strong>：不是"选举"而是 Controller 的"任命"，毫秒级，代价是需要维护 ISR 候选人名单。</p><p><strong>总结：Redis 去中心化投票，Kafka 中心化任命，都用 epoch/term 防脑裂。</strong></p></div></div>
+  <div class="qi"><div class="qq"><span class="qn">Q3</span><span class="qt">Kafka 消息不丢失需要哪些配置？和选举有什么关联？</span></div><div class="qa-a"><div class="ac"><span class="cm"># Broker 端（与选举直接相关）</span>
+replication.factor=3            <span class="cm"># 3副本，允许1个节点故障</span>
+min.insync.replicas=2           <span class="cm"># ISR最少2个，防退化为单点</span>
+unclean.leader.election=false   <span class="cm"># 禁止不洁选举，保证一致性</span>
+
+<span class="cm"># 生产者端</span>
+acks=all                        <span class="cm"># 等ISR全部确认</span>
+enable.idempotence=true         <span class="cm"># 幂等，防重试重复</span>
+
+<span class="cm"># 消费者端</span>
+enable.auto.commit=false        <span class="cm"># 手动提交offset</span></div><p><code>min.insync.replicas</code> 控制 ISR 门槛，影响选举能否找到合法候选人；<code>unclean=false</code> 确保只有 ISR 副本才能成为 Leader，从根本上保证已确认消息不因选举而丢失。</p></div></div>
+</div>
+
+</main>
+<footer>
+  <span>Redis &amp; Kafka 选举机制 · 面试题</span>
+  <span>Redis 7.x · Kafka 3.x · KRaft</span>
+</footer>
+</body>
+</html>

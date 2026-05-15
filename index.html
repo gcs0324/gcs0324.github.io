@@ -7,19 +7,39 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="shared/theme.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── 亮色主题（暖黄） ── */
     :root {
-      --bg:        #08090d;
-      --bg2:       #0f1117;
-      --bg3:       #161821;
-      --border:    rgba(255,255,255,0.07);
-      --text:      #e8e9f0;
-      --muted:     #6b6e80;
-      --accent:    #f0a500;
-      --accent2:   #ff6b35;
-      --glow:      rgba(240,165,0,0.15);
+      --bg:     #efebc2;
+      --bg2:    #e4dfa8;
+      --bg3:    #d6cf90;
+      --border: rgba(100,80,20,0.13);
+      --text:   #2d2510;
+      --muted:  #7a6a40;
+      --accent: #8b6508;
+      --accent2:#c4621a;
+      --glow:   rgba(139,101,8,0.2);
+    }
+
+    /* ── 暗色主题（深暖） ── */
+    [data-theme="dark"] {
+      --bg:     #1c1a10;
+      --bg2:    #252215;
+      --bg3:    #2e2a1a;
+      --border: rgba(200,180,80,0.14);
+      --text:   #e8d898;
+      --muted:  #a09050;
+      --accent: #d4a030;
+      --accent2:#e07828;
+      --glow:   rgba(212,160,48,0.25);
+    }
+    [data-theme="dark"] body,
+    [data-theme="dark"] html {
+      background: var(--bg);
+      color: var(--text);
     }
 
     html, body {
@@ -30,26 +50,248 @@
       overflow-x: hidden;
     }
 
-    /* ── noise overlay ── */
+    /* ── background pattern ── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      background-size: 180px;
       pointer-events: none;
-      opacity: 0.6;
+      background-image:
+        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 2 L38 20 L20 38 L2 20 Z' fill='none' stroke='rgba(100%2C80%2C20%2C0.1)' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 40px 40px;
     }
 
     /* ── layout ── */
-    .page {
+    :root { --sb-w: 200px; --sb-collapsed: 40px; }
+
+    .layout {
       position: relative; z-index: 1;
-      min-height: 100vh;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 48px 32px 80px;
+    }
+
+    .page {
+      margin-left: var(--sb-w);
+      transition: margin-left .25s ease;
+      min-width: 0;
       display: grid;
       grid-template-rows: auto auto auto 1fr;
       gap: 48px;
+      padding: 48px 48px 80px 40px;
+      max-width: 1180px;
+    }
+    .layout.collapsed .page { margin-left: var(--sb-collapsed); }
+
+    /* ── sidebar ── */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      width: var(--sb-w);
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: width .25s ease;
+      z-index: 10;
+    }
+    .layout.collapsed .sidebar { width: var(--sb-collapsed); }
+
+    /* toggle rail */
+    .sb-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 14px 10px 10px;
+      flex-shrink: 0;
+    }
+    .sb-toggle-btn {
+      width: 26px; height: 26px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg3);
+      color: var(--muted);
+      cursor: pointer;
+      display: grid; place-items: center;
+      font-size: 13px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: background .15s, color .15s;
+    }
+    .sb-toggle-btn:hover { background: var(--border); color: var(--accent); }
+
+    .sb-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4px 0 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 1;
+      transition: opacity .15s;
+    }
+    .layout.collapsed .sb-body { opacity: 0; pointer-events: none; }
+
+    /* ── 顶层分类 ── */
+    .sidebar-section { }
+
+    .sidebar-cat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px 7px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .sidebar-cat-icon {
+      font-size: 12px;
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
+    .sidebar-cat-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      flex: 1;
+    }
+    .sidebar-chevron {
+      font-size: 9px;
+      color: var(--muted);
+      opacity: 0.4;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .sidebar-section.open > .sidebar-cat .sidebar-chevron { transform: rotate(180deg); }
+
+    /* 顶层分类的内容区（动画展开） */
+    .sidebar-body {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .25s ease;
+    }
+    .sidebar-section.open > .sidebar-body { max-height: 700px; }
+
+    /* ── 子分类（group）── */
+    .sidebar-group { margin: 0 0 2px; }
+
+    .sidebar-subcat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px 4px 16px;
+      cursor: pointer;
+      user-select: none;
+      margin-top: 2px;
+    }
+    .sidebar-subcat-name {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.7;
+      flex: 1;
+      white-space: nowrap;
+    }
+    .sidebar-subchevron {
+      font-size: 8px;
+      color: var(--muted);
+      opacity: 0.35;
+      transition: transform .18s;
+    }
+    .sidebar-group.open .sidebar-subchevron { transform: rotate(180deg); }
+
+    /* 子分类链接列表 */
+    .sidebar-sub-links {
+      list-style: none;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .2s ease, padding .2s;
+      padding: 0 8px 0 20px;
+    }
+    .sidebar-group.open .sidebar-sub-links {
+      max-height: 300px;
+      padding: 0 8px 4px 20px;
+    }
+    .sidebar-sub-links li a {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color .15s, background .15s;
+      opacity: 0.85;
+    }
+    .sidebar-sub-links li a:hover {
+      color: var(--accent);
+      background: rgba(139,101,8,0.07);
+      opacity: 1;
+    }
+    .sidebar-sub-links li a::before {
+      content: '·';
+      font-size: 15px;
+      color: var(--border);
+      flex-shrink: 0;
+      line-height: 1;
+      transition: color .15s;
+    }
+    .sidebar-sub-links li a:hover::before { color: var(--accent); }
+
+    /* 顶层直连链接（无子分类时） */
+    .sidebar-links {
+      list-style: none;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .22s ease, padding .22s;
+      padding: 0 8px;
+    }
+    .sidebar-section.open > .sidebar-links {
+      max-height: 200px;
+      padding: 0 8px 8px;
+    }
+    .sidebar-links li a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 6px;
+      border-radius: 4px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color .15s, background .15s;
+    }
+    .sidebar-links li a:hover {
+      color: var(--accent);
+      background: rgba(139,101,8,0.07);
+    }
+    .sidebar-links li a::before {
+      content: '›';
+      font-size: 13px;
+      color: var(--border);
+      flex-shrink: 0;
+      transition: color .15s;
+    }
+    .sidebar-links li a:hover::before { color: var(--accent); }
+
+    .sb-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 14px;
+      opacity: 0.5;
     }
 
     /* ── header ── */
@@ -91,26 +333,73 @@
     .search-wrap {
       position: relative;
     }
-    .search-wrap input {
-      width: 100%;
+    .search-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
       background: var(--bg2);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 20px 14px 48px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: border-color .2s, box-shadow .2s;
+      overflow: hidden;
+    }
+    .search-inner:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+    .engine-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px 0 16px;
+      height: 100%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: color .2s;
+      letter-spacing: 0.04em;
+    }
+    .engine-badge:hover { color: var(--accent); }
+    .engine-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      box-shadow: 0 0 6px var(--accent);
+    }
+    .engine-badge.baidu .engine-dot { background: #e4393c; box-shadow: 0 0 6px #e4393c; }
+    .engine-badge.baidu { color: var(--text); }
+    .search-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .search-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 14px 20px;
       color: var(--text);
       font-family: 'DM Mono', monospace;
       font-size: 14px;
       outline: none;
-      transition: border-color .2s, box-shadow .2s;
     }
     .search-wrap input::placeholder { color: var(--muted); }
-    .search-wrap input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--glow);
-    }
-    .search-icon {
-      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-      color: var(--muted); font-size: 16px; pointer-events: none;
+    .tab-hint {
+      font-size: 10px;
+      color: var(--muted);
+      padding-right: 14px;
+      white-space: nowrap;
+      opacity: 0.6;
+      letter-spacing: 0.05em;
     }
 
     /* ── section title ── */
@@ -143,7 +432,7 @@
       cursor: default;
     }
     .card:hover {
-      border-color: rgba(240,165,0,0.3);
+      border-color: rgba(139,101,8,0.35);
       transform: translateY(-2px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
@@ -190,7 +479,7 @@
     }
     .link-list li a:hover {
       color: var(--accent);
-      background: rgba(240,165,0,0.06);
+      background: rgba(139,101,8,0.07);
     }
     .link-list li a::before {
       content: '→';
@@ -217,7 +506,7 @@
     .pin:hover {
       border-color: var(--accent);
       color: var(--accent);
-      box-shadow: 0 0 12px var(--glow);
+      box-shadow: 0 2px 8px var(--glow);
     }
     .pin-dot {
       width: 6px; height: 6px;
@@ -226,6 +515,34 @@
       opacity: 0.5;
     }
     .pin:hover .pin-dot { opacity: 1; }
+
+    /* ── theme toggle button (index 自定义样式) ── */
+    .theme-btn {
+      position: fixed;
+      top: 14px; right: 18px;
+      z-index: 9999;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: background .2s, border-color .2s, transform .15s;
+    }
+    .theme-btn:hover {
+      background: var(--bg3);
+      border-color: var(--accent);
+      transform: scale(1.08);
+    }
+    .theme-btn:active { transform: scale(0.94); }
+
+    /* ── color transitions ── */
+    body, .sidebar, .page, .card, .search-inner, .pin, header {
+      transition: background-color .25s ease, border-color .25s ease, color .2s ease;
+    }
 
     /* ── fade-in ── */
     @keyframes fadeUp {
@@ -237,19 +554,119 @@
     .pins-section { animation: fadeUp .4s .14s ease both; }
     .categories-section { animation: fadeUp .4s .2s ease both; }
 
-    /* ── accent line top ── */
-    .accent-bar {
-      position: fixed; top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
-      z-index: 100;
-    }
   </style>
 </head>
 <body>
 
-<div class="accent-bar"></div>
+<div class="layout" id="layout">
+<aside class="sidebar" id="sidebar">
 
+  <div class="sb-toggle">
+    <button class="sb-toggle-btn" id="sb-toggle-btn" title="收起 / 展开">‹</button>
+  </div>
+
+  <div class="sb-body">
+
+    <!-- ── Java & 面试 ── -->
+    <div class="sidebar-section open">
+      <div class="sidebar-cat" onclick="toggleCat(this)">
+        <span class="sidebar-cat-icon">☕</span>
+        <span class="sidebar-cat-name">Java & 面试</span>
+        <span class="sidebar-chevron">▾</span>
+      </div>
+      <div class="sidebar-body">
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">综合面试题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/interview_redis_kafka_jvm.html" target="_blank">高频面试题 · Redis/Kafka/JVM</a></li>
+            <li><a href="doc/java_interview_knowledge_map.html" target="_blank">Java 面试知识图谱</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">Redis 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/election-redis-kafka-light.html" target="_blank">选举机制 · Redis &amp; Kafka</a></li>
+            <li><a href="doc/redis-data-types.html" target="_blank">数据类型 · 底层实现</a></li>
+            <li><a href="doc/redis-hotkey-bigkey.html" target="_blank">热Key · 大Key · 数据结构</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <!-- ── 架构 & 案例 ── -->
+    <div class="sidebar-section open">
+      <div class="sidebar-cat" onclick="toggleCat(this)">
+        <span class="sidebar-cat-icon">🏗</span>
+        <span class="sidebar-cat-name">架构 & 案例</span>
+        <span class="sidebar-chevron">▾</span>
+      </div>
+      <ul class="sidebar-links">
+        <li><a href="doc/mmdb-architecture.html" target="_blank">MMDB 美团数据库高可用</a></li>
+      </ul>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <!-- ── 工具 & 效率 ── -->
+    <div class="sidebar-section open">
+      <div class="sidebar-cat" onclick="toggleCat(this)">
+        <span class="sidebar-cat-icon">⚙</span>
+        <span class="sidebar-cat-name">工具 & 效率</span>
+        <span class="sidebar-chevron">▾</span>
+      </div>
+      <div class="sidebar-body">
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">IDE &amp; 开发</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/idea-shortcuts-mac.html" target="_blank">IDEA 快捷键 · macOS</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">算法练习</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/leetcode-java-ds.html" target="_blank">LeetCode · Java 数据结构速查</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <!-- ── 资讯 ── -->
+    <div class="sidebar-section open">
+      <div class="sidebar-cat" onclick="toggleCat(this)">
+        <span class="sidebar-cat-icon">📰</span>
+        <span class="sidebar-cat-name">资讯</span>
+        <span class="sidebar-chevron">▾</span>
+      </div>
+      <ul class="sidebar-links">
+        <li><a href="doc/news_digest.html" target="_blank">社会热点速览</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+</aside>
 <div class="page">
 
   <!-- Header -->
@@ -263,8 +680,15 @@
 
   <!-- Search -->
   <div class="search-wrap">
-    <span class="search-icon">⌕</span>
-    <input id="search" type="text" placeholder="搜索 Google... (按 Enter)" autocomplete="off" />
+    <div class="search-inner">
+      <button class="engine-badge" id="engine-badge" onclick="toggleEngine()">
+        <span class="engine-dot"></span>
+        <span id="engine-label">Google</span>
+      </button>
+      <span class="search-divider"></span>
+      <input id="search" type="text" placeholder="搜索... (Tab 切换引擎，Enter 搜索)" autocomplete="off" />
+      <span class="tab-hint">Tab ⇄</span>
+    </div>
   </div>
 
   <!-- Pinned / Quick -->
@@ -379,8 +803,41 @@
   </div>
 
 </div>
+</div>
+
 
 <script>
+  // ── Sidebar toggle ──
+  (function () {
+    const layout = document.getElementById('layout');
+    const btn    = document.getElementById('sb-toggle-btn');
+    let collapsed = localStorage.getItem('sbCollapsed') === '1';
+
+    function apply() {
+      layout.classList.toggle('collapsed', collapsed);
+      btn.textContent = collapsed ? '›' : '‹';
+      btn.title = collapsed ? '展开侧栏' : '收起侧栏';
+    }
+
+    btn.addEventListener('click', () => {
+      collapsed = !collapsed;
+      localStorage.setItem('sbCollapsed', collapsed ? '1' : '0');
+      apply();
+    });
+
+    apply();
+  })();
+
+  // ── 顶层分类折叠 ──
+  function toggleCat(header) {
+    header.closest('.sidebar-section').classList.toggle('open');
+  }
+
+  // ── 子分类折叠 ──
+  function toggleGroup(header) {
+    header.closest('.sidebar-group').classList.toggle('open');
+  }
+
   // ── Clock ──
   function updateClock() {
     const now = new Date();
@@ -397,10 +854,36 @@
   setInterval(updateClock, 10000);
 
   // ── Search ──
+  let currentEngine = localStorage.getItem('searchEngine') || 'google';
+
+  function setEngine(engine) {
+    currentEngine = engine;
+    localStorage.setItem('searchEngine', engine);
+    const badge = document.getElementById('engine-badge');
+    const label = document.getElementById('engine-label');
+    label.textContent = engine === 'google' ? 'Google' : '百度';
+    badge.className = 'engine-badge' + (engine === 'baidu' ? ' baidu' : '');
+  }
+
+  function toggleEngine() {
+    setEngine(currentEngine === 'google' ? 'baidu' : 'google');
+    document.getElementById('search').focus();
+  }
+
+  setEngine(currentEngine);
+
   document.getElementById('search').addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      toggleEngine();
+      return;
+    }
     if (e.key === 'Enter' && this.value.trim()) {
       const q = encodeURIComponent(this.value.trim());
-      window.open(`https://www.google.com/search?q=${q}`, '_blank');
+      const url = currentEngine === 'baidu'
+        ? `https://www.baidu.com/s?wd=${q}`
+        : `https://www.google.com/search?q=${q}`;
+      window.open(url, '_blank');
       this.value = '';
     }
   });

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redis 数据类型 · 底层实现 · 命令手册</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Sora', sans-serif; line-height: 1.6; }
+
+header {
+  padding: 52px 64px 36px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+header::before {
+  content: 'REDIS';
+  position: absolute; right: 48px; top: 50%; transform: translateY(-50%);
+  font-family: 'IBM Plex Mono', monospace; font-size: 130px; font-weight: 500;
+  color:var(--watermark); letter-spacing: -0.05em; pointer-events: none;
+}
+.htag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--red); background: var(--red-bg); border: 1px solid var(--red-b);
+  border-radius: 3px; padding: 3px 8px; display: inline-block; margin-bottom: 14px; letter-spacing: 0.06em;
+}
+h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; color:var(--tx); margin-bottom: 8px; }
+.subtitle { font-size: 13px; color: var(--text2); max-width: 600px; }
+
+nav {
+  padding: 0 64px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 0; overflow-x: auto;
+}
+nav a {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text3);
+  text-decoration: none; padding: 14px 18px; border-bottom: 2px solid transparent;
+  white-space: nowrap; transition: color 0.15s, border-color 0.15s; letter-spacing: 0.04em;
+}
+nav a:hover { color: var(--text); border-color: var(--border2); }
+
+main { padding: 52px 64px; max-width: 1060px; }
+
+.sec-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text3);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 24px; margin-top: 64px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.sec-label:first-child { margin-top: 0; }
+
+.type-block {
+  margin-bottom: 4px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+}
+.type-top { padding: 28px 32px 0; }
+.type-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.type-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500;
+  padding: 5px 12px; border-radius: 6px; border: 1px solid; flex-shrink: 0;
+}
+.type-name { font-size: 20px; font-weight: 700; color: #fff; }
+.type-sub  { font-size: 12px; color: var(--text3); margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+
+.enc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.enc-chip {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  padding: 3px 9px; border-radius: 4px; border: 1px solid; display: flex; align-items: center; gap: 5px;
+}
+.enc-chip .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+.type-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border-top: 1px solid var(--border); margin-top: 20px;
+}
+.type-col { padding: 24px 32px; border-right: 1px solid var(--border); }
+.type-col:last-child { border-right: none; }
+.col-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text3);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;
+}
+
+.impl-text { font-size: 13px; color: var(--text2); line-height: 1.8; margin-bottom: 12px; }
+.impl-text strong { color: var(--text); font-weight: 500; }
+.impl-flow { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.impl-step { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: var(--text2); line-height: 1.6; }
+.impl-step-n {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 3px; padding: 1px 5px; flex-shrink: 0; margin-top: 2px; color: var(--text3);
+}
+
+.cmd-list { display: flex; flex-direction: column; gap: 12px; }
+.cmd-sig {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  color: var(--text); background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 5px;
+  padding: 7px 12px; margin-bottom: 5px; line-height: 1.5;
+}
+.cmd-sig .arg { color: var(--text2); }
+.cmd-sig .opt { color: var(--text3); }
+.cmd-note { font-size: 12px; color: var(--text2); padding-left: 4px; line-height: 1.6; }
+
+.scene-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 32px; border-top: 1px solid var(--border); }
+.scene-tag {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: rgba(255,255,255,0.04); color: var(--text2); border: 1px solid var(--border);
+}
+
+/* color themes */
+.c-red    { --ac: var(--red);    --ac-bg: var(--red-bg);    --ac-b: var(--red-b); }
+.c-orange { --ac: var(--orange); --ac-bg: var(--orange-bg); --ac-b: var(--orange-b); }
+.c-yellow { --ac: var(--yellow); --ac-bg: var(--yellow-bg); --ac-b: var(--yellow-b); }
+.c-green  { --ac: var(--green);  --ac-bg: var(--green-bg);  --ac-b: var(--green-b); }
+.c-blue   { --ac: var(--blue);   --ac-bg: var(--blue-bg);   --ac-b: var(--blue-b); }
+.c-purple { --ac: var(--purple); --ac-bg: var(--purple-bg); --ac-b: var(--purple-b); }
+.c-pink   { --ac: var(--pink);   --ac-bg: var(--pink-bg);   --ac-b: var(--pink-b); }
+.c-teal   { --ac: var(--teal);   --ac-bg: var(--teal-bg);   --ac-b: var(--teal-b); }
+
+.type-block .type-badge { background: var(--ac-bg); color: var(--ac); border-color: var(--ac-b); }
+.type-block .type-name  { color: var(--ac); }
+.type-block .enc-chip   { background: var(--ac-bg); color: var(--ac); border-color: var(--ac-b); }
+.type-block .enc-chip .dot { background: var(--ac); }
+.type-block .cmd-sig .kw   { color: var(--ac); }
+
+.internals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.int-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 26px 28px; }
+.int-card h3 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.int-card h3 .lbl {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 400;
+  color: var(--text3); background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px;
+}
+.int-card p { font-size: 13px; color: var(--text2); line-height: 1.8; margin-bottom: 10px; }
+.int-card p:last-child { margin-bottom: 0; }
+.int-card strong { color: var(--text); font-weight: 500; }
+
+code {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  border-radius: 3px; padding: 1px 5px; color: var(--text);
+}
+
+.tbl-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500;
+  color: var(--text3); text-align: left; padding: 10px 16px;
+  border-bottom: 1px solid var(--border); letter-spacing: 0.05em;
+}
+td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text2); line-height: 1.6; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.015); }
+td:first-child { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #fff; white-space: nowrap; }
+td:nth-child(2) { font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap; }
+.th { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; color: var(--text3); white-space: nowrap; }
+
+.tip { margin-top:20px; background:rgba(6,214,160,0.05); border:1px solid rgba(6,214,160,0.15); border-radius:10px; padding:18px 22px; display:flex; gap:12px; align-items:flex-start; }
+.tip-icon { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--green); background:var(--green-bg); border:1px solid var(--green-b); border-radius:4px; padding:3px 7px; flex-shrink:0; margin-top:1px; }
+.tip p { font-size:13px; color:var(--text2); line-height:1.8; }
+.tip strong { color:var(--text); font-weight:500; }
+
+footer { padding: 22px 64px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+footer span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text3); }
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="htag">IN-MEMORY DATABASE</div>
+  <h1>Redis 数据类型 · 底层实现 · 命令手册</h1>
+  <p class="subtitle">5 种核心类型 + 4 种扩展类型，涵盖底层编码实现原理、常用命令示例与适用场景。</p>
+</header>
+
+<nav>
+  <a href="#string">String</a>
+  <a href="#list">List</a>
+  <a href="#hash">Hash</a>
+  <a href="#set">Set</a>
+  <a href="#zset">Sorted Set</a>
+  <a href="#ext">扩展类型</a>
+  <a href="#internals">底层结构</a>
+  <a href="#thresholds">编码阈值</a>
+</nav>
+
+<main>
+
+<!-- STRING -->
+<div class="sec-label" id="string">01 · String 字符串</div>
+<div class="type-block c-red">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">STR</div>
+      <div>
+        <div class="type-name">String</div>
+        <div class="type-sub">二进制安全 · 最大 512 MB · 最基础类型</div>
+      </div>
+    </div>
+    <div class="enc-chips">
+      <div class="enc-chip"><span class="dot"></span>int</div>
+      <div class="enc-chip"><span class="dot"></span>embstr</div>
+      <div class="enc-chip"><span class="dot"></span>raw (SDS)</div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text">Redis String 底层统一用 <strong>SDS（Simple Dynamic String）</strong> 存储，按值内容选择三种编码：</p>
+      <div class="impl-flow">
+        <div class="impl-step"><span class="impl-step-n">int</span>值为 long 范围内的整数，直接把指针位存整数值，零内存分配，INCR/DECR 直接对整数操作，无需解析字符串。</div>
+        <div class="impl-step"><span class="impl-step-n">embstr</span>值 ≤ 44 字节，redisObject 头与 SDS 一次性分配在连续内存，只需一次 malloc，CPU 缓存友好。字符串只读——修改时直接转 raw。</div>
+        <div class="impl-step"><span class="impl-step-n">raw</span>值 &gt; 44 字节，redisObject 与 SDS 分开分配。SDS 头记录 len / alloc，O(1) 取长度，预分配空间避免频繁 realloc。</div>
+      </div>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SET</span> <span class="arg">key value</span> <span class="opt">[EX seconds] [NX] [XX]</span></div>
+          <div class="cmd-note">设置值。NX=不存在才写（分布式锁），XX=存在才写，EX 同时设过期秒数，原子操作。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">GET</span> <span class="arg">key</span> &nbsp;/&nbsp; <span class="kw">MGET</span> <span class="arg">k1 k2 ...</span></div>
+          <div class="cmd-note">获取单个/多个值，不存在返回 nil。MGET 减少网络 RTT。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">INCR</span> <span class="arg">key</span> &nbsp;/&nbsp; <span class="kw">INCRBY</span> <span class="arg">key delta</span></div>
+          <div class="cmd-note">原子自增。key 不存在从 0 开始。计数器、限流、全局 ID 生成。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SETNX</span> <span class="arg">key value</span></div>
+          <div class="cmd-note">key 不存在才设置。分布式锁原语，建议用 SET NX EX 替代（原子性更好）。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">EXPIRE</span> <span class="arg">key seconds</span> &nbsp;/&nbsp; <span class="kw">TTL</span> <span class="arg">key</span></div>
+          <div class="cmd-note">设置 / 查询过期时间。TTL 返回 -1=永久，-2=不存在。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">APPEND</span> <span class="arg">key value</span></div>
+          <div class="cmd-note">追加内容，返回新长度。日志追加、时序数据拼接。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">对象缓存（JSON 序列化存储）</span>
+    <span class="scene-tag">计数器（PV / 点赞）</span>
+    <span class="scene-tag">分布式锁（SET NX EX）</span>
+    <span class="scene-tag">Session 存储</span>
+    <span class="scene-tag">接口限流（INCR + EXPIRE）</span>
+    <span class="scene-tag">全局唯一 ID（INCR）</span>
+  </div>
+</div>
+
+<!-- LIST -->
+<div class="sec-label" id="list">02 · List 列表</div>
+<div class="type-block c-orange">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">LST</div>
+      <div>
+        <div class="type-name">List</div>
+        <div class="type-sub">有序 · 可重复 · 双端操作 · 支持阻塞消费</div>
+      </div>
+    </div>
+    <div class="enc-chips">
+      <div class="enc-chip"><span class="dot"></span>listpack（小规模）</div>
+      <div class="enc-chip"><span class="dot"></span>quicklist（大规模）</div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text"><strong>listpack：</strong>元素少时使用。每个 entry 紧凑排列，自包含长度字段，无前驱指针（解决 ziplist 的连锁更新问题）。顺序遍历快，内存紧凑。</p>
+      <p class="impl-text"><strong>quicklist：</strong>元素超阈值后转换。本质是 <strong>双向链表 + listpack</strong> 的组合——链表每个节点是一个 listpack 页（默认最多 128 个元素），兼顾内存连续性与头尾 O(1) 操作。</p>
+      <div class="impl-flow">
+        <div class="impl-step"><span class="impl-step-n">LPUSH</span>头节点 listpack 未满 → 直接头插；已满 → 新建 listpack 节点链到链表头部。</div>
+        <div class="impl-step"><span class="impl-step-n">LRANGE</span>从头节点开始，跨 listpack 页顺序遍历，收集范围内元素。O(S+N)，S 为起始偏移。</div>
+        <div class="impl-step"><span class="impl-step-n">BLPOP</span>列表为空时，客户端连接加入等待队列；有新元素 PUSH 时服务端主动通知，无需轮询。</div>
+      </div>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">LPUSH</span> <span class="arg">key v1 v2</span> &nbsp;/&nbsp; <span class="kw">RPUSH</span> <span class="arg">key v</span></div>
+          <div class="cmd-note">从左/右插入。LPUSH 多个值时最后一个最靠近头部。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">LPOP</span> <span class="arg">key</span> <span class="opt">[count]</span> &nbsp;/&nbsp; <span class="kw">RPOP</span> <span class="arg">key</span></div>
+          <div class="cmd-note">弹出头/尾元素。Redis 6.2+ 支持 count 参数一次弹出多个。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">LRANGE</span> <span class="arg">key start stop</span></div>
+          <div class="cmd-note">范围查询，下标从 0 开始，-1 表示最后一个。LRANGE key 0 -1 取全部。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">BLPOP</span> <span class="arg">key [key...]</span> <span class="arg">timeout</span></div>
+          <div class="cmd-note">阻塞弹出。列表为空时等待，有元素立即返回。timeout=0 永久等待。消息队列核心命令。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">LTRIM</span> <span class="arg">key start stop</span></div>
+          <div class="cmd-note">截断列表，只保留 [start, stop] 范围。与 LPUSH 组合实现固定长度队列（最近 N 条）。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">LLEN</span> <span class="arg">key</span></div>
+          <div class="cmd-note">获取列表长度，O(1)。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">消息队列（LPUSH + BRPOP）</span>
+    <span class="scene-tag">最近浏览记录（LPUSH + LTRIM）</span>
+    <span class="scene-tag">时间线</span>
+    <span class="scene-tag">栈（LPUSH + LPOP）</span>
+    <span class="scene-tag">队列（RPUSH + LPOP）</span>
+  </div>
+</div>
+
+<!-- HASH -->
+<div class="sec-label" id="hash">03 · Hash 哈希</div>
+<div class="type-block c-yellow">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">HSH</div>
+      <div>
+        <div class="type-name">Hash</div>
+        <div class="type-sub">field-value 映射 · 适合存储对象字段</div>
+      </div>
+    </div>
+    <div class="enc-chips">
+      <div class="enc-chip"><span class="dot"></span>listpack（字段少）</div>
+      <div class="enc-chip"><span class="dot"></span>hashtable（字段多）</div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text"><strong>listpack：</strong>字段数 ≤ 128 且每个值 ≤ 64 字节时使用。field 和 value 交替紧凑排列（field₁ value₁ field₂ value₂…），遍历时逐项比较 field，内存占用极小。</p>
+      <p class="impl-text"><strong>hashtable（dict）：</strong>超过阈值后转为 Redis 内部 dict 结构——两张哈希表（ht[0] / ht[1]）用于渐进式 rehash。MurmurHash2 计算 field 哈希，开链法解决冲突，查找均摊 O(1)。扩容时双表并存，每次读写顺带迁移少量桶，不阻塞服务。</p>
+      <div class="impl-flow">
+        <div class="impl-step"><span class="impl-step-n">HSET</span>计算 field 哈希 → 定位桶 → 链表头插。负载因子 &gt;1 触发 rehash 扩容。</div>
+        <div class="impl-step"><span class="impl-step-n">HGET</span>哈希定位桶 → 遍历链表比较 field → 返回 value。均摊 O(1)。</div>
+      </div>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">HSET</span> <span class="arg">key field value [field value ...]</span></div>
+          <div class="cmd-note">设置一个或多个字段。Redis 4.0+ HSET 支持批量写入。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">HGET</span> <span class="arg">key field</span> &nbsp;/&nbsp; <span class="kw">HMGET</span> <span class="arg">key f1 f2</span></div>
+          <div class="cmd-note">获取单个 / 多个字段。O(1) / O(N)。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">HGETALL</span> <span class="arg">key</span></div>
+          <div class="cmd-note">返回所有 field-value 对。字段多时用 HSCAN 代替，避免阻塞。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">HINCRBY</span> <span class="arg">key field delta</span></div>
+          <div class="cmd-note">对指定字段原子自增。购物车数量、计数字段。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">HDEL</span> <span class="arg">key field [field ...]</span></div>
+          <div class="cmd-note">删除一个或多个字段，返回实际删除数。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">HEXISTS</span> <span class="arg">key field</span></div>
+          <div class="cmd-note">判断字段是否存在，返回 0/1。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">用户信息缓存（uid → {name, age, city}）</span>
+    <span class="scene-tag">购物车（uid → {goodsId: count}）</span>
+    <span class="scene-tag">商品详情字段缓存</span>
+    <span class="scene-tag">配置项存储</span>
+  </div>
+</div>
+
+<!-- SET -->
+<div class="sec-label" id="set">04 · Set 集合</div>
+<div class="type-block c-green">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">SET</div>
+      <div>
+        <div class="type-name">Set</div>
+        <div class="type-sub">无序 · 不重复 · 支持交并差集运算</div>
+      </div>
+    </div>
+    <div class="enc-chips">
+      <div class="enc-chip"><span class="dot"></span>intset（纯整数小集合）</div>
+      <div class="enc-chip"><span class="dot"></span>listpack（混合小集合）</div>
+      <div class="enc-chip"><span class="dot"></span>hashtable（大集合）</div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text"><strong>intset：</strong>所有元素为整数且数量 ≤ 512 时使用。本质是<strong>有序整数数组</strong>，升序排列，插入/查找用<strong>二分查找</strong> O(log N)，内存连续极省空间。插入非整数立刻整体升级为 hashtable。</p>
+      <p class="impl-text"><strong>listpack：</strong>混合类型且元素少时（Redis 7.2 引入路径），紧凑连续存储。</p>
+      <p class="impl-text"><strong>hashtable：</strong>大集合时，dict 的 value 统一为 NULL，只用 key 存成员，去重由哈希表天然保证。集合运算（SINTER / SUNION / SDIFF）通过遍历哈希表实现，O(N)。</p>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SADD</span> <span class="arg">key member [member ...]</span></div>
+          <div class="cmd-note">添加元素，重复自动忽略，返回实际新增数量。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SISMEMBER</span> <span class="arg">key member</span></div>
+          <div class="cmd-note">判断成员是否存在，O(1)。Redis 6.2+ 支持 SMISMEMBER 批量判断。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SINTER</span> <span class="arg">k1 k2</span> &nbsp;/&nbsp; <span class="kw">SUNION</span> &nbsp;/&nbsp; <span class="kw">SDIFF</span></div>
+          <div class="cmd-note">交集 / 并集 / 差集。加 STORE 后缀将结果写入新 key。求共同关注用 SINTER。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SRANDMEMBER</span> <span class="arg">key count</span></div>
+          <div class="cmd-note">随机返回 count 个元素，不删除。正数不重复，负数允许重复。抽奖摇号。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SPOP</span> <span class="arg">key</span> <span class="opt">[count]</span></div>
+          <div class="cmd-note">随机弹出并删除元素。一次性不可重复抽奖。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SMEMBERS</span> <span class="arg">key</span></div>
+          <div class="cmd-note">返回所有元素。大集合用 SSCAN 迭代，避免阻塞。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">标签系统</span>
+    <span class="scene-tag">共同关注 / 好友（SINTER）</span>
+    <span class="scene-tag">去重 UV（小规模）</span>
+    <span class="scene-tag">抽奖（SRANDMEMBER / SPOP）</span>
+    <span class="scene-tag">黑白名单</span>
+  </div>
+</div>
+
+<!-- ZSET -->
+<div class="sec-label" id="zset">05 · Sorted Set 有序集合</div>
+<div class="type-block c-blue">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">ZST</div>
+      <div>
+        <div class="type-name">Sorted Set</div>
+        <div class="type-sub">元素绑定浮点 score · 自动排序 · 元素不重复</div>
+      </div>
+    </div>
+    <div class="enc-chips">
+      <div class="enc-chip"><span class="dot"></span>listpack（小规模）</div>
+      <div class="enc-chip"><span class="dot"></span>skiplist + hashtable（大规模）</div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text"><strong>listpack：</strong>元素 ≤ 128 且每个值 ≤ 64 字节时，member 和 score 交替紧凑存储并按 score 有序排列。小数据下遍历比跳表更快（CPU 缓存命中率高）。</p>
+      <p class="impl-text"><strong>skiplist + hashtable 双索引：</strong>超过阈值后，同时维护两个结构：</p>
+      <div class="impl-flow">
+        <div class="impl-step"><span class="impl-step-n">skiplist</span>多层有序链表，节点随机晋升（概率 25%，上限 32 层）。按 score 排序，范围查询 O(log N)，是 ZRANGE / ZRANGEBYSCORE 的基础。</div>
+        <div class="impl-step"><span class="impl-step-n">hashtable</span>member → score 的哈希映射，O(1) 查单个元素 score，是 ZSCORE / ZRANK 的基础。</div>
+        <div class="impl-step"><span class="impl-step-n">共享内存</span>两个结构共享 member 字符串指针，不双倍存储字符串内容，只多一个指针和 score 的开销。</div>
+        <div class="impl-step"><span class="impl-step-n">ZADD</span>同时更新 skiplist（重新定位节点）和 hashtable（更新 score），写放大换查询速度。</div>
+      </div>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">ZADD</span> <span class="arg">key</span> <span class="opt">[NX|XX] [GT|LT]</span> <span class="arg">score member</span></div>
+          <div class="cmd-note">添加元素。GT=新 score 更大才更新（排行榜），LT=更小才更新（延迟队列）。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">ZRANGE</span> <span class="arg">key min max</span> <span class="opt">[BYSCORE] [REV] [LIMIT offset count]</span></div>
+          <div class="cmd-note">Redis 6.2+ 统一范围查询命令。可按排名或 score 正/逆序，支持分页。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">ZRANK</span> <span class="arg">key member</span> <span class="opt">[WITHSCORE]</span></div>
+          <div class="cmd-note">查询排名（从 0 开始）。ZREVRANK 为逆序排名。O(log N)。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">ZSCORE</span> <span class="arg">key member</span></div>
+          <div class="cmd-note">O(1) 获取 score，依赖内部 hashtable。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">ZINCRBY</span> <span class="arg">key delta member</span></div>
+          <div class="cmd-note">原子增减 score 并同步更新 skiplist 位置。排行榜加分场景。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">ZRANGEBYSCORE</span> <span class="arg">key min max</span> <span class="opt">[LIMIT offset count]</span></div>
+          <div class="cmd-note">延迟队列取到期任务：ZRANGEBYSCORE key 0 now LIMIT 0 N</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">排行榜（score=分数）</span>
+    <span class="scene-tag">延迟队列（score=执行时间戳）</span>
+    <span class="scene-tag">滑动窗口限流（score=时间戳）</span>
+    <span class="scene-tag">热搜榜</span>
+    <span class="scene-tag">带权重任务调度</span>
+  </div>
+</div>
+
+<!-- 扩展类型 -->
+<div class="sec-label" id="ext">扩展类型 Extended Types</div>
+
+<div class="type-block c-red" style="margin-bottom:4px">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">BIT</div>
+      <div>
+        <div class="type-name">Bitmap 位图</div>
+        <div class="type-sub">本质是 String · 按位寻址 · 2 亿用户签到仅需 25 MB</div>
+      </div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text">Bitmap <strong>底层就是 String（SDS）</strong>，没有独立数据结构。Redis 把 SDS 的每个字节拆成 8 个 bit，通过 offset 定位到具体 bit 读写。最大 offset 为 2³²-1，约 512 MB = 40 亿个 bit。</p>
+      <p class="impl-text">BITCOUNT 用<strong>查表法</strong>（byte → popcount 预计算表）优化统计，比逐位遍历快得多。BITOP 在字节层面逐字节 AND / OR / XOR，O(N) 线性遍历。</p>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">SETBIT</span> <span class="arg">key offset value</span></div>
+          <div class="cmd-note">设置偏移量 offset 的 bit 为 0/1。offset 不连续时中间自动填 0。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">GETBIT</span> <span class="arg">key offset</span></div>
+          <div class="cmd-note">获取指定 offset 的 bit 值，O(1)。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">BITCOUNT</span> <span class="arg">key</span> <span class="opt">[start end]</span></div>
+          <div class="cmd-note">统计值为 1 的 bit 数量，可指定字节范围。月签到统计。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">BITOP</span> <span class="arg">AND|OR|XOR|NOT destkey k1 k2</span></div>
+          <div class="cmd-note">多 Bitmap 位运算，结果存入 destkey。BITOP AND 求连续签到用户。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">用户签到打卡（offset=userId，key=日期）</span>
+    <span class="scene-tag">用户在线状态</span>
+    <span class="scene-tag">布隆过滤器底层</span>
+    <span class="scene-tag">连续登录统计（BITOP AND）</span>
+  </div>
+</div>
+
+<div class="type-block c-purple" style="margin-bottom:4px">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">HLL</div>
+      <div>
+        <div class="type-name">HyperLogLog</div>
+        <div class="type-sub">概率基数统计 · 误差 ≈ 0.81% · 固定 12 KB</div>
+      </div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text">存储在 <strong>String</strong> 中，按算法格式编码，不是普通文本。将元素哈希后统计二进制串中<strong>前导零最大长度 k</strong>，用 2^k 估算基数。Redis 用 <strong>16384 个桶</strong>分桶计算，调和平均后误差约 0.81%。</p>
+      <p class="impl-text">无论加多少元素最多占 <strong>12 KB</strong>（密集模式），元素少时用稀疏编码只占几百字节。不能获取具体元素，也不支持删除。</p>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">PFADD</span> <span class="arg">key element [element ...]</span></div>
+          <div class="cmd-note">添加元素。内部估算更新返回 1，否则 0。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">PFCOUNT</span> <span class="arg">key [key ...]</span></div>
+          <div class="cmd-note">返回基数估算值。多个 key 时返回并集估算。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">PFMERGE</span> <span class="arg">destkey key1 key2</span></div>
+          <div class="cmd-note">合并多个 HLL，适合多端数据汇总统计 UV。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">UV 统计（千万级用户去重）</span>
+    <span class="scene-tag">独立 IP 计数</span>
+    <span class="scene-tag">搜索词去重计数</span>
+  </div>
+</div>
+
+<div class="type-block c-teal" style="margin-bottom:4px">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">GEO</div>
+      <div>
+        <div class="type-name">Geo 地理位置</div>
+        <div class="type-sub">底层复用 Sorted Set · score = GeoHash 编码</div>
+      </div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text"><strong>没有独立数据结构，底层复用 Sorted Set。</strong>将经纬度用 <strong>GeoHash</strong> 算法编码为 52 位整数作为 score，member 存地点名称。GeoHash 把地球网格化，经纬度交错编码成 Z 形曲线，相邻网格编码相邻，按 score 范围查询 = 空间区域查询。</p>
+      <p class="impl-text">GEOSEARCH 半径查询时，先把圆形近似为外接正方形换算为 score 范围，用 skiplist 范围查询，再过滤掉超出圆形的点。精度约 0.6 mm。</p>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">GEOADD</span> <span class="arg">key lng lat member [...]</span></div>
+          <div class="cmd-note">批量添加地理位置，内部调用 ZADD。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">GEODIST</span> <span class="arg">key m1 m2</span> <span class="opt">[m|km|mi|ft]</span></div>
+          <div class="cmd-note">计算两点距离，指定单位。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">GEOSEARCH</span> <span class="arg">key FROMMEMBER m BYRADIUS r km ASC</span></div>
+          <div class="cmd-note">Redis 6.2+，以某成员为圆心搜索周围点，ASC 排序，COUNT 限制返回数量。附近的人核心命令。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">GEOPOS</span> <span class="arg">key member [member ...]</span></div>
+          <div class="cmd-note">返回经纬度坐标，从 score 逆向解码 GeoHash。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">附近的人 / 门店（GEOSEARCH）</span>
+    <span class="scene-tag">配送距离计算</span>
+    <span class="scene-tag">骑手实时位置</span>
+  </div>
+</div>
+
+<div class="type-block c-pink">
+  <div class="type-top">
+    <div class="type-meta">
+      <div class="type-badge">STM</div>
+      <div>
+        <div class="type-name">Stream 流</div>
+        <div class="type-sub">持久化消息流 · 消费者组 · ACK 机制 · 类 Kafka 语义</div>
+      </div>
+    </div>
+  </div>
+  <div class="type-body">
+    <div class="type-col">
+      <div class="col-title">底层实现</div>
+      <p class="impl-text">底层用 <strong>Rax（基数树）+ listpack</strong> 实现。Rax 是前缀压缩树，按消息 ID 索引，每个叶节点指向一个 listpack，批量存储连续消息（macro node），大幅节省内存。</p>
+      <p class="impl-text">消息 ID 格式为 <code>毫秒时间戳-序列号</code>，天然有序，可按时间范围查询。</p>
+      <p class="impl-text"><strong>消费者组</strong>维护 <strong>PEL（Pending Entry List）</strong>，记录已投递但未 ACK 的消息，保证 at-least-once 语义。XACK 后从 PEL 删除。</p>
+    </div>
+    <div class="type-col">
+      <div class="col-title">常用命令</div>
+      <div class="cmd-list">
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">XADD</span> <span class="arg">key</span> <span class="opt">[MAXLEN ~N]</span> <span class="arg">* field value</span></div>
+          <div class="cmd-note">追加消息，* 自动生成 ID。MAXLEN ~ N 近似裁剪流长度（性能更好）。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">XREAD</span> <span class="opt">[COUNT n] [BLOCK ms]</span> <span class="arg">STREAMS key id</span></div>
+          <div class="cmd-note">读取消息，从指定 ID 之后。BLOCK 0 永久阻塞等待新消息。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">XGROUP CREATE</span> <span class="arg">key group id</span></div>
+          <div class="cmd-note">创建消费者组。id=$ 从最新消息开始；id=0 从头消费。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">XREADGROUP GROUP</span> <span class="arg">g consumer STREAMS key &gt;</span></div>
+          <div class="cmd-note">&gt; 表示取未投递消息，消息进入 PEL 等待 ACK。</div>
+        </div>
+        <div class="cmd-item">
+          <div class="cmd-sig"><span class="kw">XACK</span> <span class="arg">key group id [id ...]</span></div>
+          <div class="cmd-note">确认处理完毕，从 PEL 删除。未 ACK 消息可通过 XPENDING 查看。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-row">
+    <span class="scene-tag">可靠消息队列（比 List 更完善）</span>
+    <span class="scene-tag">多消费者组并行消费</span>
+    <span class="scene-tag">事件溯源</span>
+    <span class="scene-tag">实时日志收集</span>
+  </div>
+</div>
+
+<!-- INTERNALS -->
+<div class="sec-label" id="internals">底层基础结构</div>
+<div class="internals-grid">
+  <div class="int-card">
+    <h3>SDS <span class="lbl">Simple Dynamic String</span></h3>
+    <p>所有字符串底层。头部含 <code>len</code>（已用）/ <code>alloc</code>（已分配），O(1) 取长度，无需遍历 <code>\0</code>。</p>
+    <p><strong>预分配：</strong>修改时新长度 &lt;1 MB 则翻倍分配，&gt;1 MB 则多分配 1 MB，减少 realloc 次数。<strong>惰性释放：</strong>缩短字符串不立即释放，记入 free 留给下次。</p>
+    <p>根据长度自动选 sdshdr5 / 8 / 16 / 32 / 64，极短字符串几乎零浪费。二进制安全，可存 <code>\0</code>。</p>
+  </div>
+  <div class="int-card">
+    <h3>skiplist <span class="lbl">跳跃表</span></h3>
+    <p>多层有序链表。每个节点随机决定层数（晋升概率 25%，上限 32 层）。查找从最高层开始逐层下降，平均 O(log N)。</p>
+    <p><strong>为什么不用红黑树：</strong>① 范围查询直接沿底层链表遍历，更简单；② 实现代码量小，逻辑清晰；③ 实测性能相近；④ 锁粒度更易控制。</p>
+    <p>Sorted Set 中与 hashtable 双索引，member 字符串指针共享，不重复存储。</p>
+  </div>
+  <div class="int-card">
+    <h3>listpack <span class="lbl">紧凑列表 Redis 7.0+</span></h3>
+    <p>替代 ziplist，修复连锁更新问题。每个 entry 结构：<code>encoding</code> + <code>data</code> + <code>element-tot-len</code>（自身总长），不存前驱长度。修改某 entry 只需更新自身，不影响后续节点。</p>
+    <p>顺序遍历高效（缓存友好），随机访问 O(N)，因此仅在小规模下使用。List / Hash / ZSet / Set 的紧凑编码均已切换为 listpack。</p>
+  </div>
+  <div class="int-card">
+    <h3>hashtable + 渐进式 rehash <span class="lbl">dict</span></h3>
+    <p>内部维护 <code>ht[0]</code> 和 <code>ht[1]</code> 两张哈希表。MurmurHash2 计算键哈希，开链法解决冲突。</p>
+    <p><strong>渐进式 rehash：</strong>扩容时 ht[1] 按新尺寸创建，<code>rehashidx</code> 记录当前迁移桶位置。每次读写顺带迁移一个桶，直到 ht[0] 清空。迁移期间读写同时查两表，彻底避免 STW 抖动。</p>
+    <p>负载因子 &gt;1 扩容（BGSAVE 期间阈值升至 5），&lt;0.1 缩容。</p>
+  </div>
+  <div class="int-card">
+    <h3>intset <span class="lbl">整数集合</span></h3>
+    <p>有序整数数组，支持 int16 / int32 / int64 三种编码，按实际最大值自动升级（只升不降）。</p>
+    <p>插入 / 查找用<strong>二分查找</strong> O(log N)，内存连续，CPU 缓存命中率极高。元素全为整数且数量少时性能甚至优于 hashtable。一旦插入非整数立即整体转换为 hashtable。</p>
+  </div>
+  <div class="int-card">
+    <h3>quicklist <span class="lbl">快速列表</span></h3>
+    <p>双向链表，每个节点是一个 listpack 页（默认每页最多 128 个元素）。头尾操作只动链表头/尾节点的 listpack，O(1)；中间插入需定位节点，O(N)。</p>
+    <p>可配置 <code>list-compress-depth</code> 对中间节点做 <strong>LZF 压缩</strong>，进一步节省内存，两端节点不压缩保证热点访问速度。</p>
+  </div>
+</div>
+
+<!-- THRESHOLDS -->
+<div class="sec-label" id="thresholds">编码转换阈值</div>
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>类型</th><th>紧凑编码</th><th>转换条件（任一满足则升级）</th><th>升级后</th><th>配置参数</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>String</td><td style="color:var(--red)">int</td>
+        <td>值不是整数 或 超出 long 范围</td>
+        <td style="color:var(--red)">embstr / raw</td><td>—</td>
+      </tr>
+      <tr>
+        <td>String</td><td style="color:var(--red)">embstr</td>
+        <td>长度 &gt; <span class="th">44 字节</span></td>
+        <td style="color:var(--red)">raw (SDS)</td><td>—</td>
+      </tr>
+      <tr>
+        <td>List</td><td style="color:var(--orange)">listpack</td>
+        <td>元素数 &gt; <span class="th">128</span> 或任意元素 &gt; <span class="th">64 字节</span></td>
+        <td style="color:var(--orange)">quicklist</td>
+        <td><code>list-max-listpack-size</code></td>
+      </tr>
+      <tr>
+        <td>Hash</td><td style="color:var(--yellow)">listpack</td>
+        <td>字段数 &gt; <span class="th">128</span> 或任意值 &gt; <span class="th">64 字节</span></td>
+        <td style="color:var(--yellow)">hashtable</td>
+        <td><code>hash-max-listpack-entries</code></td>
+      </tr>
+      <tr>
+        <td>Set（整数）</td><td style="color:var(--green)">intset</td>
+        <td>插入非整数 或 元素数 &gt; <span class="th">512</span></td>
+        <td style="color:var(--green)">hashtable</td>
+        <td><code>set-max-intset-entries</code></td>
+      </tr>
+      <tr>
+        <td>Set（混合）</td><td style="color:var(--green)">listpack</td>
+        <td>元素数 &gt; <span class="th">128</span> 或任意元素 &gt; <span class="th">64 字节</span></td>
+        <td style="color:var(--green)">hashtable</td>
+        <td><code>set-max-listpack-entries</code></td>
+      </tr>
+      <tr>
+        <td>Sorted Set</td><td style="color:var(--blue)">listpack</td>
+        <td>元素数 &gt; <span class="th">128</span> 或任意元素 &gt; <span class="th">64 字节</span></td>
+        <td style="color:var(--blue)">skiplist + hashtable</td>
+        <td><code>zset-max-listpack-entries</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="tip">
+  <span class="tip-icon">TIP</span>
+  <p>紧凑编码连续内存存储，<strong>CPU 缓存命中率高</strong>，小数据下可能快于散列结构。用 <code>OBJECT ENCODING key</code> 查看当前编码。<strong>编码只升不降</strong>——删元素后不会自动退回紧凑编码。生产中调整阈值前先 benchmark，不要盲目设大。</p>
+</div>
+
+</main>
+
+<footer>
+  <span>Redis Data Types · Internals · Commands</span>
+  <span>Redis 7.x · 2024</span>
+</footer>
+
+</body>
+</html>

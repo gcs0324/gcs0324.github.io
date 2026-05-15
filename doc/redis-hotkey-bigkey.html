@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redis 热Key · 大Key · 底层数据结构 · 面试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'REDIS';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1080px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);}
+.sec:first-child{margin-top:0;}
+
+/* speech bubble */
+.speech{background:linear-gradient(135deg,#fffef4,#fffff9);border:1px solid var(--yel-b);border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:14px;}
+.speech-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.speech-lbl::before{content:'💬 ';}
+.speech p{font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:8px;}
+.speech p:last-child{margin-bottom:0;}
+.speech strong{color:var(--tx);font-weight:600;}
+.speech em{color:var(--blue);font-style:normal;font-weight:500;}
+
+/* card flow */
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+/* note */
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+
+/* grid 2col */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* overview card */
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+
+/* arch diagram */
+.arch{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:20px 24px;margin:10px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx2);line-height:1.9;white-space:pre;}
+.arch strong{color:var(--blue);font-weight:600;}
+
+/* color themes */
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="htag">REDIS INTERNALS · INTERVIEW</div>
+  <h1>热Key · 大Key · SDS / Skiplist / Quicklist</h1>
+  <p class="subtitle">面试口语化讲解 + 大厂生产方案 + 京东 hotkey 框架原理</p>
+</header>
+
+<nav>
+  <a href="#sds">SDS</a>
+  <a href="#skiplist">Skiplist</a>
+  <a href="#quicklist">Quicklist</a>
+  <a href="#hotkey">热Key</a>
+  <a href="#bigkey">大Key</a>
+  <a href="#prod">大厂生产方案</a>
+  <a href="#jd-hotkey">京东 hotkey</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ SDS -->
+<div class="sec" id="sds">SDS · Simple Dynamic String</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>Redis 没有直接用 C 语言的字符串，而是自己封装了一个 SDS。C 字符串有几个明显的缺陷。</p>
+  <p><strong>第一，O(1) 获取长度。</strong>C 字符串获取长度要遍历到 <code>\0</code> 才行，是 O(N) 的，SDS 在头部直接记录了 <code>len</code>，O(1) 就能拿到。</p>
+  <p><strong>第二，二进制安全。</strong>C 字符串遇到 <code>\0</code> 就认为字符串结束了，SDS 用 <code>len</code> 来判断边界，可以存图片、序列化对象这类任意二进制数据。</p>
+  <p><strong>第三，内存预分配。</strong>字符串小于 1MB 时扩容多分配一倍空间，大于等于 1MB 时多分配 1MB。缩短时不立即释放，记录进 <code>free</code> 留给下次用。频繁修改时 realloc 次数大幅减少。</p>
+  <p><strong>第四，自动选头部宽度。</strong>根据长度自动选 sdshdr5 / 8 / 16 / 32 / 64，短字符串头部几乎零浪费。</p>
+</div>
+
+<div class="sc"><span class="cm">// SDS 结构（简化）</span>
+struct sdshdr {
+    int len;    <span class="cm">// 已用长度 — O(1) 获取</span>
+    int free;   <span class="cm">// 剩余空间 — 惰性释放</span>
+    char buf[]; <span class="cm">// 实际数据 — 二进制安全</span>
+};</div>
+
+<div class="g2" style="margin-top:10px;">
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">优势</div>
+      <div class="ovname">相比 C 字符串</div>
+      <div class="ovsub">四个核心改进</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li><strong>O(1)</strong> 获取长度，无需遍历</li>
+      <li><strong>二进制安全</strong>，可存任意数据</li>
+      <li><strong>预分配+惰性释放</strong>，减少 realloc</li>
+      <li><strong>自动选头宽</strong>，短字符串省内存</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-r">
+    <div class="ovh">
+      <div class="ovtag">预分配规则</div>
+      <div class="ovname">扩容策略</div>
+      <div class="ovsub">修改时触发</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li>新长度 <strong>&lt; 1MB</strong>：额外多分配同等大小</li>
+      <li>新长度 <strong>≥ 1MB</strong>：额外多分配 1MB</li>
+      <li>缩短时：不释放，记入 free 字段</li>
+      <li>下次扩容优先用 free，避免 realloc</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ SKIPLIST -->
+<div class="sec" id="skiplist">Skiplist · 跳跃表</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>跳跃表是 Redis Sorted Set 在数据量大时用的底层结构，可以理解成一个多层的有序链表。</p>
+  <p>最底层是完整的有序链表，上面的层是逐渐稀疏的索引，每个节点随机决定自己能到达哪一层，晋升概率是 25%，最多 32 层。查找从最高层开始，快速定位大概范围，然后逐层向下收窄，平均复杂度 O(log N)。</p>
+  <p><strong>最大优势是范围查询特别方便。</strong>找到起始位置后直接沿底层链表顺序往后走，ZRANGE、ZRANGEBYSCORE 都是这个原理。红黑树做范围查询需要中序遍历，实现复杂很多。</p>
+  <p>ZSet 里跳跃表和 hashtable 是双索引并存的。跳跃表负责按 score 排序，支持范围查询；hashtable 负责 member→score 映射，让 ZSCORE 达到 O(1)。两个结构<strong>共享 member 字符串指针，不重复存储数据</strong>。</p>
+</div>
+
+<div class="arch">Level 3:  1 ──────────────────────────────── 9
+Level 2:  1 ──────── 4 ──────── 7 ──────── 9
+Level 1:  1 ── 2 ── 4 ── 5 ── 7 ── 8 ── 9
+
+晋升概率 25%，最多 32 层，从高层快速缩窄查找范围</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th>操作</th><th>skiplist</th><th>红黑树</th><th>为什么选 skiplist</th></tr></thead>
+    <tbody>
+      <tr><td>单点查询</td><td>O(log N)</td><td>O(log N)</td><td>相当</td></tr>
+      <tr><td>范围查询</td><td>O(log N + k)</td><td>O(log N + k)</td><td>skiplist 顺序遍历更直接</td></tr>
+      <tr><td>实现复杂度</td><td>低</td><td>高（旋转/变色）</td><td>代码量少，容易维护</td></tr>
+      <tr><td>锁粒度控制</td><td>容易</td><td>较难</td><td>并发场景更灵活</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ QUICKLIST -->
+<div class="sec" id="quicklist">Quicklist · 快速列表</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>quicklist 是 Redis List 大规模时的底层结构，本质是双向链表加 listpack 的组合。</p>
+  <p>纯链表的问题是每个节点单独分配内存，碎片多，CPU 缓存命中率低。纯数组（旧版 ziplist）有连锁更新问题——每个 entry 存前驱长度，修改一个元素可能导致后续所有 entry 级联重分配，最坏 O(N²)。</p>
+  <p>quicklist 的思路是把链表每个节点换成一个 listpack 页，默认每页最多 128 个元素，页内连续内存，页之间链表连接。<strong>listpack 改为每个 entry 只记录自身长度</strong>，修改互不影响，彻底解决连锁更新。</p>
+  <p>还支持对中间节点做 LZF 压缩，两端不压缩保证热点访问速度，中间冷数据压缩节省内存，用 <code>list-compress-depth</code> 控制。</p>
+</div>
+
+<div class="arch">head ←→ [listpack页] ←→ [listpack页] ←→ [listpack页] ←→ tail
+              ↓                ↓                ↓
+         连续内存            连续内存            连续内存
+         ≤128 elem          ≤128 elem          ≤128 elem
+         (可 LZF 压缩中间节点，两端不压缩)</div>
+
+<div class="g2" style="margin-top:10px;">
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">解决的问题</div>
+      <div class="ovname">两全其美</div>
+      <div class="ovsub">链表 + 数组各取所长</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li>链表碎片多 → <strong>listpack 连续内存</strong>，缓存友好</li>
+      <li>ziplist 连锁更新 → <strong>entry 只存自身长度</strong>，互不影响</li>
+      <li>头尾仍然 O(1)，LPUSH/RPOP 不移动其他数据</li>
+      <li>中间节点 LZF 压缩，冷数据省内存</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-y">
+    <div class="ovh">
+      <div class="ovtag">三者对比</div>
+      <div class="ovname">SDS / Skiplist / Quicklist</div>
+      <div class="ovsub">核心思路</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li><strong>SDS</strong>：记元数据+预分配，解决字符串基础问题</li>
+      <li><strong>Skiplist</strong>：多层索引以空间换时间，范围查询快</li>
+      <li><strong>Quicklist</strong>：链表分段+连续内存，两个问题一起解</li>
+      <li>共同点：用额外结构/元数据换性能</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ HOT KEY -->
+<div class="sec" id="hotkey">热Key · Hot Key</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>热 Key 就是某个 Key 被大量请求集中访问，导致它所在的 Redis 节点 CPU 或带宽被打满，影响整个节点上其他 Key 的正常访问。典型场景是秒杀活动的商品详情、微博热搜、春节红包等。</p>
+</div>
+
+<div class="fw c-r" style="margin-bottom:10px;">
+  <div class="fwh"><div class="fwb">DETECT</div><div class="fwt">先定位热 Key</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">redis-cli --hotkeys</div>
+        <div class="sd">Redis 4.0+ 内置统计，需开启 <code>maxmemory-policy allkeys-lfu</code></div>
+        <div class="sc">redis-cli --hotkeys</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">实时 monitor（慎用生产）</div>
+        <div class="sd">有性能损耗，仅用于紧急排查</div>
+        <div class="sc">redis-cli monitor | grep -i "get\|set"</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div></div>
+      <div class="sb">
+        <div class="st">SDK 客户端埋点（推荐）</div>
+        <div class="sd">在请求链路上统计各 Key 频次，无性能损耗，大厂标配</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">SOLUTION</div><div class="fwt">解决方案（由浅入深）</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">①</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">本地缓存（最有效）</div>
+        <div class="sd">请求先打本地 JVM 缓存（Caffeine），设 3~5s 短 TTL。对 Redis 的请求量能降 90%+。缺点是各机器数据可能不一致，适合商品详情、配置项等对实时性要求不高的场景。</div>
+        <div class="sc">Cache&lt;String, Object&gt; localCache = Caffeine.newBuilder()
+    .expireAfterWrite(5, TimeUnit.SECONDS)
+    .maximumSize(1000)
+    .build();
+Object val = localCache.get(key, k -> redisTemplate.opsForValue().get(k));</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">②</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Key 拆分复制（读多写少）</div>
+        <div class="sd">复制成 N 份分散到不同节点，读时随机取一份。写时同步更新所有副本。Redis Cluster 下不同 Key 落不同 slot，自然分散。</div>
+        <div class="sc"><span class="cm">// 写：复制 N 份</span>
+for (int i = 0; i < N; i++) redis.set("hot_key_" + i, value);
+<span class="cm">// 读：随机选一份</span>
+String key = "hot_key_" + ThreadLocalRandom.current().nextInt(N);</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">③</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">异步预热 + 定时刷新</div>
+        <div class="sd">对可预测的热点（大促前商品、榜单）提前加载到本地缓存，后台线程定时刷新，避免高峰时集中击打 Redis。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">④</div></div>
+      <div class="sb">
+        <div class="st">限流 + 降级兜底</div>
+        <div class="sd">超过阈值直接返回默认值或上次缓存值，防止 Redis 被打挂。</div>
+        <div class="sc">if (!rateLimiter.tryAcquire()) return defaultValue; <span class="cm">// 降级</span>
+return redis.get(key);</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap" style="margin-top:10px;">
+  <table class="tbl">
+    <thead><tr><th>场景</th><th>推荐方案</th></tr></thead>
+    <tbody>
+      <tr><td>读多写少（商品、配置）</td><td>本地缓存 + 短 TTL</td></tr>
+      <tr><td>秒杀 / 活动热点</td><td>Key 拆分复制 + 本地缓存</td></tr>
+      <tr><td>实时排行榜</td><td>读写分离 + 多从库</td></tr>
+      <tr><td>突发不可预测流量</td><td>限流 + 降级兜底</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ BIG KEY -->
+<div class="sec" id="bigkey">大Key · Big Key</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>大 Key 是指 Value 体积很大，或者集合类型里元素数量非常多，比如一个 Hash 里几十万个字段，或者一个 String 的 Value 有几十 MB。</p>
+</div>
+
+<div class="g2">
+  <div class="ovc c-r">
+    <div class="ovh">
+      <div class="ovtag">危害</div>
+      <div class="ovname">三个核心问题</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li><strong>读写慢阻塞</strong>：Redis 单线程，读几十 MB 可能耗时几十 ms，期间其他命令全被阻塞</li>
+      <li><strong>DEL 危险</strong>：直接删除大 Key 会阻塞主线程，生产事故的常见来源</li>
+      <li><strong>带宽撑满</strong>：大 Value 传输占用大量网络带宽，影响同机其他服务</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">解决思路</div>
+      <div class="ovname">化整为零</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li><strong>拆分</strong>：String 分片为多个小 Key，Hash 按模分桶</li>
+      <li><strong>压缩</strong>：gzip / snappy 压缩 Value，JSON 文本压缩比可达 5~10x</li>
+      <li><strong>UNLINK 异步删除</strong>：4.0+ 必用，内存回收放后台线程</li>
+      <li><strong>对象卸载</strong>：大 Value 存 OSS/S3，Redis 只存 URL</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="fw c-o" style="margin-top:10px;">
+  <div class="fwh"><div class="fwb">DELETE</div><div class="fwt">大 Key 安全删除流程</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">String 类型 → 直接 UNLINK</div>
+        <div class="sc">UNLINK big_key  <span class="cm"># 异步删除，不阻塞主线程（禁用 DEL）</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Hash / Set / ZSet → 先分批清成员，再 UNLINK</div>
+        <div class="sc"><span class="cm"># 用 HSCAN 分批删成员，每批 sleep 一下，低峰期执行</span>
+cursor = 0
+loop:
+    cursor, fields = HSCAN big_hash cursor COUNT 100
+    if fields: HDEL big_hash fields
+    if cursor == 0: break
+UNLINK big_hash</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div></div>
+      <div class="sb">
+        <div class="st">扫描工具定期治理</div>
+        <div class="sc">redis-cli --bigkeys          <span class="cm"># 快速扫描</span>
+rdb -c memory dump.rdb       <span class="cm"># RDB 离线深度分析</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note warn" style="margin-top:4px;">
+  <div class="nlbl">⚠ 生产规范</div>
+  <p>删大 Key <strong>一律用 UNLINK 代替 DEL</strong>，这是踩过事故之后沉淀下来的硬规范。4.0 以下版本需手动分批 SCAN 删除。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PROD -->
+<div class="sec" id="prod">大厂生产实战方案</div>
+
+<div class="g2">
+  <div class="fw c-r" style="margin-bottom:0;">
+    <div class="fwh"><div class="fwb">字节跳动</div><div class="fwt">热Key 自动探测系统</div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">✦</div></div>
+        <div class="sb">
+          <div class="sd"><strong>SDK 埋点 → 旁路统计服务 → 自动本地化。</strong>Client SDK 上报每个 Key 的访问频次，超过阈值自动触发本地缓存预热，<strong>业务方完全无感知</strong>。核心思路：不依赖人发现问题，让系统自动发现自动解决。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fw c-b" style="margin-bottom:0;">
+    <div class="fwh"><div class="fwb">美团</div><div class="fwt">Squirrel 客户端 + Proxy 双层</div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">✦</div></div>
+        <div class="sb">
+          <div class="sd">Redis 客户端（Squirrel）层拦截热 Key，<strong>自动本地缓存几百毫秒</strong>。DBProxy 层做热 Key 读写分离路由，打到多个从节点。应急手段：热 Key 所在分片单独迁移到高配机器。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="g2" style="margin-top:10px;">
+  <div class="fw c-g" style="margin-bottom:0;">
+    <div class="fwh"><div class="fwb">阿里 Tair</div><div class="fwt">内核层 + Proxy 透明缓存</div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">✦</div></div>
+        <div class="sb">
+          <div class="sd">Tair 内核直接支持热 Key 统计（<code>OBJECT FREQ key</code>），无需客户端埋点。支持 <strong>Proxy 本地缓存</strong>，热 Key 数据缓存在 Proxy 节点，根本不走后端 Redis。Proxy 是集中的，不存在多机数据不一致问题。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fw c-p" style="margin-bottom:0;">
+    <div class="fwh"><div class="fwb">滴滴实案</div><div class="fwt">司机实时位置大 Key 拆分</div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">✦</div></div>
+        <div class="sb">
+          <div class="sd">全量司机位置存单个 Geo Key，几十万成员，读取把带宽打满。<strong>按城市+区域二级拆分</strong>：<code>driver:geo:{cityId}:{gridId}</code>，每格只存周边司机。数据量从几十万降到几百，读取只查周边格子。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info" style="margin-top:10px;">
+  <div class="nlbl">趋势</div>
+  <p>大厂的方向是<strong>把能力下沉到基础设施层</strong>，业务方无感知。字节在 SDK 层自动探测，阿里在 Proxy 层透明缓存，美团 SDK + Proxy 双层防护。大 Key 的治理重心也从"出问题救火"转向<strong>代码 Review 阶段卡写法、上线前扫描预防</strong>。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ JD HOTKEY -->
+<div class="sec" id="jd-hotkey">京东 Hotkey 框架</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>京东把这套东西开源了，叫 hotkey，思路和字节类似但实现细节清晰，可以直接拆开讲。</p>
+  <p><strong>最巧妙的两点：</strong>一是用<em>一致性哈希</em>把同一个 Key 的流量聚合到同一个 Worker，解决分布式环境下统计不准的问题；二是用 <em>Etcd Watch</em> 做广播，Worker 不需要维护 Client 连接，架构非常干净。</p>
+</div>
+
+<div class="arch"><strong>业务应用（内嵌 Client SDK）</strong>
+        ↓  上报 key 访问频次（异步批量，本地滑动窗口攒批）
+<strong>   Worker 集群</strong>（一致性哈希，同一 Key → 同一 Worker，聚合统计）
+        ↓  发现热 Key，写入
+<strong>     Etcd 集群</strong>
+        ↓  Watch 推送通知（所有 Client 自动收到）
+<strong>业务应用（Client SDK）</strong> → 本地 Caffeine 缓存该 Key 的 Value</div>
+
+<div class="fw c-b" style="margin-top:10px;">
+  <div class="fwh"><div class="fwb">FLOW</div><div class="fwt">四步核心流程</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Client 本地滑动窗口统计，异步批量上报</div>
+        <div class="sd">SDK 拦截每次 Redis 访问，本地用滑动窗口计数，<strong>攒一批再异步发给 Worker</strong>，不阻塞主线程，业务无感知。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Worker 一致性哈希聚合，判断是否热 Key</div>
+        <div class="sd">Client 用<strong>一致性哈希</strong>把同一个 Key 的数据打到同一个 Worker，避免统计分散不准。Worker 聚合所有应用实例数据，滑动窗口判断是否超阈值。单机看不到热点，聚合后热 Key 就暴露了。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">写入 Etcd → Watch 广播所有 Client</div>
+        <div class="sd">Worker 发现热 Key 后写入 Etcd。所有 Client 都 Watch 着 Etcd，<strong>自动收到推送后立刻本地缓存该 Key</strong>。Worker 不需要维护 Client 连接，解耦干净。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div></div>
+      <div class="sb">
+        <div class="st">热 Key TTL 到期 → 清除本地缓存，回归正常</div>
+        <div class="sd">Etcd 记录过期后，Client 收到通知清除本地缓存，恢复正常走 Redis 流程。Value 由 Client 自己第一次访问时去 Redis 取，Worker 不需要知道 Value 内容，职责单一。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap" style="margin-top:10px;">
+  <table class="tbl">
+    <thead><tr><th>维度</th><th>京东 hotkey（开源）</th><th>字节内部方案</th></tr></thead>
+    <tbody>
+      <tr><td>热 Key 发现</td><td>Worker 集群聚合统计</td><td>SDK 层统计上报</td></tr>
+      <tr><td>通知机制</td><td>Etcd Watch 广播</td><td>内部消息总线</td></tr>
+      <tr><td>本地缓存</td><td>Caffeine</td><td>自研</td></tr>
+      <tr><td>核心亮点</td><td>一致性哈希保证统计准确</td><td>全链路透明无感知</td></tr>
+      <tr><td>开放程度</td><td>开源，GitHub 可查</td><td>内部系统</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note good" style="margin-top:10px;">
+  <div class="nlbl">一句话</div>
+  <p>热 Key 核心思路是<strong>分散访问压力</strong>，本地缓存和 Key 拆分是最常用手段；大 Key 核心思路是<strong>化整为零</strong>，拆分+压缩，删除必用 UNLINK。两者本质都是单点压力过大，解法都是分而治之。京东 hotkey 是这套思路的标准工程实现，用一致性哈希+Etcd Watch 把探测和通知做成了基础设施。</p>
+</div>
+
+</main>
+</body>
+</html>

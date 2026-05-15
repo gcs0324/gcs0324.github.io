@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #08090d;
+      --bg2:       #0f1117;
+      --bg3:       #161821;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #e8e9f0;
+      --muted:     #6b6e80;
+      --accent:    #f0a500;
+      --accent2:   #ff6b35;
+      --glow:      rgba(240,165,0,0.15);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+    }
+
+    /* ── noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 180px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* ── layout ── */
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 32px 80px;
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      gap: 48px;
+    }
+
+    /* ── header ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .logo span { color: var(--accent); }
+
+    .clock-block { text-align: right; }
+    #clock {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    #date {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-top: 4px;
+    }
+
+    /* ── search ── */
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 20px 14px 48px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+    .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 16px; pointer-events: none;
+    }
+
+    /* ── section title ── */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── categories grid ── */
+    .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px 18px;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+      cursor: default;
+    }
+    .card:hover {
+      border-color: rgba(240,165,0,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .card-icon {
+      width: 32px; height: 32px;
+      background: var(--bg3);
+      border-radius: 6px;
+      display: grid; place-items: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .card-count {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .link-list li a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      transition: color .15s, background .15s;
+    }
+    .link-list li a:hover {
+      color: var(--accent);
+      background: rgba(240,165,0,0.06);
+    }
+    .link-list li a::before {
+      content: '→';
+      font-size: 10px;
+      color: var(--border);
+      transition: color .15s;
+    }
+    .link-list li a:hover::before { color: var(--accent); }
+
+    /* ── pinned / quick access ── */
+    .pins { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pin {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      transition: border-color .2s, color .2s, box-shadow .2s;
+    }
+    .pin:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 12px var(--glow);
+    }
+    .pin-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.5;
+    }
+    .pin:hover .pin-dot { opacity: 1; }
+
+    /* ── fade-in ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    header   { animation: fadeUp .4s ease both; }
+    .search-wrap { animation: fadeUp .4s .08s ease both; }
+    .pins-section { animation: fadeUp .4s .14s ease both; }
+    .categories-section { animation: fadeUp .4s .2s ease both; }
+
+    /* ── accent line top ── */
+    .accent-bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+<div class="accent-bar"></div>
+
+<div class="page">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">MY.<span>DASHBOARD</span></div>
+    <div class="clock-block">
+      <div id="clock">00:00</div>
+      <div id="date">— —</div>
+    </div>
+  </header>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input id="search" type="text" placeholder="搜索 Google... (按 Enter)" autocomplete="off" />
+  </div>
+
+  <!-- Pinned / Quick -->
+  <div class="pins-section">
+    <div class="section-label">快速访问</div>
+    <div class="pins">
+      <a class="pin" href="https://github.com/gcs0324" target="_blank"><span class="pin-dot"></span>GitHub</a>
+      <a class="pin" href="https://claude.ai" target="_blank"><span class="pin-dot"></span>Claude</a>
+      <a class="pin" href="https://mail.google.com" target="_blank"><span class="pin-dot"></span>Gmail</a>
+      <a class="pin" href="https://translate.google.com" target="_blank"><span class="pin-dot"></span>翻译</a>
+      <a class="pin" href="https://www.bilibili.com" target="_blank"><span class="pin-dot"></span>Bilibili</a>
+      <a class="pin" href="https://chat.openai.com" target="_blank"><span class="pin-dot"></span>ChatGPT</a>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="categories-section">
+    <div class="section-label">知识分类</div>
+    <div class="categories">
+
+      <!-- 编程 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">⌨</div>
+          <span class="card-title">编程开发</span>
+          <span class="card-count">4 links</span>
+        </div>
+        <ul class="link-list">
+          <li><a href="pages/python-basics.html" target="_blank">Python 基础知识点</a></li>
+          <li><a href="pages/git-cheatsheet.html" target="_blank">Git 常用命令速查</a></li>
+          <li><a href="https://developer.mozilla.org/zh-CN/" target="_blank">MDN Web 文档</a></li>
+          <li><a href="https://roadmap.sh" target="_blank">开发者路线图</a></li>
+        </ul>
+      </div>
+
+      <!-- 前端 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">◻</div>
+          <span class="card-title">前端 & CSS</span>
+          <span class="card-count">4 links</span>
+        </div>
+        <ul class="link-list">
+          <li><a href="pages/css-flexbox.html" target="_blank">CSS Flexbox 速查</a></li>
+          <li><a href="pages/html-tags.html" target="_blank">HTML 常用标签</a></li>
+          <li><a href="https://css-tricks.com" target="_blank">CSS Tricks</a></li>
+          <li><a href="https://codepen.io" target="_blank">CodePen</a></li>
+        </ul>
+      </div>
+
+      <!-- 工具 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">⚙</div>
+          <span class="card-title">开发工具</span>
+          <span class="card-count">4 links</span>
+        </div>
+        <ul class="link-list">
+          <li><a href="https://regex101.com" target="_blank">正则表达式测试</a></li>
+          <li><a href="https://jsonformatter.org" target="_blank">JSON 格式化</a></li>
+          <li><a href="https://transform.tools" target="_blank">代码格式转换</a></li>
+          <li><a href="https://caniuse.com" target="_blank">Can I Use</a></li>
+        </ul>
+      </div>
+
+      <!-- 学习 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">◈</div>
+          <span class="card-title">学习资源</span>
+          <span class="card-count">4 links</span>
+        </div>
+        <ul class="link-list">
+          <li><a href="https://www.coursera.org" target="_blank">Coursera</a></li>
+          <li><a href="https://leetcode.cn" target="_blank">LeetCode（中文）</a></li>
+          <li><a href="https://www.runoob.com" target="_blank">菜鸟教程</a></li>
+          <li><a href="https://missing.csail.mit.edu" target="_blank">MIT Missing Semester</a></li>
+        </ul>
+      </div>
+
+      <!-- 设计 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">✦</div>
+          <span class="card-title">设计 & 素材</span>
+          <span class="card-count">4 links</span>
+        </div>
+        <ul class="link-list">
+          <li><a href="https://www.figma.com" target="_blank">Figma</a></li>
+          <li><a href="https://unsplash.com" target="_blank">Unsplash 免费图片</a></li>
+          <li><a href="https://coolors.co" target="_blank">配色方案生成</a></li>
+          <li><a href="https://fontawesome.com" target="_blank">Font Awesome 图标</a></li>
+        </ul>
+      </div>
+
+      <!-- AI 工具 -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">◉</div>
+          <span class="card-title">AI 工具</span>
+          <span class="card-count">4 links</span>
+        </div>
+        <ul class="link-list">
+          <li><a href="https://claude.ai" target="_blank">Claude</a></li>
+          <li><a href="https://chat.openai.com" target="_blank">ChatGPT</a></li>
+          <li><a href="https://www.perplexity.ai" target="_blank">Perplexity</a></li>
+          <li><a href="https://gamma.app" target="_blank">Gamma（AI 幻灯片）</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Clock ──
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${h}:${m}`;
+
+    const days = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const d = `${now.getFullYear()} / ${months[now.getMonth()]} ${now.getDate()}日  ${days[now.getDay()]}`;
+    document.getElementById('date').textContent = d;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // ── Search ──
+  document.getElementById('search').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      const q = encodeURIComponent(this.value.trim());
+      window.open(`https://www.google.com/search?q=${q}`, '_blank');
+      this.value = '';
+    }
+  });
+
+  // Auto-focus search on page load
+  window.addEventListener('load', () => {
+    document.getElementById('search').focus();
+  });
+</script>
+</body>
+</html>

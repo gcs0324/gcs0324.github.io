@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会热点速览 · 2026.05.13</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f0e8;
+    --paper-dark: #ede7d5;
+    --rule: #2a1f0e;
+    --accent: #c0392b;
+    --accent-warm: #d35400;
+    --gold: #b8860b;
+    --muted: #6b5f4e;
+    --blue-dark: #1a2744;
+    --blue-mid: #2c4a8e;
+    --blue-light: #e8ecf7;
+    --tag-red: #c0392b;
+    --tag-blue: #2c4a8e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--rule);
+    color: var(--paper);
+    padding: 0;
+    border-bottom: 4px solid var(--accent);
+  }
+
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    font-size: 11px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .masthead-main {
+    text-align: center;
+    padding: 20px 40px 18px;
+    position: relative;
+  }
+
+  .masthead-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    margin-bottom: 6px;
+  }
+
+  .masthead-title {
+    font-family: 'Playfair Display', 'Noto Serif SC', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--paper);
+  }
+
+  .masthead-sub {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.5);
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  .masthead-rule {
+    width: 80px;
+    height: 1px;
+    background: var(--accent);
+    margin: 10px auto;
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    background: var(--accent);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 7px 0;
+  }
+
+  .ticker-label {
+    display: inline-block;
+    background: var(--rule);
+    color: white;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    padding: 0 14px;
+    font-weight: 700;
+    vertical-align: middle;
+    margin-right: 16px;
+  }
+
+  .ticker-content {
+    display: inline-block;
+    animation: ticker 28s linear infinite;
+    font-size: 11.5px;
+    color: white;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .section-label {
+    font-size: 9.5px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 28px 0 12px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 24px;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  /* HERO NEWS CARD */
+  .hero-card {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    border: 1.5px solid var(--ink);
+    margin-bottom: 32px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .hero-body {
+    padding: 36px 36px 32px;
+    border-right: 1.5px solid var(--ink);
+    background: var(--paper);
+    position: relative;
+  }
+
+  .hero-body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--tag-blue);
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 10px;
+    margin-bottom: 14px;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .tag-blue { background: var(--blue-dark); color: white; }
+  .tag-red  { background: var(--accent); color: white; }
+  .tag-gold { background: var(--gold); color: white; }
+
+  .hero-headline {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(22px, 3.5vw, 34px);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .hero-deck {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #3a3228;
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+
+  .hero-meta {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--paper-dark);
+    padding-top: 14px;
+    font-weight: 500;
+  }
+
+  .hero-sidebar {
+    background: var(--blue-dark);
+    color: white;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .sidebar-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .timeline-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .timeline-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 36px;
+    line-height: 1;
+  }
+
+  .timeline-text {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .timeline-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+
+  /* SECONDARY CARDS */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .news-card {
+    border: 1.5px solid var(--ink);
+    animation: fadeUp 0.7s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .news-card-header {
+    padding: 22px 24px 18px;
+    border-bottom: 1.5px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .news-card-body {
+    padding: 20px 24px 22px;
+  }
+
+  .news-card.card-red .news-card-header {
+    background: var(--accent);
+    border-bottom-color: #a93226;
+  }
+
+  .news-card.card-red .news-card-header .card-headline {
+    color: white;
+  }
+
+  .news-card.card-red .news-card-header .tag {
+    background: rgba(0,0,0,0.25);
+  }
+
+  .card-headline {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .card-body-text {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #3a3228;
+  }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    background: var(--rule);
+    color: var(--paper);
+    padding: 32px 40px;
+    margin: 0 0 32px;
+    position: relative;
+    border-left: 6px solid var(--accent);
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .pull-quote::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 100px;
+    color: rgba(255,255,255,0.07);
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    line-height: 1;
+  }
+
+  .pull-quote-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px;
+    line-height: 1.65;
+    font-style: italic;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pull-quote-attr {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-top: 14px;
+  }
+
+  /* OPINION ROW */
+  .opinion-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ink);
+    border: 1.5px solid var(--ink);
+    margin-bottom: 32px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .opinion-cell {
+    background: var(--paper);
+    padding: 20px 22px;
+  }
+
+  .opinion-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .opinion-label {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .opinion-text {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  /* IMPACT ROW */
+  .impact-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--ink);
+    border: 1.5px solid var(--ink);
+    margin-bottom: 32px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .impact-cell {
+    background: var(--paper-dark);
+    padding: 22px 20px;
+    text-align: center;
+  }
+
+  .impact-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .impact-label {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--rule);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 24px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    margin-top: 8px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-card { animation-delay: 0.1s; }
+  .two-col > *:nth-child(1) { animation-delay: 0.2s; }
+  .two-col > *:nth-child(2) { animation-delay: 0.3s; }
+  .pull-quote { animation-delay: 0.25s; }
+  .opinion-row { animation-delay: 0.35s; }
+  .impact-row { animation-delay: 0.4s; }
+
+  /* Divider ornament */
+  .ornament {
+    text-align: center;
+    font-size: 18px;
+    color: var(--muted);
+    margin: 8px 0 24px;
+    letter-spacing: 0.4em;
+  }
+
+  @media (max-width: 720px) {
+    .hero-card { grid-template-columns: 1fr; }
+    .hero-body { border-right: none; border-bottom: 1.5px solid var(--ink); }
+    .two-col { grid-template-columns: 1fr; }
+    .opinion-row { grid-template-columns: 1fr; }
+    .impact-row { grid-template-columns: repeat(2, 1fr); }
+    .masthead-top { padding: 8px 16px; font-size: 9px; }
+    .masthead-main { padding: 16px; }
+    .hero-body { padding: 24px 20px; }
+    .container { padding: 0 14px; }
+  }
+
+[data-theme="dark"] {
+  --ink:         #e8d8b8;
+  --paper:       #181510;
+  --paper-dark:  #101008;
+  --rule:        #c8b888;
+  --accent:      #e87070;
+  --accent-warm: #f09050;
+  --muted:       #8a7a58;
+  --light-rule:  rgba(200,184,136,0.10);
+}
+[data-theme="dark"] body { color: var(--ink); background: var(--paper); }
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-top">
+    <span>每日热点速览</span>
+    <span>2026年5月13日 · 星期三</span>
+    <span>社会 · 科技 · 外交</span>
+  </div>
+  <div class="masthead-main">
+    <div class="masthead-eyebrow">Today's Digest</div>
+    <div class="masthead-title">热点速览</div>
+    <div class="masthead-rule"></div>
+    <div class="masthead-sub">社会舆论 · 国际外交 · 品牌危机</div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <span class="ticker-label">滚动快讯</span>
+  <span class="ticker-content">
+    ▸ 特朗普今日抵达北京，开启时隔九年的首次访华之旅 &nbsp;&nbsp;&nbsp; ▸ 习近平将于14日上午与特朗普举行双边会谈，晚间出席国宴 &nbsp;&nbsp;&nbsp; ▸ OPPO母亲节文案翻车，中国区负责人段要辉职级直降两级 &nbsp;&nbsp;&nbsp; ▸ 中国广告协会发声谴责低俗营销，要求坚守主流价值观底线 &nbsp;&nbsp;&nbsp; ▸ 武汉大学就OPPO文案发声明，称"极不认同"相关内容 &nbsp;&nbsp;&nbsp; ▸ 特朗普：此次访华令人兴奋，重点议题包括贸易与伊朗局势 &nbsp;&nbsp;&nbsp;
+    ▸ 特朗普今日抵达北京，开启时隔九年的首次访华之旅 &nbsp;&nbsp;&nbsp; ▸ 习近平将于14日上午与特朗普举行双边会谈，晚间出席国宴 &nbsp;&nbsp;&nbsp; ▸ OPPO母亲节文案翻车，中国区负责人段要辉职级直降两级 &nbsp;&nbsp;&nbsp; ▸ 中国广告协会发声谴责低俗营销，要求坚守主流价值观底线 &nbsp;&nbsp;&nbsp;
+  </span>
+</div>
+
+<div style="height: 36px;"></div>
+
+<div class="container">
+
+  <!-- SECTION: TRUMP CHINA VISIT -->
+  <div class="section-label">🌐 外交焦点 · 特朗普访华</div>
+
+  <!-- HERO CARD -->
+  <div class="hero-card">
+    <div class="hero-body">
+      <span class="tag tag-blue">国际外交</span>
+      <div class="hero-headline">时隔九年，特朗普再踏北京<br>中美关系迎来关键时刻</div>
+      <div class="hero-deck">
+        应国家主席习近平邀请，美国总统特朗普于5月13日至15日对中国进行国事访问，这是美国总统时隔9年再次访华，亦是两国元首继去年10月釜山会晤之后再次面对面磋商。外界普遍认为，与2017年相比，此次访问的态势已大相径庭——彼时美国以霸权姿态居高临下，如今特朗普面对的是一个"早已不再仰视美国"的中国。分析人士将此行定性为一场带有现实压力的"稳定局势之旅"，而非强势施压。
+      </div>
+      <div class="hero-meta">来源：新华社 / 观察者网 / 凤凰卫视 &nbsp;·&nbsp; 2026.05.11–13</div>
+    </div>
+    <div class="hero-sidebar">
+      <div>
+        <div class="sidebar-title">📅 访华行程一览</div>
+        <div class="timeline-item">
+          <div class="timeline-date">13</div>
+          <div>
+            <div class="timeline-text">特朗普抵达北京</div>
+            <div class="timeline-sub">周三 · 晚间抵达</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">14</div>
+          <div>
+            <div class="timeline-text">10:00 与习近平举行双边会谈<br>18:00 出席国宴<br>下午 同游天坛（据报道）</div>
+            <div class="timeline-sub">周四 · 核心会谈日</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">15</div>
+          <div>
+            <div class="timeline-text">11:30 合影留念<br>11:40 双边茶会<br>12:15 双边午餐</div>
+            <div class="timeline-sub">周五 · 收官之日</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; margin-top: 16px;">
+        随行：国务卿鲁比奥、国防部长赫格塞思<br>梅拉尼娅未随行
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO-COL CARDS -->
+  <div class="two-col">
+    <div class="news-card">
+      <div class="news-card-header">
+        <span class="tag tag-gold">议题焦点</span>
+        <div class="card-headline">贸易、稀土、台湾——<br>议题庞杂，分歧深远</div>
+      </div>
+      <div class="news-card-body">
+        <div class="card-body-text">
+          根据各方披露的信息，此次中美峰会议题相当广泛，涵盖贸易关税、稀土供应链、人工智能管控、伊朗核局势乃至台湾问题。观察人士指出，贸易战以来，美国持续推动"脱钩""去风险化"，但中国制造业的全球主导地位依然难以替代。今年一季度中国出口同比增长21.8%，远超市场预期，进一步增强了北京的谈判底气。西方学者坦言：特朗普原本试图通过贸易战迫使中国承认美国优势，但发现中国总能有效反击。
+        </div>
+      </div>
+    </div>
+    <div class="news-card card-red">
+      <div class="news-card-header">
+        <span class="tag tag-blue">背景解读</span>
+        <div class="card-headline">九年之变：<br>中国不再是当年的追赶者</div>
+      </div>
+      <div class="news-card-body">
+        <div class="card-body-text">
+          2017年特朗普首次访华时，中国被视为高速崛起的追赶者。而今，《财富》杂志直言"中国用了六年时间解除了特朗普的筹码"，《纽约时报》则形容特朗普面对的是一个"早已不再仰视美国"的中国。中国在新能源、人工智能、高端制造和稀土供应链等领域积累了大量战略筹码，成为全球贸易稳定的"压舱石"，这一切深刻改变了此次访问的博弈格局。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPACT STATS -->
+  <div class="impact-row">
+    <div class="impact-cell">
+      <div class="impact-num">9</div>
+      <div class="impact-label">年美国总统<br>未曾访华</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-num">+21.8%</div>
+      <div class="impact-label">今年一季度<br>中国出口增速</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-num">3天</div>
+      <div class="impact-label">访华行程<br>（5月13–15日）</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-num">多项</div>
+      <div class="impact-label">贸易·稀土·AI<br>台湾·伊朗</div>
+    </div>
+  </div>
+
+  <div style="height: 12px;"></div>
+
+  <!-- SECTION: OPPO -->
+  <div class="section-label">📱 企业舆情 · OPPO母亲节文案风波</div>
+
+  <!-- PULL QUOTE -->
+  <div class="pull-quote">
+    <div class="pull-quote-text">我妈有两个"老公"，一个是我爸，另一个一年见两回。跟我爸约会基本不打扮，见另一个，她恨不得穿婚纱。</div>
+    <div class="pull-quote-attr">——OPPO母亲节争议文案原文（5月8日发布，当日下架）</div>
+  </div>
+
+  <!-- TWO-COL OPPO -->
+  <div class="two-col">
+    <div class="news-card">
+      <div class="news-card-header">
+        <span class="tag tag-red">事件经过</span>
+        <div class="card-headline">玩梗失度，品牌危机<br>迅速演变为全网声讨</div>
+      </div>
+      <div class="news-card-body">
+        <div class="card-body-text">
+          5月8日，OPPO联合《三联生活周刊》发起母亲节征集活动，搭配"母亲追星"画面的宣传文案一经发出，舆论哗然。网友纷纷批评文案暗示婚外情、冒犯家庭伦理、价值观扭曲；也有声音认为只是"玩梗"、过度解读。<br><br>OPPO当日紧急下架全部物料，发布首份道歉声明，以"打破刻板印象、展现多元母亲形象"为由解释初衷，却同步开启评论精选功能，此举被舆论认为是"傲慢敷衍"，反令愤怒情绪进一步升级。
+        </div>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="news-card-header">
+        <span class="tag tag-blue">处置结果</span>
+        <div class="card-headline">高管被罚降两级<br>史上最严问责落地</div>
+      </div>
+      <div class="news-card-body">
+        <div class="card-body-text">
+          5月11日，OPPO内部正式发布《2026年母亲节品牌营销事故问责通告》，认定为"重大品牌事故"。中国区业务负责人、高级副总裁段要辉负最终管理责任，职级直降两级，年度绩效不高于C，本月起冻结调薪36个月；其余相关管理人员亦均受到处分。知情人士称，此次处罚"属于OPPO历史上罕见严厉的处罚力度"。<br><br>与此同时，中国广告协会、武汉大学相继发声，OPPO品牌奠基人段永平也公开表态"确实不合适"。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPINION ROW -->
+  <div class="opinion-row">
+    <div class="opinion-cell">
+      <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700;">🔥 批评声音</div>
+      <div class="opinion-text">多数网友认为文案违背公序良俗，把母亲与"两个老公"联系在一起是对女性的不尊重，对青少年家庭观念也存在不良引导风险，且初次道歉态度敷衍，控评行为更激化了公众对品牌的不信任。</div>
+    </div>
+    <div class="opinion-cell">
+      <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700;">💬 中立分析</div>
+      <div class="opinion-text">分析人士指出，OPPO女性用户占比达63.1%，长期深耕年轻女性市场，但此次创作者将追星圈层梗挪至公共营销场景，属于典型的"公器私用"——创意边界模糊，风险审核失守，最终葬送了节日营销红利。</div>
+    </div>
+    <div class="opinion-cell">
+      <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:700;">🏛️ 行业警示</div>
+      <div class="opinion-text">中国广告协会强调，广告创意必须以社会主义核心价值观为引领，严守亲情伦理与社会公德底线，摒弃"唯流量论"。专家呼吁品牌认清"出位"不等于"出圈"，流量的反噬力一旦击穿公众情感底线，热度将瞬间转化为怒火。</div>
+    </div>
+  </div>
+
+  <div class="ornament">— ✦ —</div>
+
+</div>
+
+<footer>
+  本页内容整理自新华社、观察者网、澎湃新闻、凤凰卫视、证券时报等公开报道 &nbsp;·&nbsp; 仅供参考，不代表任何立场<br>
+  <span style="opacity:0.4;">整理时间：2026年5月13日</span>
+</footer>
+
+</body>
+</html>

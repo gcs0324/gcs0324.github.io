@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高频面试题 · Redis / Kafka / JVM · 5年经验</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px 16px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e8eaf0;
+}
+.logo-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+.badge-exp {
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  padding: 0 32px;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+.tab {
+  padding: 10px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.tab:hover { color: var(--text); }
+.tab.active[data-tab="redis"] { color: var(--redis); border-bottom-color: var(--redis); }
+.tab.active[data-tab="kafka"] { color: var(--kafka); border-bottom-color: var(--kafka); }
+.tab.active[data-tab="jvm"]   { color: var(--jvm);   border-bottom-color: var(--jvm); }
+.tab-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tab[data-tab="redis"] .tab-dot { background: var(--redis); }
+.tab[data-tab="kafka"] .tab-dot { background: var(--kafka); }
+.tab[data-tab="jvm"]   .tab-dot { background: var(--jvm); }
+.tab-count {
+  background: var(--surface2);
+  border-radius: 10px;
+  font-size: 10px;
+  padding: 1px 7px;
+  color: var(--text-dim);
+}
+
+/* ── LAYOUT ── */
+.main {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  gap: 24px;
+  min-height: calc(100vh - 100px);
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+.sidebar-section {
+  margin-bottom: 6px;
+}
+.sidebar-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 8px 12px 6px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-dim);
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.sidebar-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.sidebar-item.active {
+  color: var(--text);
+  border-color: var(--border2);
+  background: var(--surface2);
+}
+.sidebar-item.active[data-color="redis"] { color: var(--redis); border-left: 2px solid var(--redis); }
+.sidebar-item.active[data-color="kafka"] { color: var(--kafka); border-left: 2px solid var(--kafka); }
+.sidebar-item.active[data-color="jvm"]   { color: var(--jvm);   border-left: 2px solid var(--jvm); }
+.sidebar-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 18px;
+}
+.difficulty {
+  margin-left: auto;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.diff-high { background: rgba(230,57,70,0.2); color: var(--redis); }
+.diff-mid  { background: rgba(244,162,97,0.2); color: var(--kafka); }
+.diff-low  { background: rgba(42,157,143,0.2); color: var(--jvm); }
+
+/* CONTENT AREA */
+.content { min-width: 0; }
+.section { display: none; }
+.section.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* QUESTION CARD */
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.q-card:hover { border-color: var(--border2); }
+.q-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  user-select: none;
+}
+.q-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 28px;
+  padding-top: 2px;
+}
+.q-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #d4dbe8;
+  line-height: 1.5;
+}
+.q-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.3px;
+}
+.tag-redis { background: var(--redis-dim); color: var(--redis); }
+.tag-kafka { background: var(--kafka-dim); color: var(--kafka); }
+.tag-jvm   { background: var(--jvm-dim);   color: var(--jvm); }
+.tag-hot   { background: rgba(76,126,243,0.15); color: var(--accent); }
+.tag-core  { background: rgba(155,111,255,0.15); color: var(--purple); }
+
+.q-toggle {
+  color: var(--text-muted);
+  font-size: 16px;
+  transition: transform 0.25s;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.q-card.open .q-toggle { transform: rotate(180deg); }
+
+.q-body {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 20px 20px 20px 62px;
+}
+.q-card.open .q-body { display: block; animation: fadeUp 0.25s ease; }
+
+/* ANSWER CONTENT */
+.answer-section {
+  margin-bottom: 16px;
+}
+.answer-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.answer-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.answer-text {
+  color: var(--text);
+  line-height: 1.85;
+  font-size: 13.5px;
+}
+.answer-text strong { color: #e8eaf0; }
+.answer-text em { color: var(--yellow); font-style: normal; }
+
+/* CODE BLOCK */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #abb2bf;
+  overflow-x: auto;
+  margin: 12px 0;
+  line-height: 1.7;
+}
+.code-block .kw { color: #c678dd; }
+.code-block .str { color: #98c379; }
+.code-block .num { color: #d19a66; }
+.code-block .cm { color: #5c6370; font-style: italic; }
+.code-block .fn { color: #61afef; }
+.code-block .cls { color: #e5c07b; }
+
+/* KEY POINTS */
+.key-points {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px 0;
+}
+.key-points li {
+  list-style: none;
+  padding: 4px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+.key-points li::before {
+  content: '▸';
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* COMPARISON TABLE */
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin: 12px 0;
+}
+.cmp-table th {
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--border);
+}
+.cmp-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.cmp-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+/* HIGHLIGHT BOX */
+.highlight-box {
+  border-left: 3px solid var(--accent);
+  background: rgba(76,126,243,0.06);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.highlight-box.warn { border-color: var(--kafka); background: rgba(244,162,97,0.06); }
+.highlight-box.success { border-color: var(--green); background: rgba(67,217,173,0.06); }
+.highlight-box strong { color: var(--text); }
+
+/* SECTION HERO */
+.section-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.hero-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.hero-title { font-size: 18px; font-weight: 700; color: #e8eaf0; }
+.hero-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.6; }
+.hero-stats { margin-left: auto; display: flex; gap: 24px; flex-shrink: 0; }
+.stat { text-align: center; }
+.stat-n { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; }
+.stat-l { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin-top: 2px; }
+
+/* PROGRESS INDICATOR */
+.progress-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 6px 0 0;
+}
+.progress-fill { height: 100%; border-radius: 3px; }
+
+/* ── 文件私有品牌色 ── */
+:root {
+  --redis: #d63031; --redis-dim: rgba(214,48,49,0.08);
+  --kafka: #c0530a; --kafka-dim: rgba(192,83,10,0.08);
+  --jvm:   #0a7c52; --jvm-dim:   rgba(10,124,82,0.08);
+  --green: #0a7c52; --yellow: #9a6e0a; --purple: #5e38c0;
+}
+[data-theme="dark"] {
+  --redis: #ff6b6b; --redis-dim: rgba(255,107,107,0.12);
+  --kafka: #ff9f43; --kafka-dim: rgba(255,159,67,0.12);
+  --jvm:   #06d6a0; --jvm-dim:   rgba(6,214,160,0.12);
+  --green: #06d6a0; --yellow: #ffd166; --purple: #a78bfa;
+}
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">💻</div>
+      <div>
+        <div class="logo-text">后端高频面试题</div>
+        <div class="logo-sub">Redis · Kafka · JVM</div>
+      </div>
+    </div>
+    <div class="badge-exp">5年经验 · 中高级岗位</div>
+  </div>
+  <nav class="tabs">
+    <div class="tab active" data-tab="redis">
+      <span class="tab-dot"></span> Redis <span class="tab-count">12题</span>
+    </div>
+    <div class="tab" data-tab="kafka">
+      <span class="tab-dot"></span> Kafka <span class="tab-count">10题</span>
+    </div>
+    <div class="tab" data-tab="jvm">
+      <span class="tab-dot"></span> JVM <span class="tab-count">10题</span>
+    </div>
+  </nav>
+</header>
+
+<div class="main">
+
+<!-- ════════════════ SIDEBAR ════════════════ -->
+<aside class="sidebar" id="sidebar-redis">
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">核心考点</div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r1')">
+      <span class="sidebar-num">01</span> 数据结构底层
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r2')">
+      <span class="sidebar-num">02</span> 缓存击穿穿透雪崩
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r3')">
+      <span class="sidebar-num">03</span> 分布式锁
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r4')">
+      <span class="sidebar-num">04</span> 持久化 RDB/AOF
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r5')">
+      <span class="sidebar-num">05</span> 主从 & 哨兵 & 集群
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r6')">
+      <span class="sidebar-num">06</span> 过期策略 & 淘汰策略
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r7')">
+      <span class="sidebar-num">07</span> Pipeline & 事务
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r8')">
+      <span class="sidebar-num">08</span> 热Key问题
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r9')">
+      <span class="sidebar-num">09</span> Lua脚本原子性
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r10')">
+      <span class="sidebar-num">10</span> 缓存与DB一致性
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r11')">
+      <span class="sidebar-num">11</span> BigKey问题
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="redis" onclick="scrollToQ('r12')">
+      <span class="sidebar-num">12</span> Redis 单线程模型
+      <span class="difficulty diff-mid">中</span>
+    </div>
+  </div>
+</aside>
+
+<aside class="sidebar" id="sidebar-kafka" style="display:none;">
+  <div class="sidebar-section">
+    <div class="sidebar-title">核心考点</div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k1')">
+      <span class="sidebar-num">01</span> 高性能原理
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k2')">
+      <span class="sidebar-num">02</span> 消息不丢失保证
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k3')">
+      <span class="sidebar-num">03</span> 幂等 & 事务消息
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k4')">
+      <span class="sidebar-num">04</span> 消费者组 & Rebalance
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k5')">
+      <span class="sidebar-num">05</span> Offset管理
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k6')">
+      <span class="sidebar-num">06</span> 消息积压处理
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k7')">
+      <span class="sidebar-num">07</span> ISR & 副本机制
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k8')">
+      <span class="sidebar-num">08</span> 顺序消费保证
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k9')">
+      <span class="sidebar-num">09</span> 选主机制 & Controller
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="kafka" onclick="scrollToQ('k10')">
+      <span class="sidebar-num">10</span> 与RocketMQ对比
+      <span class="difficulty diff-mid">中</span>
+    </div>
+  </div>
+</aside>
+
+<aside class="sidebar" id="sidebar-jvm" style="display:none;">
+  <div class="sidebar-section">
+    <div class="sidebar-title">核心考点</div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j1')">
+      <span class="sidebar-num">01</span> 内存区域划分
+      <span class="difficulty diff-low">基础</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j2')">
+      <span class="sidebar-num">02</span> GC算法 & 垃圾收集器
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j3')">
+      <span class="sidebar-num">03</span> G1 vs ZGC vs CMS
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j4')">
+      <span class="sidebar-num">04</span> OOM排查思路
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j5')">
+      <span class="sidebar-num">05</span> 类加载机制 & 双亲委派
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j6')">
+      <span class="sidebar-num">06</span> JIT即时编译
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j7')">
+      <span class="sidebar-num">07</span> Full GC频繁排查
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j8')">
+      <span class="sidebar-num">08</span> 对象分配与逃逸分析
+      <span class="difficulty diff-mid">中</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j9')">
+      <span class="sidebar-num">09</span> volatile & happens-before
+      <span class="difficulty diff-high">高</span>
+    </div>
+    <div class="sidebar-item" data-color="jvm" onclick="scrollToQ('j10')">
+      <span class="sidebar-num">10</span> 性能调优工具链
+      <span class="difficulty diff-high">高</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════ CONTENT ════════════════ -->
+<div class="content">
+
+<!-- ===== REDIS ===== -->
+<section class="section active" id="section-redis">
+  <div class="section-hero">
+    <div class="hero-icon" style="background:rgba(230,57,70,0.15);">🔴</div>
+    <div>
+      <div class="hero-title" style="color:var(--redis)">Redis 高频考点</div>
+      <div class="hero-desc">聚焦缓存架构设计、分布式场景与底层原理，5年经验必会</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n" style="color:var(--redis)">12</div><div class="stat-l">QUESTIONS</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--yellow)">5</div><div class="stat-l">HIGH LEVEL</div></div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="r1">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">01</span>
+      <div>
+        <div class="q-title">Redis 有哪些数据结构？底层编码分别是什么？</div>
+        <div class="q-tags"><span class="tag tag-redis">底层原理</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">核心答案</div>
+      <table class="cmp-table">
+        <tr><th>数据类型</th><th>底层编码</th><th>切换条件</th></tr>
+        <tr><td><strong>String</strong></td><td>int / embstr / raw</td><td>长度≤44字节用embstr，否则raw</td></tr>
+        <tr><td><strong>List</strong></td><td>listpack → quicklist</td><td>元素&gt;128或长度&gt;64字节转quicklist</td></tr>
+        <tr><td><strong>Hash</strong></td><td>listpack → hashtable</td><td>字段&gt;128或值长度&gt;64字节转hashtable</td></tr>
+        <tr><td><strong>Set</strong></td><td>listpack / intset → hashtable</td><td>全整数用intset，否则listpack，超限转hashtable</td></tr>
+        <tr><td><strong>ZSet</strong></td><td>listpack → skiplist+dict</td><td>元素&gt;128或长度&gt;64字节转skiplist</td></tr>
+        <tr><td><strong>Stream</strong></td><td>rax tree（基数树）</td><td>—</td></tr>
+      </table>
+      <div class="highlight-box">
+        <strong>追问要点：</strong>为什么跳表不用红黑树？跳表实现简单、范围查询快、支持无锁并发；Redis ZSet 同时维护 dict（O(1)查分）+ skiplist（O(logN)范围查）。
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="r2">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">02</span>
+      <div>
+        <div class="q-title">缓存穿透、缓存击穿、缓存雪崩的区别与解决方案？</div>
+        <div class="q-tags"><span class="tag tag-redis">缓存设计</span><span class="tag tag-hot">高频必考</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">三者区分</div>
+      <table class="cmp-table">
+        <tr><th>问题</th><th>原因</th><th>解决方案</th></tr>
+        <tr>
+          <td><strong style="color:var(--redis)">穿透</strong></td>
+          <td>查询不存在的数据，每次都打到DB</td>
+          <td>① 布隆过滤器前置拦截<br>② 缓存空值（TTL短，防内存膨胀）</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--kafka)">击穿</strong></td>
+          <td>热点Key过期，大量并发同时回源DB</td>
+          <td>① 互斥锁（SETNX）重建<br>② 逻辑过期（不设TTL，异步重建）</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--purple)">雪崩</strong></td>
+          <td>大量Key同时过期 / Redis宕机</td>
+          <td>① TTL加随机抖动<br>② 集群+哨兵保高可用<br>③ 降级熔断限流</td>
+        </tr>
+      </table>
+      <div class="answer-label">互斥锁方案代码</div>
+      <div class="code-block"><span class="cm">// 缓存击穿 - 互斥锁方案</span>
+<span class="kw">public</span> String <span class="fn">getData</span>(String key) {
+    String val = redis.<span class="fn">get</span>(key);
+    <span class="kw">if</span> (val != <span class="kw">null</span>) <span class="kw">return</span> val;
+    
+    String lockKey = <span class="str">"lock:"</span> + key;
+    <span class="kw">if</span> (redis.<span class="fn">setnx</span>(lockKey, <span class="str">"1"</span>, <span class="num">30</span>)) { <span class="cm">// 获取锁</span>
+        <span class="kw">try</span> {
+            val = db.<span class="fn">query</span>(key);      <span class="cm">// 回源DB</span>
+            redis.<span class="fn">set</span>(key, val, ttl);  <span class="cm">// 写缓存</span>
+        } <span class="kw">finally</span> {
+            redis.<span class="fn">del</span>(lockKey);        <span class="cm">// 释放锁</span>
+        }
+    } <span class="kw">else</span> {
+        <span class="cls">Thread</span>.<span class="fn">sleep</span>(<span class="num">50</span>);            <span class="cm">// 等待重试</span>
+        <span class="kw">return</span> <span class="fn">getData</span>(key);
+    }
+    <span class="kw">return</span> val;
+}</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="r3">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">03</span>
+      <div>
+        <div class="q-title">Redis 分布式锁如何实现？Redisson 的看门狗机制是什么？</div>
+        <div class="q-tags"><span class="tag tag-redis">分布式锁</span><span class="tag tag-hot">高频</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">SETNX方案痛点</div>
+      <ul class="key-points">
+        <li>锁超时但业务未完成 → 锁被其他线程误释放（需在释放时验证UUID）</li>
+        <li>释放锁时 GET+DEL 非原子 → 必须用 <strong>Lua脚本</strong> 保证原子性</li>
+        <li>主从切换时主节点已写锁但未同步从节点 → 发生锁丢失</li>
+      </ul>
+      <div class="answer-label">Redisson 看门狗机制</div>
+      <div class="answer-text">
+        Redisson 加锁默认 TTL <em>30秒</em>，同时启动一个后台线程（WatchDog），每 <em>10秒</em>（TTL/3）检查锁是否仍被当前线程持有，若是则自动续期 30秒。业务结束主动 unlock 后 WatchDog 停止。
+      </div>
+      <div class="code-block"><span class="cm">// Redisson 可重入锁</span>
+<span class="cls">RLock</span> lock = redisson.<span class="fn">getLock</span>(<span class="str">"order:lock:"</span> + orderId);
+<span class="kw">try</span> {
+    <span class="cm">// 尝试获取锁，等待10s，锁定30s（WatchDog自动续期）</span>
+    <span class="kw">boolean</span> ok = lock.<span class="fn">tryLock</span>(<span class="num">10</span>, <span class="num">30</span>, <span class="cls">TimeUnit</span>.SECONDS);
+    <span class="kw">if</span> (ok) { <span class="cm">/* 业务逻辑 */</span> }
+} <span class="kw">finally</span> {
+    <span class="kw">if</span> (lock.<span class="fn">isHeldByCurrentThread</span>()) lock.<span class="fn">unlock</span>();
+}</div>
+      <div class="highlight-box warn"><strong>RedLock 方案：</strong>向 N（奇数≥5）个独立 Redis 节点分别加锁，超过半数成功才视为加锁成功，解决单点和主从切换问题。但争议较大（Martin 论文指出时钟漂移问题），生产中视场景选用。</div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="r4">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">04</span>
+      <div>
+        <div class="q-title">RDB 和 AOF 的区别？如何选择？</div>
+        <div class="q-tags"><span class="tag tag-redis">持久化</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>维度</th><th>RDB</th><th>AOF</th></tr>
+        <tr><td>原理</td><td>fork子进程，全量快照二进制文件</td><td>追加写命令日志，可 always/everysec/no</td></tr>
+        <tr><td>数据安全</td><td>可能丢失最后一次快照后的数据</td><td>everysec 最多丢1秒数据</td></tr>
+        <tr><td>文件大小</td><td>小，压缩二进制</td><td>大，文本命令；AOF重写可压缩</td></tr>
+        <tr><td>恢复速度</td><td>快</td><td>慢（需回放命令）</td></tr>
+        <tr><td>适用场景</td><td>可接受少量数据丢失、恢复快</td><td>对数据完整性要求高</td></tr>
+      </table>
+      <div class="highlight-box success"><strong>生产推荐：</strong>两者同时开启（Redis 4.0+ 混合持久化），重启时优先用 AOF 恢复，AOF 文件前半段是 RDB 快照，大幅提升恢复速度。</div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="r5">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">05</span>
+      <div>
+        <div class="q-title">Redis 主从、哨兵、Cluster 集群的区别与选型？</div>
+        <div class="q-tags"><span class="tag tag-redis">高可用</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>模式</th><th>特点</th><th>局限</th><th>适用</th></tr>
+        <tr><td><strong>主从复制</strong></td><td>主写从读，读扩展</td><td>手动故障转移，主挂服务不可写</td><td>读多写少简单场景</td></tr>
+        <tr><td><strong>哨兵模式</strong></td><td>自动故障转移，客户端透明</td><td>仍是单主写入，数据量受限于单机</td><td>高可用要求，数据量不大</td></tr>
+        <tr><td><strong>Cluster集群</strong></td><td>数据分片（16384槽位），横向扩展</td><td>事务/多key操作受限，运维复杂</td><td>海量数据、高并发写</td></tr>
+      </table>
+      <div class="answer-text" style="margin-top:12px;">
+        <strong>Cluster 分片原理：</strong>对 key 做 <em>CRC16 % 16384</em> 得到槽位号，槽位分配给各节点。跨槽操作需用 <em>Hash Tag</em>（<code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;">{user:1}:order</code>）保证路由到同一节点。
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="r6">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">06</span>
+      <div>
+        <div class="q-title">Redis 的过期策略和内存淘汰策略？</div>
+        <div class="q-tags"><span class="tag tag-redis">内存管理</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">过期策略（两者结合）</div>
+      <ul class="key-points">
+        <li><strong>惰性删除：</strong>访问时才检查是否过期，CPU友好，但内存可能积压</li>
+        <li><strong>定期删除：</strong>每隔100ms随机抽取20个带TTL的key检测，若过期比例&gt;25%则继续扫描</li>
+      </ul>
+      <div class="answer-label">内存淘汰策略（maxmemory-policy）</div>
+      <table class="cmp-table">
+        <tr><th>策略</th><th>说明</th></tr>
+        <tr><td>noeviction</td><td>不淘汰，内存满时写操作报错（默认）</td></tr>
+        <tr><td>allkeys-lru</td><td>全key中淘汰最近最少使用 ★推荐</td></tr>
+        <tr><td>volatile-lru</td><td>仅在设了TTL的key中淘汰LRU</td></tr>
+        <tr><td>allkeys-lfu</td><td>全key中淘汰访问频率最低（Redis4.0+）</td></tr>
+        <tr><td>allkeys-random</td><td>随机淘汰，不推荐</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q7-12 abbreviated cards -->
+  <div class="q-card" id="r7">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">07</span>
+      <div>
+        <div class="q-title">Redis Pipeline 和事务（MULTI/EXEC）的区别？</div>
+        <div class="q-tags"><span class="tag tag-redis">命令机制</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>维度</th><th>Pipeline</th><th>MULTI/EXEC</th></tr>
+        <tr><td>目的</td><td>批量发送命令减少网络RTT</td><td>保证命令顺序执行不被插队</td></tr>
+        <tr><td>原子性</td><td>❌ 非原子</td><td>✅ 原子（命令要么全执行要么不执行）</td></tr>
+        <tr><td>错误处理</td><td>各自独立</td><td>运行时错误不会回滚（≠数据库事务）</td></tr>
+        <tr><td>服务端缓存</td><td>客户端缓冲后批量发</td><td>服务端队列缓存到EXEC触发</td></tr>
+      </table>
+      <div class="highlight-box"><strong>生产场景：</strong>批量写入用 Pipeline 提升吞吐；需要原子操作优先用 <strong>Lua 脚本</strong>（真正原子且能处理逻辑）。</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="r8">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">08</span>
+      <div>
+        <div class="q-title">热Key 问题如何发现和解决？</div>
+        <div class="q-tags"><span class="tag tag-redis">性能优化</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">发现方式</div>
+      <ul class="key-points">
+        <li><strong>redis-cli --hotkeys：</strong>需开启 maxmemory-policy 为 LFU 策略</li>
+        <li><strong>monitor 命令：</strong>实时抓取命令，分析高频 key（有性能开销，慎用）</li>
+        <li><strong>业务侧埋点：</strong>在应用层统计 key 访问频次</li>
+      </ul>
+      <div class="answer-label">解决方案</div>
+      <ul class="key-points">
+        <li><strong>本地缓存（L1）：</strong>Caffeine/Guava，减少 Redis 请求；注意一致性问题</li>
+        <li><strong>Key拆分：</strong>将热Key复制为 key_0、key_1...key_N，随机读其中一个</li>
+        <li><strong>读写分离：</strong>热Key从从节点读取，分散压力</li>
+        <li><strong>限流降级：</strong>Sentinel 或 Hystrix 对热Key做限流兜底</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="r9">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">09</span>
+      <div>
+        <div class="q-title">为什么 Lua 脚本在 Redis 中能保证原子性？</div>
+        <div class="q-tags"><span class="tag tag-redis">Lua脚本</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-text">
+        Redis 是<strong>单线程</strong>处理命令的（网络IO多线程，命令执行单线程）。Lua 脚本通过 <em>EVAL</em> 命令执行时，整个脚本被当做一条命令原子执行，执行期间不会被其他命令打断。
+      </div>
+      <div class="code-block"><span class="cm">-- 分布式锁释放的原子Lua脚本</span>
+<span class="kw">if</span> redis.<span class="fn">call</span>(<span class="str">'get'</span>, KEYS[<span class="num">1</span>]) == ARGV[<span class="num">1</span>] <span class="kw">then</span>
+    <span class="kw">return</span> redis.<span class="fn">call</span>(<span class="str">'del'</span>, KEYS[<span class="num">1</span>])
+<span class="kw">else</span>
+    <span class="kw">return</span> <span class="num">0</span>
+<span class="kw">end</span></div>
+    </div>
+  </div>
+
+  <div class="q-card" id="r10">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">10</span>
+      <div>
+        <div class="q-title">如何保证 Redis 缓存与数据库数据一致性？</div>
+        <div class="q-tags"><span class="tag tag-redis">数据一致性</span><span class="tag tag-core">核心</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">主流方案对比</div>
+      <table class="cmp-table">
+        <tr><th>方案</th><th>做法</th><th>问题</th></tr>
+        <tr><td>先更新DB后删缓存</td><td>写DB → 删 Redis</td><td>★ <strong>推荐</strong>，极小概率不一致（并发读写）</td></tr>
+        <tr><td>先删缓存后更新DB</td><td>删 Redis → 写DB</td><td>并发读会重建旧值，不一致窗口长</td></tr>
+        <tr><td>更新DB后更新缓存</td><td>写DB → 写 Redis</td><td>并发写时缓存可能是旧值覆盖新值</td></tr>
+        <tr><td>延迟双删</td><td>删缓存→写DB→延迟再删缓存</td><td>延迟时间难确定，降级方案</td></tr>
+      </table>
+      <div class="highlight-box success">
+        <strong>终极方案：Canal 订阅 Binlog</strong><br>业务代码只写 DB，Canal 监听 MySQL Binlog 变更，异步删除/更新 Redis，彻底解耦，一致性最终满足。
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card" id="r11">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">11</span>
+      <div>
+        <div class="q-title">BigKey 问题有哪些危害？如何处理？</div>
+        <div class="q-tags"><span class="tag tag-redis">性能优化</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <ul class="key-points">
+        <li><strong>危害：</strong>单次操作耗时长，阻塞其他命令；序列化/反序列化慢；内存不均导致集群倾斜；DEL大key会导致长时间阻塞</li>
+        <li><strong>发现：</strong><code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono'">redis-cli --bigkeys</code> 或 <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono'">SCAN + MEMORY USAGE</code></li>
+        <li><strong>删除：</strong>Hash/Set/ZSet 用 HSCAN/SSCAN 分批删；String 直接 UNLINK（异步删除，Redis 4.0+）</li>
+        <li><strong>预防：</strong>禁止把大对象存 String，拆分为多个小 Key；List 分页存储</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="r12">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">12</span>
+      <div>
+        <div class="q-title">Redis 为什么单线程还这么快？Redis 6.0 多线程改了什么？</div>
+        <div class="q-tags"><span class="tag tag-redis">线程模型</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <ul class="key-points">
+        <li><strong>纯内存操作：</strong>所有数据在内存，微秒级读写</li>
+        <li><strong>单线程无锁竞争：</strong>无上下文切换，无死锁风险</li>
+        <li><strong>IO多路复用：</strong>epoll 非阻塞监听多个连接，高并发不阻塞</li>
+        <li><strong>高效数据结构：</strong>SDS、跳表、压缩列表等针对场景优化</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Redis 6.0 多线程：</strong>仅网络 I/O（读取解析请求、写回响应）使用多线程，<em>命令执行依然单线程</em>。解决的是网络带宽瓶颈，不是计算瓶颈。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== KAFKA ===== -->
+<section class="section" id="section-kafka">
+  <div class="section-hero">
+    <div class="hero-icon" style="background:rgba(244,162,97,0.15);">🟠</div>
+    <div>
+      <div class="hero-title" style="color:var(--kafka)">Kafka 高频考点</div>
+      <div class="hero-desc">聚焦消息可靠性、高性能原理与分布式协调机制</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n" style="color:var(--kafka)">10</div><div class="stat-l">QUESTIONS</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--yellow)">6</div><div class="stat-l">HIGH LEVEL</div></div>
+    </div>
+  </div>
+
+  <div class="q-card" id="k1">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">01</span>
+      <div>
+        <div class="q-title">Kafka 为什么能做到百万级 TPS？核心高性能原理是什么？</div>
+        <div class="q-tags"><span class="tag tag-kafka">高性能原理</span><span class="tag tag-core">核心</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <ul class="key-points">
+        <li><strong>顺序写磁盘：</strong>Partition 只追加写，磁盘顺序 IO（600MB/s）远快于随机 IO（100MB/s）</li>
+        <li><strong>零拷贝（Zero-Copy）：</strong>sendfile 系统调用，数据直接从 PageCache 到网卡，跳过用户态，减少2次数据拷贝和2次上下文切换</li>
+        <li><strong>PageCache：</strong>消息先写 OS PageCache 再刷盘，异步刷盘提升写吞吐</li>
+        <li><strong>批量压缩发送：</strong>Producer 批量聚合消息后压缩（snappy/lz4/zstd）发送，减少网络 IO</li>
+        <li><strong>分区并行：</strong>多 Partition 并行消费，水平扩展吞吐</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="k2">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">02</span>
+      <div>
+        <div class="q-title">如何保证 Kafka 消息不丢失？三个层面分别怎么做？</div>
+        <div class="q-tags"><span class="tag tag-kafka">可靠性</span><span class="tag tag-hot">高频必考</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>层面</th><th>配置/做法</th><th>说明</th></tr>
+        <tr>
+          <td><strong>Producer</strong></td>
+          <td>acks=all（-1）<br>retries=Integer.MAX_VALUE<br>enable.idempotence=true</td>
+          <td>等待所有ISR副本确认后才视为发送成功；幂等避免重试引起重复</td>
+        </tr>
+        <tr>
+          <td><strong>Broker</strong></td>
+          <td>replication.factor≥3<br>min.insync.replicas=2<br>unclean.leader.election.enable=false</td>
+          <td>至少2个ISR副本确认；禁止非ISR副本当选Leader（否则会丢消息）</td>
+        </tr>
+        <tr>
+          <td><strong>Consumer</strong></td>
+          <td>关闭自动提交Offset<br>业务处理完再手动提交</td>
+          <td>避免消费未完成就提交Offset导致消息"丢失"</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="q-card" id="k3">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">03</span>
+      <div>
+        <div class="q-title">Kafka 如何实现幂等消费和事务消息？</div>
+        <div class="q-tags"><span class="tag tag-kafka">幂等 & 事务</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">Producer幂等（exactly-once发送）</div>
+      <div class="answer-text">
+        开启 <em>enable.idempotence=true</em>，Broker 为每个 Producer 分配 <strong>PID</strong>，每条消息附带 <strong>SequenceNumber</strong>。Broker 检测到重复序号直接丢弃，保证单分区精确一次写入。
+      </div>
+      <div class="answer-label">Kafka 事务消息</div>
+      <ul class="key-points">
+        <li>设置 <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono'">transactional.id</code>，Producer 获得全局唯一事务ID</li>
+        <li>Consumer 设置 <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono'">isolation.level=read_committed</code>，只消费已提交事务的消息</li>
+        <li>跨 Partition、跨 Topic 的原子写保证：要么全提交，要么全回滚</li>
+      </ul>
+      <div class="highlight-box warn"><strong>消费幂等由业务保证：</strong>数据库唯一索引 / Redis SETNX 记录消息ID / 状态机幂等检查，三选一。</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="k4">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">04</span>
+      <div>
+        <div class="q-title">消费者组（Consumer Group）机制？Rebalance 触发条件和影响？</div>
+        <div class="q-tags"><span class="tag tag-kafka">消费者组</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <ul class="key-points">
+        <li><strong>同一 Group 内：</strong>一个 Partition 只能被一个 Consumer 消费（独占），实现负载均衡</li>
+        <li><strong>不同 Group：</strong>同一消息可以被多个 Group 各消费一次，实现广播/扇出</li>
+      </ul>
+      <div class="answer-label">Rebalance 触发条件</div>
+      <ul class="key-points">
+        <li>Consumer 加入或离开 Group（包括崩溃/超时）</li>
+        <li>Topic 分区数变更</li>
+        <li>订阅的 Topic 变更</li>
+      </ul>
+      <div class="highlight-box warn">
+        <strong>Rebalance 影响：</strong>期间所有 Consumer 停止消费（Stop-The-World），大量消费者的 Group 可能几十秒不可用。<br>
+        <strong>优化：</strong>① 设置合理的 <code style="font-size:11px;font-family:'JetBrains Mono'">session.timeout.ms</code> 和 <code style="font-size:11px;font-family:'JetBrains Mono'">heartbeat.interval.ms</code>；② 使用 <strong>StickyAssignor</strong> 减少分区迁移；③ Kafka 2.4+ 支持 <strong>静态成员</strong>（static membership），Consumer 重启不触发 Rebalance。
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card" id="k5">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">05</span>
+      <div>
+        <div class="q-title">Kafka Offset 管理机制，如何实现手动提交？</div>
+        <div class="q-tags"><span class="tag tag-kafka">Offset</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-text">Offset 存储在 <em>__consumer_offsets</em> 内置 Topic（Kafka 0.9+，之前存 ZooKeeper）。</div>
+      <div class="code-block"><span class="cm">// 手动提交最佳实践 - 同步提交（可靠）</span>
+props.<span class="fn">put</span>(<span class="str">"enable.auto.commit"</span>, <span class="str">"false"</span>);
+<span class="cls">KafkaConsumer</span>&lt;...&gt; consumer = <span class="kw">new</span> <span class="cls">KafkaConsumer</span>&lt;&gt;(props);
+
+<span class="kw">while</span> (<span class="kw">true</span>) {
+    <span class="cls">ConsumerRecords</span> records = consumer.<span class="fn">poll</span>(<span class="cls">Duration</span>.<span class="fn">ofMillis</span>(<span class="num">100</span>));
+    <span class="kw">for</span> (<span class="cls">ConsumerRecord</span> record : records) {
+        <span class="fn">process</span>(record); <span class="cm">// 业务处理</span>
+    }
+    consumer.<span class="fn">commitSync</span>(); <span class="cm">// 处理完批次后再提交</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="k6">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">06</span>
+      <div>
+        <div class="q-title">消息积压了几百万条，如何快速处理？</div>
+        <div class="q-tags"><span class="tag tag-kafka">故障处理</span><span class="tag tag-hot">高频</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">紧急处理步骤</div>
+      <ul class="key-points">
+        <li><strong>定位瓶颈：</strong>是 Consumer 处理慢？网络瓶颈？还是下游DB/服务拖慢？</li>
+        <li><strong>扩 Consumer 数量：</strong>临时加消费者（不超过 Partition 数），触发 Rebalance 后并行消费</li>
+        <li><strong>扩 Partition 数：</strong>提高并行度上限（注意：Partition 只能增不能减）</li>
+        <li><strong>消费者端批量处理：</strong>增大 <code style="font-size:11px;font-family:'JetBrains Mono'">max.poll.records</code>，批量写DB代替逐条写</li>
+        <li><strong>临时跳过非关键消息：</strong>业务允许时，将 Offset 直接重置到最新，丢弃历史积压（慎用）</li>
+      </ul>
+      <div class="highlight-box warn"><strong>事后预防：</strong>设置告警阈值（lag监控），Consumer 处理时间超过 <code style="font-size:11px;font-family:'JetBrains Mono'">max.poll.interval.ms</code> 会被踢出 Group，需适当调大或优化处理逻辑。</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="k7">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">07</span>
+      <div>
+        <div class="q-title">ISR 是什么？Leader 选举规则？</div>
+        <div class="q-tags"><span class="tag tag-kafka">副本机制</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-text">
+        <strong>ISR（In-Sync Replicas）</strong> 是与 Leader 保持同步的副本集合。Follower 在 <em>replica.lag.time.max.ms</em>（默认30s）内持续拉取消息则在 ISR 内，否则被踢出。
+      </div>
+      <ul class="key-points" style="margin-top:12px;">
+        <li><strong>Leader 选举：</strong>从 ISR 中按优先级（AR 列表顺序）选第一个存活的副本</li>
+        <li><strong>unclean.leader.election.enable=false：</strong>禁止非ISR副本选主（防止数据丢失），推荐生产配置</li>
+        <li><strong>HW（High Watermark）：</strong>消费者只能消费 HW 以下的消息（ISR中所有副本都已同步的位置），保证消费一致性</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="k8">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">08</span>
+      <div>
+        <div class="q-title">如何保证 Kafka 消息的顺序消费？</div>
+        <div class="q-tags"><span class="tag tag-kafka">顺序消费</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <ul class="key-points">
+        <li><strong>全局顺序：</strong>Topic 只设 1 个 Partition，1 个 Consumer，吞吐极低，不推荐</li>
+        <li><strong>分区内顺序（推荐）：</strong>同一业务 Key（如 userId、orderId）发到同一 Partition（指定相同 Key，Kafka 对 Key 取 hash 路由），Consumer 单线程消费该分区</li>
+        <li><strong>Consumer 端：</strong>每个 Partition 对应一个内存队列，单线程按序处理，多 Partition 并行但各自有序</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="k9">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">09</span>
+      <div>
+        <div class="q-title">Kafka Controller 是什么？选主机制是什么？</div>
+        <div class="q-tags"><span class="tag tag-kafka">集群管理</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-text">
+        <strong>Controller</strong> 是 Kafka 集群中一个特殊的 Broker，负责管理 Partition Leader 选举、ISR 变更、Broker 上下线通知等集群元数据协调工作。
+      </div>
+      <ul class="key-points" style="margin-top:12px;">
+        <li><strong>Kafka 2.8 之前：</strong>所有 Broker 抢占 ZooKeeper 的 /controller 临时节点，抢到的成为 Controller；Controller 宕机后节点消失，其余 Broker 重新抢占</li>
+        <li><strong>Kafka 3.3+ KRaft 模式：</strong>移除 ZooKeeper 依赖，元数据存储在 Kafka 自身的 Raft 日志中（__cluster_metadata Topic），通过 Raft 共识选主，延迟更低，运维更简单</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="k10">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">10</span>
+      <div>
+        <div class="q-title">Kafka vs RocketMQ 如何选型？</div>
+        <div class="q-tags"><span class="tag tag-kafka">选型对比</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>维度</th><th>Kafka</th><th>RocketMQ</th></tr>
+        <tr><td>吞吐量</td><td>极高（百万级TPS）</td><td>高（十万级TPS）</td></tr>
+        <tr><td>延迟</td><td>ms级，批量发略高</td><td>更低，适合低延迟场景</td></tr>
+        <tr><td>事务消息</td><td>支持</td><td>支持，且更成熟</td></tr>
+        <tr><td>延迟消息</td><td>不原生支持</td><td>✅ 原生支持（18个级别）</td></tr>
+        <tr><td>消息回溯</td><td>✅ 按时间/Offset</td><td>✅ 支持</td></tr>
+        <tr><td>死信队列</td><td>需自实现</td><td>✅ 原生支持</td></tr>
+        <tr><td>生态</td><td>大数据（Flink/Spark）首选</td><td>阿里系，金融/电商场景</td></tr>
+      </table>
+      <div class="highlight-box success"><strong>选型建议：</strong>日志采集、实时流计算 → <strong>Kafka</strong>；电商订单、延迟消息、事务场景 → <strong>RocketMQ</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== JVM ===== -->
+<section class="section" id="section-jvm">
+  <div class="section-hero">
+    <div class="hero-icon" style="background:rgba(42,157,143,0.15);">🟢</div>
+    <div>
+      <div class="hero-title" style="color:var(--jvm)">JVM 高频考点</div>
+      <div class="hero-desc">聚焦内存模型、GC原理、性能调优与线上问题排查</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n" style="color:var(--jvm)">10</div><div class="stat-l">QUESTIONS</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--yellow)">6</div><div class="stat-l">HIGH LEVEL</div></div>
+    </div>
+  </div>
+
+  <div class="q-card" id="j1">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">01</span>
+      <div>
+        <div class="q-title">JVM 内存区域划分？Java 8 元空间和永久代的区别？</div>
+        <div class="q-tags"><span class="tag tag-jvm">内存模型</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>区域</th><th>线程</th><th>内容</th><th>OOM</th></tr>
+        <tr><td><strong>程序计数器</strong></td><td>私有</td><td>当前字节码行号，唯一不会OOM的区域</td><td>❌</td></tr>
+        <tr><td><strong>虚拟机栈</strong></td><td>私有</td><td>栈帧（局部变量/操作数栈/返回地址）</td><td>StackOverflow / OOM</td></tr>
+        <tr><td><strong>本地方法栈</strong></td><td>私有</td><td>Native方法</td><td>OOM</td></tr>
+        <tr><td><strong>堆</strong></td><td>共享</td><td>对象实例、数组；GC主战场</td><td>✅ 最常见</td></tr>
+        <tr><td><strong>方法区/元空间</strong></td><td>共享</td><td>类信息、常量池、静态变量</td><td>✅</td></tr>
+      </table>
+      <div class="highlight-box success">
+        <strong>永久代 vs 元空间：</strong>永久代在 JVM 堆内，大小固定，易 OOM；<strong>元空间</strong>（Java 8+）使用本地内存（Native Memory），默认无上限，降低 OOM 概率。但无限增长也会耗尽物理内存，需用 <code style="font-size:11px;font-family:'JetBrains Mono'">-XX:MaxMetaspaceSize</code> 设上限。
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card" id="j2">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">02</span>
+      <div>
+        <div class="q-title">GC 算法有哪些？分代收集是如何工作的？</div>
+        <div class="q-tags"><span class="tag tag-jvm">GC算法</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">基础算法</div>
+      <ul class="key-points">
+        <li><strong>标记-清除：</strong>标记可达对象，清除不可达。产生内存碎片</li>
+        <li><strong>标记-复制：</strong>存活对象复制到另一半，清空原区域。无碎片但浪费一半内存（新生代用）</li>
+        <li><strong>标记-整理：</strong>存活对象移向一端，清理边界外。无碎片，适合老年代</li>
+      </ul>
+      <div class="answer-label">分代收集</div>
+      <table class="cmp-table">
+        <tr><th>区域</th><th>算法</th><th>触发GC</th></tr>
+        <tr><td>Eden + S0 + S1（新生代）</td><td>复制算法（Eden:S0:S1 = 8:1:1）</td><td>Minor GC（频繁、快速）</td></tr>
+        <tr><td>Old Gen（老年代）</td><td>标记-整理</td><td>Major GC / Full GC（慢）</td></tr>
+        <tr><td>元空间</td><td>—</td><td>类卸载时</td></tr>
+      </table>
+      <div class="highlight-box"><strong>对象晋升老年代条件：</strong>① 年龄≥15（可配置）；② 动态年龄判断（Survivor中相同年龄对象超过空间一半）；③ 大对象直接进老年代（-XX:PretenureSizeThreshold）；④ Minor GC后存活对象Survivor放不下。</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="j3">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">03</span>
+      <div>
+        <div class="q-title">CMS、G1、ZGC 分别适用什么场景？核心区别？</div>
+        <div class="q-tags"><span class="tag tag-jvm">垃圾收集器</span><span class="tag tag-hot">高频</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <table class="cmp-table">
+        <tr><th>收集器</th><th>算法</th><th>STW停顿</th><th>特点</th><th>适用场景</th></tr>
+        <tr><td><strong>CMS</strong></td><td>标记-清除</td><td>初始标记+重新标记短暂停顿</td><td>并发收集；内存碎片；浮动垃圾；Java 14已移除</td><td>响应时间敏感，堆&lt;8G（已过时）</td></tr>
+        <tr><td><strong>G1</strong></td><td>Region分区<br>标记-整理+复制</td><td>可预测停顿时间（-XX:MaxGCPauseMillis）</td><td>将堆分为2048个等大Region；混合GC替代Full GC；适合大堆</td><td>★推荐，堆≥8G，对停顿有要求</td></tr>
+        <tr><td><strong>ZGC</strong></td><td>染色指针+读屏障</td><td>&lt;1ms（不受堆大小影响）</td><td>几乎全程并发；支持TB级堆；Java 15+生产可用</td><td>超大堆（数百G），极低延迟要求</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="q-card" id="j4">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">04</span>
+      <div>
+        <div class="q-title">线上服务 OOM 了，你的排查思路是什么？</div>
+        <div class="q-tags"><span class="tag tag-jvm">故障排查</span><span class="tag tag-hot">高频必考</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">排查步骤</div>
+      <ul class="key-points">
+        <li><strong>1. 确认OOM类型：</strong>看错误日志，Java heap space / GC overhead / Metaspace / Direct buffer memory / Unable to create thread</li>
+        <li><strong>2. 获取Heap Dump：</strong>启动参数加 <code style="font-size:11px;font-family:'JetBrains Mono'">-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/oom.hprof</code>，或 <code style="font-size:11px;font-family:'JetBrains Mono'">jmap -dump:live,format=b,file=oom.hprof &lt;pid&gt;</code></li>
+        <li><strong>3. 分析Dump文件：</strong>MAT（Memory Analyzer Tool）或 VisualVM 打开，查看 "Leak Suspects" 报告，找最大对象占用者</li>
+        <li><strong>4. 常见根因：</strong>① 内存泄漏（静态集合持有大量对象）② 缓存无限增长 ③ 大对象分配（读整个文件到内存）④ 线程数过多（每线程1MB栈）</li>
+        <li><strong>5. 临时处置：</strong>重启服务恢复，同时保留Dump和GC日志</li>
+      </ul>
+      <div class="code-block"><span class="cm"># 常用排查命令</span>
+jps -l                          <span class="cm"># 查看Java进程</span>
+jstat -gcutil &lt;pid&gt; 1000 10    <span class="cm"># 每秒打印GC统计</span>
+jmap -heap &lt;pid&gt;               <span class="cm"># 查看堆配置和使用情况</span>
+jmap -histo:live &lt;pid&gt; | head  <span class="cm"># 按实例数排序对象</span>
+jstack &lt;pid&gt; &gt; thread.txt     <span class="cm"># 线程栈快照（排查死锁/CPU高）</span></div>
+    </div>
+  </div>
+
+  <div class="q-card" id="j5">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">05</span>
+      <div>
+        <div class="q-title">类加载机制？双亲委派模型的作用？如何打破？</div>
+        <div class="q-tags"><span class="tag tag-jvm">类加载</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-text">类加载过程：<em>加载 → 验证 → 准备 → 解析 → 初始化 → 使用 → 卸载</em></div>
+      <div class="answer-label" style="margin-top:12px;">双亲委派模型</div>
+      <ul class="key-points">
+        <li>加载时先委派给<strong>父加载器</strong>，父加载器无法加载才自己加载</li>
+        <li><strong>层级：</strong>Bootstrap（JDK核心） → Extension（ext目录） → Application（classpath）</li>
+        <li><strong>作用：</strong>防止核心类被覆盖（java.lang.String 不会被自定义替换），保证类唯一性和安全</li>
+      </ul>
+      <div class="answer-label">何时打破双亲委派</div>
+      <ul class="key-points">
+        <li><strong>SPI机制（JDBC等）：</strong>线程上下文类加载器，由子加载器加载接口实现</li>
+        <li><strong>OSGi / 热部署：</strong>每个模块有独立类加载器，实现类隔离和热替换</li>
+        <li><strong>Tomcat：</strong>WebApp 类加载器优先加载自己的类（不委派给父），实现 War 包隔离</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="j6">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">06</span>
+      <div>
+        <div class="q-title">JIT 即时编译是什么？什么是编译热点？</div>
+        <div class="q-tags"><span class="tag tag-jvm">JIT编译</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <ul class="key-points">
+        <li>JVM 先解释执行字节码（慢），对<strong>热点代码</strong>触发 JIT 编译为本地机器码（快）</li>
+        <li><strong>热点判断：</strong>方法调用次数 &gt; 阈值（C1=1500次，C2=10000次）</li>
+        <li><strong>C1（Client）编译器：</strong>快速编译，少量优化，适合启动时</li>
+        <li><strong>C2（Server）编译器：</strong>深度优化（内联、逃逸分析、锁消除），适合长期运行</li>
+        <li><strong>GraalVM：</strong>可替换 C2，支持 AOT（提前编译），适合 Serverless 场景</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="j7">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">07</span>
+      <div>
+        <div class="q-title">Full GC 频繁触发，如何排查？</div>
+        <div class="q-tags"><span class="tag tag-jvm">GC调优</span><span class="tag tag-hot">高频</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">常见原因</div>
+      <ul class="key-points">
+        <li><strong>老年代空间不足：</strong>对象晋升速度 &gt; 老年代回收速度，需增大堆或减少晋升</li>
+        <li><strong>元空间不足：</strong>动态类生成过多（CGLib、Groovy脚本），设置 MaxMetaspaceSize</li>
+        <li><strong>System.gc() 显式调用：</strong>代码/第三方库调用，加 -XX:+DisableExplicitGC</li>
+        <li><strong>大对象直接进老年代：</strong>大文件/报表查询，改用分批处理或流式读取</li>
+        <li><strong>CMS Concurrent Mode Failure：</strong>并发收集期间老年代用完，触发Full GC，需提前触发CMS（-XX:CMSInitiatingOccupancyFraction=70）</li>
+      </ul>
+      <div class="code-block"><span class="cm"># 开启GC日志（Java 9+统一日志）</span>
+-Xlog:gc*:file=/logs/gc.log:time,uptime:filecount=10,filesize=100m
+
+<span class="cm"># Java 8</span>
+-XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/logs/gc.log</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="j8">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">08</span>
+      <div>
+        <div class="q-title">对象一定分配在堆上吗？什么是逃逸分析？</div>
+        <div class="q-tags"><span class="tag tag-jvm">对象分配</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-text">不一定。JIT 的<strong>逃逸分析</strong>（-XX:+DoEscapeAnalysis，默认开启）会判断对象是否逃逸出方法或线程。</div>
+      <ul class="key-points" style="margin-top:12px;">
+        <li><strong>栈上分配：</strong>未逃逸的小对象直接在栈帧分配，方法结束自动销毁，无GC压力</li>
+        <li><strong>标量替换：</strong>对象被拆解为基本类型存在栈，彻底避免对象分配</li>
+        <li><strong>锁消除：</strong>未逃逸对象上的同步锁被 JIT 直接去掉（如对局部 StringBuilder 加锁）</li>
+        <li><strong>TLAB（线程本地分配缓冲）：</strong>Eden区为每个线程预分配一小块空间，避免多线程竞争分配指针</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="j9">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">09</span>
+      <div>
+        <div class="q-title">volatile 的内存语义？happens-before 规则？</div>
+        <div class="q-tags"><span class="tag tag-jvm">并发内存模型</span><span class="tag tag-hot">高频</span><span class="tag tag-core">核心</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">volatile 两大语义</div>
+      <ul class="key-points">
+        <li><strong>可见性：</strong>写 volatile 变量时强制刷新到主内存，读时从主内存重新加载，保证各线程读到最新值</li>
+        <li><strong>有序性（禁止指令重排）：</strong>写前不能重排到写后，读后不能重排到读前（通过内存屏障实现）</li>
+        <li><strong>不保证原子性：</strong>i++ 依然线程不安全，需用 AtomicInteger 或 synchronized</li>
+      </ul>
+      <div class="answer-label">Happens-Before 核心规则（JMM）</div>
+      <ul class="key-points">
+        <li>程序顺序规则：同线程内，前面的操作 happens-before 后面的操作</li>
+        <li>监视器锁规则：unlock happens-before 后续的 lock</li>
+        <li>volatile规则：volatile写 happens-before 后续的 volatile读</li>
+        <li>线程启动规则：Thread.start() happens-before 线程内任何操作</li>
+        <li>传递性：A hb B，B hb C → A hb C</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="q-card" id="j10">
+    <div class="q-header" onclick="toggle(this)">
+      <span class="q-num">10</span>
+      <div>
+        <div class="q-title">JVM 性能调优工具链有哪些？CPU 飙高如何排查？</div>
+        <div class="q-tags"><span class="tag tag-jvm">调优工具</span><span class="tag tag-hot">高频</span></div>
+      </div>
+      <span class="q-toggle">▾</span>
+    </div>
+    <div class="q-body">
+      <div class="answer-label">工具箱</div>
+      <table class="cmp-table">
+        <tr><th>工具</th><th>用途</th></tr>
+        <tr><td>jps</td><td>查看JVM进程列表</td></tr>
+        <tr><td>jstat -gcutil</td><td>实时GC统计，看各代使用率和GC频率</td></tr>
+        <tr><td>jmap -dump</td><td>导出Heap Dump，用MAT/VisualVM分析</td></tr>
+        <tr><td>jstack</td><td>线程栈快照，排查死锁、CPU高、线程卡死</td></tr>
+        <tr><td>jconsole/jvisualvm</td><td>可视化监控，适合开发环境</td></tr>
+        <tr><td>Arthas</td><td>★线上利器：方法耗时追踪、反编译、热修复，无需重启</td></tr>
+        <tr><td>async-profiler</td><td>火焰图分析CPU/内存分配热点</td></tr>
+      </table>
+      <div class="answer-label">CPU飙高排查步骤</div>
+      <div class="code-block"><span class="cm"># 1. 找到CPU占用最高的Java进程</span>
+top -p &lt;pid&gt;
+
+<span class="cm"># 2. 找出该进程中CPU最高的线程</span>
+top -Hp &lt;pid&gt;           <span class="cm"># 找到线程ID（十进制）</span>
+printf "%x\n" &lt;tid&gt;     <span class="cm"># 转为十六进制</span>
+
+<span class="cm"># 3. 打印线程栈，找到对应十六进制线程ID</span>
+jstack &lt;pid&gt; | grep -A 30 "nid=0x&lt;hex_tid&gt;"
+
+<span class="cm"># 4. 或使用Arthas一步到位</span>
+thread -n 3             <span class="cm"># 直接显示CPU最高的3个线程</span></div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end content -->
+</div><!-- end main -->
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const name = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar').forEach(s => s.style.display = 'none');
+    tab.classList.add('active');
+    document.getElementById('section-' + name).classList.add('active');
+    document.getElementById('sidebar-' + name).style.display = 'block';
+  });
+});
+
+// Accordion toggle
+function toggle(header) {
+  const card = header.closest('.q-card');
+  card.classList.toggle('open');
+}
+
+// Sidebar scroll
+function scrollToQ(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!el.classList.contains('open')) {
+      el.querySelector('.q-header').click();
+    }
+  }
+}
+
+// Highlight active sidebar on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('onclick')?.includes(id)) item.classList.add('active');
+      });
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-80px 0px 0px 0px' });
+
+document.querySelectorAll('.q-card').forEach(card => observer.observe(card));
+</script>
+</body>
+</html>
