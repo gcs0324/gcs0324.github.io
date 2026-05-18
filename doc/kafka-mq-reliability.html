@@ -17,7 +17,7 @@ h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-b
 nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
 nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
 nav a:hover{color:var(--tx);border-color:var(--bd2);}
-main{padding:44px 64px 80px;max-width:1080px;}
+main{padding:44px 64px 80px;max-width:1360px;}
 .sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
 .sec:first-child{margin-top:0;}
 
@@ -639,74 +639,93 @@ consumer.commitSync();         <span class="cm">// 全部处理完再提交</spa
   <p><strong>消费者幂等是业务层的事</strong>，Kafka 本身不负责。常见方案是：给每条消息带一个全局唯一 ID，消费前先用 Redis <code>SETNX</code> 或数据库唯一索引查一下有没有消费过，处理完再标记。我们线上用的是<em>消息 ID + 数据库唯一索引兜底 + Redis 快速过滤</em>的组合方案。</p>
 </div>
 
-<div class="g2">
-  <div class="fw c-b" style="margin-bottom:0;">
-    <div class="fwh"><div class="fwb">PRODUCER</div><div class="fwt">Kafka 原生幂等</div></div>
-    <div class="steps">
-      <div class="step">
-        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">开启幂等 Producer</div>
-          <div class="sd"><code>enable.idempotence=true</code>，Broker 为每个 Producer 分配唯一 <strong>PID</strong>，每条消息附带单调递增 <strong>Sequence Number</strong>。</div>
-        </div>
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">PRODUCER</div><div class="fwt">Kafka 原生幂等 — PID + Sequence Number</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">开启幂等 Producer</div>
+        <div class="sd"><code>enable.idempotence=true</code>，Broker 为每个 Producer 分配唯一 <strong>PID</strong>，每条消息附带单调递增 <strong>Sequence Number</strong>。</div>
       </div>
-      <div class="step">
-        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">Broker 去重</div>
-          <div class="sd">Broker 对每个 <code>PID + Partition</code> 维护最近写入的 SeqNo 窗口，重复消息被直接丢弃不写入，返回成功响应。</div>
-        </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Broker 去重</div>
+        <div class="sd">Broker 对每个 <code>PID + Partition</code> 维护最近写入的 SeqNo 滑动窗口（默认 5 条），SeqNo 重复或乱序的消息直接丢弃，向 Producer 返回成功响应。</div>
+        <div class="sc"><span class="cm">// Broker 内部去重逻辑（简化）</span>
+if (seqNo == lastSeqNo[pid][partition] + 1) {
+    write(message);                   <span class="cm">// 正常写入</span>
+} else if (seqNo <= lastSeqNo[pid][partition]) {
+    return ACK;                       <span class="cm">// 重复，幂等丢弃</span>
+} else {
+    throw OutOfOrderSequenceException; <span class="cm">// 乱序，报错</span>
+}</div>
       </div>
-      <div class="step">
-        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">跨 Session 精确一次 — 事务 API</div>
-          <div class="sd">Producer 重启 PID 变化，需用 <strong>Kafka 事务</strong>（transactional.id）实现跨会话精确一次语义。</div>
-          <div class="sc">props.put("transactional.id", "order-producer-1");
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">跨 Session 精确一次 — 事务 API</div>
+        <div class="sd">Producer 重启后 PID 会变，单靠幂等 Producer 无法跨会话去重。需用 <strong>Kafka 事务</strong>（transactional.id）绑定固定逻辑 ID，实现跨重启的精确一次语义。</div>
+        <div class="sc">props.put("transactional.id", "order-producer-1"); <span class="cm">// 固定逻辑 ID，重启不变</span>
 producer.initTransactions();
 producer.beginTransaction();
-producer.send(record);
-producer.commitTransaction();</div>
-        </div>
+producer.send(new ProducerRecord<>("order-topic", orderId, payload));
+producer.commitTransaction();   <span class="cm">// 原子提交，失败可 abortTransaction()</span></div>
       </div>
     </div>
   </div>
-  <div class="fw c-g" style="margin-bottom:0;">
-    <div class="fwh"><div class="fwb">CONSUMER</div><div class="fwt">业务层幂等方案</div></div>
-    <div class="steps">
-      <div class="step">
-        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">全局唯一消息 ID</div>
-          <div class="sd">生产端给每条消息打上全局唯一 ID（雪花算法 / UUID），消费端用此 ID 做去重 Key。</div>
-        </div>
+</div>
+
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">CONSUMER</div><div class="fwt">业务层幂等方案 — 三道防线</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">全局唯一消息 ID</div>
+        <div class="sd">生产端给每条消息打上全局唯一 ID（雪花算法 / UUID），消费端以此 ID 为去重 Key。<strong>核心前提：</strong>没有唯一 ID，后续所有去重策略都无从建立。</div>
       </div>
-      <div class="step">
-        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">Redis SETNX 快速过滤</div>
-          <div class="sd">消费前先 <code>SETNX msgId 1 EX 300</code>，返回 0 说明已消费，直接跳过。Redis 做第一道快速拦截。</div>
-          <div class="sc">Boolean ok = redis.setIfAbsent("msg:" + msgId, "1", 5, MINUTES);
-if (!ok) return; <span class="cm">// 已消费，跳过</span>
-doProcess(msg);</div>
-        </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">第一道防线 — Redis SETNX 快速过滤</div>
+        <div class="sd">消费前先执行 <code>SETNX msgId 1 EX 300</code>，返回 <code>0</code> 说明已消费，直接跳过，避免后续业务逻辑和 DB 操作。绝大多数重复请求在这里被拦截，性能最好。</div>
+        <div class="sc">Boolean isNew = redis.setIfAbsent("idempotent:msg:" + msgId, "1", 5, TimeUnit.MINUTES);
+if (Boolean.FALSE.equals(isNew)) {
+    log.info("重复消息，跳过: {}", msgId);
+    return;                     <span class="cm">// 已消费，幂等退出</span>
+}
+doProcess(msg);                 <span class="cm">// 首次消费，执行业务</span></div>
       </div>
-      <div class="step">
-        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">DB 唯一索引兜底</div>
-          <div class="sd">业务表对 <code>msg_id</code> 加唯一索引，<code>INSERT IGNORE</code> 或 <code>ON DUPLICATE KEY UPDATE</code>，从存储层保证不重复写入。</div>
-          <div class="sc">INSERT IGNORE INTO order_consume_log(msg_id, ...) VALUES(?, ...);
-<span class="cm">-- 或：幂等 UPDATE</span>
-UPDATE orders SET status=2 WHERE id=? AND status=1;</div>
-        </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">第二道防线 — DB 唯一索引兜底</div>
+        <div class="sd">业务表或消费日志表对 <code>msg_id</code> 加唯一索引，<code>INSERT IGNORE</code> 即使 Redis 故障或 TTL 过期也能保证不重复写入，是最终的强一致性保障。</div>
+        <div class="sc"><span class="cm">-- 消费日志表（唯一索引保障）</span>
+INSERT IGNORE INTO msg_consume_log(msg_id, topic, created_at)
+VALUES (?, ?, NOW());           -- 重复插入自动忽略，影响行数=0 即为重复
+
+<span class="cm">-- 或：幂等 UPDATE（利用业务状态）</span>
+UPDATE orders SET status = 'PAID', paid_at = NOW()
+WHERE order_id = ? AND status = 'UNPAID'; <span class="cm">-- WHERE 自然幂等</span></div>
       </div>
-      <div class="step">
-        <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
-        <div class="sb">
-          <div class="st">状态机 + 乐观锁</div>
-          <div class="sd">订单状态有合法流转路径（未支付→已支付→已发货），重复消费「支付成功」消息时，<strong>WHERE status=未支付</strong> 自然不命中，天然幂等。</div>
-        </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">第三道防线 — 状态机 + 乐观锁</div>
+        <div class="sd">业务状态有合法流转路径（未支付 → 已支付 → 已发货），重复消费「支付成功」消息时，<code>WHERE status='UNPAID'</code> 自然不命中，受影响行数为 0，天然幂等。结合乐观锁（version 字段）还能防并发竞争。</div>
+        <div class="sc">int affected = orderDao.updateStatus(orderId, "PAID", "UNPAID"); <span class="cm">// 乐观锁</span>
+if (affected == 0) {
+    log.warn("状态流转失败，可能是重复消费: orderId={}", orderId);
+    return;                     <span class="cm">// 幂等退出，不报错</span>
+}</div>
       </div>
     </div>
   </div>
