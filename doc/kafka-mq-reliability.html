@@ -464,8 +464,8 @@ kafka-topics.sh --alter --topic your_topic \
     <div class="phase-tag" style="color:var(--blue);">② BROKER</div>
     <div class="phase-title">Broker 存储阶段</div>
     <ul class="phase-items">
-      <li><strong>replication.factor=3</strong> 三副本</li>
-      <li><strong>min.insync.replicas=2</strong></li>
+      <li><strong>replication.factor=3</strong> 三副本，允许 1 台宕机</li>
+      <li><strong>min.insync.replicas=2</strong> acks=all 时至少 2 个副本写入才算成功（1 Leader + 1 Follower），防 Leader 单点</li>
       <li><strong>关闭 unclean 选举</strong>防数据回退</li>
       <li><strong>刷盘策略</strong> 重要场景同步刷盘</li>
     </ul>
@@ -585,6 +585,59 @@ props.put("max.in.flight.requests.per.connection", 5);</div>
   → commit  → Broker 投递消费者
   → rollback → Broker 删除消息
   → 超时未响应 → Broker 回查本地事务状态</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-p">
+  <div class="fwh"><div class="fwb">BROKER CONFIG</div><div class="fwt">Broker 存储层不丢消息核心配置</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">replication.factor=3 — 三副本冗余</div>
+        <div class="sd">每个 Partition 在 3 台 Broker 上各存一份。允许 <strong>1 台 Broker 宕机</strong>数据不丢，是生产环境的最低标准。</div>
+        <div class="sc"><span class="cm"># 创建 Topic 时指定（也可在 Broker 全局默认配置）</span>
+kafka-topics.sh --create --topic order-topic \
+  --partitions 8 --replication-factor 3 \
+  --bootstrap-server broker:9092</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">min.insync.replicas=2 — 写入最小确认副本数</div>
+        <div class="sd">配合 <code>acks=all</code> 使用。含义：<strong>acks=all 发送的消息，至少需要 2 个副本（含 Leader）写入成功，才向 Producer 返回 ACK</strong>。<br>
+        即 Leader 写入 + 至少 1 个 Follower 同步完成。若当前 ISR 副本数 &lt; 2，Broker 直接拒绝写入（抛 <code>NotEnoughReplicasException</code>），而不是悄悄丢失数据。</div>
+        <div class="sc"><span class="cm"># server.properties（Broker 全局）</span>
+min.insync.replicas=2
+
+<span class="cm"># 含义：3 副本中允许 1 个 Follower 落后/宕机；</span>
+<span class="cm"># 若 2 个 Follower 同时宕机，ISR 只剩 Leader(1个) < 2，</span>
+<span class="cm"># 此时 acks=all 的写入会被拒绝，保护数据不丢。</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">unclean.leader.election.enable=false — 禁止脏选举</div>
+        <div class="sd">当 ISR 中所有副本都宕机，Kafka 默认会等待 ISR 恢复。若开启 <code>unclean</code> 选举，<strong>落后的非 ISR 副本会被强行选为 Leader，直接导致已确认的消息丢失（数据回退）</strong>。生产环境必须关闭。</div>
+        <div class="sc"><span class="cm"># server.properties</span>
+unclean.leader.election.enable=false  <span class="cm">// 默认 false（Kafka 0.11+）</span>
+
+<span class="cm"># 关闭后：ISR 全宕 → 宁可分区不可用，也不用落后副本服务</span>
+<span class="cm"># 开启后：ISR 全宕 → 选落后副本，可用性高但数据可能丢失</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">log.flush — 刷盘策略（可选加强）</div>
+        <div class="sd">Kafka 默认依赖 OS pagecache 异步刷盘，极端断电可能丢最近未落盘的消息。金融级场景可配置同步刷盘，但会显著降低吞吐，<strong>通常用三副本+UPS电源代替同步刷盘</strong>。</div>
+        <div class="sc"><span class="cm"># 每写入 1 条消息强制 fsync（性能代价极大，慎用）</span>
+log.flush.interval.messages=1
+<span class="cm"># 推荐：依赖副本冗余保证持久性，不做同步刷盘</span></div>
       </div>
     </div>
   </div>
