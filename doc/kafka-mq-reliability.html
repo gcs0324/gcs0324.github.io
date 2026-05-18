@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka / MQ 可靠性 · 积压 · 幂等 · 顺序消费 · 面试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'KAFKA';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1080px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+/* speech bubble */
+.speech{background:linear-gradient(135deg,#fffef4,#fffff9);border:1px solid var(--yel-b);border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:14px;}
+.speech-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.speech-lbl::before{content:'💬 ';}
+.speech p{font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:8px;}
+.speech p:last-child{margin-bottom:0;}
+.speech strong{color:var(--tx);font-weight:600;}
+.speech em{color:var(--blue);font-style:normal;font-weight:500;}
+
+/* card flow */
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+/* note */
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+
+/* grid 2col / 3col */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* overview card */
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+
+/* arch diagram */
+.arch{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:20px 24px;margin:10px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx2);line-height:1.9;white-space:pre;}
+.arch strong{color:var(--blue);font-weight:600;}
+
+/* color themes */
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+
+/* phase strip */
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+
+/* inline badge */
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+</style>
+<script src="../shared/theme.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · MQ · INTERVIEW</div>
+  <h1>消息积压 · 消息不丢 · 幂等 · 顺序消费</h1>
+  <p class="subtitle">四大高频消息队列面试题 — 大厂实际处理流程 + 口语化面试答法</p>
+</header>
+
+<nav>
+  <a href="#backlog">消息积压</a>
+  <a href="#nodrop">消息不丢</a>
+  <a href="#idempotent">幂等</a>
+  <a href="#order">顺序消费</a>
+  <a href="#summary">对比速查</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════ 消息积压 -->
+<div class="sec" id="backlog">Message Backlog · 消息积压</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>消息积压的根本原因就是<strong>生产速度远大于消费速度</strong>，我一般从三个层面去分析：是消费者挂了、消费逻辑太慢，还是突发流量打进来了。</p>
+  <p><strong>紧急预案</strong>是先扩容消费者实例，Kafka 一个 Partition 只能对应 Consumer Group 里的一个消费者，所以要同时扩 Partition 数。如果积压量极大，我们会<em>建临时 Topic</em>，把原 Topic 的消息先用一个轻量 Consumer 快速转发进去，临时 Topic 开 10 倍分区数，再拉起大量 Consumer 并行消费。</p>
+  <p><strong>非核心消息</strong>可以选择降级——比如日志类、统计类消息积压了就直接丢弃，优先保核心链路。</p>
+  <p>长期来看要复盘：批量拉取调大 <code>max.poll.records</code>、消费端异步化、或者从业务上做流量整形。</p>
+</div>
+
+<div class="fw c-r">
+  <div class="fwh"><div class="fwb">PLAN-A</div><div class="fwt">紧急扩容处理流程</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">告警触发 — 定位积压原因</div>
+        <div class="sd">监控 <strong>消费者 Lag</strong>（consumer_lag），看是所有分区均匀积压（流量暴增）还是个别分区（消费者挂了）。<br>
+        同时看消费者进程 CPU / GC 情况，排除消费逻辑耗时暴涨。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">扩容消费者 + 扩分区</div>
+        <div class="sd">增加 Consumer Group 实例数。若实例数已 = Partition 数，先扩 Partition（注意：分区数只能增不能减，key 路由会变，需业务评估）。<br>
+        <strong>黄金比例：</strong>Consumer 实例数 = Partition 数，充分并行。</div>
+        <div class="sc"><span class="cm"># 动态增加分区（慎用，会影响 key 路由）</span>
+kafka-topics.sh --alter --topic your_topic \
+  --partitions 30 --bootstrap-server broker:9092</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">极端积压 — 临时 Topic 分流</div>
+        <div class="sd">原 Topic 积压 1000 万条，建 <strong>临时 Topic（30 分区）</strong>，用一个专门的转发 Consumer 快速把消息搬过去（只转发不处理），再起 30 个消费者并行消费临时 Topic，积压消化后下线临时资源。</div>
+        <div class="sc">原 Topic (3分区) ──→ 转发Consumer ──→ 临时Topic (30分区)
+                                             └──→ 30 个 Consumer 并行消费</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">降级处理非核心消息</div>
+        <div class="sd">区分消息优先级。日志、埋点等非核心消息积压时直接 <strong>丢弃或延迟消费</strong>，保证订单、支付等核心 Topic 的资源。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">事后优化</div>
+        <div class="sd">调大 <code>max.poll.records</code> 批量拉取；消费侧引入<strong>内存队列 + 线程池</strong>异步处理；评估是否需要拆 Topic、做流量整形（令牌桶限速生产方）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-o">
+    <div class="ovh">
+      <div class="ovtag">常见根因</div>
+      <div class="ovname">为什么会积压</div>
+      <div class="ovsub">优先排查这几点</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li><strong>消费者实例挂了</strong>，Lag 急速上涨</li>
+      <li><strong>下游依赖慢</strong>（DB 慢查询、RPC 超时）</li>
+      <li><strong>消息体过大</strong>，反序列化耗时高</li>
+      <li><strong>GC 停顿</strong>导致 poll 间隔超 session.timeout</li>
+      <li><strong>突发流量</strong>，生产侧没有限速</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">预防手段</div>
+      <div class="ovname">降低积压概率</div>
+      <div class="ovsub">长期架构改进</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li><strong>监控 Lag</strong>，提前预警（阈值 = 5min 消费量）</li>
+      <li>消费者批量拉取 + 异步线程池处理</li>
+      <li>生产侧限速（令牌桶），削峰填谷</li>
+      <li>按消息优先级设独立 Topic</li>
+      <li>定期演练扩容流程，保留临时扩容脚本</li>
+    </ul></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════ 消息不丢 -->
+<div class="sec" id="nodrop">Message Durability · 消息不丢</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>消息不丢需要从<strong>三个阶段</strong>分别保证：生产者发送阶段、Broker 存储阶段、消费者处理阶段。每个阶段都有可能丢。</p>
+  <p><strong>生产者阶段：</strong>把 <code>acks</code> 设成 <code>all</code>（-1），这样 Leader 和所有 ISR 副本都写入后才返回成功。同时开启 <code>enable.idempotence</code>，重试时不会重复写入。</p>
+  <p><strong>Broker 阶段：</strong>副本数设 3，<code>min.insync.replicas</code> 设 2，这样只要有两个副本在线就能保证数据不丢。还要关掉 <code>unclean.leader.election</code>，防止落后的副本当选 Leader 造成数据回退。</p>
+  <p><strong>消费者阶段：</strong>把 <code>enable.auto.commit</code> 关掉，改成<em>手动提交 offset</em>。业务处理完成后再 commit，防止"拿到消息但没处理完就提交了 offset"这种情况导致消息丢失。</p>
+</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--orange);">① PRODUCER</div>
+    <div class="phase-title">生产者阶段</div>
+    <ul class="phase-items">
+      <li><strong>acks=all</strong> 等待所有 ISR 确认</li>
+      <li><strong>retries=MAX</strong> 失败自动重试</li>
+      <li><strong>幂等Producer</strong> 重试不重复</li>
+      <li><strong>同步发送</strong> 核心消息用 get() 阻塞</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--blue);">② BROKER</div>
+    <div class="phase-title">Broker 存储阶段</div>
+    <ul class="phase-items">
+      <li><strong>replication.factor=3</strong> 三副本</li>
+      <li><strong>min.insync.replicas=2</strong></li>
+      <li><strong>关闭 unclean 选举</strong>防数据回退</li>
+      <li><strong>刷盘策略</strong> 重要场景同步刷盘</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--green);">③ CONSUMER</div>
+    <div class="phase-title">消费者阶段</div>
+    <ul class="phase-items">
+      <li><strong>关闭自动提交</strong> offset</li>
+      <li><strong>业务处理完再 commit</strong></li>
+      <li>异常时不 commit，触发重新消费</li>
+      <li>结合<strong>幂等</strong>处理重复投递</li>
+    </ul>
+  </div>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">PRODUCER CONFIG</div><div class="fwt">生产者不丢消息核心配置</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">acks=all — 强确认</div>
+        <div class="sd">Leader 收到消息后，等待所有 ISR（In-Sync Replica）副本全部写入才返回 ACK。若 ISR 中有副本宕机，写入会失败而非静默丢失。</div>
+        <div class="sc">props.put("acks", "all");
+props.put("retries", Integer.MAX_VALUE);
+props.put("enable.idempotence", true); <span class="cm">// 幂等Producer，防重试导致重复</span>
+props.put("max.in.flight.requests.per.connection", 5);</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">核心消息同步等待确认</div>
+        <div class="sd">支付、订单等核心业务用 <code>Future.get()</code> 阻塞等待，确认写入成功再返回给上游。异步回调适合日志类消息。</div>
+        <div class="sc">RecordMetadata meta = producer.send(record).get(); <span class="cm">// 阻塞等确认</span>
+<span class="cm">// 失败抛异常，业务层捕获后告警 / 重试 / 写补偿表</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">事务消息（RocketMQ 方案）</div>
+        <div class="sd">本地数据库操作和消息发送需要原子性时，用 RocketMQ 事务消息。<strong>半事务消息 → 执行本地事务 → commit/rollback</strong>，Broker 定时回查保证最终一致。</div>
+        <div class="sc"><span class="cm">// RocketMQ 事务消息流程</span>
+发送半事务消息(PREPARED)
+  → 执行本地事务(扣库存/更新订单)
+  → commit  → Broker 投递消费者
+  → rollback → Broker 删除消息
+  → 超时未响应 → Broker 回查本地事务状态</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">CONSUMER CONFIG</div><div class="fwt">消费者手动提交 offset</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">关闭自动提交</div>
+        <div class="sd">自动提交会在 poll 后的后台定时提交，<strong>消息拿到了但业务还没处理完就提交了 offset</strong>，此时消费者崩溃就永久丢失这条消息。</div>
+        <div class="sc">props.put("enable.auto.commit", false);</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">处理完业务逻辑后再提交</div>
+        <div class="sd">业务处理成功后才调用 <code>commitSync()</code>。异常时不提交，下次 poll 会重新消费（需业务幂等兜底）。</div>
+        <div class="sc">ConsumerRecords&lt;K,V&gt; records = consumer.poll(Duration.ofMillis(100));
+for (ConsumerRecord&lt;K,V&gt; record : records) {
+    process(record);           <span class="cm">// 先处理业务</span>
+}
+consumer.commitSync();         <span class="cm">// 全部处理完再提交</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">失败重试 + 死信队列</div>
+        <div class="sd">处理失败的消息进入<strong>重试队列</strong>，重试 N 次仍失败则投入<strong>死信队列（DLQ）</strong>，人工介入或异步补偿，彻底避免消息静默丢失。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info" style="margin-bottom:10px;">
+  <div class="nlbl">注意</div>
+  <p><strong>消息不丢 vs 消息不重：</strong>二者是对立的。acks=all + 重试会导致重复投递，手动提交 offset + 处理失败重试也会重复。所以「消息不丢」必须配合「消费幂等」一起做，不能只解决一端。</p>
+</div>
+
+
+<!-- ═══════════════════════ 幂等 -->
+<div class="sec" id="idempotent">Idempotency · 幂等</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>幂等分两层讲：<strong>生产者幂等</strong>和<strong>消费者幂等</strong>。</p>
+  <p><strong>生产者幂等</strong>是 Kafka 原生支持的，开启 <code>enable.idempotence=true</code>，每个 Producer 启动时 Broker 分配一个 PID，每条消息带序列号，Broker 用「PID + Partition + SeqNo」去重，同一条消息重试多少次都只写一条。但注意这只在<em>单 Partition 单会话内有效</em>，Producer 重启后 PID 会变，要全局精确一次需要用 Kafka 事务。</p>
+  <p><strong>消费者幂等是业务层的事</strong>，Kafka 本身不负责。常见方案是：给每条消息带一个全局唯一 ID，消费前先用 Redis <code>SETNX</code> 或数据库唯一索引查一下有没有消费过，处理完再标记。我们线上用的是<em>消息 ID + 数据库唯一索引兜底 + Redis 快速过滤</em>的组合方案。</p>
+</div>
+
+<div class="g2">
+  <div class="fw c-b" style="margin-bottom:0;">
+    <div class="fwh"><div class="fwb">PRODUCER</div><div class="fwt">Kafka 原生幂等</div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">开启幂等 Producer</div>
+          <div class="sd"><code>enable.idempotence=true</code>，Broker 为每个 Producer 分配唯一 <strong>PID</strong>，每条消息附带单调递增 <strong>Sequence Number</strong>。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Broker 去重</div>
+          <div class="sd">Broker 对每个 <code>PID + Partition</code> 维护最近写入的 SeqNo 窗口，重复消息被直接丢弃不写入，返回成功响应。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">跨 Session 精确一次 — 事务 API</div>
+          <div class="sd">Producer 重启 PID 变化，需用 <strong>Kafka 事务</strong>（transactional.id）实现跨会话精确一次语义。</div>
+          <div class="sc">props.put("transactional.id", "order-producer-1");
+producer.initTransactions();
+producer.beginTransaction();
+producer.send(record);
+producer.commitTransaction();</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fw c-g" style="margin-bottom:0;">
+    <div class="fwh"><div class="fwb">CONSUMER</div><div class="fwt">业务层幂等方案</div></div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">全局唯一消息 ID</div>
+          <div class="sd">生产端给每条消息打上全局唯一 ID（雪花算法 / UUID），消费端用此 ID 做去重 Key。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Redis SETNX 快速过滤</div>
+          <div class="sd">消费前先 <code>SETNX msgId 1 EX 300</code>，返回 0 说明已消费，直接跳过。Redis 做第一道快速拦截。</div>
+          <div class="sc">Boolean ok = redis.setIfAbsent("msg:" + msgId, "1", 5, MINUTES);
+if (!ok) return; <span class="cm">// 已消费，跳过</span>
+doProcess(msg);</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">DB 唯一索引兜底</div>
+          <div class="sd">业务表对 <code>msg_id</code> 加唯一索引，<code>INSERT IGNORE</code> 或 <code>ON DUPLICATE KEY UPDATE</code>，从存储层保证不重复写入。</div>
+          <div class="sc">INSERT IGNORE INTO order_consume_log(msg_id, ...) VALUES(?, ...);
+<span class="cm">-- 或：幂等 UPDATE</span>
+UPDATE orders SET status=2 WHERE id=? AND status=1;</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">状态机 + 乐观锁</div>
+          <div class="sd">订单状态有合法流转路径（未支付→已支付→已发货），重复消费「支付成功」消息时，<strong>WHERE status=未支付</strong> 自然不命中，天然幂等。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap" style="margin-top:10px;">
+  <table class="tbl">
+    <thead><tr>
+      <th>方案</th><th>适用场景</th><th>优点</th><th>缺点</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>Redis SETNX</td>
+        <td>高并发、消息量大</td>
+        <td>毫秒级过滤，性能好</td>
+        <td>Redis 故障时降级，需 TTL 管理</td>
+      </tr>
+      <tr>
+        <td>DB 唯一索引</td>
+        <td>对数据一致性要求高</td>
+        <td>强一致，无额外依赖</td>
+        <td>写 DB 有压力，高并发下锁竞争</td>
+      </tr>
+      <tr>
+        <td>状态机检查</td>
+        <td>有状态流转的业务</td>
+        <td>业务语义清晰，零额外存储</td>
+        <td>需设计好状态机，不适用无状态消息</td>
+      </tr>
+      <tr>
+        <td>Kafka 事务</td>
+        <td>Kafka→Kafka 流处理</td>
+        <td>原生精确一次语义</td>
+        <td>性能损耗大，配置复杂</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note warn">
+  <div class="nlbl">大厂实践</div>
+  <p>美团、字节等大厂通常用<strong> Redis 快过滤 + DB 唯一索引兜底</strong>的双重方案：Redis 负责 99% 的重复过滤（性能），DB 唯一索引负责 Redis 故障或 TTL 过期后的最终一致性（正确性）。二者缺一不可。</p>
+</div>
+
+
+<!-- ═══════════════════════ 顺序消费 -->
+<div class="sec" id="order">Ordered Consumption · 顺序消费</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试这样说</div>
+  <p>Kafka 的<strong>顺序保证是 Partition 级别</strong>的，同一个 Partition 内消息是有序的，不同 Partition 之间无序。所以要实现业务顺序消费，核心思路是<em>把同一业务 key 的消息路由到同一个 Partition</em>。</p>
+  <p><strong>生产侧：</strong>发消息时指定 key（比如 orderId），Kafka 默认 Partitioner 会对 key 取 hash 再取模，保证同一个 key 永远进同一个 Partition。</p>
+  <p><strong>消费侧：</strong>一个 Partition 在 Consumer Group 里只能被一个 Consumer 消费，这是 Kafka 保证的。但消费者内部如果用多线程处理，就可能乱序。所以要么<em>单线程消费</em>，要么做一层内存有序队列——按 key 再 hash 到不同线程，同一 key 的消息始终由同一线程处理。</p>
+  <p>全局有序（所有消息都有序）只能用<em>单 Partition</em>，但吞吐量会大幅下降，实际业务很少这么做。绝大多数场景只需要局部有序，按 orderId、userId 这类 key 分 Partition 就够了。</p>
+</div>
+
+<div class="fw c-p">
+  <div class="fwh"><div class="fwb">DESIGN</div><div class="fwt">局部有序完整方案</div></div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">生产者：按业务 key 路由到固定 Partition</div>
+        <div class="sd">发消息时带上业务 key（orderId / userId），Kafka 默认 <code>DefaultPartitioner</code> 对 key 做 murmur2 hash 取模，相同 key 永远进相同 Partition。</div>
+        <div class="sc">ProducerRecord&lt;String, String&gt; record =
+    new ProducerRecord&lt;&gt;("order-topic", orderId, payload);
+<span class="cm">// orderId 作为 key，相同订单消息落同一 Partition</span>
+producer.send(record);</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka 保证：同 Partition 只分配给一个 Consumer</div>
+        <div class="sd">Consumer Group 内，Partition 的分配是<strong>互斥的</strong>，同一 Partition 不会同时被两个消费者消费（Rebalance 期间短暂例外）。Partition 内消息按写入顺序投递。</div>
+        <div class="sc">Topic: order-topic  (Partitions: 0 ~ 7)
+Consumer Group: order-service
+  Consumer-A → Partition [0, 1]
+  Consumer-B → Partition [2, 3]
+  Consumer-C → Partition [4, 5, 6, 7]
+<span class="cm">// 同一 Partition 内严格有序</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消费者内部：同 key 路由同一线程</div>
+        <div class="sd">单 Partition 单线程消费，吞吐够了就不用多线程。若需提升吞吐，对 key 再 hash 分发到<strong>有序内存队列 + 固定线程</strong>，保证同 key 的消息由同一线程串行执行。</div>
+        <div class="sc"><span class="cm">// 消费者内部按 key hash 到不同线程</span>
+int threadIdx = Math.abs(orderId.hashCode() % threadPool.size());
+threadQueues[threadIdx].offer(record); <span class="cm">// 同 orderId → 同队列 → 同线程</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Rebalance 期间的有序保证</div>
+        <div class="sd">Rebalance 时 Partition 会在 Consumer 间重新分配，期间可能短暂乱序或重复投递。<br>
+        处理方式：<strong>① 消费者实现 ConsumerRebalanceListener</strong>，rebalance 前 commitSync 当前进度；<strong>② 结合幂等</strong>，重复消费的消息不产生副作用。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-r">
+    <div class="ovh">
+      <div class="ovtag">全局有序</div>
+      <div class="ovname">单 Partition</div>
+      <div class="ovsub">所有消息严格有序，吞吐受限</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li>Topic 只设 <strong>1 个 Partition</strong></li>
+      <li>Consumer Group 只有 1 个消费者有效</li>
+      <li>吞吐量 = 单 Partition 上限（约百 MB/s）</li>
+      <li>适合：数据库 binlog 同步、配置变更广播</li>
+      <li><strong>不适合：</strong>高并发订单、用户行为流</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">局部有序（推荐）</div>
+      <div class="ovname">按业务 key 分 Partition</div>
+      <div class="ovsub">同 key 有序，高吞吐，生产主流方案</div>
+    </div>
+    <div class="ovbody"><ul>
+      <li>N 个 Partition，同 key → 同 Partition</li>
+      <li>吞吐 = N 倍单 Partition（水平扩展）</li>
+      <li>适合：订单状态流转、用户操作序列</li>
+      <li><strong>注意：</strong>扩 Partition 后 key 路由会变，需滚动迁移</li>
+      <li>热点 key 可能导致 Partition 不均，需监控</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="note warn">
+  <div class="nlbl">常见误区</div>
+  <p><strong>扩 Partition 会破坏有序性</strong>：增加 Partition 数后，同一 key 的 hash 取模结果变了，历史消息在旧 Partition，新消息在新 Partition，导致乱序。线上操作前要评估影响，通常需要等旧 Partition 消费完再扩，或通过业务层 rebalance key 路由策略。</p>
+</div>
+
+
+<!-- ═══════════════════════ 对比速查 -->
+<div class="sec" id="summary">Quick Reference · 对比速查</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr>
+      <th>问题</th><th>核心思路</th><th>关键配置 / 方案</th><th>大厂补充</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>消息积压</td>
+        <td>提升消费速度 or 降级</td>
+        <td>扩 Consumer + 扩 Partition，临时 Topic 分流，丢弃非核心</td>
+        <td>监控 consumer_lag，预留扩容脚本，按优先级设独立 Topic</td>
+      </tr>
+      <tr>
+        <td>消息不丢</td>
+        <td>三阶段各自保证</td>
+        <td>acks=all，replication=3，min.insync=2，手动提交 offset，死信队列</td>
+        <td>RocketMQ 事务消息做本地事务+消息原子性，关闭 unclean 选举</td>
+      </tr>
+      <tr>
+        <td>幂等</td>
+        <td>消费端去重为主</td>
+        <td>全局唯一 ID + Redis SETNX + DB 唯一索引，Kafka 原生幂等 Producer</td>
+        <td>Redis 快过滤 + DB 兜底双保险，状态机天然幂等</td>
+      </tr>
+      <tr>
+        <td>顺序消费</td>
+        <td>同 key → 同 Partition → 同线程</td>
+        <td>发消息带业务 key，Consumer 内部按 key hash 分线程，单 Partition 兜底</td>
+        <td>Rebalance 前 commitSync，幂等兜底重复投递，慎重扩 Partition</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="arch"><strong>完整可靠消息架构</strong>
+
+生产者                    Broker                     消费者
+─────────────────────────────────────────────────────────────────
+[业务代码]                [Leader Partition]         [Consumer]
+  │ acks=all             ├── 写 Leader Log            │ enable.auto.commit=false
+  │ retries=MAX_INT      ├── 同步 ISR 副本            │ 业务处理
+  │ 幂等 Producer        │   (min.insync=2)           │ commitSync()
+  │ 事务消息(核心)       └── 返回 ACK ────────────────┘
+  │                                                    │ 失败不commit → 重试
+  │ key=orderId                                        ├── Redis SETNX 去重
+  └──→ Partition = hash(orderId) % N                  └── DB 唯一索引兜底
+
+顺序保证：orderId → 固定 Partition → 同一 Consumer → 同一线程
+</div>
+
+</main>
+</body>
+</html>
