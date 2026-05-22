@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 04 · Broker 存储机制</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'STORAGE';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-zk  {fill:var(--bg3);stroke:var(--bd);stroke-width:1;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace;}
+.dg-yellow{fill:var(--yellow);font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px;}.g2,.g3{grid-template-columns:1fr;}.phase-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · 04 · STORAGE</div>
+  <h1>Broker 存储机制</h1>
+  <p class="subtitle">顺序写 · Page Cache · Log Segment · 稀疏索引 · 零拷贝 · Log Compaction</p>
+</header>
+
+<nav>
+  <a href="#sequential-write">顺序写 &amp; Page Cache</a>
+  <a href="#log-segment">Log Segment</a>
+  <a href="#sparse-index">稀疏索引</a>
+  <a href="#zero-copy">零拷贝</a>
+  <a href="#mmap">mmap</a>
+  <a href="#retention">保留策略</a>
+  <a href="#compaction">Log Compaction</a>
+  <a href="#interview">面试速答</a>
+</nav>
+
+<main>
+
+  <div id="sequential-write" class="sec">顺序写与 Page Cache</div>
+
+  <div class="phase-row">
+    <div class="phase">
+      <div class="phase-tag" style="color:var(--green);">顺序写</div>
+      <div class="phase-title" style="color:var(--green);">Append-Only</div>
+      <ul class="phase-items">
+        <li>所有消息只追加到文件末尾，从不随机写</li>
+        <li><strong>磁盘顺序写</strong>吞吐约 600 MB/s</li>
+        <li>磁盘随机写仅约 100 MB/s，差距 6×</li>
+        <li>顺序写性能接近内存随机读写</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag" style="color:var(--blue);">Page Cache</div>
+      <div class="phase-title" style="color:var(--blue);">OS 级缓存</div>
+      <ul class="phase-items">
+        <li>OS 将磁盘文件缓存在物理内存中</li>
+        <li>Kafka <strong>不在 JVM 堆</strong>维护消息缓存</li>
+        <li>读写优先命中 Page Cache，不落磁盘</li>
+        <li>Broker 重启后 Page Cache 依然有效</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <div class="phase-tag" style="color:var(--orange);">零拷贝</div>
+      <div class="phase-title" style="color:var(--orange);">sendfile</div>
+      <ul class="phase-items">
+        <li>Consumer 拉取时调用 <strong>sendfile(2)</strong></li>
+        <li>数据从 Page Cache 直接传到网卡</li>
+        <li>不经过用户空间，节省 2 次 CPU 拷贝</li>
+        <li>配合 DMA scatter-gather 效率更高</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="diag-wrap">
+    <div class="diag-cap">顺序写 vs 随机写 — 吞吐对比</div>
+    <div class="diag-body">
+      <svg width="700" height="180" viewBox="0 0 700 180">
+        <rect x="20" y="20" width="300" height="140" rx="8" class="dg-box-r"/>
+        <text x="170" y="44" text-anchor="middle" font-size="11" font-weight="600" class="dg-red">传统随机写</text>
+        <rect x="40" y="56" width="50" height="30" rx="4" class="dg-box"/>
+        <rect x="110" y="90" width="50" height="30" rx="4" class="dg-box"/>
+        <rect x="70" y="120" width="50" height="30" rx="4" class="dg-box"/>
+        <rect x="200" y="60" width="50" height="30" rx="4" class="dg-box"/>
+        <rect x="240" y="100" width="50" height="30" rx="4" class="dg-box"/>
+        <line x1="65" y1="71" x2="110" y2="100" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-r)"/>
+        <line x1="135" y1="90" x2="90" y2="128" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-r)"/>
+        <line x1="120" y1="105" x2="200" y2="75" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-r)"/>
+        <line x1="225" y1="75" x2="255" y2="100" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-r)"/>
+        <text x="60" y="71" font-size="9" class="dg-t2">写A</text>
+        <text x="124" y="110" font-size="9" class="dg-t2">写B</text>
+        <text x="84" y="140" font-size="9" class="dg-t2">写C</text>
+        <text x="214" y="80" font-size="9" class="dg-t2">写D</text>
+        <text x="254" y="120" font-size="9" class="dg-t2">写E</text>
+        <text x="170" y="165" text-anchor="middle" font-size="11" font-weight="600" class="dg-red">~100 MB/s</text>
+
+        <rect x="380" y="20" width="300" height="140" rx="8" class="dg-box-g"/>
+        <text x="530" y="44" text-anchor="middle" font-size="11" font-weight="600" class="dg-green">Kafka 顺序写（Append）</text>
+        <rect x="400" y="70" width="52" height="50" rx="3" class="dg-box-b"/>
+        <rect x="456" y="70" width="52" height="50" rx="3" class="dg-box-b"/>
+        <rect x="512" y="70" width="52" height="50" rx="3" class="dg-box-b"/>
+        <rect x="568" y="70" width="52" height="50" rx="3" class="dg-box-b" opacity="0.5"/>
+        <text x="426" y="100" text-anchor="middle" font-size="9" class="dg-blue">Msg A</text>
+        <text x="482" y="100" text-anchor="middle" font-size="9" class="dg-blue">Msg B</text>
+        <text x="538" y="100" text-anchor="middle" font-size="9" class="dg-blue">Msg C</text>
+        <text x="594" y="100" text-anchor="middle" font-size="9" class="dg-blue">…</text>
+        <line x1="452" y1="95" x2="456" y2="95" stroke-width="2" class="dg-ln" marker-end="url(#arr-g)"/>
+        <line x1="508" y1="95" x2="512" y2="95" stroke-width="2" class="dg-ln" marker-end="url(#arr-g)"/>
+        <line x1="564" y1="95" x2="568" y2="95" stroke-width="2" class="dg-ln" marker-end="url(#arr-g)"/>
+        <text x="530" y="165" text-anchor="middle" font-size="11" font-weight="600" class="dg-green">~600 MB/s</text>
+
+        <defs>
+          <marker id="arr-r" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" class="dg-red" fill="var(--red)"/>
+          </marker>
+          <marker id="arr-g" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--green)"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <div class="note info">
+    <span class="nlbl">INFO</span>
+    <p>Kafka 刻意不在 JVM 堆内缓存消息，而是依赖 OS 的 Page Cache。好处：<strong>① 不受 JVM GC 影响</strong>，避免 Full GC 导致的停顿；<strong>② Broker 重启后 Page Cache 仍然有效</strong>，不需要预热；<strong>③ 读写共享同一份 Cache</strong>，刚写入的消息马上可被 Consumer 从缓存命中，延迟极低。</p>
+  </div>
+
+  <div id="log-segment" class="sec">Log Segment 文件结构</div>
+
+  <div class="diag-wrap">
+    <div class="diag-cap">Partition 目录结构示意</div>
+    <div class="diag-body">
+      <svg width="760" height="220" viewBox="0 0 760 220">
+        <rect x="10" y="10" width="740" height="200" rx="8" class="dg-cluster"/>
+        <text x="380" y="32" text-anchor="middle" font-size="12" font-weight="600" class="dg-t">Partition 目录（order-topic-0/）</text>
+
+        <rect x="30" y="46" width="210" height="150" rx="6" class="dg-box"/>
+        <text x="135" y="68" text-anchor="middle" font-size="10" class="dg-t3">Segment 1（封存）</text>
+        <rect x="44" y="76" width="182" height="30" rx="4" class="dg-box-b"/>
+        <text x="135" y="96" text-anchor="middle" font-size="10" class="dg-blue">00000000000000000000.log</text>
+        <rect x="44" y="110" width="182" height="24" rx="4" class="dg-box-o"/>
+        <text x="135" y="126" text-anchor="middle" font-size="10" class="dg-orange">00000000000000000000.index</text>
+        <rect x="44" y="138" width="182" height="24" rx="4" class="dg-box-p"/>
+        <text x="135" y="154" text-anchor="middle" font-size="10" class="dg-purple">00000000000000000000.timeindex</text>
+        <text x="135" y="186" text-anchor="middle" font-size="9" class="dg-t3">offset 0 ~ 1048575</text>
+
+        <rect x="270" y="46" width="210" height="150" rx="6" class="dg-box"/>
+        <text x="375" y="68" text-anchor="middle" font-size="10" class="dg-t3">Segment 2（封存）</text>
+        <rect x="284" y="76" width="182" height="30" rx="4" class="dg-box-b"/>
+        <text x="375" y="96" text-anchor="middle" font-size="10" class="dg-blue">00000000000001048576.log</text>
+        <rect x="284" y="110" width="182" height="24" rx="4" class="dg-box-o"/>
+        <text x="375" y="126" text-anchor="middle" font-size="10" class="dg-orange">00000000000001048576.index</text>
+        <rect x="284" y="138" width="182" height="24" rx="4" class="dg-box-p"/>
+        <text x="375" y="154" text-anchor="middle" font-size="10" class="dg-purple">00000000000001048576.timeindex</text>
+        <text x="375" y="186" text-anchor="middle" font-size="9" class="dg-t3">offset 1048576 ~ 2097151</text>
+
+        <rect x="510" y="46" width="228" height="150" rx="6" class="dg-box-g"/>
+        <text x="624" y="68" text-anchor="middle" font-size="10" font-weight="700" class="dg-green">Segment 3（Active）</text>
+        <rect x="524" y="76" width="200" height="30" rx="4" class="dg-box-b"/>
+        <text x="624" y="96" text-anchor="middle" font-size="10" class="dg-blue">00000000000002097152.log</text>
+        <rect x="524" y="110" width="200" height="24" rx="4" class="dg-box-o"/>
+        <text x="624" y="126" text-anchor="middle" font-size="10" class="dg-orange">00000000000002097152.index</text>
+        <rect x="524" y="138" width="200" height="24" rx="4" class="dg-box-p"/>
+        <text x="624" y="154" text-anchor="middle" font-size="10" class="dg-purple">00000000000002097152.timeindex</text>
+        <text x="624" y="178" text-anchor="middle" font-size="9" font-weight="600" class="dg-green">当前写入 ↑</text>
+        <text x="624" y="191" text-anchor="middle" font-size="9" class="dg-t3">offset 2097152 ~</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sc">/data/kafka-logs/order-topic-0/
+  00000000000000000000.log        <span class="cm">← Segment 1：offset 0 ~ 1048575</span>
+  00000000000000000000.index
+  00000000000000000000.timeindex
+  00000000000001048576.log        <span class="cm">← Segment 2：offset 1048576 ~ 2097151</span>
+  00000000000001048576.index
+  00000000000001048576.timeindex
+  00000000000002097152.log        <span class="cm">← Active Segment（当前写入）</span>
+  00000000000002097152.index
+  00000000000002097152.timeindex</div>
+
+  <div class="g3" style="margin-top:12px;">
+    <div class="ovc c-b">
+      <div class="ovh">
+        <div class="ovtag">.log</div>
+        <div class="ovname">消息数据文件</div>
+        <div class="ovsub">顺序追加 RecordBatch，不可修改，文件名即该 Segment 的起始 offset</div>
+      </div>
+      <div class="ovbody">
+        <ul>
+          <li>存储实际消息内容（RecordBatch 格式）</li>
+          <li>支持压缩：<strong>GZIP / Snappy / LZ4 / ZSTD</strong></li>
+          <li>每个 RecordBatch 有 baseOffset、size、crc 等头部</li>
+          <li>Append-Only，写完即不可变</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ovc c-o">
+      <div class="ovh">
+        <div class="ovtag">.index</div>
+        <div class="ovname">稀疏 Offset 索引</div>
+        <div class="ovsub">每隔 index.interval.bytes（默认 4KB）写一条索引项</div>
+      </div>
+      <div class="ovbody">
+        <ul>
+          <li>记录 <strong>relativeOffset → position</strong> 映射</li>
+          <li>每条索引 8 字节（4B offset + 4B position）</li>
+          <li>用 mmap 映射进内存，支持二分查找</li>
+          <li>文件小，可全量常驻内存</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ovc c-p">
+      <div class="ovh">
+        <div class="ovtag">.timeindex</div>
+        <div class="ovname">稀疏时间戳索引</div>
+        <div class="ovsub">支持按时间点定位消息，如消费指定时间之后的消息</div>
+      </div>
+      <div class="ovbody">
+        <ul>
+          <li>记录 <strong>timestamp → relativeOffset</strong> 映射</li>
+          <li>每条索引 12 字节（8B timestamp + 4B offset）</li>
+          <li>Consumer 按时间 reset offset 时使用</li>
+          <li>同样用 mmap 映射，二分查找</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw c-b">
+    <div class="fwh">
+      <span class="fwb">ROLL</span>
+      <span class="fwt">Segment 滚动条件</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">log.segment.bytes（默认 1 GB）</div>
+          <div class="sd">当前 Active Segment 的 <strong>.log 文件大小</strong>达到上限，立即触发滚动，创建新 Segment。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">log.roll.hours（默认 168h / 7 天）</div>
+          <div class="sd">Segment 存在时间超过阈值，即使未达到大小上限也触发滚动，防止单个 Segment 持续过长时间。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">log.roll.ms（精确时间）</div>
+          <div class="sd">毫秒级滚动时间阈值，<strong>优先于 log.roll.hours</strong>。同时配置时以 ms 为准。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">4</div></div>
+        <div class="sb">
+          <div class="st">管理员手动触发</div>
+          <div class="sd">通过 <code>kafka-log-dirs.sh</code> 或 Admin API 可手动触发 Segment 滚动，常用于维护场景。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sparse-index" class="sec">稀疏索引查找流程</div>
+
+  <div class="fw c-p">
+    <div class="fwh">
+      <span class="fwb">LOOKUP</span>
+      <span class="fwt">根据 Offset 定位消息 — 完整流程</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">定位 Segment</div>
+          <div class="sd">将所有 Segment 文件名（BaseOffset 列表）加载到内存并排序。对列表做<strong>二分查找</strong>，找到满足 BaseOffset ≤ targetOffset 的最大那个 Segment。时间复杂度 O(log S)，S 为 Segment 数量。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">在 .index 中二分查找</div>
+          <div class="sd">.index 文件已通过 <strong>mmap</strong> 映射到进程地址空间，直接当作内存数组访问。在索引数组中二分查找不超过 targetOffset 的最大索引项，得到 <code>(relativeOffset, position)</code> 对，即对应的 .log 文件字节偏移量。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">在 .log 中顺序扫描</div>
+          <div class="sd">从 Step 2 得到的 position 开始，在 .log 文件中<strong>顺序读取 RecordBatch</strong>，逐条比较 offset，直到找到等于 targetOffset 的消息。最多扫描约 4KB（一个索引间隔），磁盘顺序读速度极快。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">4</div></div>
+        <div class="sb">
+          <div class="st">返回消息</div>
+          <div class="sd">读取到目标 RecordBatch 后，如有压缩则<strong>解压缩</strong>，返回对应 Record 给调用方。整体查找近似 O(log N) 复杂度，N 为消息总数。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note info">
+    <span class="nlbl">INFO</span>
+    <p><strong>稀疏索引的权衡：</strong>索引项不是每条消息都写一个，而是每隔 4KB（<code>index.interval.bytes</code>）写一条。好处是<strong>索引文件极小</strong>，可全量 mmap 进内存做二分查找；代价是最后一步需要顺序扫描最多 4KB 的 .log 数据。但磁盘顺序读速度极快（~600 MB/s），扫描 4KB 的耗时可忽略不计。</p>
+  </div>
+
+  <div id="zero-copy" class="sec">零拷贝原理</div>
+
+  <div class="diag-wrap">
+    <div class="diag-cap">传统 IO vs 零拷贝 sendfile — 数据路径对比</div>
+    <div class="diag-body">
+      <svg width="760" height="280" viewBox="0 0 760 280">
+        <rect x="10" y="8" width="740" height="122" rx="6" class="dg-box-r"/>
+        <text x="380" y="26" text-anchor="middle" font-size="11" font-weight="600" class="dg-red">传统 IO（4 次拷贝，2 次 CPU 拷贝）</text>
+
+        <rect x="20" y="34" width="700" height="36" rx="4" opacity="0.18" style="fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1;"/>
+        <text x="44" y="56" font-size="9" class="dg-blue">内核空间</text>
+        <rect x="20" y="74" width="700" height="46" rx="4" opacity="0.18" style="fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1;"/>
+        <text x="44" y="100" font-size="9" class="dg-orange">用户空间</text>
+
+        <rect x="40" y="38" width="70" height="26" rx="3" class="dg-box"/>
+        <text x="75" y="55" text-anchor="middle" font-size="9" class="dg-t">磁盘</text>
+        <rect x="200" y="38" width="90" height="26" rx="3" class="dg-box-b"/>
+        <text x="245" y="55" text-anchor="middle" font-size="9" class="dg-blue">Page Cache</text>
+        <rect x="380" y="78" width="90" height="26" rx="3" class="dg-box-o"/>
+        <text x="425" y="95" text-anchor="middle" font-size="9" class="dg-orange">用户空间 Buffer</text>
+        <rect x="540" y="38" width="90" height="26" rx="3" class="dg-box-b"/>
+        <text x="585" y="55" text-anchor="middle" font-size="9" class="dg-blue">Socket 缓冲区</text>
+        <rect x="680" y="38" width="56" height="26" rx="3" class="dg-box-g"/>
+        <text x="708" y="55" text-anchor="middle" font-size="9" class="dg-green">网卡</text>
+
+        <line x1="110" y1="51" x2="198" y2="51" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-b1)"/>
+        <text x="154" y="46" text-anchor="middle" font-size="8" class="dg-t3">DMA</text>
+        <line x1="290" y1="56" x2="390" y2="78" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-r1)"/>
+        <text x="330" y="60" font-size="8" class="dg-red">CPU拷贝</text>
+        <line x1="470" y1="86" x2="548" y2="62" stroke-width="1.5" class="dg-ln" marker-end="url(--arr-r1)"/>
+        <text x="504" y="70" font-size="8" class="dg-red">CPU拷贝</text>
+        <line x1="630" y1="51" x2="678" y2="51" stroke-width="1.5" class="dg-ln" marker-end="url(#arr-g1)"/>
+        <text x="654" y="46" text-anchor="middle" font-size="8" class="dg-t3">DMA</text>
+
+        <defs>
+          <marker id="arr-b1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--blue)"/></marker>
+          <marker id="arr-r1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--red)"/></marker>
+          <marker id="arr-g1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--green)"/></marker>
+        </defs>
+
+        <line x1="470" y1="86" x2="548" y2="62" stroke-width="1.5" stroke="var(--red)" fill="none" marker-end="url(#arr-r1)"/>
+
+        <rect x="10" y="148" width="740" height="122" rx="6" class="dg-box-g"/>
+        <text x="380" y="166" text-anchor="middle" font-size="11" font-weight="600" class="dg-green">零拷贝 sendfile（2 次拷贝，0 次 CPU 拷贝）</text>
+
+        <rect x="20" y="174" width="700" height="86" rx="4" opacity="0.18" style="fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1;"/>
+        <text x="44" y="196" font-size="9" class="dg-blue">内核空间（用户空间无感知）</text>
+
+        <rect x="40" y="180" width="70" height="26" rx="3" class="dg-box"/>
+        <text x="75" y="197" text-anchor="middle" font-size="9" class="dg-t">磁盘</text>
+        <rect x="240" y="180" width="90" height="26" rx="3" class="dg-box-b"/>
+        <text x="285" y="197" text-anchor="middle" font-size="9" class="dg-blue">Page Cache</text>
+        <rect x="530" y="180" width="80" height="26" rx="3" class="dg-box-b"/>
+        <text x="570" y="197" text-anchor="middle" font-size="9" class="dg-blue">Socket 描述符</text>
+        <rect x="672" y="180" width="56" height="26" rx="3" class="dg-box-g"/>
+        <text x="700" y="197" text-anchor="middle" font-size="9" class="dg-green">网卡</text>
+
+        <line x1="110" y1="193" x2="238" y2="193" stroke-width="1.5" stroke="var(--blue)" fill="none" marker-end="url(#arr-b1)"/>
+        <text x="174" y="188" text-anchor="middle" font-size="8" class="dg-t3">DMA</text>
+        <line x1="330" y1="193" x2="528" y2="193" stroke-width="1.5" stroke="var(--green)" fill="none" marker-end="url(#arr-g1)"/>
+        <text x="429" y="188" text-anchor="middle" font-size="8" class="dg-green">DMA scatter-gather</text>
+        <line x1="610" y1="193" x2="670" y2="193" stroke-width="1.5" stroke="var(--green)" fill="none" marker-end="url(#arr-g1)"/>
+
+        <text x="380" y="248" text-anchor="middle" font-size="10" class="dg-green">数据全程在内核空间流动，零 CPU 拷贝，仅 2 次上下文切换（用户态 → 内核态 → 用户态）</text>
+        <text x="380" y="264" text-anchor="middle" font-size="9" class="dg-t3">sendfile(in_fd, out_fd, offset, count)</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="note good">
+    <span class="nlbl">GOOD</span>
+    <p>Kafka 的 Consumer 拉取消息时，Broker 调用 <strong>FileChannel.transferTo()</strong>，底层是 Linux 的 <strong>sendfile(2)</strong> 系统调用。现代内核还支持 scatter-gather DMA，数据只在内核空间流动，完全不进入用户空间。Producer 写入时仍是写 Page Cache，OS 异步刷盘（由 <code>log.flush.interval.messages</code> 等参数控制，但通常依赖 OS 自动刷盘）。</p>
+  </div>
+
+  <div id="mmap" class="sec">mmap 在索引文件中的应用</div>
+
+  <div class="g2">
+    <div class="ovc c-o">
+      <div class="ovh">
+        <div class="ovtag">普通文件读取</div>
+        <div class="ovname">read() 系统调用</div>
+        <div class="ovsub">每次访问都需要系统调用 + 一次内核到用户空间的拷贝</div>
+      </div>
+      <div class="ovbody">
+        <ul>
+          <li>调用 <strong>read(fd, buf, size)</strong> 触发系统调用</li>
+          <li>数据从 Page Cache 拷贝到用户空间 buffer</li>
+          <li>程序访问 buffer 中的数据</li>
+          <li>频繁随机访问时系统调用开销显著</li>
+          <li>每次访问至少 1 次上下文切换 + 1 次内存拷贝</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ovc c-g">
+      <div class="ovh">
+        <div class="ovtag">mmap 内存映射</div>
+        <div class="ovname">MappedByteBuffer</div>
+        <div class="ovsub">文件直接映射到进程虚拟地址空间，访问如同操作内存数组</div>
+      </div>
+      <div class="ovbody">
+        <ul>
+          <li>调用 <strong>mmap()</strong> 建立文件到内存的映射</li>
+          <li>程序直接通过指针/数组下标访问文件内容</li>
+          <li>OS 按需将页面加载到 Page Cache（缺页中断）</li>
+          <li><strong>零拷贝</strong>，无需用户空间 buffer</li>
+          <li>随机访问效率极高，适合频繁二分查找</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="fw c-p">
+    <div class="fwh">
+      <span class="fwb">MMAP</span>
+      <span class="fwt">Kafka 如何使用 mmap 加速索引访问</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">索引文件 mmap 映射</div>
+          <div class="sd">Broker 启动时，将所有 Segment 的 <code>.index</code> 和 <code>.timeindex</code> 文件通过 Java 的 <strong>MappedByteBuffer</strong>（底层 mmap）映射到进程虚拟地址空间。文件内容按定长结构体紧密排列：每条 offset 索引 <strong>8 字节</strong>（4B relativeOffset + 4B position），每条时间戳索引 <strong>12 字节</strong>（8B timestamp + 4B offset），直接当作结构体数组访问。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">二分查找（无系统调用）</div>
+          <div class="sd">对 MappedByteBuffer 中的索引数组做<strong>二分查找</strong>，计算元素下标 <code>i = mid * 8</code>，直接读 MappedByteBuffer 的对应位置。不需要 read() 系统调用，速度接近纯内存数组的二分查找，O(log M) 其中 M 为索引条数。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">3</div></div>
+        <div class="sb">
+          <div class="st">写入索引（OS 后台刷盘）</div>
+          <div class="sd">写新索引条目时，直接修改 MappedByteBuffer 对应位置（<code>buffer.putInt(offset, value)</code>），不需要 write() 系统调用。OS 的虚拟内存子系统会在后台将脏页异步刷回磁盘（也可调用 <code>force()</code> 主动 fsync）。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="retention" class="sec">日志保留策略</div>
+
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>策略类型</th>
+          <th>配置参数</th>
+          <th>默认值</th>
+          <th>触发条件</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>时间保留</td>
+          <td><code>log.retention.hours</code></td>
+          <td>168h（7天）</td>
+          <td>Segment 最后修改时间超过阈值</td>
+          <td>以 Segment 为单位删除，不会切分 Segment；Active Segment 不删除</td>
+        </tr>
+        <tr>
+          <td>大小保留</td>
+          <td><code>log.retention.bytes</code></td>
+          <td>-1（不限）</td>
+          <td>Partition 总大小超过阈值</td>
+          <td>从最旧的 Segment 开始删除，直到总大小低于阈值</td>
+        </tr>
+        <tr>
+          <td>检查间隔</td>
+          <td><code>log.retention.check.interval.ms</code></td>
+          <td>300000（5min）</td>
+          <td>LogCleaner 线程定期触发</td>
+          <td>清理检查的间隔时间，不是实时清理</td>
+        </tr>
+        <tr>
+          <td>日志压缩</td>
+          <td><code>log.cleanup.policy=compact</code></td>
+          <td>delete</td>
+          <td>Key 相同时只保留最新 Value</td>
+          <td>适合 KV 语义数据；可与 delete 组合使用</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note warn">
+    <span class="nlbl">WARN</span>
+    <p>保留策略以 <strong>Segment 为最小粒度</strong>，不会删除 Active Segment（当前正在写入的那个）。如果最后一个 Segment 非常大且持续写入，即使其中的消息早已超过保留时间，也<strong>不会被删除</strong>，需要等该 Segment 滚动为封存状态后，下次检查才能触发清理。生产环境要注意合理设置 <code>log.segment.bytes</code> 和 <code>log.roll.hours</code>，避免 Active Segment 过大。</p>
+  </div>
+
+  <div id="compaction" class="sec">Log Compaction</div>
+
+  <div class="diag-wrap">
+    <div class="diag-cap">Log Compaction 前后对比</div>
+    <div class="diag-body">
+      <svg width="720" height="200" viewBox="0 0 720 200">
+        <rect x="10" y="10" width="330" height="180" rx="8" class="dg-box"/>
+        <text x="175" y="30" text-anchor="middle" font-size="11" font-weight="600" class="dg-t">Compaction 前</text>
+        <rect x="24" y="38" width="68" height="34" rx="4" class="dg-box-b"/>
+        <text x="58" y="55" text-anchor="middle" font-size="9" class="dg-blue">key=user1</text>
+        <text x="58" y="67" text-anchor="middle" font-size="9" class="dg-blue">"Alice"</text>
+        <rect x="98" y="38" width="68" height="34" rx="4" class="dg-box-o"/>
+        <text x="132" y="55" text-anchor="middle" font-size="9" class="dg-orange">key=user2</text>
+        <text x="132" y="67" text-anchor="middle" font-size="9" class="dg-orange">"Tom"</text>
+        <rect x="172" y="38" width="68" height="34" rx="4" class="dg-box-b"/>
+        <text x="206" y="55" text-anchor="middle" font-size="9" class="dg-blue">key=user1</text>
+        <text x="206" y="67" text-anchor="middle" font-size="9" class="dg-blue">"Bob"</text>
+        <rect x="246" y="38" width="68" height="34" rx="4" class="dg-box-g"/>
+        <text x="280" y="55" text-anchor="middle" font-size="9" class="dg-green">key=user3</text>
+        <text x="280" y="67" text-anchor="middle" font-size="9" class="dg-green">"Eve"</text>
+        <rect x="24" y="86" width="68" height="34" rx="4" class="dg-box-b"/>
+        <text x="58" y="103" text-anchor="middle" font-size="9" class="dg-blue">key=user1</text>
+        <text x="58" y="115" text-anchor="middle" font-size="9" class="dg-blue">"Carol"</text>
+        <rect x="98" y="86" width="68" height="34" rx="4" class="dg-box-o"/>
+        <text x="132" y="103" text-anchor="middle" font-size="9" class="dg-orange">key=user2</text>
+        <text x="132" y="115" text-anchor="middle" font-size="9" class="dg-orange">"Jerry"</text>
+        <rect x="172" y="86" width="68" height="34" rx="4" class="dg-box-r"/>
+        <text x="206" y="103" text-anchor="middle" font-size="9" class="dg-red">key=user1</text>
+        <text x="206" y="115" text-anchor="middle" font-size="9" class="dg-red">null(墓碑)</text>
+        <text x="20" y="145" font-size="9" class="dg-t3">offset: 0</text>
+        <text x="94" y="145" font-size="9" class="dg-t3">1</text>
+        <text x="168" y="145" font-size="9" class="dg-t3">2</text>
+        <text x="242" y="145" font-size="9" class="dg-t3">3</text>
+        <text x="20" y="165" font-size="9" class="dg-t3">offset: 4</text>
+        <text x="94" y="165" font-size="9" class="dg-t3">5</text>
+        <text x="168" y="165" font-size="9" class="dg-t3">6</text>
+        <text x="175" y="186" text-anchor="middle" font-size="10" class="dg-red">user1 出现 3 次，有 null 墓碑</text>
+
+        <text x="355" y="105" text-anchor="middle" font-size="22" class="dg-t3">→</text>
+
+        <rect x="380" y="10" width="330" height="180" rx="8" class="dg-box-g"/>
+        <text x="545" y="30" text-anchor="middle" font-size="11" font-weight="600" class="dg-green">Compaction 后</text>
+        <rect x="394" y="38" width="68" height="34" rx="4" class="dg-box-o"/>
+        <text x="428" y="55" text-anchor="middle" font-size="9" class="dg-orange">key=user2</text>
+        <text x="428" y="67" text-anchor="middle" font-size="9" class="dg-orange">"Jerry"</text>
+        <rect x="468" y="38" width="68" height="34" rx="4" class="dg-box-g"/>
+        <text x="502" y="55" text-anchor="middle" font-size="9" class="dg-green">key=user3</text>
+        <text x="502" y="67" text-anchor="middle" font-size="9" class="dg-green">"Eve"</text>
+        <text x="394" y="105" font-size="9" class="dg-t3">offset: 1</text>
+        <text x="464" y="105" font-size="9" class="dg-t3">3</text>
+        <text x="545" y="140" text-anchor="middle" font-size="10" class="dg-green">user1 被删除（最新值=null）</text>
+        <text x="545" y="156" text-anchor="middle" font-size="10" class="dg-green">每个 Key 保留最新值</text>
+        <text x="545" y="172" text-anchor="middle" font-size="10" class="dg-green">offset 不连续但单调递增</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="fw c-g">
+    <div class="fwh">
+      <span class="fwb">COMPACT</span>
+      <span class="fwt">Log Compaction 机制详解</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">适用场景</div>
+          <div class="sd"><strong>changelog 流</strong>（数据库变更同步 CDC）、<strong>配置存储</strong>（每次更新配置只关心最新值）、<strong>用户状态</strong>（最新的用户画像/积分）。不适合需要完整消息历史的场景（如订单流水）。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Cleaner 线程工作流程</div>
+          <div class="sd"><strong>LogCleaner</strong> 后台线程选择"污染率"（dirty/total 比率）最高的 Partition 进行 Compaction。读取 dirty 部分（上次 Compact 之后新写入的数据），在内存中建立 <code>key → 最新 offset</code> 的 HashMap，然后重写 log 文件，跳过不是最新版本的消息。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Tombstone（墓碑消息）</div>
+          <div class="sd">发送 <strong>Value 为 null</strong> 的消息即为墓碑消息，表示逻辑删除该 Key。Compaction 时，其他旧版本会被删除，但墓碑消息本身会保留一段时间（<code>delete.retention.ms</code>，默认 24h），让所有 Consumer 都能感知到删除事件，之后才被物理删除。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">4</div></div>
+        <div class="sb">
+          <div class="st">混合策略 compact + delete</div>
+          <div class="sd">设置 <code>log.cleanup.policy=delete,compact</code> 可同时启用两种策略：先 compact（每个 Key 保留最新值），再 delete（删除超时的 Segment）。适合<strong>需要"最新快照 + 有限历史"</strong>的场景，如保留最近 7 天的状态变更，同时每个 Key 只保留最新状态。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="interview" class="sec">面试速答</div>
+
+  <div class="fw c-r">
+    <div class="fwh">
+      <span class="fwb">Q &amp; A</span>
+      <span class="fwt">Broker 存储机制高频面试题</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl"><div class="sn">Q1</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Kafka 为什么这么快？从存储层面回答</div>
+          <div class="sd"><strong>① 顺序写：</strong>所有消息只追加到文件末尾，磁盘顺序 IO 性能接近内存（~600 MB/s vs 随机写 ~100 MB/s）。<strong>② Page Cache：</strong>利用 OS 缓存，不走 JVM 堆，不受 GC 影响，且读写共享同一份缓存。<strong>③ 零拷贝：</strong>Consumer 拉取时 sendfile 系统调用，数据不经用户空间，减少 2 次 CPU 拷贝和 2 次上下文切换。<strong>④ 批量处理：</strong>消息批量写入（RecordBatch），减少 IO 次数和系统调用开销。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">Q2</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Kafka 如何根据 Offset 快速定位消息？</div>
+          <div class="sd">三步：<strong>① 二分查找 Segment 文件名</strong>（O(log S)，S = Segment 数，从 BaseOffset 列表定位目标 Segment）→ <strong>② mmap 稀疏索引二分查找</strong>得到 .log 文件的字节偏移 position（O(log M)，M = 索引条数）→ <strong>③ 从 position 顺序扫描 .log 文件</strong>（最多扫描 4KB，磁盘顺序读）。总体接近 O(log N)，N 为消息总数。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">Q3</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">Log Segment 什么时候滚动？滚动影响写入吗？</div>
+          <div class="sd">触发条件：<strong>大小</strong>超过 <code>log.segment.bytes</code>（1GB）或<strong>时间</strong>超过 <code>log.roll.hours</code>（7天）。滚动时新建一组 .log/.index/.timeindex 文件，原 Segment 封存。滚动操作很轻量（新建文件 + 元数据更新），<strong>不会暂停写入</strong>，对消费者和生产者影响极小，基本透明。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">Q4</div><div class="sline"></div></div>
+        <div class="sb">
+          <div class="st">零拷贝中，DMA 是什么？为什么还需要它？</div>
+          <div class="sd"><strong>DMA（Direct Memory Access）</strong>是允许外设直接与内存传输数据的机制，不需要 CPU 参与每个字节的搬运。sendfile 流程中：磁盘 → Page Cache 是 <strong>DMA 传输</strong>（磁盘控制器直接写内存），Page Cache → 网卡也是 <strong>DMA 传输</strong>（网卡直接读内存）。CPU 只需设置传输参数，数据移动由 DMA 控制器完成，大幅降低 CPU 占用率，释放 CPU 处理其他任务。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl"><div class="sn">Q5</div></div>
+        <div class="sb">
+          <div class="st">Log Compaction 和 delete 策略可以同时用吗？有什么效果？</div>
+          <div class="sd">可以，设置 <code>log.cleanup.policy=compact,delete</code>。效果：<strong>先 compact</strong>（对数据去重，每个 Key 只保留最新值），<strong>同时 delete</strong>（根据时间/大小删除过期 Segment）。适合需要"最新快照 + 有限历史"的场景：例如保留最近 7 天的用户行为轨迹，同时每个用户只保留最新状态。Tombstone 消息也会在 <code>delete.retention.ms</code>（默认 24h）后被物理清除。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

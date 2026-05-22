@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>主从故障转移对比 · Redis哨兵 / Redis集群 / Kafka · 面试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'FAILOVER';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:100px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+/* speech bubble */
+.speech{background:linear-gradient(135deg,#fffef4,#fffff9);border:1px solid var(--yel-b);border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:14px;}
+.speech-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.speech-lbl::before{content:'💬 ';}
+.speech p{font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:8px;}
+.speech p:last-child{margin-bottom:0;}
+.speech strong{color:var(--tx);font-weight:600;}
+.speech em{color:var(--blue);font-style:normal;font-weight:500;}
+
+/* card flow */
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+/* note */
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.note.tip{background:var(--pur-bg);border:1px solid var(--pur-b);}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.tip  .nlbl{color:var(--purple);background:var(--pur-bg);border-color:var(--pur-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+
+/* grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+
+/* color themes */
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+
+/* overview card */
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+
+/* scenario cards */
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.sc-card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.sc-card-head{padding:14px 18px 12px;}
+.sc-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.sc-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.sc-sub{font-size:12px;color:var(--tx2);line-height:1.65;}
+.sc-body{border-top:1px solid var(--bd);padding:14px 18px;}
+.sc-row{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--bd);}
+.sc-row:last-child{border-bottom:none;}
+.sc-num{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sc-text{font-size:12px;color:var(--tx2);line-height:1.7;}
+.sc-text strong{color:var(--tx);font-weight:600;}
+
+/* scenario color variants */
+.sc-g .sc-tag,.sc-g .sc-num{background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);}
+.sc-g .sc-title{color:var(--green);}
+.sc-b .sc-tag,.sc-b .sc-num{background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);}
+.sc-b .sc-title{color:var(--blue);}
+.sc-o .sc-tag,.sc-o .sc-num{background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);}
+.sc-o .sc-title{color:var(--orange);}
+
+/* inline badge */
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.b-r{background:var(--red-bg);color:var(--red);border-color:var(--red-b);}
+.b-o{background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);}
+.b-g{background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);}
+.b-b{background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);}
+.b-p{background:var(--pur-bg);color:var(--purple);border-color:var(--pur-b);}
+
+/* link button */
+.link-btn{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:4px 10px;text-decoration:none;margin-top:8px;transition:background .15s,border-color .15s;}
+.link-btn:hover{background:var(--blu-b);border-color:var(--blue);}
+</style>
+</head>
+<body>
+
+<button class="theme-btn" id="themeBtn" title="切换明暗模式">🌙</button>
+<script>
+(function(){
+  var s = localStorage.getItem('theme') || 'light';
+  if(s==='dark'){document.documentElement.setAttribute('data-theme','dark');document.getElementById('themeBtn').textContent='☀️';}
+})();
+document.getElementById('themeBtn').addEventListener('click',function(){
+  var d=document.documentElement;
+  var t=d.getAttribute('data-theme')==='dark'?'light':'dark';
+  d.setAttribute('data-theme',t);
+  this.textContent=t==='dark'?'☀️':'🌙';
+  localStorage.setItem('theme',t);
+});
+</script>
+
+<header>
+  <div class="htag">DISTRIBUTED SYSTEMS · 故障转移</div>
+  <h1>主从故障转移机制对比</h1>
+  <p class="subtitle">Redis 哨兵 · Redis 集群 · Kafka ISR — 三种主流方案的触发条件、选举方式、数据安全取舍，以及 Kafka Controller 三种典型宕机场景</p>
+</header>
+
+<nav>
+  <a href="#overview">对比总览</a>
+  <a href="#sentinel">Redis 哨兵</a>
+  <a href="#cluster">Redis 集群</a>
+  <a href="#kafka">Kafka ISR</a>
+  <a href="#scenarios">Controller 三场景</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════ OVERVIEW ═══════════════════════════ -->
+<div class="sec" id="overview">Overview · 对比总览</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试官视角</div>
+  <p>这三种机制都解决"主节点挂了谁来接管"的问题，但思路完全不同。<strong>Redis 哨兵</strong>是外置监控进程投票，专门盯着一主多从；<strong>Redis 集群</strong>把监控内置进每个节点，用 gossip 协议互相探活；<strong>Kafka</strong> 则依赖一个"总控制器" Controller，由它统一触发分区 Leader 切换。三者在<strong>故障检测时间、脑裂防护、数据丢失风险</strong>上各有取舍。</p>
+  <p>面试高频追问：<em>异步复制会丢数据吗？</em> ——三种方案底层复制都是异步，主库提交后才向 Slave 同步，<strong>主库宕机瞬间未同步的写入都会丢失</strong>。Redis 可用 <code>min-replicas-to-write</code> 降低风险，Kafka 用 <code>acks=all</code> + ISR 提供更强保证（但也只是"至少送达 ISR 中的副本"，不是"零丢失"）。</p>
+</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>维度</th>
+        <th>Redis 哨兵</th>
+        <th>Redis 集群</th>
+        <th>Kafka ISR</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>监控方式</td>
+        <td>外置 Sentinel 进程 PING 探活</td>
+        <td>节点内置 gossip 协议互相探活</td>
+        <td>Controller 监听 ZooKeeper / KRaft 心跳</td>
+      </tr>
+      <tr>
+        <td>主观下线</td>
+        <td><code>down-after-milliseconds</code> 超时</td>
+        <td><code>cluster-node-timeout</code> 超时 → PFAIL</td>
+        <td>Broker ZK Session 超时（~18 s）或 KRaft 心跳超时</td>
+      </tr>
+      <tr>
+        <td>客观下线条件</td>
+        <td>≥ <code>quorum</code> 个 Sentinel 认为 SDOWN</td>
+        <td>超半数 Master 收到 PFAIL gossip → FAIL</td>
+        <td>Controller 直接感知（无投票），ZK 临时节点消失</td>
+      </tr>
+      <tr>
+        <td>新主选举</td>
+        <td>Leader Sentinel 先选出，再挑 Slave</td>
+        <td>Slave 自发向 Master 拉票，先得超半数者胜</td>
+        <td>Controller 从 ISR 列表取第一个 Follower</td>
+      </tr>
+      <tr>
+        <td>故障转移耗时</td>
+        <td>~30 s（默认配置）</td>
+        <td>~15–30 s（cluster-node-timeout × 2）</td>
+        <td>~30 s（ZK 模式）/ &lt;1 s（KRaft 模式）</td>
+      </tr>
+      <tr>
+        <td>数据安全</td>
+        <td>异步复制，可丢最后几条写</td>
+        <td>异步复制，可丢最后几条写</td>
+        <td><code>acks=all</code> + <code>min.insync.replicas</code> 可接近零丢</td>
+      </tr>
+      <tr>
+        <td>脑裂防护</td>
+        <td><code>min-replicas-to-write</code>（会拒写）</td>
+        <td><code>cluster-require-full-coverage</code></td>
+        <td>Leader Epoch 防止旧 Leader 继续写入</td>
+      </tr>
+      <tr>
+        <td>适用规模</td>
+        <td>单主多从，中小规模</td>
+        <td>多主分片，大规模横向扩展</td>
+        <td>Topic/Partition 级，大规模消息流</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════ SENTINEL ═══════════════════════════ -->
+<div class="sec" id="sentinel">Redis Sentinel · 哨兵故障转移</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试官视角</div>
+  <p><strong>哨兵的核心思路</strong>：用一组独立进程（Sentinel）专门监控 Redis 主从。单个 Sentinel 看到主库不响应只是"主观下线（SDOWN）"，只有 <strong>≥ quorum 个</strong> Sentinel 都认为主库不可达，才升级为"客观下线（ODOWN）"，防止网络抖动误判。</p>
+  <p>经典追问：<em>"Sentinel 自己也可能宕机，谁来协调故障转移？"</em>——Sentinel 之间会用 <strong>类 Raft 投票</strong>选出一个 Leader Sentinel 来执行提升动作，其余 Sentinel 只负责监控，不插手。这个过程需要 <strong>超过半数</strong> Sentinel 的投票，即使 quorum 设置较小也无法绕过。</p>
+</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">SENTINEL</span>
+    <span class="fwt">哨兵故障转移 — 5 步流程</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">①</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">SDOWN — 主观下线</div>
+        <div class="sd">
+          Sentinel 每隔 1 s 向 Master 发 <code>PING</code>；若连续 <code>down-after-milliseconds</code>（默认 30 000 ms）无响应，该 Sentinel 单方面标记 Master 为 <strong>SDOWN（Subjectively Down）</strong>。
+        </div>
+        <div class="sc"><span class="cm"># sentinel.conf</span>
+sentinel monitor mymaster 192.168.1.10 6379 2   <span class="cm"># quorum = 2</span>
+sentinel down-after-milliseconds mymaster 30000  <span class="cm"># 30 s 超时</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">②</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">ODOWN — 客观下线</div>
+        <div class="sd">
+          该 Sentinel 向其他 Sentinel 发送 <code>SENTINEL is-master-down-by-addr</code> 查询；当 <strong>收到 ≥ quorum 个确认</strong>时，Master 被标记为 <strong>ODOWN（Objectively Down）</strong>，触发故障转移流程。
+          <br><strong>注意</strong>：quorum 只决定 ODOWN 门槛，Leader Sentinel 选举仍需 majority（超半数）投票。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">③</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Leader Sentinel 选举（类 Raft）</div>
+        <div class="sd">
+          任何一个检测到 ODOWN 的 Sentinel 都可以发起"请投我一票"请求（带自增 epoch）。Sentinel 遵守<strong>先到先得</strong>原则，每个 epoch 只投一票。<strong>第一个拿到超半数票的 Sentinel 成为 Leader</strong>，负责执行后续步骤。
+        </div>
+        <div class="sc"><span class="cm"># 选举结果示例日志</span>
++elected-leader master mymaster 192.168.1.10 6379
++failover-state-select-slave master mymaster ...</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">④</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">筛选最优 Slave</div>
+        <div class="sd">
+          Leader Sentinel 按以下优先级依次筛选 Slave，<strong>排除不可用候选</strong>后取最优：
+        </div>
+        <div class="sc"><span class="cm">排除规则（任一满足即排除）：</span>
+  断线时间 > down-after-milliseconds × 10
+  数据滞后量过大（INFO replication 中 slave_repl_offset 差距）
+
+<span class="cm">选择优先级（依次比较）：</span>
+  1. slave-priority 越小越优先（0 = 永不晋升）
+  2. replication offset 越大越优先（数据最新）
+  3. runID 字典序越小越优先（兜底决胜）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">⑤</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">执行故障转移</div>
+        <div class="sd">
+          Leader Sentinel 向选中的 Slave 发送 <code>SLAVEOF NO ONE</code> 使其独立为新 Master；等待其就绪后，向其余 Slave 发送 <code>SLAVEOF &lt;新Master&gt;</code>，并更新配置文件（<code>CONFIG REWRITE</code>）。最后通知客户端新主地址（通过 pub/sub 频道 <code>+switch-master</code>）。
+        </div>
+        <div class="sc"><span class="cm"># 客户端监听切换事件</span>
+SUBSCRIBE __sentinel__:hello
+<span class="cm"># 收到 +switch-master mymaster 旧IP 旧Port 新IP 新Port</span></div>
+        <div class="note warn">
+          <span class="nlbl">⚠ 数据丢失</span>
+          <p>Slave 晋升后，原 Master 宕机期间未同步的写入<strong>永久丢失</strong>。<code>min-replicas-to-write 1</code> + <code>min-replicas-max-lag 10</code> 可在无 Slave 可用时让 Master 拒绝写入，降低脑裂期间的数据丢失窗口。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CLUSTER ═══════════════════════════ -->
+<div class="sec" id="cluster">Redis Cluster · 分片集群故障转移</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试官视角</div>
+  <p><strong>集群模式不依赖外部哨兵</strong>，监控逻辑内置于每个节点。节点通过 <strong>gossip 协议</strong>互相交换集群状态，当某个 Master 对超半数 Master 不可达时，集群内部自动触发 Slave 的晋升竞选。</p>
+  <p>与哨兵的关键区别：<em>集群中 Slave 是"自己发起选举"</em>而非被外部指派。复制偏移量最大（数据最新）的 Slave 会比其他 Slave <strong>等待更短的随机延迟</strong>，因此通常率先发起投票请求，自然获得优先晋升权。</p>
+  <p>经典追问：<em>"cluster-require-full-coverage 是什么？"</em>——默认 <code>yes</code>，任意一个 slot 范围无 Master 提供服务时，<strong>整个集群停止对外服务</strong>。设为 <code>no</code> 则允许部分 slot 不可用时其余 slot 继续服务，适合容忍局部故障的业务场景。</p>
+</div>
+
+<div class="fw c-o">
+  <div class="fwh">
+    <span class="fwb">CLUSTER</span>
+    <span class="fwt">分片集群故障转移 — 5 步流程</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">①</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">PFAIL — 疑似故障</div>
+        <div class="sd">
+          每个节点每隔 <code>cluster-node-timeout / 10</code> 向随机节点发 <code>PING</code>；若某 Master 在 <code>cluster-node-timeout</code>（默认 15 000 ms）内没有回复 <code>PONG</code>，当前节点标记其为 <strong>PFAIL（Possible Failure）</strong>，并通过 gossip 广播给其他节点。
+        </div>
+        <div class="sc"><span class="cm"># cluster.conf（自动维护，示例）</span>
+cluster-node-timeout 15000   <span class="cm"># 15 s 超时 → PFAIL</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">②</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">FAIL — 确认故障广播</div>
+        <div class="sd">
+          当某节点收到关于同一 Master 的 PFAIL gossip，<strong>累计超过集群中 Master 数量的半数</strong>时，将其状态升级为 <strong>FAIL</strong>，并向全集群广播 <code>CLUSTER FAIL</code> 消息，通知所有节点停止向该 Master 路由请求。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">③</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Slave 发起竞选（延迟机制）</div>
+        <div class="sd">
+          该 Master 的所有 Slave 检测到 FAIL 后，<strong>等待随机延迟</strong>后发起选举请求。延迟计算：
+        </div>
+        <div class="sc">延迟 = 500ms + random(0~500ms) + (MAX_OFFSET - slave_offset) × 系数
+
+<span class="cm"># 复制偏移量越大（数据越新）→ 延迟越短 → 越先发起投票</span>
+<span class="cm"># 保证数据最新的 Slave 通常率先获得投票权</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">④</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Master 投票，超半数者胜</div>
+        <div class="sd">
+          Slave 向全集群的 Master 节点发送 <code>FAILOVER_AUTH_REQUEST</code>（携带当前 configEpoch）；Master 在同一 epoch 只投一票（先到先得）。<strong>第一个收到超半数 Master 赞成票的 Slave 赢得选举</strong>，晋升为新 Master。
+        </div>
+        <div class="sc"><span class="cm"># 命令交互示例</span>
+Slave → Masters : FAILOVER_AUTH_REQUEST (epoch=42)
+Master → Slave  : FAILOVER_AUTH_ACK    (epoch=42)
+<span class="cm"># 收到 > N/2 个 ACK → 晋升</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">⑤</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">接管 Slot，更新集群状态</div>
+        <div class="sd">
+          新 Master 广播 <code>CLUSTER UPDATE</code> 消息，宣告自己接管原 Master 负责的所有 <strong>slot 范围</strong>，并将 configEpoch 加一。其他节点更新路由表，客户端下次请求时收到 <code>MOVED</code> 重定向，感知到新拓扑。
+        </div>
+        <div class="note warn">
+          <span class="nlbl">⚠ 数据丢失</span>
+          <p>与哨兵相同：异步复制导致<strong>未同步到 Slave 的写入丢失</strong>。此外，若某个 Master 的<strong>所有 Slave 都宕机</strong>，且 <code>cluster-require-full-coverage yes</code>，则整个集群停止对外服务。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ KAFKA ═══════════════════════════ -->
+<div class="sec" id="kafka">Kafka ISR · Partition Leader 故障转移</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试官视角</div>
+  <p>Kafka 的"主从切换"概念粒度更细——<strong>不是节点级，而是 Partition 级</strong>。每个 Partition 有一个 Leader 和若干 Follower，Leader 处理所有读写，Follower 持续追赶复制。当 Leader 所在 Broker 宕机，<strong>Controller</strong>（集群总调度节点）负责从 ISR（In-Sync Replicas）中选出新 Leader，并通知所有 Broker 更新 MetaData。</p>
+  <p>Kafka 与 Redis 的最大区别：<em>Kafka 有 <code>acks=all</code> + <code>min.insync.replicas</code> 的写入确认机制</em>，可以确保消息被至少 N 个副本持久化后才向 Producer 返回成功，<strong>大幅降低数据丢失窗口</strong>（但不能保证零丢失，因为极端场景下 ISR 可能只剩 Leader 本身）。</p>
+  <p>详细选举流程（ZK 模式 vs KRaft 模式、Leader Epoch 原理、Unclean Election 取舍）→ <a class="link-btn" href="kafka-mq-reliability.html#election" target="_blank">↗ kafka-mq-reliability.html · 选举机制</a></p>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh">
+    <span class="fwb">KAFKA · ISR</span>
+    <span class="fwt">Partition Leader 故障转移 — 核心流程</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">①</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Follower 脱离 ISR</div>
+        <div class="sd">
+          Follower 若超过 <code>replica.lag.time.max.ms</code>（默认 30 s）没有追上 Leader 的 LEO，将被 <strong>从 ISR 中摘除</strong>，降级为普通副本。ISR 实时反映"当前与 Leader 保持同步"的副本集合。
+        </div>
+        <div class="sc"><span class="cm"># broker 配置</span>
+replica.lag.time.max.ms = 30000   <span class="cm"># 超时则踢出 ISR</span>
+min.insync.replicas     = 2        <span class="cm"># ISR &lt; 2 时 acks=all 的写入报错</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">②</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Controller 感知 Broker 宕机</div>
+        <div class="sd">
+          <strong>ZK 模式</strong>：Leader Broker 的 ZooKeeper session 超时（~18 s），临时节点 <code>/brokers/ids/&lt;id&gt;</code> 自动消失，Controller 的 Watch 触发。<br>
+          <strong>KRaft 模式</strong>：Broker 心跳超时（&lt;1 s），Active Controller 直接感知，无需 ZK。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">③</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Controller 从 ISR 选新 Leader</div>
+        <div class="sd">
+          Controller 遍历该 Broker 承担 Leader 的所有 Partition，对每个 Partition 从其 <strong>ISR 列表中取第一个存活 Follower</strong> 作为新 Leader，并更新 ZK / KRaft 元数据，随后向所有 Broker 广播 <code>LeaderAndIsrRequest</code>。
+        </div>
+        <div class="sc"><span class="cm">ISR = [Broker-1(宕), Broker-2, Broker-3]</span>
+             ↓ Broker-1 宕机
+<span class="cm">新 Leader = Broker-2（ISR 中第一个存活）</span>
+<span class="cm">LeaderEpoch 自增，防止旧 Leader 幽灵写入</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="note warn" style="margin:0 22px 18px;">
+    <span class="nlbl">ISR 耗尽时</span>
+    <p><strong>unclean.leader.election.enable = false（默认，推荐）</strong>：等待 ISR 中至少一个副本恢复，期间 Partition 不可用 → CP，保数据一致，牺牲可用性。<br>
+    <strong>unclean.leader.election.enable = true</strong>：允许 ISR 外落后的副本当 Leader → AP，保可用性但已提交的消息可能丢失。<br>
+    金融、订单类业务保持 <code>false</code>；日志、监控类可酌情设 <code>true</code>。配合 <code>acks=all</code> + <code>min.insync.replicas=2</code> 可降低 ISR 耗尽的概率。</p>
+  </div>
+</div>
+<div class="note info" style="margin-bottom:10px;">
+  <span class="nlbl">Producer 配置</span>
+  <p>Leader 切换期间 Producer 会短暂收到 <code>NOT_LEADER_FOR_PARTITION</code> 错误。配置重试后客户端会自动等待新 Leader 上位，业务无感知：<code>acks=all</code>、<code>retries=Integer.MAX_VALUE</code>、<code>delivery.timeout.ms=120000</code>、<code>enable.idempotence=true</code>（幂等，防重复写入）。</p>
+</div>
+
+<div class="note info" style="margin-bottom:10px;">
+  <span class="nlbl">详细</span>
+  <p>Controller 选举（ZK 临时节点抢占 vs KRaft Raft 投票）、Leader Epoch 防脑裂、三种典型宕机场景的完整分析 →
+  <a href="kafka-mq-reliability.html#election" target="_blank" style="color:var(--blue);">kafka-mq-reliability.html#election</a> &nbsp;|&nbsp;
+  <a href="kafka-learning-path.html#election" target="_blank" style="color:var(--blue);">kafka-learning-path.html#election</a></p>
+</div>
+
+<!-- ═══════════════════════════ SCENARIOS ═══════════════════════════ -->
+<div class="sec" id="scenarios">Controller Scenarios · 三种典型宕机场景</div>
+
+<div class="speech">
+  <div class="speech-lbl">面试官视角</div>
+  <p>很多人以为"Controller 宕机 = 先选 Controller 再选 Partition Leader"，其实<strong>两种选举是相互独立的</strong>，触发条件不同，发生与否取决于宕机的节点扮演什么角色。理解这三个场景，面试时可以精准回答"什么情况下会同时触发两种选举"。</p>
+  <p><strong>前提</strong>：ZK 模式中，Controller 本身也是一个普通 Broker，可能同时担任某些 Partition 的 Leader。KRaft Isolated 模式下 Controller 是专用节点，不持有任何 Partition，因此场景 C 在 KRaft Isolated 下不会出现。</p>
+</div>
+
+<div class="scenario-grid">
+  <!-- Scenario A -->
+  <div class="sc-card sc-g">
+    <div class="sc-card-head">
+      <div class="sc-tag">场景 A</div>
+      <div class="sc-title">普通 Broker 宕机</div>
+      <div class="sc-sub">非 Controller 节点宕机，仅触发 Partition Leader 选举</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-row">
+        <div class="sc-num">1</div>
+        <div class="sc-text">ZK 临时节点 <code>/brokers/ids/N</code> 消失，Controller 的 Watch 触发</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">2</div>
+        <div class="sc-text"><strong>不涉及 Controller 选举</strong>，Controller 仍正常运行</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">3</div>
+        <div class="sc-text">Controller 找出该 Broker 担任 Leader 的所有 Partition，逐一从 ISR 选新 Leader</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">4</div>
+        <div class="sc-text">广播 <code>LeaderAndIsrRequest</code>，通知全集群更新 Metadata</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">✓</div>
+        <div class="sc-text"><strong>只有 Partition Leader 选举</strong>，耗时约数秒（Partition 数量 × 单次元数据操作）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario B -->
+  <div class="sc-card sc-b">
+    <div class="sc-card-head">
+      <div class="sc-tag">场景 B</div>
+      <div class="sc-title">Controller 宕机（无 Leader 分区）</div>
+      <div class="sc-sub">Controller 宕机，但该节点未担任任何 Partition 的 Leader</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-row">
+        <div class="sc-num">1</div>
+        <div class="sc-text">ZK 临时节点 <code>/controller</code> 消失，所有 Broker 监听到变化</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">2</div>
+        <div class="sc-text">存活 Broker 竞相抢占 <code>/controller</code> 临时节点，<strong>写入成功者成为新 Controller</strong></div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">3</div>
+        <div class="sc-text">新 Controller 从 ZK 加载全量 Metadata，重建内存状态</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">4</div>
+        <div class="sc-text"><strong>不需要 Partition Leader 选举</strong>：原 Controller 不持有任何 Leader，所有 Partition 仍正常服务</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">✓</div>
+        <div class="sc-text"><strong>只有 Controller 选举</strong>，ZK 模式约 18 s（session 超时）；KRaft 模式 &lt;1 s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario C -->
+  <div class="sc-card sc-o">
+    <div class="sc-card-head">
+      <div class="sc-tag">场景 C</div>
+      <div class="sc-title">Controller 宕机（有 Leader 分区）</div>
+      <div class="sc-sub">最复杂：Controller 同时担任部分 Partition 的 Leader，两种选举都触发</div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-row">
+        <div class="sc-num">1</div>
+        <div class="sc-text">ZK 临时节点 <code>/controller</code> 消失 + <code>/brokers/ids/N</code> 消失，同时触发</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">2</div>
+        <div class="sc-text"><strong>先完成 Controller 选举</strong>：存活 Broker 抢占 <code>/controller</code> 临时节点</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">3</div>
+        <div class="sc-text"><strong>再触发 Partition Leader 选举</strong>：新 Controller 就位后才能执行，为原 Controller 持有的 Leader 分区选出新 Leader</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">4</div>
+        <div class="sc-text">两阶段串行完成，总不可用时间 = Controller 选举时间 + Partition Leader 选举时间</div>
+      </div>
+      <div class="sc-row">
+        <div class="sc-num">✓</div>
+        <div class="sc-text"><strong>两种选举都发生，顺序：Controller 选举 → Partition Leader 选举</strong>；ZK 模式总耗时可能超 30 s；KRaft 模式大幅缩短</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note tip" style="margin-bottom:10px;">
+  <span class="nlbl">面试连环问</span>
+  <p><strong>Q：KRaft 模式下场景 C 还会发生吗？</strong><br>
+  A：取决于部署方式。<strong>Isolated 模式</strong>（生产推荐）：Controller 节点专用，不承载 Partition，场景 C 不会出现；<strong>Combined 模式</strong>（开发/测试）：Controller 节点同时是 Broker，仍可能触发场景 C，但选举耗时已从 ~18 s 降至毫秒级。</p>
+</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>场景</th>
+        <th>宕机节点</th>
+        <th>触发 Controller 选举？</th>
+        <th>触发 Partition Leader 选举？</th>
+        <th>耗时（ZK 模式）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>场景 A</td>
+        <td>普通 Broker（非 Controller）</td>
+        <td>❌ 否</td>
+        <td>✅ 是（该 Broker 的 Leader 分区）</td>
+        <td>数秒</td>
+      </tr>
+      <tr>
+        <td>场景 B</td>
+        <td>Controller Broker（无 Leader 分区）</td>
+        <td>✅ 是</td>
+        <td>❌ 否</td>
+        <td>~18 s</td>
+      </tr>
+      <tr>
+        <td>场景 C</td>
+        <td>Controller Broker（有 Leader 分区）</td>
+        <td>✅ 是（先）</td>
+        <td>✅ 是（后）</td>
+        <td>~18 s + 数秒</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</main>
+</body>
+</html>

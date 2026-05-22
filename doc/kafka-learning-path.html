@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 系统学习路径 · 从入门到大厂面试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'KAFKA';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw, .diag-wrap, .ovc, .tbl-wrap, .phase-row { scroll-margin-top: 55px; }
+
+/* card flow */
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;min-width:0;flex:1;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+/* note */
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.tip{background:#f5f0ff;border:1px solid #c4a8f0;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.tip  .nlbl{color:var(--purple);background:var(--pur-bg);border-color:var(--pur-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+
+/* grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+
+/* overview card */
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:0;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+
+/* color themes */
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+
+/* timeline bar */
+.timeline{display:flex;gap:0;margin-bottom:14px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.tl-seg{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.tl-seg:last-child{border-right:none;}
+.tl-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:4px;}
+.tl-dur{font-size:18px;font-weight:700;margin-bottom:2px;line-height:1.2;}
+.tl-label{font-size:11px;color:var(--tx3);line-height:1.5;}
+
+/* phase strip */
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+
+/* inline badge */
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.badge-b{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.badge-g{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.badge-o{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.badge-r{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.badge-p{color:var(--purple);background:var(--pur-bg);border-color:var(--pur-b);}
+.badge-t{color:var(--teal);background:var(--teal-bg);border-color:var(--teal-b);}
+
+/* resource card */
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
+.res-card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;}
+.res-icon{font-size:24px;margin-bottom:10px;}
+.res-cat{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:6px;}
+.res-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px;}
+.res-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.res-list li{font-size:12px;color:var(--tx2);line-height:1.65;padding-left:14px;position:relative;}
+.res-list li::before{content:'\2192';position:absolute;left:0;color:var(--tx3);font-size:10px;}
+.res-list strong{color:var(--tx);font-weight:600;}
+
+/* ── SVG diagram wrapper ── */
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-t{fill:var(--teal-bg);stroke:var(--teal-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace;}
+.dg-teal  {fill:var(--teal);  font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+
+/* ── syntax highlight ── */
+.h-k{color:var(--blue);font-weight:600;}
+.h-s{color:var(--green);}
+.h-n{color:var(--orange);}
+.h-c{color:var(--purple);font-weight:600;}
+.h-t{color:var(--teal);}
+.h-an{color:var(--pink);}
+</style>
+<script src="../shared/theme.js"></script>
+<script>
+(function(){
+  var JAVA_KW = /\b(public|private|protected|static|final|void|new|return|try|catch|finally|throw|throws|if|else|for|while|do|import|package|this|super|null|true|false|boolean|int|long|byte|short|char|double|float)\b/g;
+  var JAVA_TYPE = /\b(String|Integer|Long|Boolean|List|Map|Set|Optional|Duration|Properties|KafkaProducer|KafkaConsumer|ConsumerRecords|ProducerRecord|TopicPartition|RecordMetadata|OffsetAndTimestamp|KafkaStreams|StreamsBuilder|KTable|KStream|LocalDate|ZoneOffset)\b/g;
+  var NUM = /(?<![&\w])(\b\d[\d.]*[LlFfDdg]?\b)/g;
+  var STR_JAVA = /"([^"\n]*)"/g;
+  var CMD = /\b(kafka[-\w]*\.sh)\b/g;
+  var ANNO = /(@\w+)/g;
+
+  function hlText(text, isJava) {
+    if (!text) return text;
+    text = text.replace(STR_JAVA, '<span class="h-s">"$1"</span>');
+    if (isJava) {
+      text = text.replace(JAVA_TYPE, '<span class="h-t">$1</span>');
+      text = text.replace(JAVA_KW,   '<span class="h-k">$1</span>');
+      text = text.replace(ANNO,      '<span class="h-an">$1</span>');
+    }
+    text = text.replace(CMD, '<span class="h-c">$1</span>');
+    text = text.replace(NUM, '<span class="h-n">$1</span>');
+    return text;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.sc').forEach(function(el) {
+      var raw = el.innerHTML;
+      var isJava = /\b(public|private|new |void |return |import |\.put\(|\.send\(|\.subscribe\(|\.assign\(|\.seek\(|consumer\.|producer\.|new [A-Z])\b/.test(raw);
+      var parts = raw.split(/(<span class="cm">[\s\S]*?<\/span>)/);
+      var out = '';
+      for (var i = 0; i < parts.length; i++) {
+        if (parts[i].indexOf('<span class="cm">') === 0) {
+          out += parts[i];
+        } else {
+          out += hlText(parts[i], isJava);
+        }
+      }
+      el.innerHTML = out;
+    });
+  });
+})();
+</script>
+</head>
+<body>
+
+<header>
+  <div class="htag">LEARNING PATH</div>
+  <h1>Kafka 系统学习路径</h1>
+  <div class="subtitle">从核心概念到大厂面试，6 个阶段 · 预计 2-4 个月 · 涵盖原理 / 实战 / 调优 / 架构设计</div>
+</header>
+
+<nav>
+  <a href="#overview">概览</a>
+  <a href="#stage1">Stage 1 · 核心概念</a>
+  <a href="#election">选举流程</a>
+  <a href="#stage2">Stage 2 · Producer &amp; Consumer</a>
+  <a href="#stage3">Stage 3 · 高级特性</a>
+  <a href="#stage4">Stage 4 · 生产运维</a>
+  <a href="#stage5">Stage 5 · 架构设计</a>
+  <a href="#stage6">Stage 6 · 面试冲刺</a>
+  <a href="#resources">推荐资源</a>
+</nav>
+
+<main>
+
+<!-- ══════════════════ OVERVIEW ══════════════════ -->
+<div class="sec" id="overview">Overview · 学习路径总览</div>
+
+<div class="timeline">
+  <div class="tl-seg">
+    <div class="tl-tag" style="color:var(--blue)">STAGE 1</div>
+    <div class="tl-dur" style="color:var(--blue)">1 周</div>
+    <div class="tl-label">核心概念<br>&amp; 架构</div>
+  </div>
+  <div class="tl-seg">
+    <div class="tl-tag" style="color:var(--teal)">STAGE 2</div>
+    <div class="tl-dur" style="color:var(--teal)">2 周</div>
+    <div class="tl-label">Producer &amp; Consumer<br>深度解析</div>
+  </div>
+  <div class="tl-seg">
+    <div class="tl-tag" style="color:var(--green)">STAGE 3</div>
+    <div class="tl-dur" style="color:var(--green)">2 周</div>
+    <div class="tl-label">高级特性<br>&amp; 生态</div>
+  </div>
+  <div class="tl-seg">
+    <div class="tl-tag" style="color:var(--orange)">STAGE 4</div>
+    <div class="tl-dur" style="color:var(--orange)">2-3 周</div>
+    <div class="tl-label">生产运维<br>&amp; 调优</div>
+  </div>
+  <div class="tl-seg">
+    <div class="tl-tag" style="color:var(--purple)">STAGE 5</div>
+    <div class="tl-dur" style="color:var(--purple)">1-2 周</div>
+    <div class="tl-label">架构设计<br>&amp; 最佳实践</div>
+  </div>
+  <div class="tl-seg">
+    <div class="tl-tag" style="color:var(--red)">STAGE 6</div>
+    <div class="tl-dur" style="color:var(--red)">持续</div>
+    <div class="tl-label">面试冲刺<br>&amp; 实战项目</div>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">路线说明</span>
+  <p>本路径面向 <strong>有 Java 基础、了解基础 MQ 概念</strong> 的工程师。前三阶段打牢原理基础，第四阶段是区分<strong>中级 / 高级工程师</strong>的关键，第五六阶段直接对准大厂面试考点。每个阶段学完后建议用思维导图梳理一遍，面试时能快速回忆。</p>
+</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--blue)">知识维度</div>
+    <div class="phase-title">系统知识图谱</div>
+    <ul class="phase-items">
+      <li><strong>存储原理</strong>：分区文件 · 索引 · 零拷贝</li>
+      <li><strong>复制协议</strong>：ISR · HW · Leader Epoch</li>
+      <li><strong>客户端</strong>：批量发送 · Rebalance · offset</li>
+      <li><strong>生态</strong>：Streams · Connect · Schema Registry</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--orange)">面试高频</div>
+    <div class="phase-title">必会核心问题</div>
+    <ul class="phase-items">
+      <li>消息<strong>不丢失</strong>三端配置</li>
+      <li>消息<strong>积压</strong>处理方案</li>
+      <li><strong>幂等</strong> / 事务消息原理</li>
+      <li><strong>顺序消费</strong>保证机制</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--green)">实战能力</div>
+    <div class="phase-title">动手验证清单</div>
+    <ul class="phase-items">
+      <li>搭建 <strong>KRaft 集群</strong>（无 ZK）</li>
+      <li>用 JMeter 压测 + 调参对比</li>
+      <li>Prometheus + Grafana 监控看板</li>
+      <li>设计并手画 <strong>系统架构图</strong></li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ══════════════════ STAGE 1 ══════════════════ -->
+<div class="sec" id="stage1">Stage 1 · 核心概念 &amp; 架构（第 1 周）</div>
+
+<!-- ─── Kafka 架构图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Kafka 整体架构 — Producer / Broker Cluster / Consumer Group / Controller</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 280" width="860" height="280">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M0,1 L8,5 L0,9z" style="fill:var(--bd2)"/>
+        </marker>
+      </defs>
+      <!-- Producer cluster -->
+      <rect x="10" y="60" width="120" height="160" rx="8" class="dg-cluster"/>
+      <text x="70" y="50" text-anchor="middle" font-size="10" font-weight="600" class="dg-blue">PRODUCERS</text>
+      <rect x="24" y="78" width="92" height="32" rx="5" class="dg-box-b"/>
+      <text x="70" y="99" text-anchor="middle" font-size="11" font-weight="500" class="dg-blue">Producer A</text>
+      <rect x="24" y="120" width="92" height="32" rx="5" class="dg-box-b"/>
+      <text x="70" y="141" text-anchor="middle" font-size="11" font-weight="500" class="dg-blue">Producer B</text>
+      <rect x="24" y="162" width="92" height="32" rx="5" class="dg-box-b"/>
+      <text x="70" y="183" text-anchor="middle" font-size="11" font-weight="500" class="dg-blue">Producer C</text>
+
+      <!-- arrows P→Broker -->
+      <line x1="130" y1="94" x2="182" y2="120" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="130" y1="136" x2="182" y2="140" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="130" y1="178" x2="182" y2="160" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Broker cluster -->
+      <rect x="185" y="36" width="430" height="208" rx="10" class="dg-cluster"/>
+      <text x="400" y="28" text-anchor="middle" font-size="10" font-weight="600" class="dg-orange">BROKER CLUSTER</text>
+
+      <!-- Broker 0 -->
+      <rect x="200" y="54" width="125" height="174" rx="6" class="dg-box"/>
+      <text x="262" y="72" text-anchor="middle" font-size="10" font-weight="600" class="dg-t">Broker 0</text>
+      <rect x="210" y="80" width="105" height="22" rx="3" class="dg-box-o"/>
+      <text x="262" y="95" text-anchor="middle" font-size="9" class="dg-orange">P0 Leader</text>
+      <rect x="210" y="108" width="105" height="22" rx="3" class="dg-box"/>
+      <text x="262" y="123" text-anchor="middle" font-size="9" class="dg-t2">P1 Follower</text>
+      <rect x="210" y="136" width="105" height="22" rx="3" class="dg-box"/>
+      <text x="262" y="151" text-anchor="middle" font-size="9" class="dg-t2">P2 Follower</text>
+      <rect x="210" y="170" width="105" height="22" rx="3" class="dg-box-p"/>
+      <text x="262" y="185" text-anchor="middle" font-size="9" class="dg-purple">Controller</text>
+      <text x="262" y="216" text-anchor="middle" font-size="8" class="dg-t3">ISR={0,1,2}</text>
+
+      <!-- Broker 1 -->
+      <rect x="338" y="54" width="125" height="174" rx="6" class="dg-box"/>
+      <text x="400" y="72" text-anchor="middle" font-size="10" font-weight="600" class="dg-t">Broker 1</text>
+      <rect x="348" y="80" width="105" height="22" rx="3" class="dg-box"/>
+      <text x="400" y="95" text-anchor="middle" font-size="9" class="dg-t2">P0 Follower</text>
+      <rect x="348" y="108" width="105" height="22" rx="3" class="dg-box-o"/>
+      <text x="400" y="123" text-anchor="middle" font-size="9" class="dg-orange">P1 Leader</text>
+      <rect x="348" y="136" width="105" height="22" rx="3" class="dg-box"/>
+      <text x="400" y="151" text-anchor="middle" font-size="9" class="dg-t2">P2 Follower</text>
+      <text x="400" y="216" text-anchor="middle" font-size="8" class="dg-t3">ISR={0,1,2}</text>
+
+      <!-- Broker 2 -->
+      <rect x="476" y="54" width="125" height="174" rx="6" class="dg-box"/>
+      <text x="538" y="72" text-anchor="middle" font-size="10" font-weight="600" class="dg-t">Broker 2</text>
+      <rect x="486" y="80" width="105" height="22" rx="3" class="dg-box"/>
+      <text x="538" y="95" text-anchor="middle" font-size="9" class="dg-t2">P0 Follower</text>
+      <rect x="486" y="108" width="105" height="22" rx="3" class="dg-box"/>
+      <text x="538" y="123" text-anchor="middle" font-size="9" class="dg-t2">P1 Follower</text>
+      <rect x="486" y="136" width="105" height="22" rx="3" class="dg-box-o"/>
+      <text x="538" y="151" text-anchor="middle" font-size="9" class="dg-orange">P2 Leader</text>
+      <text x="538" y="216" text-anchor="middle" font-size="8" class="dg-t3">ISR={0,1,2}</text>
+
+      <!-- arrows Broker→Consumer -->
+      <line x1="615" y1="120" x2="668" y2="94" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="615" y1="140" x2="668" y2="140" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="615" y1="160" x2="668" y2="178" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Consumer Group -->
+      <rect x="670" y="60" width="180" height="160" rx="8" class="dg-cluster"/>
+      <text x="760" y="50" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">CONSUMER GROUP</text>
+      <rect x="684" y="78" width="152" height="32" rx="5" class="dg-box-g"/>
+      <text x="760" y="99" text-anchor="middle" font-size="11" font-weight="500" class="dg-green">Consumer 1 ← P0</text>
+      <rect x="684" y="120" width="152" height="32" rx="5" class="dg-box-g"/>
+      <text x="760" y="141" text-anchor="middle" font-size="11" font-weight="500" class="dg-green">Consumer 2 ← P1</text>
+      <rect x="684" y="162" width="152" height="32" rx="5" class="dg-box-g"/>
+      <text x="760" y="183" text-anchor="middle" font-size="11" font-weight="500" class="dg-green">Consumer 3 ← P2</text>
+
+      <!-- KRaft label -->
+      <text x="400" y="268" text-anchor="middle" font-size="9" class="dg-t3">KRaft 模式：Controller 内嵌 Raft 共识，无需外部 ZooKeeper</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-b" id="fundamentals">
+  <div class="fwh">
+    <span class="fwb">WEEK 1</span>
+    <span class="fwt">核心概念 &amp; 架构基础</span>
+    <span class="badge badge-b" style="margin-left:auto;">入门必须掌握</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Topic · Partition · Replica · Broker</div>
+        <div class="sd">
+          <strong>Broker（服务器节点）</strong>：Kafka 集群中的一台服务器就是一个 Broker，负责接收 Producer 发来的消息、存储到磁盘、响应 Consumer 的拉取请求。
+          <br><strong>Topic（主题）</strong>：消息的逻辑分类，类似数据库中的一张表或一个队列名。Topic 本身不存数据，真正存数据的是它下面的 Partition。
+          <br><strong>Partition（分区）</strong>：每个 Topic 被物理拆分成一个或多个 Partition，分布到不同的 Broker 上。
+          <br>&nbsp;&nbsp;&nbsp;① 不同 Partition 在不同 Broker 上 → <strong>水平扩展</strong>
+          <br>&nbsp;&nbsp;&nbsp;② 多个 Consumer 可同时消费不同 Partition → <strong>并行消费</strong>
+          <br>&nbsp;&nbsp;&nbsp;每个 Partition 是只追加（Append-Only）的日志文件，每条消息有唯一编号 <strong>Offset</strong>（从 0 递增）。<strong>Partition 内部有序，Partition 之间无序</strong>。
+          <br>&nbsp;&nbsp;&nbsp;比喻：Topic 是一本书，Partition 是拆出的多卷，每卷分别放在不同书架（Broker）上，读者可以同时取不同卷来读。
+          <br><strong>Replica（副本）</strong>：每个 Partition 的备份，防止单点故障丢数据。有一个 <strong>Leader Replica</strong>（负责所有读写），其余是 <strong>Follower Replica</strong>（只从 Leader 同步，不对外服务）。
+          <br><strong>关键约束</strong>：同一 Partition 的 Leader 和 Follower 必须在不同 Broker 上，否则 Broker 宕机会同时失去 Leader 和全部副本。</div>
+        <div class="sc">Topic my-topic  (replication.factor=3, partitions=3)
+  Partition 0 → Leader(Broker-0)  Follower(Broker-1) Follower(Broker-2)
+  Partition 1 → Leader(Broker-1)  Follower(Broker-2) Follower(Broker-0)
+  Partition 2 → Leader(Broker-2)  Follower(Broker-0) Follower(Broker-1)
+<span class="cm">// Leader 打散到不同 Broker，负载均衡</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">ISR（In-Sync Replicas）机制</div>
+        <div class="sd"><strong>ISR</strong> 是与 Leader 保持同步的副本集合。Follower 落后超过 <code>replica.lag.time.max.ms</code>（默认 30s）就被踢出 ISR。Leader 挂掉后只从 ISR 内选举新 Leader，保证不丢已提交数据。
+        <br><br>关键公式：<strong>min.insync.replicas ≤ ISR 大小 ≤ replication.factor</strong>
+        <br>当 ISR 大小 &lt; min.insync.replicas 时，Broker 拒绝 <code>acks=all</code> 的写请求（抛 NotEnoughReplicasException），牺牲可用性换数据安全。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">HW · LEO · Leader Epoch</div>
+        <div class="sd"><strong>LEO</strong>（Log End Offset）：副本日志中下一条消息即将被写入的位置，即当前最后一条消息的 offset + 1。比如副本已存了 offset 0～99 共 100 条消息，LEO 就是 100。
+        <br><strong>HW</strong>（High Watermark，高水位）：ISR 所有副本中最小的 LEO，Consumer 只能读到 HW 之前的消息——确保读到的都是所有副本都已同步的"安全数据"。
+        <br><br><strong>Leader Epoch</strong>（Kafka 0.11+）：解决 HW 的两个经典 Bug —— <strong>数据丢失</strong>（Follower 重启后截断到旧 HW）和<strong>数据不一致</strong>（两个副本先后宕机导致 divergence）。每次 Leader 切换时 epoch+1，Follower 重启后先向 Leader 查询自己 epoch 对应的结束 offset 再截断，而非依赖 HW。</div>
+        <div class="sc">Broker-0 (Leader):   LEO=100, HW=97   epoch=5
+Broker-1 (Follower): LEO=98            epoch=5
+Broker-2 (Follower): LEO=97            epoch=5
+                      ↑ HW = min(100,98,97) = 97
+<span class="cm">// Consumer 最多可消费到 offset 96（&lt; HW）</span>
+<span class="cm">// Follower 重启 → OffsetsForLeaderEpoch 请求 → 精确截断</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Controller 角色 &amp; 选举</div>
+        <div class="sd">Controller 是集群里一个特殊的 Broker，负责三件事：
+        <br>• <strong>Partition Leader 选举</strong>：某台 Broker 宕机时，找到受影响的 Partition，从 ISR 里选一个新 Leader
+        <br>• <strong>分区重分配</strong>：Broker 上下线时调整各 Partition 的副本分布
+        <br>• <strong>元数据管理</strong>：维护分区 Leader、ISR 等集群信息，并推送给所有 Broker
+        <br><br><strong>ZooKeeper 模式</strong>：各 Broker 抢占 ZK 上的 /controller 临时节点，抢到的就是 Controller。<strong>KRaft 模式</strong>（3.3+ 正式可用）：Broker 内置 Raft 协议自己选出 Controller，去掉了外部 ZooKeeper 依赖，故障切换从秒级降至<strong>毫秒级</strong>，新集群推荐使用。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消息存储：分段日志 + 稀疏索引</div>
+        <div class="sd">每个 Partition 在磁盘上是一组 <strong>Segment 文件</strong>（.log + .index + .timeindex）。文件名是该 Segment 起始 offset。.index 是稀疏索引（每隔 <code>index.interval.bytes</code> 默认 4KB 记录一条映射），查消息流程：
+        <br>① 二分查找定位 Segment 文件 → ② 在 .index 中二分找到最近的索引条目 → ③ 从该位置顺序扫 .log 定位精确 offset。</div>
+        <div class="sc">data/my-topic-0/
+  00000000000000000000.log        <span class="cm">← 消息体（Record Batch 格式）</span>
+  00000000000000000000.index      <span class="cm">← offset → 物理位置 稀疏索引</span>
+  00000000000000000000.timeindex  <span class="cm">← 时间戳 → offset 索引</span>
+  00000000000000174580.log        <span class="cm">← 新 Segment（满 1GB 或 7 天滚动）</span>
+  00000000000000174580.index
+  leader-epoch-checkpoint          <span class="cm">← Leader Epoch → Start Offset 映射</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">6</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">高性能原理：零拷贝 + 顺序写 + Page Cache + 批量压缩</div>
+        <div class="sd">Kafka 能达到百万级 TPS 的四大支柱：</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 零拷贝 vs 传统 IO 对比图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">传统 IO vs Kafka 零拷贝 — 数据搬运路径对比</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 220" width="820" height="220">
+      <!-- 左侧: 传统 IO 4次拷贝 -->
+      <text x="195" y="18" text-anchor="middle" font-size="11" font-weight="600" class="dg-red">传统 IO（4 次拷贝 + 4 次上下文切换）</text>
+      <rect x="20" y="30" width="90" height="34" rx="5" class="dg-box"/>
+      <text x="65" y="51" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">磁盘</text>
+      <text x="155" y="51" text-anchor="middle" font-size="9" class="dg-red">DMA copy</text>
+      <line x1="110" y1="47" x2="190" y2="47" class="dg-ln" marker-end="url(#ah)"/>
+      <rect x="192" y="30" width="90" height="34" rx="5" class="dg-box-r"/>
+      <text x="237" y="51" text-anchor="middle" font-size="10" font-weight="500" class="dg-red">内核缓冲区</text>
+
+      <text x="237" y="87" text-anchor="middle" font-size="9" class="dg-red">CPU copy</text>
+      <line x1="237" y1="64" x2="237" y2="94" class="dg-ln" marker-end="url(#ah)"/>
+      <rect x="192" y="96" width="90" height="34" rx="5" class="dg-box-r"/>
+      <text x="237" y="117" text-anchor="middle" font-size="10" font-weight="500" class="dg-red">用户空间</text>
+
+      <text x="237" y="153" text-anchor="middle" font-size="9" class="dg-red">CPU copy</text>
+      <line x1="237" y1="130" x2="237" y2="162" class="dg-ln" marker-end="url(#ah)"/>
+      <rect x="192" y="164" width="90" height="34" rx="5" class="dg-box-r"/>
+      <text x="237" y="185" text-anchor="middle" font-size="10" font-weight="500" class="dg-red">Socket 缓冲区</text>
+
+      <text x="330" y="185" text-anchor="middle" font-size="9" class="dg-red">DMA</text>
+      <line x1="282" y1="181" x2="350" y2="181" class="dg-ln" marker-end="url(#ah)"/>
+      <rect x="352" y="164" width="60" height="34" rx="5" class="dg-box"/>
+      <text x="382" y="185" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">NIC</text>
+
+      <!-- 分隔线 -->
+      <line x1="430" y1="10" x2="430" y2="210" stroke-dasharray="6 4" style="stroke:var(--bd);stroke-width:1"/>
+
+      <!-- 右侧: sendfile 零拷贝 2次拷贝 -->
+      <text x="640" y="18" text-anchor="middle" font-size="11" font-weight="600" class="dg-green">sendfile() 零拷贝（2 次 DMA，0 CPU copy）</text>
+      <rect x="470" y="60" width="90" height="34" rx="5" class="dg-box"/>
+      <text x="515" y="81" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">磁盘</text>
+
+      <text x="600" y="81" text-anchor="middle" font-size="9" class="dg-green">DMA copy</text>
+      <line x1="560" y1="77" x2="630" y2="77" class="dg-ln" marker-end="url(#ah)"/>
+      <rect x="632" y="60" width="100" height="34" rx="5" class="dg-box-g"/>
+      <text x="682" y="81" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">Page Cache</text>
+
+      <text x="740" y="131" text-anchor="middle" font-size="9" class="dg-green">DMA gather</text>
+      <line x1="682" y1="94" x2="682" y2="142" class="dg-ln" marker-end="url(#ah)"/>
+      <rect x="632" y="144" width="100" height="34" rx="5" class="dg-box-g"/>
+      <text x="682" y="165" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">NIC</text>
+
+      <!-- 虚线框标注 "跳过用户空间" -->
+      <rect x="560" y="106" width="56" height="24" rx="4" class="dg-box"/>
+      <text x="588" y="122" text-anchor="middle" font-size="9" class="dg-t3">无 CPU</text>
+      <text x="588" y="132" text-anchor="middle" font-size="8" class="dg-t3">copy</text>
+
+      <!-- 底部说明 -->
+      <text x="640" y="206" text-anchor="middle" font-size="9" class="dg-t3">Java: FileChannel.transferTo() → Linux: sendfile() 系统调用</text>
+    </svg>
+  </div>
+</div>
+
+<div class="g2" id="performance">
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">SEQUENTIAL WRITE</div>
+      <div class="ovname">顺序写磁盘</div>
+      <div class="ovsub">Append-only log，磁盘顺序写速度 600MB/s+，接近内存随机写</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>消息只追加到 Segment 末尾，<strong>永不修改已写入数据</strong></li>
+        <li>磁头无需寻道，充分利用磁盘<strong>预读（read-ahead）</strong>和操作系统的<strong>写后合并（write-behind）</strong></li>
+        <li>与 SSD 随机写相比：HDD 顺序写 200MB/s vs SSD 随机写 50-100MB/s</li>
+        <li>Kafka 不依赖 SSD，<strong>HDD 即可达到高吞吐</strong>，成本大幅降低</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">PAGE CACHE</div>
+      <div class="ovname">利用操作系统缓存</div>
+      <div class="ovsub">Kafka 不自己管缓存，全交给 OS Page Cache 管理</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>写消息：写入 Page Cache 即返回，<strong>OS 异步刷盘</strong></li>
+        <li>读消息：如果还在 Page Cache 中（热数据），<strong>无磁盘 IO</strong></li>
+        <li>Broker JVM 堆不需要很大（6-8G 足够），<strong>剩余内存全给 Page Cache</strong></li>
+        <li>Broker 重启后 Page Cache 仍在（进程级 vs OS 级），<strong>热数据不丢失</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">ZERO COPY</div>
+      <div class="ovname">零拷贝传输</div>
+      <div class="ovsub">sendfile() 跳过用户空间，4次拷贝 → 2次</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>传统路径：磁盘 → 内核缓冲 → 用户空间 → Socket 缓冲 → NIC（<strong>4次拷贝 + 4次上下文切换</strong>）</li>
+        <li>sendfile()：磁盘 → Page Cache → NIC（<strong>2次 DMA拷贝，0次 CPU拷贝</strong>）</li>
+        <li>Java 层通过 <code>FileChannel.transferTo()</code> 调用</li>
+        <li>Consumer 读取热数据时几乎<strong>纯内存操作</strong>，延迟极低</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">BATCHING</div>
+      <div class="ovname">批量 + 压缩</div>
+      <div class="ovsub">减少网络往返，压缩后传输数据量降低 60-80%</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>Producer: <code>batch.size</code> + <code>linger.ms</code> 凑批发送，单次 RPC 携带数千条消息</li>
+        <li>压缩在 Producer 端做，Broker <strong>原样存储</strong>（不解压），Consumer 解压</li>
+        <li>Snappy 适合低延迟，LZ4 适合高吞吐，Zstd 压缩比最高</li>
+        <li>端到端压缩：一批消息只压缩一次，<strong>网络 + 磁盘双重受益</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 集群选举专题 ─── -->
+<div class="fw c-p" id="election" style="margin-top:10px;">
+  <div class="fwh">
+    <span class="fwb">ELECTION</span>
+    <span class="fwt">集群选举 — Controller 选举 &amp; Partition Leader 选举</span>
+    <span class="badge badge-p" style="margin-left:auto;">高频面试</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">①</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Controller 是什么，做什么</div>
+        <div class="sd">Controller 是集群里一个负责"调度决策"的 Broker，它不直接存消息，专门负责三件事：
+        <br><br>
+        <strong style="color:var(--blue)">① Broker 上下线感知</strong> — 监听所有 Broker 的存活状态，某台挂了立刻感知
+        <br><strong style="color:var(--orange)">② Partition Leader 选举</strong> — 宕机的 Broker 上的所有 Leader 分区，由 Controller 统一触发重新选主
+        <br><strong style="color:var(--purple)">③ 元数据管理</strong> — 维护并广播分区副本分配、Leader 信息等集群元数据
+        <br><br>
+        <strong>面试开场白</strong>：被问到"Controller 的作用"时，用这三点回答就能打 80 分，再说清楚选举机制就 100 分了。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">②</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">ZooKeeper 模式 — Controller 选举流程（逐步理解，不要死背）</div>
+        <div class="sd">ZK 模式下，所有 Broker 都知道谁是 Controller，因为它们都盯着同一个 ZooKeeper 节点：</div>
+        <div class="sc">ZooKeeper 中存在一个临时节点：/controller
+内容：{"version":1, "brokerid":2, "timestamp":"..."}
+<span class="cm">// 这个节点由当前 Controller（假设是 Broker-2）创建
+// 临时节点的特性：创建者的 Session 断开，节点自动删除</span></div>
+        <div class="sd" style="margin-top:8px;">
+          <strong>① 正常状态</strong>：/controller 节点存在，所有 Broker 注册了对该节点的 <strong>Watcher 监听</strong>（ZK 的事件通知机制）。
+          <br><br><strong>② Controller（Broker-2）宕机</strong>：与 ZK 的 TCP 连接断开 → ZK 等待 <code>zookeeper.session.timeout.ms</code>（默认 18s）确认超时 → <strong>自动删除 /controller 临时节点</strong>。
+          <br><br><strong>③ 所有 Broker 收到 Watcher 通知</strong>：/controller 节点消失了！Broker-0、Broker-1 同时知道 Controller 没了。
+          <br><br><strong>④ 抢占注册（先到先得）</strong>：所有存活 Broker <em>同时</em>尝试 <code>create /controller</code>。由于 ZK 的原子性保证，只有一个能成功，其他的拿到 <code>NodeExistsException</code>，乖乖退出再注册 Watcher 等下次机会。
+          <br><br><strong>⑤ 新 Controller 接管</strong>：胜出者（假设 Broker-0）写入 /controller 节点，Controller Epoch 自增。然后从 ZK 中读取全量集群元数据，开始触发所有受影响 Partition 的 Leader 重新选举。
+          <br><br><strong>耗时</strong>：ZK session 超时（最长 18s）+ 选举时间 ≈ <strong>秒级</strong>，期间 Controller 职能暂停，所有 Partition Leader 选举被积压。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">③</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">KRaft 模式 — 为什么更好（和 ZK 模式的本质区别）</div>
+        <div class="sd">KRaft 是 Kafka 3.3 GA 的新模式，去掉了 ZooKeeper 依赖，Controller 选举改用 <strong>Raft 共识协议</strong>：</div>
+        <div class="sc">KRaft 架构：部署若干专用 Controller 节点（通常 3 或 5 个），组成 Raft Quorum
+当前 Controller = Raft Leader
+其余 Controller 节点 = Raft Follower，实时同步集群元数据
+
+<span class="cm">// 当 Controller 宕机时：
+// 1. 其他 Controller 节点检测到心跳超时（毫秒级，不需要等 ZK session 超时）
+// 2. 自增 term（类比 ZK 的 epoch），向其他节点发 RequestVote 请求
+// 3. 先拿到多数票（n/2 + 1）的节点成为新 Controller
+// 4. 元数据持久化到 __cluster_metadata 内部 Topic（Raft Log）
+// Failover 时间：毫秒级</span></div>
+        <div class="sd" style="margin-top:8px;"><strong>和 ZK 模式的关键差异：</strong>
+        <br>• <strong>Failover 速度</strong>：秒级 → 毫秒级（心跳超时远小于 ZK session 超时）
+        <br>• <strong>架构复杂度</strong>：去掉 ZK，少维护一套中间件
+        <br>• <strong>Partition 上限</strong>：ZK 模式约 20 万 Partition；KRaft 可支持 <strong>百万级</strong>（元数据不走 ZK 了）
+        <br>• <strong>元数据存储</strong>：ZK 存在外部 ZooKeeper → KRaft 存在 Kafka 自身的 <code>__cluster_metadata</code> Topic（Raft Log 形式）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ZK vs KRaft 对比表 ─── -->
+<div class="tbl-wrap" style="margin-top:0;">
+  <table class="tbl">
+    <thead>
+      <tr><th>对比项</th><th>ZooKeeper 模式</th><th>KRaft 模式（3.3+ GA）</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>选举机制</td>
+        <td>抢占 ZK 临时节点 /controller（先到先得）</td>
+        <td>Raft 共识，多数派投票（n/2+1）</td>
+      </tr>
+      <tr>
+        <td>Failover 时间</td>
+        <td><strong style="color:var(--red)">秒级</strong>（受 ZK session 超时影响，默认 18s）</td>
+        <td><strong style="color:var(--green)">毫秒级</strong>（心跳超时检测，无 session 等待）</td>
+      </tr>
+      <tr>
+        <td>元数据存储</td>
+        <td>ZooKeeper 的 ZNode 树（外部依赖）</td>
+        <td>Kafka 内置 __cluster_metadata Topic（Raft Log）</td>
+      </tr>
+      <tr>
+        <td>支持的 Partition 规模</td>
+        <td>约 20 万（ZK 性能瓶颈）</td>
+        <td><strong style="color:var(--green)">百万级</strong>（官方验证）</td>
+      </tr>
+      <tr>
+        <td>Controller epoch 作用</td>
+        <td colspan="2">防脑裂：旧 Controller 的命令携带旧 epoch，Broker 收到后直接拒绝，保证同时只有一个有效 Controller</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── Partition Leader 选举 ─── -->
+<div class="fw c-p" style="margin-top:10px;">
+  <div class="fwh">
+    <span class="fwb">LEADER</span>
+    <span class="fwt">Partition Leader 选举 — 这才是最影响你代码的部分</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">④</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">完整流程（5 步）</div>
+        <div class="sd">Broker 宕机后，Controller 触发受影响分区的 Leader 重选，流程如下：
+        <br><br>
+        <strong>Step 1 · Controller 检测到 Broker-2 下线</strong>
+        <br>ZK 模式：/brokers/ids/2 临时节点消失；KRaft 模式：心跳超时，Raft 标记为不可达。
+        <br><br>
+        <strong>Step 2 · 找出所有"受害"分区</strong>
+        <br>Controller 遍历元数据，找到 Leader 在 Broker-2 上的所有 Partition（可能有几十上百个）。
+        <br><br>
+        <strong>Step 3 · 从 ISR 中选新 Leader</strong>
+        <br>对每个分区：取其 ISR 列表，<strong>去掉已下线的 Broker-2</strong>，从剩余 ISR 中选第一个。顺序按副本列表顺序（AR 列表），优先选 Preferred Replica。<strong>非 ISR 副本没有资格</strong>（除非开启 unclean election，下面说）。
+        <br><br>
+        <strong>Step 4 · Leader Epoch + 1，写元数据</strong>
+        <br>每次 Leader 切换 epoch 必须自增，目的是让 Follower 在重启时能按 epoch 精确截断日志（防止老数据污染新 Leader，下面 Leader Epoch 详解）。
+        <br><br>
+        <strong>Step 5 · 广播 LeaderAndIsrRequest</strong>
+        <br>Controller 把新的 Leader/ISR 信息推送给集群所有 Broker。Broker 更新本地元数据缓存，Producer/Consumer 下次刷新 Metadata 就能路由到新 Leader。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">⑤</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Unclean Leader Election — 面试常考的两难题</div>
+        <div class="sd">问题场景：某分区的 <strong>所有 ISR 副本全挂了</strong>，只有落后很多的 out-of-sync 副本还活着，这时怎么办？
+        <br><br>这是一个 <strong>可用性 vs 数据完整性</strong> 的经典权衡，由 <code>unclean.leader.election.enable</code> 控制：</div>
+        <div class="sc">unclean.leader.election.enable=false  <span class="cm">// 默认值，推荐</span>
+<span class="cm">// 效果：ISR 全空 → 该 Partition 持续 offline，拒绝所有读写
+// 优点：绝对保证已提交数据不丢
+// 代价：该分区不可用，生产者收到 NotEnoughReplicasException</span>
+
+unclean.leader.election.enable=true
+<span class="cm">// 效果：允许 out-of-sync 副本成为 Leader
+// 代价：这个副本落后的那部分消息（HW 到 LEO 之间）永久丢失
+// 场景：日志类业务，宁丢部分消息也要维持可用性</span></div>
+        <div class="sd" style="margin-top:6px;"><strong>面试答法</strong>：两个选择各自牺牲 CAP 中的不同属性：false 选 CP（一致性+分区容忍），true 选 AP（可用性+分区容忍）。大多数金融/订单业务选 false，日志/埋点业务可以接受 true。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">⑥</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Leader Epoch — 解决 HW 时代的两个 Bug</div>
+        <div class="sd">这是 Kafka 0.11 引入的机制，面试被追问"数据一致性如何保证"时很加分。先理解为什么需要它：
+        <br><br>
+        <strong>Bug 1：数据丢失</strong>
+        <br>旧机制：Follower 重启后会把 log 截断到 HW 位置再开始同步。问题是，如果这个 Follower 恰好在截断完之后成为了新 Leader，而旧 Leader 在 HW 之后还写了消息——那些消息就永久消失了。
+        <br><br>
+        <strong>Bug 2：数据不一致（幽灵消息）</strong>
+        <br>两个副本先后宕机、恢复的时序配合，可能导致两个副本在同一 offset 上存了不同的内容，形成"分叉"。
+        <br><br>
+        <strong>Leader Epoch 如何修复</strong>：每次 Leader 切换 epoch 自增。Follower 重启后不再直接截断到 HW，而是先发 <code>OffsetsForLeaderEpoch(epoch=N)</code> 给新 Leader，新 Leader 返回"epoch N 结束的 offset"，Follower 只截断到这个精确位置，而非盲目按 HW 截断。</div>
+        <div class="sc">Follower 重启后的对话：
+
+Follower → Leader:  OffsetsForLeaderEpoch(leaderEpoch=5)
+Leader  → Follower: endOffset=100  <span class="cm">// epoch 5 的最后一条是 offset 100</span>
+Follower: 将 log 截断到 offset 100，然后继续从 101 拉数据
+
+<span class="cm">// 结果：精确截断，不会截太多也不会留脏数据</span>
+<span class="cm">// 无论 Leader 换了多少次，每个 epoch 的边界都有据可查</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">⑦</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">选举期间你的代码会发生什么（开发视角）</div>
+        <div class="sd">选举不是抽象的，它直接影响你写的 Producer 和 Consumer：
+        <br><br>
+        <strong>Producer 侧</strong>：向已经失去 Leader 的 Partition 发消息，会收到 <code>NotLeaderOrFollowerException</code>。配置了 <code>retries=Integer.MAX_VALUE</code> + <code>retry.backoff.ms</code> 的 Producer 会自动等待并重试，直到新 Leader 上位。选举完成后发送自动恢复，业务无感知（KRaft 毫秒级恢复，ZK 模式秒级）。
+        <br><br>
+        <strong>Consumer 侧</strong>：Fetch 请求同样会收到 <code>NotLeaderOrFollowerException</code>，Consumer 自动刷新 Metadata 找到新 Leader 并重连，几乎无需任何代码改动。
+        <br><br>
+        <strong>Metadata 刷新机制</strong>：客户端（Producer/Consumer）本地缓存了 Topic 的 Partition → Leader Broker 映射，当请求出错时会触发 Metadata 重新请求（向任意 bootstrap broker），拿到最新 Leader 信息后重发。这就是为什么 <code>retries</code> 要设大的原因。</div>
+        <div class="sc">// 配置 Producer 使其在 Leader 选举期间自动等待恢复
+props.put("retries",            Integer.MAX_VALUE); <span class="cm">// 无限重试</span>
+props.put("delivery.timeout.ms","120000");          <span class="cm">// 总超时 2min，兜底</span>
+props.put("retry.backoff.ms",   "200");             <span class="cm">// 每次重试间隔 200ms</span>
+props.put("request.timeout.ms", "30000");           <span class="cm">// 单次请求超时 30s</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 面试连环追问 ─── -->
+<div class="note tip" style="margin-top:10px;">
+  <span class="nlbl">面试连环追问</span>
+  <p>
+    <strong>Q：ZK 模式 Controller 选举为什么是秒级？</strong> → 因为要等 ZK session 超时（默认 18s），这个时间无法绕过，是 ZK 用来确认连接真的断了而不是网络抖动的保护机制。<br><br>
+    <strong>Q：Controller 和 Partition Leader 的区别是什么？</strong> → Controller 是管理者，负责协调谁当 Leader；Partition Leader 是具体分区的读写入口，实际处理 Producer/Consumer 请求。Controller 选举影响的是"谁来决策"，Partition Leader 选举影响的是"谁来服务流量"。<br><br>
+    <strong>Q：Partition Leader 选举一定选 ISR 中的第一个吗？</strong> → 默认优先选 Preferred Replica（AR 列表中的第一个副本），但它必须在 ISR 中且存活。如果 Preferred Replica 不在 ISR 或者已宕机，才在剩余 ISR 中按顺序选。<br><br>
+    <strong>Q：Leader Epoch 和 HW 的区别？</strong> → HW 是数据可见性边界（Consumer 只读 HW 以内），Leader Epoch 是日志截断的基准（Follower 按 epoch 截断，解决 HW 机制的 Bug）。两者解决不同问题，0.11 之前只有 HW，0.11 之后两者并存。
+  </p>
+</div>
+
+<div class="note info">
+  <span class="nlbl">学习建议</span>
+  <p>本阶段不要只看文档，动手用 Docker 起一个 3-Broker 集群，用 <code>kafka-topics.sh</code> / <code>kafka-console-producer.sh</code> / <code>kafka-consumer-groups.sh</code> 把各个概念都操作一遍。用 <code>kafka-topics.sh --describe</code> 观察 Partition/Replica 分布，手动 kill 一个 Broker 看 ISR 变化和 Leader 切换过程。</p>
+</div>
+
+
+<!-- ══════════════════ STAGE 2 ══════════════════ -->
+<div class="sec" id="stage2">Stage 2 · Java Producer &amp; Consumer 深度解析（第 2-3 周）</div>
+
+<!-- ─── Producer 发送链路图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Producer 消息发送全链路 — Main Thread → Sender Thread → Broker</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 160" width="900" height="160">
+      <!-- Main Thread -->
+      <rect x="5" y="50" width="86" height="60" rx="6" class="dg-box-t"/>
+      <text x="48" y="75" text-anchor="middle" font-size="9" font-weight="600" class="dg-teal">send()</text>
+      <text x="48" y="90" text-anchor="middle" font-size="8" class="dg-t3">Main Thread</text>
+      <line x1="91" y1="80" x2="111" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Interceptor -->
+      <rect x="113" y="56" width="80" height="46" rx="5" class="dg-box"/>
+      <text x="153" y="77" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">Interceptor</text>
+      <text x="153" y="92" text-anchor="middle" font-size="8" class="dg-t3">拦截/增强</text>
+      <line x1="193" y1="80" x2="213" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Serializer -->
+      <rect x="215" y="56" width="80" height="46" rx="5" class="dg-box"/>
+      <text x="255" y="77" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">Serializer</text>
+      <text x="255" y="92" text-anchor="middle" font-size="8" class="dg-t3">K/V 序列化</text>
+      <line x1="295" y1="80" x2="315" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Partitioner -->
+      <rect x="317" y="56" width="80" height="46" rx="5" class="dg-box"/>
+      <text x="357" y="77" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">Partitioner</text>
+      <text x="357" y="92" text-anchor="middle" font-size="8" class="dg-t3">路由分区</text>
+      <line x1="397" y1="80" x2="417" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- RecordAccumulator -->
+      <rect x="419" y="30" width="140" height="100" rx="6" class="dg-box-b"/>
+      <text x="489" y="52" text-anchor="middle" font-size="9" font-weight="600" class="dg-blue">RecordAccumulator</text>
+      <rect x="432" y="60" width="52" height="22" rx="3" class="dg-box"/>
+      <text x="458" y="75" text-anchor="middle" font-size="8" class="dg-t3">P0 batch</text>
+      <rect x="432" y="86" width="52" height="22" rx="3" class="dg-box"/>
+      <text x="458" y="101" text-anchor="middle" font-size="8" class="dg-t3">P1 batch</text>
+      <rect x="494" y="60" width="52" height="22" rx="3" class="dg-box"/>
+      <text x="520" y="75" text-anchor="middle" font-size="8" class="dg-t3">P2 batch</text>
+      <rect x="494" y="86" width="52" height="22" rx="3" class="dg-box"/>
+      <text x="520" y="101" text-anchor="middle" font-size="8" class="dg-t3">P3 batch</text>
+      <text x="489" y="122" text-anchor="middle" font-size="7" class="dg-t3">buffer.memory=32MB</text>
+
+      <line x1="559" y1="80" x2="579" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Sender Thread -->
+      <rect x="581" y="42" width="100" height="76" rx="6" class="dg-box-o"/>
+      <text x="631" y="65" text-anchor="middle" font-size="9" font-weight="600" class="dg-orange">Sender</text>
+      <text x="631" y="80" text-anchor="middle" font-size="8" class="dg-t3">独立线程</text>
+      <text x="631" y="94" text-anchor="middle" font-size="8" class="dg-t3">batch.size</text>
+      <text x="631" y="106" text-anchor="middle" font-size="8" class="dg-t3">linger.ms</text>
+      <line x1="681" y1="80" x2="701" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- NetworkClient -->
+      <rect x="703" y="56" width="80" height="46" rx="5" class="dg-box"/>
+      <text x="743" y="75" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">Network</text>
+      <text x="743" y="90" text-anchor="middle" font-size="8" class="dg-t3">NIO Selector</text>
+      <line x1="783" y1="80" x2="803" y2="80" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Broker -->
+      <rect x="805" y="50" width="86" height="60" rx="6" class="dg-box-o"/>
+      <text x="848" y="75" text-anchor="middle" font-size="9" font-weight="600" class="dg-orange">Broker</text>
+      <text x="848" y="90" text-anchor="middle" font-size="8" class="dg-t3">Leader</text>
+
+      <!-- labels -->
+      <text x="250" y="42" text-anchor="middle" font-size="8" font-weight="600" class="dg-teal">MAIN THREAD</text>
+      <line x1="5" y1="46" x2="417" y2="46" style="stroke:var(--teal-b);stroke-width:1;stroke-dasharray:3 3;"/>
+      <text x="720" y="42" text-anchor="middle" font-size="8" font-weight="600" class="dg-orange">SENDER THREAD</text>
+      <line x1="581" y1="46" x2="891" y2="46" style="stroke:var(--ora-b);stroke-width:1;stroke-dasharray:3 3;"/>
+
+      <!-- callback -->
+      <text x="848" y="140" text-anchor="middle" font-size="8" class="dg-t3">acks 响应</text>
+      <path d="M 848,110 L 848,130 L 48,130 L 48,110" class="dg-ln-d" marker-end="url(#ah)"/>
+      <text x="448" y="148" text-anchor="middle" font-size="8" class="dg-t3">Callback(metadata, exception) → 触发重试 or 回调成功</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-t" id="producer">
+  <div class="fwh">
+    <span class="fwb">PRODUCER</span>
+    <span class="fwt">生产者核心机制</span>
+    <span class="badge badge-t" style="margin-left:auto;">重点</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">发送链路 6 个阶段</div>
+        <div class="sd"><code>send()</code> → <strong>Interceptor</strong>（可选，用于埋点/增强） → <strong>Serializer</strong>（Key/Value 序列化） → <strong>Partitioner</strong>（决定目标 Partition） → <strong>RecordAccumulator</strong>（按 Partition 分桶的内存缓冲区） → <strong>Sender 线程</strong>（独立线程，按 batch.size/linger.ms 触发发送） → <strong>NetworkClient</strong>（NIO 非阻塞发送到 Broker Leader）。
+        <br><br>Main Thread 和 Sender Thread 之间通过 RecordAccumulator <strong>解耦</strong>。send() 是异步的，返回 <code>Future&lt;RecordMetadata&gt;</code>，可以 get() 阻塞等待或注册 Callback。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">批量发送 &amp; 核心参数</div>
+        <div class="sd">Sender 线程按两个条件触发发送：① <code>batch.size</code> 达到（默认 16KB） ② <code>linger.ms</code> 到期（默认 0ms，即立即发）。生产环境建议调大两者：</div>
+        <div class="sc">props.put("batch.size",        "65536");    <span class="cm">// 64KB，高吞吐场景调大</span>
+props.put("linger.ms",        "5");        <span class="cm">// 等 5ms 凑批</span>
+props.put("compression.type", "lz4");      <span class="cm">// LZ4 高吞吐，zstd 高压缩比</span>
+props.put("buffer.memory",    "67108864"); <span class="cm">// 64MB 发送缓冲区</span>
+props.put("max.in.flight.requests.per.connection", "5"); <span class="cm">// 管道化，允许5个未确认请求</span></div>
+        <div class="sd" style="margin-top:6px;"><strong>注意</strong>：<code>max.in.flight.requests.per.connection &gt; 1</code> 时，如果前一批重试、后一批先成功，会导致<strong>消息乱序</strong>。开启幂等（<code>enable.idempotence=true</code>）后 Kafka 会用 Sequence Number 保证单 Partition 内顺序，此时允许设为 5（上限）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Partitioner 策略</div>
+        <div class="sd"><strong>有 Key</strong>：默认 <code>murmur2(key) % partitionCount</code>，相同 key 始终路由到同一 Partition，保证单 key 顺序。
+        <br><strong>无 Key</strong>：Kafka 2.4+ 改为 <strong>Sticky Partitioner</strong>（黏性策略），一个 batch 凑满或 linger.ms 到期才换分区，比 RoundRobin 更利于凑大批量。
+        <br><strong>自定义</strong>：实现 <code>Partitioner</code> 接口，常见场景是按租户/地区路由，或解决数据倾斜（热点 Key 打散到多个分区再在消费端聚合）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">acks · 重试 · 幂等发送</div>
+        <div class="sd"><code>acks=all</code> + <code>retries=Integer.MAX_VALUE</code> + <code>enable.idempotence=true</code> 是生产三件套。幂等发送原理：每个 Producer 启动时获得唯一 <strong>PID</strong>，每条消息携带 <strong>Sequence Number</strong>（Partition 级别递增），Broker 检测到 Seq 重复则丢弃并返回成功，保证单 Partition <strong>精确一次</strong>。</div>
+        <div class="sc"><span class="cm">// 幂等保证范围：单 Producer 实例 + 单 Partition + 单 Session</span>
+<span class="cm">// Producer 重启 PID 变化 → 需要事务 API 扩展保证</span>
+Producer PID=1001
+  send(topic-0, seq=0, msg_A) → Broker 写入 ✓
+  send(topic-0, seq=1, msg_B) → 网络超时，重试
+  send(topic-0, seq=1, msg_B) → Broker 检测 seq=1 已存在，<span class="cm">丢弃，返回成功</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">事务 API（跨 Partition 原子写）</div>
+        <div class="sd">通过 <code>transactional.id</code> 实现跨 Partition 原子写入。底层引入 <strong>Transaction Coordinator</strong>（Broker 上运行）和 <strong>__transaction_state</strong> Topic（存事务状态）。流程：initTransactions → beginTransaction → send × N → sendOffsetsToTransaction → commitTransaction。
+        <br><br>配合 Consumer <code>isolation.level=read_committed</code> 实现端到端 Exactly-Once：Consumer 只能看到已 commit 的事务消息。</div>
+        <div class="sc">producer.initTransactions();           <span class="cm">// 注册 transactional.id，获取 PID</span>
+producer.beginTransaction();
+producer.send(topicA_record);            <span class="cm">// Partition A</span>
+producer.send(topicB_record);            <span class="cm">// Partition B</span>
+producer.sendOffsetsToTransaction(       <span class="cm">// 把 Consumer offset 也加入事务</span>
+    offsets, consumerGroupId);
+producer.commitTransaction();            <span class="cm">// 原子提交：消息 + offset 一起可见</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Consumer Rebalance 流程图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Consumer Group Rebalance 流程 — Group Coordinator 协调分区分配</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 220" width="780" height="220">
+      <!-- Consumers -->
+      <rect x="10" y="30" width="100" height="40" rx="5" class="dg-box-g"/>
+      <text x="60" y="55" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">Consumer 1</text>
+      <rect x="10" y="80" width="100" height="40" rx="5" class="dg-box-g"/>
+      <text x="60" y="105" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">Consumer 2</text>
+      <rect x="10" y="130" width="100" height="40" rx="5" class="dg-box-g"/>
+      <text x="60" y="155" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">Consumer 3</text>
+      <text x="60" y="22" text-anchor="middle" font-size="9" font-weight="600" class="dg-green">GROUP MEMBERS</text>
+
+      <!-- step 1: JoinGroup -->
+      <line x1="110" y1="50" x2="240" y2="90" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="110" y1="100" x2="240" y2="100" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="110" y1="150" x2="240" y2="110" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="175" y="72" text-anchor="middle" font-size="8" font-weight="600" class="dg-blue">1. JoinGroup</text>
+
+      <!-- Coordinator -->
+      <rect x="242" y="60" width="130" height="90" rx="8" class="dg-box-b"/>
+      <text x="307" y="85" text-anchor="middle" font-size="10" font-weight="600" class="dg-blue">Group</text>
+      <text x="307" y="100" text-anchor="middle" font-size="10" font-weight="600" class="dg-blue">Coordinator</text>
+      <text x="307" y="120" text-anchor="middle" font-size="8" class="dg-t3">Broker 上运行</text>
+      <text x="307" y="133" text-anchor="middle" font-size="8" class="dg-t3">__consumer_offsets</text>
+
+      <!-- step 2: 选 Leader Consumer -->
+      <text x="307" y="170" text-anchor="middle" font-size="8" font-weight="600" class="dg-orange">2. 选举 Leader Consumer</text>
+      <text x="307" y="183" text-anchor="middle" font-size="8" class="dg-t3">通常第一个 Join 的</text>
+
+      <!-- step 3: SyncGroup -->
+      <line x1="372" y1="90" x2="450" y2="55" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="430" y="70" text-anchor="middle" font-size="8" font-weight="600" class="dg-blue">3. SyncGroup</text>
+
+      <!-- Leader Consumer -->
+      <rect x="452" y="30" width="130" height="60" rx="6" class="dg-box-o"/>
+      <text x="517" y="52" text-anchor="middle" font-size="9" font-weight="600" class="dg-orange">Leader Consumer</text>
+      <text x="517" y="68" text-anchor="middle" font-size="8" class="dg-t3">执行分配策略</text>
+      <text x="517" y="80" text-anchor="middle" font-size="8" class="dg-t3">Range/Sticky/Coop</text>
+
+      <!-- step 4: 分配结果回 Coordinator -->
+      <line x1="517" y1="90" x2="517" y2="116" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="580" y="108" text-anchor="middle" font-size="8" font-weight="600" class="dg-orange">4. 分配方案</text>
+
+      <!-- 分配结果 -->
+      <rect x="452" y="118" width="130" height="64" rx="6" class="dg-box"/>
+      <text x="517" y="137" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">分配结果</text>
+      <text x="517" y="153" text-anchor="middle" font-size="8" class="dg-t3">C1 → P0, P1</text>
+      <text x="517" y="166" text-anchor="middle" font-size="8" class="dg-t3">C2 → P2, P3</text>
+      <text x="517" y="179" text-anchor="middle" font-size="8" class="dg-t3">C3 → P4, P5</text>
+
+      <!-- step 5: 广播给所有 Consumer -->
+      <line x1="452" y1="150" x2="372" y2="120" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="242" y1="105" x2="140" y2="55" class="dg-ln-d" marker-end="url(#ah)"/>
+      <line x1="242" y1="105" x2="140" y2="105" class="dg-ln-d" marker-end="url(#ah)"/>
+      <line x1="242" y1="105" x2="140" y2="155" class="dg-ln-d" marker-end="url(#ah)"/>
+      <text x="175" y="140" text-anchor="middle" font-size="8" font-weight="600" class="dg-purple">5. 下发分配</text>
+
+      <!-- heartbeat 标注 -->
+      <text x="700" y="55" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Heartbeat 机制</text>
+      <rect x="630" y="62" width="140" height="78" rx="6" class="dg-box"/>
+      <text x="700" y="82" text-anchor="middle" font-size="8" class="dg-t3">session.timeout.ms</text>
+      <text x="700" y="95" text-anchor="middle" font-size="8" class="dg-t3">= 45s (超时踢出)</text>
+      <text x="700" y="112" text-anchor="middle" font-size="8" class="dg-t3">heartbeat.interval.ms</text>
+      <text x="700" y="125" text-anchor="middle" font-size="8" class="dg-t3">= 3s (心跳频率)</text>
+
+      <text x="700" y="160" text-anchor="middle" font-size="9" font-weight="600" class="dg-red">触发 Rebalance</text>
+      <rect x="630" y="167" width="140" height="48" rx="6" class="dg-box-r"/>
+      <text x="700" y="183" text-anchor="middle" font-size="8" class="dg-t2">Consumer 加入/退出</text>
+      <text x="700" y="196" text-anchor="middle" font-size="8" class="dg-t2">超时 / Partition 变化</text>
+      <text x="700" y="209" text-anchor="middle" font-size="8" class="dg-t2">订阅 Topic 变化</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-t" id="consumer">
+  <div class="fwh">
+    <span class="fwb">CONSUMER</span>
+    <span class="fwt">消费者核心机制</span>
+    <span class="badge badge-t" style="margin-left:auto;">重点</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Consumer Group &amp; Group Coordinator</div>
+        <div class="sd">同一 Group 内，每个 Partition 只分配给一个 Consumer（<strong>消费者数 > 分区数 → 多余 Consumer 空闲</strong>）。
+        <br><br><strong>Group Coordinator</strong> 是特定 Broker 上的组件，负责管理 Consumer Group 的生命周期。每个 Group 通过 <code>hash(group.id) % __consumer_offsets分区数</code> 确定 Coordinator 所在的 Broker。Coordinator 管理成员注册、心跳检测、触发 Rebalance、存储 offset（到 __consumer_offsets Topic）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Rebalance 流程 &amp; 5 步协议</div>
+        <div class="sd">① 所有 Consumer 向 Coordinator 发 <strong>JoinGroup</strong>
+        <br>② Coordinator 选出 <strong>Leader Consumer</strong>（通常是第一个 Join 的）
+        <br>③ Leader Consumer 拿到所有成员的订阅信息，执行<strong>分配策略</strong>
+        <br>④ Leader 把分配方案通过 <strong>SyncGroup</strong> 发给 Coordinator
+        <br>⑤ Coordinator 把方案<strong>广播</strong>给所有 Consumer
+        <br><br>Rebalance 期间 <strong>全组暂停消费（Eager 协议的 Stop-The-World）</strong>。Kafka 2.4+ 推荐 <strong>CooperativeStickyAssignor</strong>：增量 Rebalance，只迁移受影响的分区，不全组暂停。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">分区分配策略对比</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr><th>策略</th><th>原理</th><th>优缺点</th><th>推荐场景</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RangeAssignor</td>
+        <td>按 Topic 维度，Partition 范围等分给 Consumer</td>
+        <td>实现简单；多 Topic 时 <strong>容易不均匀</strong>（余数总分给前面的 Consumer）</td>
+        <td>默认策略，单 Topic 可用</td>
+      </tr>
+      <tr>
+        <td>RoundRobin</td>
+        <td>所有 Topic 的 Partition 放一起轮询分配</td>
+        <td>更均匀；但 Rebalance 时所有分区重分配，<strong>迁移量大</strong></td>
+        <td>多 Topic 且对均匀性要求高</td>
+      </tr>
+      <tr>
+        <td>StickyAssignor</td>
+        <td>尽量保留上次分配，只迁移必要的分区</td>
+        <td>均匀 + <strong>最小迁移</strong>；但仍是 Eager 协议（全组暂停）</td>
+        <td>生产推荐（如不支持 Cooperative）</td>
+      </tr>
+      <tr>
+        <td style="color:var(--green);font-weight:700;">CooperativeSticky</td>
+        <td>两轮 Rebalance：先撤回待迁移分区，再分配到新 Consumer</td>
+        <td><strong>增量 Rebalance，不全组暂停</strong>；Kafka 2.4+ 推荐</td>
+        <td style="color:var(--green);font-weight:600;">生产首选</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="fw c-t" id="offset" style="margin-top:10px;">
+  <div class="fwh">
+    <span class="fwb">OFFSET</span>
+    <span class="fwt">Offset 提交 &amp; 消费语义</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Offset 存储机制</div>
+        <div class="sd">Consumer 消费进度（offset）存储在 <strong>__consumer_offsets</strong> 内部 Topic（默认 50 个 Partition），key 是 <code>group.id + topic + partition</code>，value 是 offset + metadata。这是一个 <strong>Log Compaction Topic</strong>，只保留每个 key 的最新值，不会无限膨胀。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">三种提交方式 &amp; 语义</div>
+        <div class="sd">
+          <strong>自动提交</strong>（<code>enable.auto.commit=true</code>）：每隔 <code>auto.commit.interval.ms</code>（默认 5s）自动提交。简单但语义不精确 —— 处理失败也会提交，或处理完但还没到提交时间就宕机导致重复消费。
+          <br><strong>手动同步</strong>：<code>commitSync()</code> 阻塞直到提交成功。最安全，保证 <strong>at-least-once</strong>。
+          <br><strong>手动异步</strong>：<code>commitAsync(callback)</code> 不阻塞，配合回调处理失败。吞吐更高但回调顺序可能乱。
+          <br><br><strong>最佳实践</strong>：正常循环用 commitAsync()（高吞吐），关闭前最后一次用 commitSync()（保证提交成功）。
+        </div>
+        <div class="sc">try {
+    while (running) {
+        ConsumerRecords&lt;?,?&gt; records = consumer.poll(Duration.ofMillis(100));
+        process(records);                  <span class="cm">// 先处理</span>
+        consumer.commitAsync();            <span class="cm">// 异步提交，高吞吐</span>
+    }
+} finally {
+    consumer.commitSync();                 <span class="cm">// 关闭前同步提交，保证不丢进度</span>
+    consumer.close();
+}</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消费速度调优 &amp; 避免 Rebalance</div>
+        <div class="sd">
+          ① 增加 Partition 数 + Consumer 数（<strong>横向扩展</strong>）
+          <br>② 加大 <code>max.poll.records</code>（默认 500）批量处理
+          <br>③ 耗时操作放<strong>线程池异步处理</strong>，主循环只负责 poll + 提交
+          <br>④ <code>max.poll.interval.ms</code>（默认 5min）内必须完成处理并再次 poll，否则触发 Rebalance
+          <br>⑤ 设置 <code>group.instance.id</code>（静态成员），Consumer 重启不触发 Rebalance（在 <code>session.timeout.ms</code> 内）
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">常见坑</span>
+  <p>Consumer 线程内做耗时操作（如调外部 API）很容易超过 <code>max.poll.interval.ms</code> 导致反复 Rebalance，表现为消费停滞、日志大量 <strong>Rebalancing</strong>。解法：① 消息扔线程池异步处理 ② 适当调大 <code>max.poll.interval.ms</code> ③ 减小 <code>max.poll.records</code> 降低单次处理量。</p>
+</div>
+
+<!-- ─── Fetch 长轮询机制图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Fetch 长轮询机制 — fetch.min.bytes + fetch.max.wait.ms 的权衡</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 180" width="800" height="180">
+      <!-- 场景 A: 数据足够，立即返回 -->
+      <text x="200" y="20" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">场景 A：积累数据 ≥ fetch.min.bytes，立即返回</text>
+      <rect x="10" y="32" width="90" height="50" rx="5" class="dg-box-g"/>
+      <text x="55" y="55" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">Consumer</text>
+      <text x="55" y="70" text-anchor="middle" font-size="8" class="dg-t3">poll()</text>
+      <line x1="100" y1="57" x2="155" y2="57" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="127" y="50" text-anchor="middle" font-size="8" class="dg-t3">FetchRequest</text>
+
+      <rect x="157" y="32" width="100" height="50" rx="5" class="dg-box-b"/>
+      <text x="207" y="55" text-anchor="middle" font-size="10" font-weight="500" class="dg-blue">Broker</text>
+      <text x="207" y="70" text-anchor="middle" font-size="8" class="dg-t3">检查数据量</text>
+
+      <text x="290" y="50" text-anchor="middle" font-size="8" class="dg-green">≥ 1KB</text>
+      <line x1="257" y1="57" x2="315" y2="57" class="dg-ln" marker-end="url(#ah)"/>
+
+      <rect x="317" y="32" width="100" height="50" rx="5" class="dg-box-g"/>
+      <text x="367" y="55" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">立即返回</text>
+      <text x="367" y="70" text-anchor="middle" font-size="8" class="dg-t3">延迟 1-2ms</text>
+
+      <!-- 场景 B: 数据不足，挂起等待 -->
+      <text x="200" y="105" text-anchor="middle" font-size="10" font-weight="600" class="dg-orange">场景 B：积累数据 &lt; fetch.min.bytes，挂起到 max.wait.ms</text>
+      <rect x="10" y="117" width="90" height="50" rx="5" class="dg-box-g"/>
+      <text x="55" y="140" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">Consumer</text>
+      <text x="55" y="155" text-anchor="middle" font-size="8" class="dg-t3">poll()</text>
+      <line x1="100" y1="142" x2="155" y2="142" class="dg-ln" marker-end="url(#ah)"/>
+
+      <rect x="157" y="117" width="100" height="50" rx="5" class="dg-box-b"/>
+      <text x="207" y="140" text-anchor="middle" font-size="10" font-weight="500" class="dg-blue">Broker</text>
+      <text x="207" y="155" text-anchor="middle" font-size="8" class="dg-t3">挂起请求</text>
+
+      <text x="290" y="135" text-anchor="middle" font-size="8" class="dg-orange">等数据</text>
+      <line x1="257" y1="142" x2="315" y2="142" class="dg-ln-d" marker-end="url(#ah)"/>
+
+      <rect x="317" y="117" width="100" height="50" rx="5" class="dg-box-o"/>
+      <text x="367" y="140" text-anchor="middle" font-size="10" font-weight="500" class="dg-orange">超时返回</text>
+      <text x="367" y="155" text-anchor="middle" font-size="8" class="dg-t3">默认 500ms</text>
+
+      <!-- 右侧权衡说明 -->
+      <rect x="450" y="32" width="340" height="135" rx="8" class="dg-box"/>
+      <text x="620" y="55" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">权衡矩阵</text>
+      <text x="470" y="78" font-size="10" font-weight="600" class="dg-green">高吞吐场景</text>
+      <text x="490" y="93" font-size="9" class="dg-t2">fetch.min.bytes=1MB</text>
+      <text x="490" y="106" font-size="9" class="dg-t2">fetch.max.wait.ms=500</text>
+      <text x="490" y="119" font-size="9" class="dg-t3">→ 凑大批，每次拉很多，CPU 高效</text>
+      <text x="470" y="138" font-size="10" font-weight="600" class="dg-red">低延迟场景</text>
+      <text x="490" y="153" font-size="9" class="dg-t2">fetch.min.bytes=1（默认）</text>
+      <text x="490" y="163" font-size="9" class="dg-t2">fetch.max.wait.ms=10</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-t" id="consumer-advanced">
+  <div class="fwh">
+    <span class="fwb">ADVANCED</span>
+    <span class="fwt">Consumer 高级控制 — Fetch · Seek · Offset Reset</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Fetch 长轮询机制（Long Poll）</div>
+        <div class="sd">Consumer 的 <code>poll()</code> 底层是 FetchRequest。Broker 不是立即返回，而是按以下规则：
+        <br>• 若已有数据 <code>≥ fetch.min.bytes</code>（默认 1B）→ 立即返回
+        <br>• 否则<strong>挂起请求</strong>，直到数据够了 or <code>fetch.max.wait.ms</code>（默认 500ms）超时
+        <br>• 配合 <code>max.partition.fetch.bytes</code>（默认 1MB）控制单分区单次最大拉取量
+        <br><br><strong>调优思路</strong>：高吞吐场景调大 min.bytes 凑批降低 RPC 次数；低延迟场景调小 max.wait.ms 减少等待。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">subscribe() vs assign() — 两种消费模式</div>
+        <div class="sd"><strong>subscribe()</strong>：声明式订阅 Topic，由 Coordinator 自动分配分区，支持 Rebalance，适合标准消费组场景。
+        <br><strong>assign()</strong>：手动指定具体分区，<strong>跳过 Consumer Group 机制</strong>，不参与 Rebalance，不提交到 __consumer_offsets。适合数据回放、单分区独占消费、自定义负载均衡场景。
+        <br><br>两者<strong>互斥</strong>，同一 Consumer 实例只能用其一。</div>
+        <div class="sc">// subscribe 模式（常规）
+consumer.subscribe(List.of("orders"));
+
+// assign 模式（手动控制）
+TopicPartition p0 = new TopicPartition("orders", 0);
+TopicPartition p1 = new TopicPartition("orders", 1);
+consumer.assign(List.of(p0, p1));        <span class="cm">// 只消费 P0 P1</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">seek() — 任意位点消费 &amp; 数据回放</div>
+        <div class="sd">三种 seek 方式实现"时间旅行"：</div>
+        <div class="sc">// 1. 按 offset 跳转
+consumer.seek(new TopicPartition("orders", 0), 12345L);
+
+// 2. 跳到分区开头/末尾
+consumer.seekToBeginning(List.of(partition));
+consumer.seekToEnd(List.of(partition));
+
+// 3. 按时间戳查找 offset（最常用 — 回放某天的数据）
+Map&lt;TopicPartition, Long&gt; query = Map.of(partition,
+    LocalDate.of(2026,5,1).atStartOfDay()
+        .toInstant(ZoneOffset.UTC).toEpochMilli());
+Map&lt;TopicPartition, OffsetAndTimestamp&gt; result =
+    consumer.offsetsForTimes(query);
+consumer.seek(partition, result.get(partition).offset());</div>
+        <div class="sd" style="margin-top:6px;"><strong>注意</strong>：seek 必须在 subscribe + 第一次 poll 之后调用（此时分区才真正分配给该 Consumer），或用 ConsumerRebalanceListener 在 onPartitionsAssigned 回调里 seek。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">auto.offset.reset — 没有 offset 时怎么办</div>
+        <div class="sd">当 Consumer Group 首次启动 or offset 已被删除（超过 retention），按此策略决定从哪开始：</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Consumer 内部线程模型（Kafka 0.10+ 重要变化）</div>
+        <div class="sd">Kafka 0.10 之前，心跳是在 <code>poll()</code> 调用内部发送的 —— 如果消息处理耗时过长，心跳就停了，Coordinator 会误判 Consumer 死亡并触发 Rebalance。
+        <br><br>Kafka 0.10 之后引入<strong>独立的 Heartbeat 线程</strong>（后台守护线程），与 poll() 线程完全解耦：
+        <br>• <strong>Heartbeat Thread</strong>：每隔 <code>heartbeat.interval.ms</code>（默认 3s）向 Coordinator 发心跳，维持 Consumer 存活状态
+        <br>• <strong>Poll Thread（主线程）</strong>：执行 <code>poll()</code> → 处理消息 → <code>commitAsync()</code>
+        <br><br>两个超时参数容易混淆：
+        <br>• <strong>session.timeout.ms</strong>（默认 45s）：Heartbeat Thread 多久没发心跳 → Coordinator 认为 Consumer 死亡 → 触发 Rebalance
+        <br>• <strong>max.poll.interval.ms</strong>（默认 5min）：Poll Thread 两次 poll() 之间的最大间隔 → 超时 → Consumer 主动离组（即使心跳正常也触发 Rebalance）
+        <br><br><strong>实际意义</strong>：即使消息处理很慢（超过 session.timeout），只要 Heartbeat Thread 还在跳，Coordinator 就不会剔除你；但如果 poll() 间隔超过 max.poll.interval.ms（通常是业务处理太慢），Consumer 会被剔除。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap" style="margin-top:0;">
+  <table class="tbl">
+    <thead>
+      <tr><th>策略</th><th>含义</th><th>典型场景</th><th>风险</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>latest <span class="badge badge-b" style="margin-left:4px;">默认</span></td>
+        <td>从分区最新位置开始消费</td>
+        <td>实时消费，不关心历史数据</td>
+        <td>新增 Consumer Group 会<strong>丢失启动前的所有消息</strong></td>
+      </tr>
+      <tr>
+        <td>earliest</td>
+        <td>从分区最早位置开始消费</td>
+        <td>全量数据消费，离线数仓导入</td>
+        <td>误删 Consumer Group 后重启会<strong>重新消费全部历史</strong></td>
+      </tr>
+      <tr>
+        <td>none</td>
+        <td>找不到 offset 直接抛异常</td>
+        <td>严格控制场景，要求外部管理 offset</td>
+        <td>需要应用代码捕获 NoOffsetForPartitionException</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── 死信队列 (DLQ) 流程图 ─── -->
+<div class="diag-wrap" style="margin-top:14px;">
+  <div class="diag-cap">消费失败处理 — 重试 Topic + 死信队列 (DLQ) 分级隔离</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200" width="880" height="200">
+      <!-- 主 Topic -->
+      <rect x="10" y="78" width="120" height="50" rx="6" class="dg-box-b"/>
+      <text x="70" y="100" text-anchor="middle" font-size="11" font-weight="600" class="dg-blue">orders</text>
+      <text x="70" y="116" text-anchor="middle" font-size="8" class="dg-t3">主 Topic</text>
+      <line x1="130" y1="103" x2="166" y2="103" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Consumer -->
+      <rect x="168" y="78" width="100" height="50" rx="6" class="dg-box"/>
+      <text x="218" y="100" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">Consumer</text>
+      <text x="218" y="116" text-anchor="middle" font-size="8" class="dg-t3">处理消息</text>
+
+      <!-- 分叉 -->
+      <line x1="268" y1="92" x2="320" y2="44" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="298" y="62" text-anchor="middle" font-size="8" class="dg-green">成功</text>
+      <line x1="268" y1="115" x2="320" y2="165" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="298" y="148" text-anchor="middle" font-size="8" class="dg-red">异常</text>
+
+      <!-- 成功 -->
+      <rect x="322" y="22" width="100" height="44" rx="5" class="dg-box-g"/>
+      <text x="372" y="42" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">提交 offset</text>
+      <text x="372" y="57" text-anchor="middle" font-size="8" class="dg-t3">commit()</text>
+
+      <!-- 失败 → 重试 Topic -->
+      <rect x="322" y="142" width="120" height="44" rx="5" class="dg-box-o"/>
+      <text x="382" y="162" text-anchor="middle" font-size="10" font-weight="600" class="dg-orange">orders-retry-5m</text>
+      <text x="382" y="177" text-anchor="middle" font-size="8" class="dg-t3">5 分钟后重试</text>
+
+      <line x1="442" y1="164" x2="478" y2="164" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="460" y="158" text-anchor="middle" font-size="8" class="dg-t3">retry × 3</text>
+
+      <rect x="480" y="142" width="120" height="44" rx="5" class="dg-box-o"/>
+      <text x="540" y="162" text-anchor="middle" font-size="10" font-weight="600" class="dg-orange">orders-retry-30m</text>
+      <text x="540" y="177" text-anchor="middle" font-size="8" class="dg-t3">30 分钟后再试</text>
+
+      <line x1="600" y1="164" x2="636" y2="164" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="618" y="158" text-anchor="middle" font-size="8" class="dg-t3">retry × 3</text>
+
+      <!-- DLQ -->
+      <rect x="638" y="130" width="140" height="68" rx="6" class="dg-box-r"/>
+      <text x="708" y="155" text-anchor="middle" font-size="11" font-weight="700" class="dg-red">orders-DLQ</text>
+      <text x="708" y="172" text-anchor="middle" font-size="8" class="dg-t3">死信队列</text>
+      <text x="708" y="186" text-anchor="middle" font-size="8" class="dg-t3">人工介入 / 告警</text>
+
+      <!-- 元数据头 -->
+      <rect x="638" y="22" width="220" height="86" rx="6" class="dg-box"/>
+      <text x="748" y="42" text-anchor="middle" font-size="10" font-weight="600" class="dg-t">DLQ 消息 Header 元信息</text>
+      <text x="650" y="60" font-size="9" class="dg-t3">x-original-topic: orders</text>
+      <text x="650" y="74" font-size="9" class="dg-t3">x-original-offset: 12345</text>
+      <text x="650" y="88" font-size="9" class="dg-t3">x-exception: NPE</text>
+      <text x="650" y="102" font-size="9" class="dg-t3">x-retry-count: 6</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-r" id="dlq">
+  <div class="fwh">
+    <span class="fwb">DLQ</span>
+    <span class="fwt">消费失败处理 — 重试 Topic + 死信队列</span>
+    <span class="badge badge-r" style="margin-left:auto;">生产必备</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">为什么不能简单"重试或丢弃"</div>
+        <div class="sd">原生 Kafka <strong>没有重试 / 死信队列</strong>（不像 RocketMQ/RabbitMQ）。如果不设计好失败处理，会陷入两难：
+        <br>• <strong>不重试直接 commit</strong>：消息丢失（业务异常被吞）
+        <br>• <strong>原地无限重试</strong>：<strong>毒丸消息（poison pill）</strong>阻塞整个 Partition，后面消息全卡住
+        <br>• <strong>抛异常不 commit</strong>：Rebalance 后另一个 Consumer 接手还是同样异常，最终消费停滞</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">分级重试 + DLQ 标准方案</div>
+        <div class="sd">业界主流：<strong>主 Topic → 延迟重试 Topic（多个等级）→ 死信 Topic</strong>。
+        <br>• 消费失败 → 写入 <code>orders-retry-5m</code>（带未来时间戳）
+        <br>• 专门的 Retry Consumer 拉取后 <strong>sleep 到时间</strong>再处理（或用 ScheduledExecutor 延迟）
+        <br>• 重试 N 次仍失败 → 升级到 <code>orders-retry-30m</code>
+        <br>• 最终失败 → 写入 <code>orders-DLQ</code>，<strong>告警通知人工介入</strong>
+        <br><br>关键：<strong>主 Topic 始终向前 commit</strong>，不被失败消息阻塞，保证消费速度。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">DLQ 消息必须携带的元信息（Header）</div>
+        <div class="sd">DLQ 消息要能被排查根因，写入时在 Header 加上：</div>
+        <div class="sc">ProducerRecord&lt;String, String&gt; dlqRecord = new ProducerRecord&lt;&gt;(
+    "orders-DLQ", record.key(), record.value());
+dlqRecord.headers()
+    .add("x-original-topic",     record.topic().getBytes())
+    .add("x-original-partition", String.valueOf(record.partition()).getBytes())
+    .add("x-original-offset",    String.valueOf(record.offset()).getBytes())
+    .add("x-exception-class",    e.getClass().getName().getBytes())
+    .add("x-exception-message",  e.getMessage().getBytes())
+    .add("x-stack-trace",        getStackTrace(e).getBytes())
+    .add("x-retry-count",        String.valueOf(retryCount).getBytes())
+    .add("x-failed-at",          Instant.now().toString().getBytes());
+dlqProducer.send(dlqRecord);
+consumer.commitSync();  <span class="cm">// 主 Topic offset 向前推进</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Spring Kafka 的 DefaultErrorHandler</div>
+        <div class="sd">Spring Kafka 2.7+ 内置 <code>DefaultErrorHandler</code> + <code>DeadLetterPublishingRecoverer</code>，几行代码搞定分级重试：</div>
+        <div class="sc">@Bean
+DefaultErrorHandler errorHandler(KafkaTemplate&lt;?, ?&gt; template) {
+    var recoverer = new DeadLetterPublishingRecoverer(template,
+        (record, ex) -&gt; new TopicPartition(record.topic() + "-DLQ", -1));
+
+    var backOff = new ExponentialBackOff(1000L, 2.0);  <span class="cm">// 1s → 2s → 4s → 8s ...</span>
+    backOff.setMaxElapsedTime(60000L);                  <span class="cm">// 最多重试 60s</span>
+
+    var handler = new DefaultErrorHandler(recoverer, backOff);
+    handler.addNotRetryableExceptions(IllegalArgumentException.class); <span class="cm">// 直接进 DLQ 不重试</span>
+    return handler;
+}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ STAGE 3 ══════════════════ -->
+<div class="sec" id="stage3">Stage 3 · 高级特性 &amp; 生态（第 4-5 周）</div>
+
+<div class="g2" id="streams-connect">
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">KAFKA STREAMS</div>
+      <div class="ovname">流处理框架</div>
+      <div class="ovsub">轻量级流计算，无需额外集群（Flink/Spark），直接内嵌到 Java 应用</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li><strong>KStream</strong>：无界事件流，每条记录独立处理（INSERT 语义）</li>
+        <li><strong>KTable</strong>：变更日志，相同 key 后来覆盖前者（UPDATE 语义）</li>
+        <li><strong>GlobalKTable</strong>：全局广播表，所有实例都有完整副本，适合维度表 join</li>
+        <li><strong>Window 操作</strong>：Tumbling（滚动）/ Hopping（跳跃）/ Session（会话）/ Sliding 窗口</li>
+        <li>内置 <strong>状态存储</strong>（RocksDB + Changelog Topic），支持 join / aggregate / count</li>
+        <li>状态恢复：实例重启自动从 Changelog Topic 重建 RocksDB，<strong>天然容错</strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">KAFKA CONNECT</div>
+      <div class="ovname">数据集成框架</div>
+      <div class="ovsub">标准化 Source/Sink Connector，无需写代码接入各种数据源</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li><strong>Source Connector</strong>：MySQL → Kafka（<strong>Debezium CDC</strong> 捕获 binlog）</li>
+        <li><strong>Sink Connector</strong>：Kafka → Elasticsearch / S3 / HDFS / ClickHouse</li>
+        <li>Standalone 模式（开发调试） vs <strong>Distributed 模式</strong>（生产，自动容错）</li>
+        <li>REST API 管理生命周期：创建 / 暂停 / 重启 / 删除 Connector</li>
+        <li><strong>SMT</strong>（Single Message Transform）：轻量转换，如字段改名、路由、脱敏</li>
+        <li>生产典型架构：<strong>MySQL → Debezium → Kafka → ES 全文检索</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EOS 三层模型图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Exactly-Once Semantics（EOS）三层递进模型</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 170" width="800" height="170">
+      <!-- Layer 1: 幂等 Producer -->
+      <rect x="10" y="20" width="230" height="130" rx="8" class="dg-box-b"/>
+      <text x="125" y="42" text-anchor="middle" font-size="10" font-weight="700" class="dg-blue">Layer 1: Producer 幂等</text>
+      <text x="125" y="60" text-anchor="middle" font-size="9" class="dg-t2">PID + Sequence Number</text>
+      <text x="125" y="78" text-anchor="middle" font-size="9" class="dg-t2">Broker 检测重复 Seq 自动丢弃</text>
+      <rect x="30" y="90" width="190" height="22" rx="4" class="dg-box"/>
+      <text x="125" y="105" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">范围：单 Partition + 单 Session</text>
+      <rect x="30" y="118" width="190" height="22" rx="4" class="dg-box"/>
+      <text x="125" y="133" text-anchor="middle" font-size="9" class="dg-t3">enable.idempotence=true</text>
+
+      <line x1="240" y1="85" x2="270" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Layer 2: 事务 -->
+      <rect x="272" y="20" width="240" height="130" rx="8" class="dg-box-o"/>
+      <text x="392" y="42" text-anchor="middle" font-size="10" font-weight="700" class="dg-orange">Layer 2: 事务消息</text>
+      <text x="392" y="60" text-anchor="middle" font-size="9" class="dg-t2">Transaction Coordinator + 2PC</text>
+      <text x="392" y="78" text-anchor="middle" font-size="9" class="dg-t2">跨 Partition 原子写 + Consumer offset</text>
+      <rect x="290" y="90" width="204" height="22" rx="4" class="dg-box"/>
+      <text x="392" y="105" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">范围：跨 Partition + 跨 Session</text>
+      <rect x="290" y="118" width="204" height="22" rx="4" class="dg-box"/>
+      <text x="392" y="133" text-anchor="middle" font-size="9" class="dg-t3">transactional.id + read_committed</text>
+
+      <line x1="512" y1="85" x2="542" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Layer 3: Streams EOS -->
+      <rect x="544" y="20" width="246" height="130" rx="8" class="dg-box-g"/>
+      <text x="667" y="42" text-anchor="middle" font-size="10" font-weight="700" class="dg-green">Layer 3: Streams EOS</text>
+      <text x="667" y="60" text-anchor="middle" font-size="9" class="dg-t2">Read-Process-Write 原子化</text>
+      <text x="667" y="78" text-anchor="middle" font-size="9" class="dg-t2">输入 offset + 输出消息 同一事务提交</text>
+      <rect x="562" y="90" width="210" height="22" rx="4" class="dg-box"/>
+      <text x="667" y="105" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">范围：端到端 Exactly-Once</text>
+      <rect x="562" y="118" width="210" height="22" rx="4" class="dg-box"/>
+      <text x="667" y="133" text-anchor="middle" font-size="9" class="dg-t3">processing.guarantee=exactly_once_v2</text>
+
+      <!-- 底部递进标注 -->
+      <text x="400" y="166" text-anchor="middle" font-size="9" class="dg-t3">保证范围递增 →   能力递增 →   配置复杂度递增 →</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-g" id="eos">
+  <div class="fwh">
+    <span class="fwb">ADVANCED</span>
+    <span class="fwt">Exactly-Once · Schema Registry · Log Compaction</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Exactly-Once 三层模型</div>
+        <div class="sd"><strong>Layer 1 幂等 Producer</strong>：单 Partition 去重，PID + Sequence Number，范围最窄但零配置（Kafka 3.0 默认开启）。
+        <br><strong>Layer 2 事务消息</strong>：跨 Partition 原子写，需要 transactional.id，底层是 <strong>Transaction Coordinator + __transaction_state</strong> Topic 实现的 2PC。Consumer 需设置 <code>isolation.level=read_committed</code>。
+        <br><strong>Layer 3 Streams EOS</strong>：read-process-write 三步原子化 —— Consumer 读取 + 处理 + Producer 写出 + offset 提交打包成一个事务，实现端到端 Exactly-Once。</div>
+        <div class="sc">processing.guarantee = "exactly_once_v2"  <span class="cm">// Kafka Streams 2.5+，推荐</span>
+<span class="cm">// v2 改进：一个 Producer 管全部 Task，减少 Coordinator 压力</span>
+<span class="cm">// v1（exactly_once）：每个 Task 一个 Producer，资源开销大</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Schema Registry（Confluent）</div>
+        <div class="sd">集中管理 <strong>Avro / Protobuf / JSON Schema</strong>，解决 Producer/Consumer Schema 不兼容导致的反序列化失败。
+        <br>• Producer 注册 Schema → 拿到 schema-id → 消息头只放 id（5字节 magic+id）
+        <br>• Consumer 按 id 从 Registry 拉 Schema 反序列化，本地缓存避免重复拉取
+        <br>• <strong>兼容性策略</strong>：BACKWARD（新 Schema 可读旧数据）/ FORWARD（旧 Schema 可读新数据）/ FULL（双向兼容）/ NONE（不检查）
+        <br><br>面试要点：Schema Registry 是 <strong>独立服务</strong>（非 Broker 组件），Schema 存储在 <strong>_schemas</strong> Topic 中。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Log Compaction（日志压缩）&amp; 关键参数</div>
+        <div class="sd">针对 <strong>相同 key 只保留最新 value</strong> 的场景（数据库变更日志、配置中心、KTable 底层、__consumer_offsets）。设置 <code>cleanup.policy=compact</code>，Cleaner 线程后台合并 Segment。</div>
+        <div class="sc"><span class="cm"># Topic 级别关键参数</span>
+cleanup.policy=compact              <span class="cm"># 也可设 compact,delete 双策略</span>
+min.cleanable.dirty.ratio=0.5       <span class="cm"># 脏数据比例 ≥ 50% 才触发压缩</span>
+min.compaction.lag.ms=0             <span class="cm"># 消息至少存活多久才能被压缩（默认 0）</span>
+max.compaction.lag.ms=Long.MAX      <span class="cm"># 消息最多多久必须被压缩（GDPR 合规场景调小）</span>
+segment.ms=604800000                <span class="cm"># 7 天滚动 Segment（active segment 不参与压缩）</span>
+delete.retention.ms=86400000        <span class="cm"># tombstone 标记保留 1 天（防消费者错过删除）</span></div>
+        <div class="sd" style="margin-top:6px;"><strong>关键概念</strong>：
+        <br>• <strong>Active Segment 不压缩</strong>：只压缩已 roll 的旧 Segment，所以高频写入但 segment.ms 太大会导致<strong>压缩滞后</strong>
+        <br>• <strong>Tombstone</strong>：发送 <code>value=null</code> 标记删除该 key，Cleaner 处理后从日志中真正移除
+        <br>• 状态恢复场景：Consumer 从头消费 compact Topic 就能拿到所有 key 的<strong>最终状态快照</strong></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消息格式：Record Batch（V2）</div>
+        <div class="sd">Kafka 0.11+ 使用 <strong>V2 消息格式</strong>（RecordBatch），一个 Batch 包含多条 Record，Header 中包含：
+        <br>• <strong>baseOffset</strong>：Batch 中第一条消息的 offset
+        <br>• <strong>PID + epoch + baseSequence</strong>：幂等和事务的基础
+        <br>• <strong>压缩</strong>：整个 Batch 压缩，而非单条消息，<strong>压缩比更高</strong>
+        <br>• 每条 Record 支持 <strong>Header</strong>（key-value 元数据），可用于链路追踪 traceId 传递</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Kafka Streams 拓扑图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Kafka Streams Topology 示例 — 实时订单 GMV 按地区聚合</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200" width="880" height="200">
+      <!-- Source -->
+      <rect x="10" y="80" width="100" height="60" rx="6" class="dg-box-b"/>
+      <text x="60" y="105" text-anchor="middle" font-size="10" font-weight="600" class="dg-blue">Source</text>
+      <text x="60" y="120" text-anchor="middle" font-size="8" class="dg-t3">stream("orders")</text>
+      <text x="60" y="132" text-anchor="middle" font-size="8" class="dg-t3">KStream</text>
+      <line x1="110" y1="110" x2="138" y2="110" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- filter -->
+      <rect x="140" y="80" width="100" height="60" rx="6" class="dg-box"/>
+      <text x="190" y="105" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">filter</text>
+      <text x="190" y="120" text-anchor="middle" font-size="8" class="dg-t3">status == PAID</text>
+      <line x1="240" y1="110" x2="268" y2="110" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- map -->
+      <rect x="270" y="80" width="100" height="60" rx="6" class="dg-box"/>
+      <text x="320" y="105" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">selectKey</text>
+      <text x="320" y="120" text-anchor="middle" font-size="8" class="dg-t3">key = region</text>
+      <line x1="370" y1="110" x2="398" y2="110" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- groupByKey + windowedBy + aggregate -->
+      <rect x="400" y="55" width="160" height="110" rx="6" class="dg-box-o"/>
+      <text x="480" y="78" text-anchor="middle" font-size="10" font-weight="600" class="dg-orange">groupByKey</text>
+      <text x="480" y="92" text-anchor="middle" font-size="8" class="dg-t3">+ windowedBy(5min)</text>
+      <text x="480" y="108" text-anchor="middle" font-size="9" font-weight="600" class="dg-orange">aggregate(SUM)</text>
+      <rect x="412" y="118" width="136" height="40" rx="4" class="dg-box"/>
+      <text x="480" y="133" text-anchor="middle" font-size="8" class="dg-t3">State Store</text>
+      <text x="480" y="148" text-anchor="middle" font-size="8" class="dg-t3">RocksDB + Changelog</text>
+      <line x1="560" y1="110" x2="588" y2="110" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- toStream -->
+      <rect x="590" y="80" width="100" height="60" rx="6" class="dg-box"/>
+      <text x="640" y="105" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">toStream</text>
+      <text x="640" y="120" text-anchor="middle" font-size="8" class="dg-t3">KTable → KStream</text>
+      <line x1="690" y1="110" x2="718" y2="110" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Sink -->
+      <rect x="720" y="80" width="140" height="60" rx="6" class="dg-box-g"/>
+      <text x="790" y="105" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">Sink</text>
+      <text x="790" y="120" text-anchor="middle" font-size="8" class="dg-t3">to("gmv-by-region")</text>
+      <text x="790" y="132" text-anchor="middle" font-size="8" class="dg-t3">每 5min 一个窗口</text>
+
+      <!-- bottom flow text -->
+      <text x="440" y="190" text-anchor="middle" font-size="9" class="dg-t3">Topology 是有向无环图（DAG），每个节点是 Processor，Streams 应用启动时编译并分布式执行</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-g" id="streams-topology">
+  <div class="fwh">
+    <span class="fwb">STREAMS</span>
+    <span class="fwt">Kafka Streams 实战 — Topology 编程模型</span>
+    <span class="badge badge-g" style="margin-left:auto;">实战</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">High-Level DSL — 链式流处理代码</div>
+        <div class="sd">用 KStream / KTable DSL 表达"实时订单 GMV 按地区按 5 分钟窗口聚合"：</div>
+        <div class="sc">StreamsBuilder builder = new StreamsBuilder();
+
+builder.stream("orders", Consumed.with(Serdes.String(), orderSerde))
+       .filter((k, order) -&gt; order.getStatus() == PAID)              <span class="cm">// 过滤</span>
+       .selectKey((k, order) -&gt; order.getRegion())                    <span class="cm">// 改 key=地区</span>
+       .groupByKey(Grouped.with(Serdes.String(), orderSerde))
+       .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+       .aggregate(
+           () -&gt; 0.0,                                                  <span class="cm">// 初始值</span>
+           (region, order, acc) -&gt; acc + order.getAmount(),            <span class="cm">// 累加器</span>
+           Materialized.&lt;String, Double, WindowStore&lt;Bytes,byte[]&gt;&gt;
+               as("gmv-store").withValueSerde(Serdes.Double()))
+       .toStream()
+       .to("gmv-by-region", Produced.with(windowedSerde, Serdes.Double()));
+
+KafkaStreams streams = new KafkaStreams(builder.build(), props);
+streams.start();</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">时间语义 — Event Time / Processing Time / Ingestion Time</div>
+        <div class="sd">流处理三种时间，决定窗口归属：
+        <br>• <strong>Event Time</strong>：业务事件发生时间（订单下单时间），最准确，但有<strong>乱序问题</strong>
+        <br>• <strong>Ingestion Time</strong>：消息进入 Kafka 的时间（Broker 打的时间戳）
+        <br>• <strong>Processing Time</strong>：Streams 应用处理消息的时间，最简单但不准确
+        <br><br>用 <code>TimestampExtractor</code> 从消息体提取 event time（如订单 createTime 字段）。配合 <strong>Grace Period</strong>（容忍乱序的窗口延迟关闭时间）处理迟到数据。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">状态存储 &amp; 容错</div>
+        <div class="sd">Streams 内置状态由 <strong>RocksDB</strong>（本地嵌入式 K/V 库）+ <strong>Changelog Topic</strong>（自动创建的 compact Topic）保证：
+        <br>• 每次更新状态 → 写 RocksDB（本地） + 写 Changelog Topic（持久化）
+        <br>• 实例宕机重启 → 从 Changelog Topic <strong>replay 重建</strong> RocksDB
+        <br>• 实例迁移到其他节点 → 同样从 Changelog 重建（<strong>Standby Replica</strong> 可加速恢复）
+        <br><br>这就是为什么 Streams 不需要外部数据库就能做有状态计算 —— 状态本身就是 Kafka Topic。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ STAGE 4 ══════════════════ -->
+<div class="sec" id="stage4">Stage 4 · 生产运维 &amp; 调优（第 6-8 周）<span style="margin-left:10px;" class="badge badge-o">高级工程师区分点</span></div>
+
+<div class="note warn">
+  <span class="nlbl">重要</span>
+  <p>这一阶段是 <strong>中级 / 高级工程师的分水岭</strong>。面试中"描述一次你做过的 Kafka 调优"是必考题，没有实操经验很难回答到位。建议边学边在本地/测试环境实际操作，记录调参前后的对比数据。</p>
+</div>
+
+<!-- ─── Broker 请求处理模型图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Broker 网络线程模型 — Reactor 多线程 + 请求队列 + IO 线程池</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 170" width="820" height="170">
+      <!-- Client -->
+      <rect x="10" y="50" width="80" height="70" rx="6" class="dg-box"/>
+      <text x="50" y="80" text-anchor="middle" font-size="10" font-weight="500" class="dg-t">Client</text>
+      <text x="50" y="95" text-anchor="middle" font-size="8" class="dg-t3">TCP</text>
+      <line x1="90" y1="85" x2="118" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Acceptor -->
+      <rect x="120" y="55" width="90" height="60" rx="6" class="dg-box-o"/>
+      <text x="165" y="80" text-anchor="middle" font-size="9" font-weight="600" class="dg-orange">Acceptor</text>
+      <text x="165" y="96" text-anchor="middle" font-size="8" class="dg-t3">1 个线程</text>
+      <text x="165" y="108" text-anchor="middle" font-size="8" class="dg-t3">Accept 连接</text>
+      <line x1="210" y1="85" x2="238" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Network Threads -->
+      <rect x="240" y="30" width="128" height="110" rx="6" class="dg-box-b"/>
+      <text x="304" y="52" text-anchor="middle" font-size="9" font-weight="600" class="dg-blue">Network Threads</text>
+      <text x="304" y="67" text-anchor="middle" font-size="8" class="dg-t3">num.network.threads</text>
+      <rect x="252" y="76" width="104" height="18" rx="3" class="dg-box"/>
+      <text x="304" y="90" text-anchor="middle" font-size="8" class="dg-t3">NIO Read/Write</text>
+      <rect x="252" y="100" width="104" height="18" rx="3" class="dg-box"/>
+      <text x="304" y="114" text-anchor="middle" font-size="8" class="dg-t3">解析请求/发响应</text>
+      <line x1="368" y1="85" x2="398" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Request Queue -->
+      <rect x="400" y="50" width="100" height="70" rx="6" class="dg-box-p"/>
+      <text x="450" y="78" text-anchor="middle" font-size="9" font-weight="600" class="dg-purple">Request</text>
+      <text x="450" y="93" text-anchor="middle" font-size="9" font-weight="600" class="dg-purple">Queue</text>
+      <text x="450" y="110" text-anchor="middle" font-size="8" class="dg-t3">共享阻塞队列</text>
+      <line x1="500" y1="85" x2="528" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- IO Threads -->
+      <rect x="530" y="30" width="128" height="110" rx="6" class="dg-box-g"/>
+      <text x="594" y="52" text-anchor="middle" font-size="9" font-weight="600" class="dg-green">IO Threads</text>
+      <text x="594" y="67" text-anchor="middle" font-size="8" class="dg-t3">num.io.threads</text>
+      <rect x="542" y="76" width="104" height="18" rx="3" class="dg-box"/>
+      <text x="594" y="90" text-anchor="middle" font-size="8" class="dg-t3">执行业务逻辑</text>
+      <rect x="542" y="100" width="104" height="18" rx="3" class="dg-box"/>
+      <text x="594" y="114" text-anchor="middle" font-size="8" class="dg-t3">读写日志 / 更新索引</text>
+      <line x1="658" y1="85" x2="688" y2="85" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Purgatory + Response Queue -->
+      <rect x="690" y="30" width="120" height="50" rx="6" class="dg-box-r"/>
+      <text x="750" y="52" text-anchor="middle" font-size="9" font-weight="600" class="dg-red">Purgatory</text>
+      <text x="750" y="67" text-anchor="middle" font-size="8" class="dg-t3">等待副本同步(acks)</text>
+
+      <rect x="690" y="90" width="120" height="50" rx="6" class="dg-box"/>
+      <text x="750" y="112" text-anchor="middle" font-size="9" font-weight="500" class="dg-t">Response Queue</text>
+      <text x="750" y="127" text-anchor="middle" font-size="8" class="dg-t3">回 Network Thread</text>
+
+      <!-- bottom legend -->
+      <text x="410" y="162" text-anchor="middle" font-size="8" class="dg-t3">瓶颈诊断：RequestHandlerAvgIdlePercent &lt; 30% → IO Thread 不够 | NetworkProcessorAvgIdlePercent &lt; 30% → Network Thread 不够</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-o" id="tuning">
+  <div class="fwh">
+    <span class="fwb">TUNING</span>
+    <span class="fwt">Broker &amp; OS 关键配置调优</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Broker 线程模型 &amp; 请求处理流程</div>
+        <div class="sd">Kafka Broker 使用 <strong>Reactor 多线程模型</strong>：
+        <br>• <strong>Acceptor</strong>（1个）：接受 TCP 连接，轮询分配给 Network Thread
+        <br>• <strong>Network Threads</strong>（<code>num.network.threads</code> 默认 3）：NIO 读写请求/响应，解析协议
+        <br>• <strong>Request Queue</strong>：共享阻塞队列，Network Thread 放入，IO Thread 取出
+        <br>• <strong>IO Threads</strong>（<code>num.io.threads</code> 默认 8）：执行实际业务逻辑（写日志、更新索引、验证 CRC）
+        <br>• <strong>Purgatory</strong>（延迟操作炼狱）：<code>acks=all</code> 时请求在此等待副本同步完成
+        <br><br>调优关键：看 <code>RequestHandlerAvgIdlePercent</code>（IO Thread 空闲率）和 <code>NetworkProcessorAvgIdlePercent</code>（Network Thread 空闲率），低于 30% 就要扩线程。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">OS &amp; JVM 关键认知（开发视角）</div>
+        <div class="sd">Kafka Broker 对 OS 和 JVM 配置非常敏感，作为开发者需要理解这些原理，以便在问题排查和调参时有正确的判断：
+        <br>• <strong>禁 Swap</strong>（<code>vm.swappiness=1</code>）：一旦 Kafka 进程内存被换出到磁盘，Page Cache 失效，GC 时间暴增，直接触发 Heartbeat 超时和 Rebalance
+        <br>• <strong>脏页刷盘策略</strong>：适当放宽（<code>dirty_ratio=60</code>）让 OS 多缓冲写，但太大在服务器宕机时丢的数据更多；<code>acks=all</code> 保证的是"写入副本 ISR"，而非"落盘"，OS 崩溃时 Page Cache 中的数据会丢失（生产必须 2+ 副本）
+        <br>• <strong>文件系统</strong>：XFS 优于 ext4（删 Segment 文件时不阻塞写，Kafka 大量频繁滚动日志时差距明显）
+        <br>• <strong>JVM 堆不要太大</strong>：Broker JVM 堆建议 6-8G，64G 内存服务器剩余 ~56G 全给 OS Page Cache。GC STW &gt; 10s 会导致 Controller Failover；G1GC 是当前最佳选择</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Broker &amp; Topic 核心配置</div>
+        <div class="sd">不同业务场景用不同配置，不要全用默认值：</div>
+        <div class="sc"><span class="cm"># ── Broker 级别 ──</span>
+num.network.threads=8               <span class="cm"># 默认3，生产调大</span>
+num.io.threads=16                   <span class="cm"># 建议 = 磁盘数 × 2</span>
+log.dirs=/data1/kafka,/data2/kafka  <span class="cm"># 多磁盘并行写，吞吐翻倍</span>
+default.replication.factor=3
+min.insync.replicas=2               <span class="cm"># acks=all 时至少 2 副本确认</span>
+unclean.leader.election.enable=false<span class="cm"># 禁止 non-ISR 副本当 Leader</span>
+
+<span class="cm"># ── Topic 级别 ──</span>
+retention.ms=604800000              <span class="cm"># 保留 7 天</span>
+retention.bytes=-1                  <span class="cm"># 不按大小限制（默认）</span>
+segment.bytes=1073741824            <span class="cm"># 1GB Segment，太小 → 文件太多</span>
+compression.type=producer           <span class="cm"># 保留 Producer 的压缩格式</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-o" id="monitoring" style="margin-top:0;">
+  <div class="fwh">
+    <span class="fwb">MONITORING</span>
+    <span class="fwt">监控体系 &amp; 故障排查</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">核心监控指标（必须报警）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap" style="margin-top:0;">
+  <table class="tbl">
+    <thead>
+      <tr><th>层级</th><th>指标</th><th>正常值</th><th>异常含义</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Broker</td>
+        <td><strong>UnderReplicatedPartitions</strong></td>
+        <td>= 0</td>
+        <td>&gt; 0 表示有 Follower 落后，可能磁盘/网络故障</td>
+      </tr>
+      <tr>
+        <td>Broker</td>
+        <td><strong>ActiveControllerCount</strong></td>
+        <td>= 1（集群全局）</td>
+        <td>= 0 无 Controller（脑裂或故障），&gt; 1 脑裂</td>
+      </tr>
+      <tr>
+        <td>Broker</td>
+        <td>OfflinePartitionsCount</td>
+        <td>= 0</td>
+        <td>&gt; 0 表示 Partition 无 Leader，该分区<strong>不可读写</strong></td>
+      </tr>
+      <tr>
+        <td>Broker</td>
+        <td>RequestHandlerAvgIdlePercent</td>
+        <td>&gt; 30%</td>
+        <td>&lt; 30% IO 线程不够，需调大 num.io.threads</td>
+      </tr>
+      <tr>
+        <td>Producer</td>
+        <td>record-error-rate</td>
+        <td>= 0</td>
+        <td>&gt; 0 发送失败，检查 Broker 可用性 / Topic 配置</td>
+      </tr>
+      <tr>
+        <td>Consumer</td>
+        <td style="color:var(--red);font-weight:700;">consumer-lag</td>
+        <td>趋近 0</td>
+        <td>持续增长 = <strong>消费积压</strong>，最重要的消费端指标</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="fw c-o" id="ops" style="margin-top:10px;">
+  <div class="fwh">
+    <span class="fwb">OPS</span>
+    <span class="fwt">KRaft 迁移 · 安全配置 · 故障排查</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">监控技术栈</div>
+        <div class="sd">
+          <strong>Prometheus + Grafana</strong>：用 <code>jmx_exporter</code> Agent 暴露 Kafka JMX 指标 → Prometheus 抓取 → Grafana 展示。Dashboard ID <strong>#7589</strong>。
+          <br><strong>Burrow</strong>（LinkedIn 开源）：专门监控 Consumer Lag，支持按 Partition 粒度报警。
+          <br><strong>AKHQ / Redpanda Console / Conduktor</strong>：可视化管理 Topic / Consumer Group / ACL。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">KRaft 模式</div>
+        <div class="sd">Kafka 3.3+ KRaft GA，新建集群直接用 KRaft。优势：
+        <br>• Controller Failover 从<strong>秒级降至毫秒级</strong>
+        <br>• 支持<strong>百万级 Partition</strong>（ZK 模式极限约 20 万）
+        <br>• 架构更简单（去掉 ZK 运维）
+        <br>• metadata 以 Raft Log 持久化到 <code>__cluster_metadata</code> Topic
+        <br><br>迁移步骤：滚动升级到 3.x → 生成 Cluster ID → KRaft Controller 接管 → 移除 ZK 依赖。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">安全配置（生产必须）</div>
+        <div class="sd">
+          <strong>认证</strong>：SASL/SCRAM-SHA-256（用户名密码）或 SASL/OAUTHBEARER（对接 SSO/Keycloak）
+          <br><strong>授权</strong>：ACL（<code>kafka-acls.sh</code>）精细控制 Topic/Group 读写权限
+          <br><strong>加密</strong>：TLS/SSL 加密传输，<code>inter.broker.listener=SSL</code> 也加密 Broker 间复制
+          <br><strong>网络隔离</strong>：Kafka 走内网 VPC，通过 <code>advertised.listeners</code> 区分内外网访问
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">故障排查方法论</div>
+        <div class="sd"><strong>消费积压</strong>：查 consumer-lag → 判断是 Producer 暴增还是 Consumer 变慢 → 扩 Partition/Consumer 或优化处理逻辑。
+        <br><strong>Rebalance 频繁</strong>：查 session.timeout 和 max.poll.interval，看是否有 GC 长暂停或处理超时。
+        <br><strong>消息延迟高</strong>：看 UnderReplicatedPartitions，排查网络 / 磁盘 IO 瓶颈。
+        <br><strong>Broker OOM</strong>：检查 num.replica.fetchers、请求队列大小、是否有超大消息。</div>
+        <div class="sc">kafka-consumer-groups.sh --describe --group my-group  <span class="cm"># 查 lag</span>
+kafka-log-dirs.sh --describe --broker-list 0,1,2    <span class="cm"># 查磁盘使用</span>
+kafka-topics.sh --describe --under-replicated-partitions  <span class="cm"># 查掉队副本</span>
+kafka-dump-log.sh --files 00000.log --print-data-log  <span class="cm"># 查看消息内容</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Preferred Leader 失衡示意图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Preferred Leader 失衡 — Broker 重启后 Leader 不会自动回位</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 200" width="820" height="200">
+      <!-- 阶段 1: 正常状态 -->
+      <text x="135" y="22" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">① 正常：Leader 均匀分布</text>
+      <rect x="10" y="32" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="50" y="50" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 0</text>
+      <rect x="18" y="56" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="50" y="66" text-anchor="middle" font-size="8" class="dg-orange">P0 Leader</text>
+      <rect x="18" y="73" width="64" height="14" rx="2" class="dg-box"/>
+      <text x="50" y="83" text-anchor="middle" font-size="8" class="dg-t2">P1 Follower</text>
+
+      <rect x="95" y="32" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="135" y="50" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 1</text>
+      <rect x="103" y="56" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="135" y="66" text-anchor="middle" font-size="8" class="dg-orange">P1 Leader</text>
+      <rect x="103" y="73" width="64" height="14" rx="2" class="dg-box"/>
+      <text x="135" y="83" text-anchor="middle" font-size="8" class="dg-t2">P2 Follower</text>
+
+      <rect x="180" y="32" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="220" y="50" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 2</text>
+      <rect x="188" y="56" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="220" y="66" text-anchor="middle" font-size="8" class="dg-orange">P2 Leader</text>
+      <rect x="188" y="73" width="64" height="14" rx="2" class="dg-box"/>
+      <text x="220" y="83" text-anchor="middle" font-size="8" class="dg-t2">P0 Follower</text>
+
+      <!-- 阶段 2: B0 重启后 -->
+      <text x="408" y="22" text-anchor="middle" font-size="10" font-weight="600" class="dg-orange">② Broker 0 重启 → P0 Leader 切到 Broker 2</text>
+      <rect x="290" y="32" width="80" height="60" rx="5" class="dg-box-y"/>
+      <text x="330" y="50" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 0</text>
+      <text x="330" y="68" text-anchor="middle" font-size="8" class="dg-orange">重启中...</text>
+      <text x="330" y="82" text-anchor="middle" font-size="8" class="dg-t3">无 Leader</text>
+
+      <rect x="375" y="32" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="415" y="50" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 1</text>
+      <rect x="383" y="56" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="415" y="66" text-anchor="middle" font-size="8" class="dg-orange">P1 Leader</text>
+      <rect x="383" y="73" width="64" height="14" rx="2" class="dg-box"/>
+      <text x="415" y="83" text-anchor="middle" font-size="8" class="dg-t2">P2 Follower</text>
+
+      <rect x="460" y="32" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="500" y="50" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 2</text>
+      <rect x="468" y="56" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="500" y="66" text-anchor="middle" font-size="8" class="dg-orange">P2 Leader</text>
+      <rect x="468" y="73" width="64" height="14" rx="2" class="dg-box-r"/>
+      <text x="500" y="83" text-anchor="middle" font-size="8" class="dg-red">P0 Leader (临时)</text>
+
+      <!-- 阶段 3: 恢复后失衡 -->
+      <text x="135" y="115" text-anchor="middle" font-size="10" font-weight="600" class="dg-red">③ Broker 0 恢复后 → P0 仍在 Broker 2 上！失衡！</text>
+      <rect x="10" y="125" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="50" y="143" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 0</text>
+      <rect x="18" y="149" width="64" height="14" rx="2" class="dg-box"/>
+      <text x="50" y="159" text-anchor="middle" font-size="8" class="dg-t2">P0 Follower</text>
+      <rect x="18" y="166" width="64" height="14" rx="2" class="dg-box"/>
+      <text x="50" y="176" text-anchor="middle" font-size="8" class="dg-t2">P1 Follower</text>
+
+      <rect x="95" y="125" width="80" height="60" rx="5" class="dg-box"/>
+      <text x="135" y="143" text-anchor="middle" font-size="9" font-weight="600" class="dg-t">Broker 1</text>
+      <rect x="103" y="149" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="135" y="159" text-anchor="middle" font-size="8" class="dg-orange">P1 Leader</text>
+
+      <rect x="180" y="125" width="80" height="60" rx="5" class="dg-box-r"/>
+      <text x="220" y="143" text-anchor="middle" font-size="9" font-weight="600" class="dg-red">Broker 2 (过载)</text>
+      <rect x="188" y="149" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="220" y="159" text-anchor="middle" font-size="8" class="dg-orange">P2 Leader</text>
+      <rect x="188" y="166" width="64" height="14" rx="2" class="dg-box-o"/>
+      <text x="220" y="176" text-anchor="middle" font-size="8" class="dg-orange">P0 Leader</text>
+
+      <!-- 解决方案 -->
+      <rect x="290" y="115" width="520" height="78" rx="6" class="dg-box-g"/>
+      <text x="550" y="135" text-anchor="middle" font-size="10" font-weight="700" class="dg-green">解决方案</text>
+      <text x="300" y="153" font-size="9" class="dg-t2"><tspan font-weight="600" fill="var(--green)">自动</tspan>：auto.leader.rebalance.enable=true（默认开）+ leader.imbalance.check.interval.seconds=300</text>
+      <text x="300" y="167" font-size="9" class="dg-t2"><tspan font-weight="600" fill="var(--green)">手动</tspan>：kafka-leader-election.sh --bootstrap-server xxx --election-type preferred --all-topic-partitions</text>
+      <text x="300" y="181" font-size="9" class="dg-t3">大集群<strong style="color:var(--orange)">禁用自动</strong>：选举瞬间会影响吞吐，运维窗口手动触发更可控</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-o" id="preferred-leader">
+  <div class="fwh">
+    <span class="fwb">OPS-ADV</span>
+    <span class="fwt">Preferred Leader Election &amp; 副本流量管理</span>
+    <span class="badge badge-o" style="margin-left:auto;">运维必知</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Preferred Replica &amp; 失衡问题</div>
+        <div class="sd">每个 Partition 的 Replica 列表中<strong>第一个副本</strong>就是 <strong>Preferred Replica</strong>（首选 Leader）。理想状态下 Leader 应该都是 Preferred，分布均匀。
+        <br><br>但 Broker 重启后 Leader 会切到其他副本，<strong>不会自动切回</strong>。多次滚动重启后，Leader 全堆到几个 Broker 上，流量倾斜 —— <strong>这是 90% Kafka 集群运维都遇到过的问题</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">触发方式 &amp; 策略选择</div>
+        <div class="sd">
+          <strong>自动触发</strong>（<code>auto.leader.rebalance.enable=true</code>）：每 5min 检查失衡率，超 10% 自动触发。小集群用，大集群建议关闭。
+          <br><strong>手动触发</strong>：通过 <code>kafka-leader-election.sh --election-type preferred</code> 在运维窗口执行，可分批进行。
+          <br><br><strong>为什么大集群禁用自动</strong>：选举瞬间 Broker 会短暂拒绝部分写请求 → 客户端重试 → 流量抖动。手动触发可以在低峰期分批操作（先选 1/3 观察，无异常再选剩余），可控性更高。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">副本重分配 &amp; 限流原理（开发需理解）</div>
+        <div class="sd">扩容新 Broker 后，已有分区不会自动迁移 —— 需要通过 <code>kafka-reassign-partitions.sh</code> 或管理界面触发迁移计划。
+        <br><br><strong>核心要点（开发必须懂）</strong>：
+        <br>• 数据迁移本质是 Follower 副本复制数据，会消耗 Broker 间网络带宽
+        <br>• <strong>必须设置 throttle 限流</strong>（--throttle &lt;bytes/s&gt;），不限流会瞬间打满千兆网卡，挤占正常 Producer/Consumer 流量导致消息积压
+        <br>• 迁移期间 ISR 会短暂缩小，如果同时有大量写入且 ISR &lt; min.insync.replicas，会触发写失败
+        <br>• 建议在低峰期执行，并预留 30%+ 带宽给正常业务流量</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MirrorMaker 2 跨集群复制图 ─── -->
+<div class="diag-wrap" style="margin-top:10px;">
+  <div class="diag-cap">MirrorMaker 2 — 跨集群 / 跨 Region 复制架构</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 180" width="820" height="180">
+      <!-- Source DC -->
+      <rect x="10" y="22" width="240" height="140" rx="10" class="dg-cluster"/>
+      <text x="130" y="14" text-anchor="middle" font-size="10" font-weight="600" class="dg-blue">SOURCE CLUSTER (Beijing)</text>
+      <rect x="30" y="40" width="200" height="32" rx="5" class="dg-box-b"/>
+      <text x="130" y="60" text-anchor="middle" font-size="10" font-weight="500" class="dg-blue">Topic: orders</text>
+      <rect x="30" y="80" width="200" height="32" rx="5" class="dg-box-b"/>
+      <text x="130" y="100" text-anchor="middle" font-size="10" font-weight="500" class="dg-blue">Topic: payments</text>
+      <rect x="30" y="120" width="200" height="32" rx="5" class="dg-box"/>
+      <text x="130" y="140" text-anchor="middle" font-size="10" class="dg-t3">__consumer_offsets</text>
+
+      <!-- MM2 -->
+      <rect x="270" y="50" width="180" height="100" rx="8" class="dg-box-o"/>
+      <text x="360" y="75" text-anchor="middle" font-size="11" font-weight="700" class="dg-orange">MirrorMaker 2</text>
+      <text x="360" y="92" text-anchor="middle" font-size="9" class="dg-t3">基于 Kafka Connect</text>
+      <text x="360" y="110" text-anchor="middle" font-size="9" class="dg-t2">MirrorSourceConnector</text>
+      <text x="360" y="124" text-anchor="middle" font-size="9" class="dg-t2">MirrorCheckpointConnector</text>
+      <text x="360" y="138" text-anchor="middle" font-size="9" class="dg-t2">MirrorHeartbeatConnector</text>
+
+      <line x1="250" y1="100" x2="270" y2="100" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="450" y1="100" x2="470" y2="100" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Target DC -->
+      <rect x="472" y="22" width="270" height="140" rx="10" class="dg-cluster"/>
+      <text x="607" y="14" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">TARGET CLUSTER (Shanghai)</text>
+      <rect x="492" y="40" width="230" height="32" rx="5" class="dg-box-g"/>
+      <text x="607" y="60" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">beijing.orders</text>
+      <rect x="492" y="80" width="230" height="32" rx="5" class="dg-box-g"/>
+      <text x="607" y="100" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">beijing.payments</text>
+      <rect x="492" y="120" width="230" height="32" rx="5" class="dg-box"/>
+      <text x="607" y="140" text-anchor="middle" font-size="10" class="dg-t3">beijing.checkpoints</text>
+
+      <!-- 命名说明 -->
+      <text x="765" y="100" font-size="9" class="dg-t3" style="writing-mode:vertical-rl">命名前缀防回环</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-o" id="mirrormaker" style="margin-top:0;">
+  <div class="fwh">
+    <span class="fwb">MM2</span>
+    <span class="fwt">MirrorMaker 2 — 跨集群复制 / 异地容灾</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">使用场景</div>
+        <div class="sd">
+          <strong>异地容灾</strong>：北京集群挂了，上海集群无缝接管 —— 应用切流到上海集群即可。
+          <br><strong>就近消费</strong>：用户分布在多 Region，每个 Region 部署独立集群但数据同步，降低延迟。
+          <br><strong>数据汇聚</strong>：多个业务集群 → 数据中心集群做统一离线分析。
+          <br><strong>集群迁移</strong>：从老集群 / 老 Kafka 版本平滑迁移到新集群，迁移期间双写双读。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">MM2 架构 — 三个 Connector</div>
+        <div class="sd">MM2 基于 Kafka Connect，由三个 Connector 协作：
+        <br>• <strong>MirrorSourceConnector</strong>：核心，从源集群拉数据 → 目标集群，自动重命名 Topic（加前缀防回环）
+        <br>• <strong>MirrorCheckpointConnector</strong>：同步 Consumer Group offset，切流时消费者能从原位置继续
+        <br>• <strong>MirrorHeartbeatConnector</strong>：发心跳消息，<strong>测量端到端复制延迟</strong>
+        <br><br><strong>命名规则</strong>：默认 <code>{源集群别名}.{原 Topic 名}</code>，比如源集群叫 <code>beijing</code> 的 <code>orders</code> → 目标集群上叫 <code>beijing.orders</code>。这样<strong>双向复制不会回环</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">关键设计决策 &amp; 监控指标</div>
+        <div class="sd">
+          <strong>Topic 命名规则</strong>：<code>{源集群别名}.{原 Topic}</code>（如 <code>beijing.orders</code>），命名前缀防止双向复制时数据回环 —— 目标集群的 Topic 带有源集群前缀，不会被 MM2 当成源数据再复制回去。
+          <br><br><strong>Offset 映射（切流关键）</strong>：MirrorCheckpointConnector 会把源集群的 Consumer offset 映射到目标集群等价位置，存到 <code>{源集群}.checkpoints.internal</code> Topic。切流时通过 <code>RemoteClusterUtils.translateOffsets()</code> 获取映射，消费者无需从头消费。
+          <br><br><strong>核心监控指标</strong>：<code>replication-latency-ms</code>（端到端复制延迟，超 5s 告警）、<code>record-count</code>（复制速率）。MM2 本身是 Connect 集群，也需要监控 Connect Worker 的 connector-task-metric。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ STAGE 5 ══════════════════ -->
+<div class="sec" id="stage5">Stage 5 · 架构设计 &amp; 最佳实践（第 9-10 周）</div>
+
+<!-- ─── Event-Driven 架构图 ─── -->
+<div class="diag-wrap">
+  <div class="diag-cap">Event-Driven Architecture — 以 Kafka 为事件总线的电商订单解耦</div>
+  <div class="diag-body">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 190" width="860" height="190">
+      <!-- 订单服务 -->
+      <rect x="10" y="60" width="130" height="70" rx="8" class="dg-box-b"/>
+      <text x="75" y="88" text-anchor="middle" font-size="11" font-weight="600" class="dg-blue">订单服务</text>
+      <text x="75" y="105" text-anchor="middle" font-size="9" class="dg-t3">publish event</text>
+
+      <line x1="140" y1="95" x2="210" y2="95" class="dg-ln" marker-end="url(#ah)"/>
+      <text x="175" y="88" text-anchor="middle" font-size="8" class="dg-t3">OrderCreated</text>
+
+      <!-- Kafka -->
+      <rect x="212" y="40" width="190" height="110" rx="10" class="dg-box-o"/>
+      <text x="307" y="66" text-anchor="middle" font-size="12" font-weight="700" class="dg-orange">Kafka</text>
+      <rect x="226" y="76" width="162" height="22" rx="4" class="dg-box"/>
+      <text x="307" y="91" text-anchor="middle" font-size="9" class="dg-t3">topic: order-events</text>
+      <rect x="226" y="104" width="162" height="22" rx="4" class="dg-box"/>
+      <text x="307" y="119" text-anchor="middle" font-size="9" class="dg-t3">partitions=6, replicas=3</text>
+      <text x="307" y="143" text-anchor="middle" font-size="8" class="dg-t3">事件不可变 · 多 Group 独立消费</text>
+
+      <!-- arrows to consumers -->
+      <line x1="402" y1="70" x2="470" y2="40" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="402" y1="85" x2="470" y2="78" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="402" y1="100" x2="470" y2="115" class="dg-ln" marker-end="url(#ah)"/>
+      <line x1="402" y1="115" x2="470" y2="152" class="dg-ln" marker-end="url(#ah)"/>
+
+      <!-- Consumer 服务 -->
+      <rect x="472" y="16" width="140" height="40" rx="6" class="dg-box-g"/>
+      <text x="542" y="33" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">库存服务</text>
+      <text x="542" y="48" text-anchor="middle" font-size="8" class="dg-t3">group: inventory-svc</text>
+
+      <rect x="472" y="64" width="140" height="40" rx="6" class="dg-box-g"/>
+      <text x="542" y="81" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">物流服务</text>
+      <text x="542" y="96" text-anchor="middle" font-size="8" class="dg-t3">group: shipping-svc</text>
+
+      <rect x="472" y="112" width="140" height="40" rx="6" class="dg-box-g"/>
+      <text x="542" y="129" text-anchor="middle" font-size="10" font-weight="500" class="dg-green">积分服务</text>
+      <text x="542" y="144" text-anchor="middle" font-size="8" class="dg-t3">group: points-svc</text>
+
+      <rect x="472" y="160" width="140" height="24" rx="6" class="dg-box"/>
+      <text x="542" y="176" text-anchor="middle" font-size="9" class="dg-t3">通知 / 风控 / 审计...</text>
+
+      <!-- 右侧效果说明 -->
+      <line x1="612" y1="36" x2="660" y2="36" class="dg-ln-d"/>
+      <line x1="612" y1="84" x2="660" y2="84" class="dg-ln-d"/>
+      <line x1="612" y1="132" x2="660" y2="132" class="dg-ln-d"/>
+
+      <rect x="662" y="20" width="188" height="150" rx="8" class="dg-box"/>
+      <text x="756" y="46" text-anchor="middle" font-size="10" font-weight="600" class="dg-t">对比 RPC 直连</text>
+      <text x="756" y="68" text-anchor="middle" font-size="9" class="dg-t2">发布者不关心谁消费</text>
+      <text x="756" y="86" text-anchor="middle" font-size="9" class="dg-t2">新增下游零改动</text>
+      <text x="756" y="104" text-anchor="middle" font-size="9" class="dg-t2">各服务独立扩缩容</text>
+      <text x="756" y="122" text-anchor="middle" font-size="9" class="dg-t2">下游宕机不影响上游</text>
+      <text x="756" y="140" text-anchor="middle" font-size="9" font-weight="600" class="dg-green">异步解耦 · 削峰填谷</text>
+      <text x="756" y="158" text-anchor="middle" font-size="9" font-weight="600" class="dg-green">事件可回溯 · 可重放</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-p" id="architecture">
+  <div class="fwh">
+    <span class="fwb">ARCHITECTURE</span>
+    <span class="fwt">大厂级架构模式</span>
+    <span class="badge badge-p" style="margin-left:auto;">面试加分项</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Event-Driven Architecture（EDA）</div>
+        <div class="sd">以 Kafka 为事件总线，服务间通过事件异步解耦，而非直接 RPC 调用。
+        <br>核心原则：<strong>事件是不可变的事实记录</strong>，发布后不修改，消费方各自处理。
+        <br>• 每个下游服务用<strong>独立 Consumer Group</strong>，互不影响
+        <br>• 新增下游服务<strong>零改动</strong>（只需新建 Group 订阅）
+        <br>• 事件可<strong>回溯重放</strong>（设置 offset 回到任意时间点）
+        <br>• 天然<strong>削峰填谷</strong>：高峰期消息堆在 Kafka，下游按自身速度消费</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">CQRS + Event Sourcing</div>
+        <div class="sd"><strong>CQRS</strong>（命令查询分离）：写操作走命令模型改 DB，读操作走 Kafka Consumer 维护的物化视图（ES / Redis）。读写分离，各自优化。
+        <br><strong>Event Sourcing</strong>：系统状态 = 初始状态 + 事件日志 Replay。Kafka 的 Log Compaction Topic 天然适合做 Event Store。
+        <br><br>适用场景：审计追溯（金融交易）、复杂查询优化（多维度搜索用 ES）、时间旅行（回放到任意时刻）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Saga 模式（分布式事务替代方案）</div>
+        <div class="sd">拒绝 2PC（性能差、可用性低），改用 Saga：每步操作发一个事件，下游监听执行，失败时发<strong>补偿事件</strong>回滚。
+        <br>• <strong>Choreography Saga</strong>（编排式）：各服务自行监听事件，去中心化，Kafka 原生支持，适合简单流程
+        <br>• <strong>Orchestration Saga</strong>（协调式）：中央协调器控制流程，适合复杂流程，更易追踪和调试
+        <br><br>关键难点：补偿操作设计（如何回滚已完成步骤）、幂等保证（补偿/重试不出错）、状态追踪（Saga 执行到哪一步）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">CDC 数据管道 &amp; 实时数仓</div>
+        <div class="sd">
+          <strong>CDC（Change Data Capture）</strong>：用 Debezium 捕获 MySQL binlog 变更 → Kafka Topic → 下游消费。
+          <br>• MySQL → Kafka → Elasticsearch（全文搜索）
+          <br>• MySQL → Kafka → ClickHouse/StarRocks（OLAP 分析）
+          <br>• MySQL → Kafka → Redis（缓存预热/更新）
+          <br><br>优势：<strong>业务代码零侵入</strong>（读 binlog 不改业务），准实时（秒级延迟），数据一致性（binlog 是 DB 的 ground truth）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--purple)">设计原则</div>
+    <div class="phase-title">Topic 设计最佳实践</div>
+    <ul class="phase-items">
+      <li><strong>按业务域</strong>划分 Topic，不要混用</li>
+      <li>分区数 = 预期 TPS / 单分区吞吐（约 10MB/s）</li>
+      <li>分区数只能增加不能减少，<strong>提前规划</strong></li>
+      <li>Partition 数建议为 Broker 数的整数倍</li>
+      <li>Key 设计决定数据分布，避免 <strong>热点 Key</strong></li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--purple)">可靠性</div>
+    <div class="phase-title">生产可靠性配置</div>
+    <ul class="phase-items">
+      <li><code>replication.factor=3</code> 三副本</li>
+      <li><code>min.insync.replicas=2</code> 最少同步副本</li>
+      <li><code>acks=all</code> 生产者确认策略</li>
+      <li><code>unclean.leader.election=false</code></li>
+      <li>消费端<strong>手动提交 offset</strong>，处理后再提交</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--purple)">运维</div>
+    <div class="phase-title">日常运维 Checklist</div>
+    <ul class="phase-items">
+      <li>监控 <strong>UnderReplicatedPartitions = 0</strong></li>
+      <li>监控 consumer-lag 并设置阈值告警</li>
+      <li>定期清理过期 Consumer Group</li>
+      <li>磁盘使用率 &lt; 70%，预留扩容空间</li>
+      <li>滚动升级，不要全集群停机</li>
+    </ul>
+  </div>
+</div>
+
+<div class="fw c-p" id="skew" style="margin-top:14px;">
+  <div class="fwh">
+    <span class="fwb">SKEW</span>
+    <span class="fwt">数据倾斜 — 热点 Key &amp; 分区不均</span>
+    <span class="badge badge-p" style="margin-left:auto;">实战难点</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">现象 &amp; 诊断</div>
+        <div class="sd">"为什么集群整体不忙，但消费就是积压？" —— 大概率是<strong>数据倾斜</strong>。
+        <br>• 几个 Partition 的写入 / 消费速率远高于其他（比如 99% 流量打到 1 个分区）
+        <br>• 对应 Consumer 实例 CPU/网络打满，其他 Consumer 几乎空闲
+        <br>• 整体 consumer-lag 表面正常，但分 Partition 看就是单点积压
+        <br><br><strong>诊断命令</strong>：</div>
+        <div class="sc">kafka-consumer-groups.sh --describe --group my-group
+<span class="cm"># 看每个 Partition 的 LAG 列，是否极度不均（如 P3 有 100w，其他 0）</span>
+
+kafka-run-class.sh kafka.tools.GetOffsetShell \
+    --broker-list xxx:9092 --topic orders --time -1
+<span class="cm"># 看每个 Partition 的当前 offset，速率高的分区 offset 增长快</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">根因 — Key 选择不当</div>
+        <div class="sd">默认 <code>hash(key) % partitionCount</code> 分区，如果 Key 分布严重不均，就会倾斜。常见反例：
+        <br>• 用 <strong>userId 当 Key</strong>，但有 1 个超级 VIP 用户（如直播间）操作量是普通用户 1000 倍
+        <br>• 用 <strong>tenant_id 当 Key</strong>，但某个大客户的流量是其他客户总和
+        <br>• 用 <strong>商品 ID 当 Key</strong>，但秒杀爆款流量占 80%
+        <br>• 用 <strong>状态字段（status=PAID）</strong>当 Key，只有几种值导致大量消息挤同一 Partition</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">解决方案 — 加盐打散 + 消费端聚合</div>
+        <div class="sd">核心思路：<strong>牺牲单 Key 严格顺序，换分区均匀</strong>。</div>
+        <div class="sc"><span class="cm">// 方案 A：识别热点 Key 加盐打散</span>
+String key = order.getUserId();
+if (isHotUser(key)) {
+    int salt = ThreadLocalRandom.current().nextInt(10);  <span class="cm">// 0-9 随机</span>
+    key = key + "_" + salt;       <span class="cm">// 热点 user 散到 10 个分区</span>
+}
+producer.send(new ProducerRecord&lt;&gt;("orders", key, order));
+
+<span class="cm">// 方案 B：完全弃用业务 Key，用复合 Key</span>
+String key = order.getUserId() + "#" + order.getOrderId();
+<span class="cm">// 牺牲了"同一用户必到同一分区"，但保证均匀</span>
+
+<span class="cm">// 方案 C：消费端二次分流（适合 stateful 处理）</span>
+<span class="cm">// 一级 Consumer Group 只做分流：按 hash(userId+salt) 写入下一级 Topic</span>
+<span class="cm">// 下一级 Consumer Group 做实际处理</span></div>
+        <div class="sd" style="margin-top:6px;"><strong>方案对比</strong>：A 适合<strong>偶尔热点</strong>（如有限的几个 VIP）；B 牺牲<strong>同 user 顺序性</strong>，业务能接受才用；C 引入<strong>中转 Topic</strong>，复杂但灵活，适合实时大数据场景。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">分区数量不均的情况</div>
+        <div class="sd">另一种倾斜：<strong>Partition 在 Broker 上分布不均</strong>（比如新 Broker 上线后没有分区迁过去）。
+        <br>• 表现：某 Broker CPU / 网络打满，其他 Broker 闲置
+        <br>• 解法：用 <code>kafka-reassign-partitions.sh</code>（见 Stage 4）把分区迁过去，<strong>带 throttle 限流</strong>
+        <br>• 预防：扩容 Broker 后立即生成迁移计划，不要等问题暴露</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════ STAGE 6 ══════════════════ -->
+<div class="sec" id="stage6">Stage 6 · 面试冲刺 &amp; 实战项目</div>
+
+<div class="fw c-r" id="interview">
+  <div class="fwh">
+    <span class="fwb">INTERVIEW</span>
+    <span class="fwt">大厂高频面试题清单</span>
+    <span class="badge badge-r" style="margin-left:auto;">必背</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">Q1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka 如何保证消息不丢失？</div>
+        <div class="sd">三端配置缺一不可：<strong>Producer</strong>（acks=all + retries + 幂等）→ <strong>Broker</strong>（replication.factor=3 + min.insync.replicas=2 + unclean.leader.election=false）→ <strong>Consumer</strong>（手动提交 offset，先消费再提交）。<a href="kafka-mq-reliability.html#nodrop" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:500;">→ 详细版本</a></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消息积压了怎么办？</div>
+        <div class="sd">紧急扩容（新建 10 倍分区临时 Topic + Relay Consumer 转发），同时分析根因（消费太慢 or 发送暴增），处理完再缩回。<a href="kafka-mq-reliability.html#backlog" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:500;">→ 详细版本</a></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka 怎么保证消息顺序？</div>
+        <div class="sd">同 Partition 内有序。业务层用 <strong>业务 Key hash 到固定 Partition</strong>，Consumer 单线程消费。多线程时用 Key hash 路由到固定 Worker Thread。Producer 端注意 <code>max.in.flight.requests.per.connection</code> + 幂等保证重试不乱序。<a href="kafka-mq-reliability.html#order" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:500;">→ 详细版本</a></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka 为什么快？</div>
+        <div class="sd">四大核心：<strong>① 顺序写磁盘</strong>（append-only，HDD 顺序写 600MB/s+）→ <strong>② Page Cache</strong>（热数据在内存，读写都快）→ <strong>③ 零拷贝</strong>（sendfile() 跳过用户空间，省 2 次 CPU copy）→ <strong>④ 批量 + 压缩</strong>（端到端压缩，网络 + 磁盘双重受益）。详见上方 Stage 1 分析。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Rebalance 的触发原因 &amp; 如何避免？</div>
+        <div class="sd">触发：Consumer 上下线 / session.timeout 超时 / max.poll.interval 处理超时 / Topic 分区变化。
+        <br>避免：① 合理设置超时参数 ② 耗时操作用线程池 ③ <strong>CooperativeStickyAssignor</strong>（增量 Rebalance） ④ <code>group.instance.id</code>（静态成员，重启不触发 Rebalance）。详见上方 Stage 2 分析。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q6</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">ISR 是什么？Leader Epoch 解决什么问题？</div>
+        <div class="sd">ISR = 与 Leader 保持同步的副本集合。HW = ISR 中所有副本最小 LEO，Consumer 只能消费 &lt; HW 的消息。
+        <br><strong>Leader Epoch</strong> 解决两个 HW 截断 Bug：① Follower 重启截断到旧 HW 导致<strong>数据丢失</strong> ② 两副本先后宕机导致<strong>数据不一致</strong>。Epoch+1 后 Follower 向新 Leader 查询精确截断点，不再依赖本地 HW。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q7</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Producer 幂等和事务的区别？</div>
+        <div class="sd"><strong>幂等</strong>（enable.idempotence=true）：PID + Seq 保证单 Partition + 单 Session 不重复，Producer 重启 PID 变化失效。
+        <br><strong>事务</strong>（transactional.id）：跨 Partition + 跨 Session 原子写，底层通过 Transaction Coordinator + __transaction_state 实现 2PC，Consumer 需 read_committed 配合。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q8</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka Controller 的作用？ZK vs KRaft？</div>
+        <div class="sd">Controller 负责 Partition Leader 选举、分区重分配、metadata 管理。
+        <br><strong>ZK 模式</strong>：依赖 ZooKeeper 选举和存储 metadata，Controller Failover 秒级，Partition 上限约 20 万。
+        <br><strong>KRaft 模式</strong>：Controller 内嵌 Raft 共识，metadata 存 __cluster_metadata Topic，Failover 毫秒级，支持百万 Partition。3.3+ GA，新集群必选 KRaft。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q9</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消费失败怎么处理？毒丸消息怎么避免阻塞？</div>
+        <div class="sd">原生 Kafka 没有重试 / DLQ 机制，需<strong>业务层实现分级重试 + 死信队列</strong>：消费失败 → 写延迟 Topic（5min / 30min 多级）→ 仍失败 → 写 DLQ + 告警。
+        <br><strong>关键</strong>：主 Topic 始终向前 commit offset，绝不阻塞 Partition。DLQ 消息要在 Header 带上原 topic/offset/异常栈，便于排查。Spring Kafka 用 <code>DefaultErrorHandler + DeadLetterPublishingRecoverer</code> 几行代码搞定。详见上方 Stage 2 实现。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q10</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Broker 重启后流量倾斜怎么办？</div>
+        <div class="sd">Broker 重启时 Leader 切到其他副本，恢复后<strong>不会自动切回</strong>，多次重启后 Leader 全堆到几个 Broker 上 —— 这是 Preferred Replica 失衡。
+        <br>解决：① <code>auto.leader.rebalance.enable=true</code> 自动定时检查（小集群） ② 大集群关闭自动，运维窗口手动执行 <code>kafka-leader-election.sh --election-type preferred</code>。
+        <br>扩容新 Broker 后用 <code>kafka-reassign-partitions.sh</code> 迁移分区，<strong>必须带 throttle 限流</strong>否则会打爆网卡。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q11</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">如何做数据回放 / 时间旅行消费？</div>
+        <div class="sd">两种方式：
+        <br>• <strong>seek() 方式</strong>：用 subscribe 订阅后，在 ConsumerRebalanceListener.onPartitionsAssigned 中调 <code>seek(partition, offset)</code> 或 <code>offsetsForTimes()</code> 按时间戳定位
+        <br>• <strong>assign() 方式</strong>：手动指定分区，<strong>跳过 Consumer Group</strong>，独立消费不影响其他 Consumer
+        <br>典型场景：补数据、Bug 修复后重新处理、订单异常的离线排查。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q12</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">异地多活 / 跨集群同步怎么做？</div>
+        <div class="sd">用 <strong>MirrorMaker 2</strong>（基于 Kafka Connect 实现），三个 Connector：MirrorSourceConnector（同步数据）、MirrorCheckpointConnector（同步 Consumer offset，切流时不丢进度）、MirrorHeartbeatConnector（测量端到端延迟）。
+        <br>命名规则 <code>{源集群名}.{Topic}</code> 防止双向复制回环。监控核心指标 <code>replication-latency-ms</code>。详见 Stage 4。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MQ 对比表 -->
+<div class="tbl-wrap" id="mq-compare" style="margin-top:10px;">
+  <div style="padding:14px 20px 10px;border-bottom:1px solid var(--bd);font-size:13px;font-weight:600;color:var(--red);">Kafka vs RocketMQ vs RabbitMQ 对比速查</div>
+  <table class="tbl">
+    <thead>
+      <tr><th>维度</th><th>Kafka</th><th>RocketMQ</th><th>RabbitMQ</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>吞吐量</td>
+        <td><strong>百万/s 级</strong>，最高</td>
+        <td>十万/s 级</td>
+        <td>万/s 级</td>
+      </tr>
+      <tr>
+        <td>延迟</td>
+        <td>毫秒级（批量凑批会增加延迟）</td>
+        <td><strong>毫秒级</strong>，低延迟</td>
+        <td>微秒级（单条模式）</td>
+      </tr>
+      <tr>
+        <td>消息回溯</td>
+        <td>支持（offset 可回放）</td>
+        <td>支持（按时间回溯）</td>
+        <td>不支持（消费即删）</td>
+      </tr>
+      <tr>
+        <td>事务消息</td>
+        <td>支持（Exactly-Once 三层）</td>
+        <td><strong>半消息 + 回查</strong>，最成熟</td>
+        <td>不原生支持</td>
+      </tr>
+      <tr>
+        <td>延迟队列</td>
+        <td>不原生支持（需自行实现）</td>
+        <td><strong>原生支持</strong>（18 个等级）</td>
+        <td>支持（TTL + DLX）</td>
+      </tr>
+      <tr>
+        <td>消息过滤</td>
+        <td>不支持（Consumer 自行过滤）</td>
+        <td><strong>Tag / SQL92</strong> 过滤</td>
+        <td>Exchange Routing Key</td>
+      </tr>
+      <tr>
+        <td>典型场景</td>
+        <td>日志采集 · 流处理 · CDC</td>
+        <td>电商订单 · 金融交易</td>
+        <td>异构系统集成 · IoT</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="tbl-wrap" id="projects" style="margin-top:10px;">
+  <div style="padding:14px 20px 10px;border-bottom:1px solid var(--bd);font-size:13px;font-weight:600;color:var(--red);">实战项目（一句话概括，重在理解设计意图）</div>
+  <table class="tbl">
+    <thead>
+      <tr><th>项目</th><th>核心技术点</th><th>面试价值</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>电商订单异步通知</td>
+        <td>订单服务发布事件，库存/物流/通知独立消费，EDA 落地</td>
+        <td>Event-Driven + 消息可靠性三端配置</td>
+      </tr>
+      <tr>
+        <td>MySQL → ES 实时同步</td>
+        <td>Debezium CDC 捕获 binlog → Kafka → Connect Sink 写 ES</td>
+        <td>Kafka Connect 生态 + CDC 模式</td>
+      </tr>
+      <tr>
+        <td>实时用户行为看板</td>
+        <td>埋点 → Kafka → Streams 实时聚合 → Redis/ClickHouse → 展示</td>
+        <td>流处理 + 监控体系 + 端到端延迟优化</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note tip">
+  <span class="nlbl">面试技巧</span>
+  <p>回答 Kafka 问题时，不要只说"配置 X=Y"，要解释 <strong>为什么</strong> 和 <strong>原理</strong>。比如说 <code>acks=all</code> 时补充"Producer 会等 ISR 内所有副本写入才收到确认，配合 min.insync.replicas=2 保证至少 2 个副本有数据"。
+  <br><br>能手绘<strong>系统架构图</strong>是高分项 —— 准备 5 张核心场景的图：① 电商 EDA ② CDC 数据管道 ③ 实时计算架构 ④ 消息不丢全链路 ⑤ 消息积压扩容方案。</p>
+</div>
+
+
+<!-- ══════════════════ RESOURCES ══════════════════ -->
+<div class="sec" id="resources">Recommended Resources · 推荐资源</div>
+
+<div class="res-grid">
+  <div class="res-card">
+    <div class="res-icon">📚</div>
+    <div class="res-cat">书籍</div>
+    <div class="res-title">必读书单</div>
+    <ul class="res-list">
+      <li><strong>Kafka: The Definitive Guide</strong>（O'Reilly 第 2 版）— 官方背书，原理最全面，必读</li>
+      <li><strong>Effective Kafka</strong> — 侧重实战调优和最佳实践</li>
+      <li><strong>设计数据密集型应用</strong>（DDIA）— 第 11 章流处理，理解系统设计背景</li>
+    </ul>
+  </div>
+  <div class="res-card">
+    <div class="res-icon">🎓</div>
+    <div class="res-cat">课程</div>
+    <div class="res-title">在线课程</div>
+    <ul class="res-list">
+      <li><strong>Confluent 官方培训</strong> — Developer / Operator 两条路径，有认证</li>
+      <li><strong>Udemy: Apache Kafka Series</strong>（Stephane Maarek）— 口碑最好的实战课</li>
+      <li>Confluent <strong>YouTube 频道</strong> — Kafka Summit 大厂案例分享</li>
+    </ul>
+  </div>
+  <div class="res-card">
+    <div class="res-icon">🔧</div>
+    <div class="res-cat">工具 &amp; 文档</div>
+    <div class="res-title">实用资源</div>
+    <ul class="res-list">
+      <li><strong>kafka.apache.org</strong> — 官方文档，配置项释义最权威</li>
+      <li><strong>AKHQ / kafka-ui</strong>（Provectus）— 开源 Kafka Web 管理 UI</li>
+      <li>Grafana Dashboard <strong>#7589</strong> — Kafka 监控看板开箱即用</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note good">
+  <span class="nlbl">学习节奏</span>
+  <p>不要追求快，<strong>每个阶段学完都要输出</strong>（博客 / 思维导图 / 代码）。面试不是看你记了多少，而是看你能不能<strong>把知识讲清楚</strong>。推荐费曼学习法：学完一个知识点，假装给不懂 Kafka 的同学解释，能讲清楚才算掌握。</p>
+</div>
+
+</main>
+
+</body>
+</html>

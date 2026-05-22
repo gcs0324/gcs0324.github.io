@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 04 · Spring MVC</title>
+<style>
+header::before{content:'MVC'}
+/* step */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<header>
+  <div class="htag">SPRING · 04 · MVC</div>
+  <h1>Spring MVC 请求处理</h1>
+  <p class="subtitle">DispatcherServlet · HandlerMapping · 拦截器 · 参数绑定 · 全局异常</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#flow"><span class="s-link-num">01</span>请求处理流程</a>
+    <a class="s-link" href="#dispatcher"><span class="s-link-num">02</span>DispatcherServlet</a>
+    <a class="s-link" href="#annotations"><span class="s-link-num">03</span>核心注解</a>
+    <a class="s-link" href="#interceptor"><span class="s-link-num">04</span>拦截器 vs 过滤器</a>
+    <a class="s-link" href="#param"><span class="s-link-num">05</span>参数绑定</a>
+    <a class="s-link" href="#converter"><span class="s-link-num">06</span>消息转换器</a>
+    <a class="s-link" href="#exception"><span class="s-link-num">07</span>全局异常处理</a>
+    <a class="s-link" href="#validation"><span class="s-link-num">08</span>参数校验</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="spring-06-interview.html#mvc">→ 面试题 MVC 章节</a>
+    <a class="s-link" href="spring-05-boot.html">→ 下一章：Boot</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 请求处理流程 ═══ -->
+    <div class="sec" id="flow"><span class="sec-num">01</span>HTTP 请求处理完整流程</div>
+
+    <div class="card">
+      <div class="card-title">DispatcherServlet 处理流程（8步）</div>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">请求进入 DispatcherServlet</div><div class="step-desc">所有请求统一由前端控制器 DispatcherServlet 接收（配置 / 或 /*），是整个 MVC 的核心枢纽</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">HandlerMapping — 路由匹配</div><div class="step-desc">根据请求 URL、HTTP 方法等查找对应的 Handler（Controller 方法），同时组装拦截器链（HandlerExecutionChain）</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">HandlerAdapter — 适配执行</div><div class="step-desc">不同类型的 Handler 需要不同的 Adapter 执行；@RequestMapping 方法由 RequestMappingHandlerAdapter 处理</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">拦截器 preHandle()</div><div class="step-desc">在 Handler 执行前调用所有拦截器的 preHandle()，返回 false 则终止请求链，直接响应</div></div></div>
+        <div class="step"><div class="step-num">⑤</div><div><div class="step-title">Handler（Controller）方法执行</div><div class="step-desc">参数绑定（@RequestBody 由 HttpMessageConverter 反序列化），执行业务逻辑，返回结果</div></div></div>
+        <div class="step"><div class="step-num">⑥</div><div><div class="step-title">拦截器 postHandle()</div><div class="step-desc">Handler 执行后、视图渲染前调用，可修改 ModelAndView；异常时不调用</div></div></div>
+        <div class="step"><div class="step-num">⑦</div><div><div class="step-title">视图渲染 / 响应写出</div><div class="step-desc">REST 场景：@ResponseBody 用 HttpMessageConverter 序列化，直接写出响应体。传统 MVC：ViewResolver 解析视图名，渲染模板</div></div></div>
+        <div class="step"><div class="step-num">⑧</div><div><div class="step-title">拦截器 afterCompletion()</div><div class="step-desc">请求完成后调用（无论是否异常），用于资源清理。异常时也会被调用</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 02 DispatcherServlet ═══ -->
+    <div class="sec" id="dispatcher"><span class="sec-num">02</span>DispatcherServlet 核心组件</div>
+
+    <div class="card">
+      <div class="card-title">9 大核心组件</div>
+      <table class="tbl">
+        <tr><th>组件</th><th>作用</th><th>常用实现</th></tr>
+        <tr><td>HandlerMapping</td><td>URL → Handler 路由映射</td><td>RequestMappingHandlerMapping</td></tr>
+        <tr><td>HandlerAdapter</td><td>统一执行不同类型 Handler</td><td>RequestMappingHandlerAdapter</td></tr>
+        <tr><td>HandlerExceptionResolver</td><td>处理 Handler 执行异常</td><td>ExceptionHandlerExceptionResolver</td></tr>
+        <tr><td>ViewResolver</td><td>视图名 → View 对象解析</td><td>InternalResourceViewResolver（REST 无需）</td></tr>
+        <tr><td>LocaleResolver</td><td>国际化语言解析</td><td>AcceptHeaderLocaleResolver</td></tr>
+        <tr><td>ThemeResolver</td><td>主题解析（已废弃）</td><td>—</td></tr>
+        <tr><td>MultipartResolver</td><td>文件上传解析</td><td>StandardServletMultipartResolver</td></tr>
+        <tr><td>FlashMapManager</td><td>重定向参数传递</td><td>SessionFlashMapManager</td></tr>
+        <tr><td>MessageConverter</td><td>请求/响应体序列化</td><td>MappingJackson2HttpMessageConverter</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 03 核心注解 ═══ -->
+    <div class="sec" id="annotations"><span class="sec-num">03</span>核心注解速查</div>
+
+    <div class="card">
+      <div class="card-title">参数绑定注解</div>
+      <table class="tbl">
+        <tr><th>注解</th><th>作用</th><th>示例</th></tr>
+        <tr><td>@PathVariable</td><td>绑定 URL 路径变量</td><td><code>/users/{id}</code> → <code>@PathVariable Long id</code></td></tr>
+        <tr><td>@RequestParam</td><td>绑定查询参数 / 表单参数</td><td><code>?page=1</code> → <code>@RequestParam int page</code></td></tr>
+        <tr><td>@RequestBody</td><td>请求体 JSON → Java 对象</td><td><code>@RequestBody UserDTO dto</code>（POST）</td></tr>
+        <tr><td>@RequestHeader</td><td>绑定请求头</td><td><code>@RequestHeader("Authorization") String token</code></td></tr>
+        <tr><td>@CookieValue</td><td>绑定 Cookie 值</td><td><code>@CookieValue("JSESSIONID") String sid</code></td></tr>
+        <tr><td>@ModelAttribute</td><td>绑定表单对象（传统 MVC）</td><td><code>@ModelAttribute UserForm form</code></td></tr>
+        <tr><td>@ResponseBody</td><td>返回值直接序列化为响应体</td><td>加在方法或类（@RestController）上</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 04 拦截器 vs 过滤器 ═══ -->
+    <div class="sec" id="interceptor"><span class="sec-num">04</span>拦截器 vs 过滤器</div>
+
+    <div class="card">
+      <div class="card-title">Filter vs HandlerInterceptor 对比</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Filter（过滤器）</th><th>HandlerInterceptor（拦截器）</th></tr>
+        <tr><td>规范</td><td>Servlet 规范（javax/jakarta.servlet）</td><td>Spring MVC 特有</td></tr>
+        <tr><td>作用位置</td><td>最外层，DispatcherServlet 之外</td><td>DispatcherServlet 内部</td></tr>
+        <tr><td>拦截范围</td><td>所有请求（含静态资源、其他 Servlet）</td><td>仅 DispatcherServlet 管控的请求</td></tr>
+        <tr><td>访问 Spring Bean</td><td>需手动获取 ApplicationContext</td><td>直接 @Autowired 注入</td></tr>
+        <tr><td>方法</td><td>doFilter()（单方法，链式调用）</td><td>preHandle / postHandle / afterCompletion</td></tr>
+        <tr><td>能访问 Handler 信息</td><td>❌ 不能</td><td>✅ 可以（Object handler 参数）</td></tr>
+        <tr><td>注册方式</td><td>@WebFilter 或 FilterRegistrationBean</td><td>WebMvcConfigurer#addInterceptors</td></tr>
+      </table>
+      <pre>// Filter 注册
+@Bean
+public FilterRegistrationBean&lt;MyFilter&gt; authFilter() {
+    FilterRegistrationBean&lt;MyFilter&gt; bean = new FilterRegistrationBean&lt;&gt;();
+    bean.setFilter(new MyFilter());
+    bean.addUrlPatterns("/api/*");
+    bean.setOrder(1); // 数值越小越先执行
+    return bean;
+}
+
+// Interceptor 注册
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new AuthInterceptor())
+            .addPathPatterns("/api/**")
+            .excludePathPatterns("/api/login");
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 05 参数绑定 ═══ -->
+    <div class="sec" id="param"><span class="sec-num">05</span>参数绑定原理</div>
+
+    <div class="card">
+      <div class="card-title">HandlerMethodArgumentResolver</div>
+      <p>Spring MVC 通过 <code>HandlerMethodArgumentResolver</code> 接口的实现类将 HTTP 请求中的数据绑定到 Controller 方法参数：</p>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:10px">
+        <li style="display:flex;gap:10px;font-size:13.5px;color:var(--tx2)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--blue);min-width:18px">▸</span><span><code>RequestParamMethodArgumentResolver</code> → 处理 @RequestParam</span></li>
+        <li style="display:flex;gap:10px;font-size:13.5px;color:var(--tx2)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--blue);min-width:18px">▸</span><span><code>PathVariableMethodArgumentResolver</code> → 处理 @PathVariable</span></li>
+        <li style="display:flex;gap:10px;font-size:13.5px;color:var(--tx2)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--blue);min-width:18px">▸</span><span><code>RequestResponseBodyMethodProcessor</code> → 处理 @RequestBody / @ResponseBody（通过 HttpMessageConverter）</span></li>
+        <li style="display:flex;gap:10px;font-size:13.5px;color:var(--tx2)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--blue);min-width:18px">▸</span><span><code>ServletModelAttributeMethodProcessor</code> → 处理 @ModelAttribute</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 06 消息转换器 ═══ -->
+    <div class="sec" id="converter"><span class="sec-num">06</span>HttpMessageConverter</div>
+
+    <div class="card">
+      <div class="card-title">内容协商与转换流程</div>
+      <p>@RequestBody 和 @ResponseBody 都依赖 <code>HttpMessageConverter</code> 完成序列化/反序列化：</p>
+      <p><strong>请求反序列化</strong>：读 Content-Type → 找支持该媒体类型的 Converter → 调用 read() → Java 对象</p>
+      <p><strong>响应序列化</strong>：读 Accept 头 → 内容协商 → 找支持的 Converter → 调用 write() → 写入响应体</p>
+      <table class="tbl">
+        <tr><th>Converter</th><th>支持格式</th></tr>
+        <tr><td>MappingJackson2HttpMessageConverter</td><td>application/json（默认，Jackson）</td></tr>
+        <tr><td>StringHttpMessageConverter</td><td>text/plain, text/*</td></tr>
+        <tr><td>ByteArrayHttpMessageConverter</td><td>application/octet-stream</td></tr>
+        <tr><td>Jaxb2RootElementHttpMessageConverter</td><td>application/xml, text/xml</td></tr>
+        <tr><td>FastJsonHttpMessageConverter</td><td>application/json（FastJSON，需手动注册）</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 07 全局异常处理 ═══ -->
+    <div class="sec" id="exception"><span class="sec-num">07</span>全局异常处理</div>
+
+    <div class="card">
+      <div class="card-title">@ControllerAdvice + @ExceptionHandler（推荐）</div>
+      <pre>@RestControllerAdvice // = @ControllerAdvice + @ResponseBody
+public class GlobalExceptionHandler {
+
+    // 处理业务异常
+    @ExceptionHandler(BusinessException.class)
+    public Result&lt;Void&gt; handleBusiness(BusinessException e) {
+        return Result.fail(e.getCode(), e.getMessage());
+    }
+
+    // 处理参数校验异常（@Valid 失败）
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Result&lt;Void&gt; handleValidation(MethodArgumentNotValidException e) {
+        String msg = e.getBindingResult().getFieldErrors()
+            .stream().map(FieldError::getDefaultMessage)
+            .collect(Collectors.joining(", "));
+        return Result.fail(400, msg);
+    }
+
+    // 处理所有未捕获异常（兜底）
+    @ExceptionHandler(Exception.class)
+    public Result&lt;Void&gt; handleAll(Exception e) {
+        log.error("系统异常", e);
+        return Result.fail(500, "服务器内部错误");
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 08 参数校验 ═══ -->
+    <div class="sec" id="validation"><span class="sec-num">08</span>参数校验</div>
+
+    <div class="card">
+      <div class="card-title">Bean Validation 常用注解</div>
+      <table class="tbl">
+        <tr><th>注解</th><th>说明</th></tr>
+        <tr><td>@NotNull</td><td>不能为 null</td></tr>
+        <tr><td>@NotBlank</td><td>不能为 null 且去空格后长度 > 0（String 专用）</td></tr>
+        <tr><td>@NotEmpty</td><td>不能为 null 且不能为空（Collection/String/Array）</td></tr>
+        <tr><td>@Size(min,max)</td><td>大小范围限制</td></tr>
+        <tr><td>@Min / @Max</td><td>数值最小值 / 最大值</td></tr>
+        <tr><td>@Pattern(regexp)</td><td>正则表达式匹配</td></tr>
+        <tr><td>@Email</td><td>邮箱格式</td></tr>
+        <tr><td>@Valid</td><td>级联校验（嵌套对象）</td></tr>
+      </table>
+      <div class="note info"><strong>@Valid vs @Validated</strong>：<code>@Valid</code> 是 JSR-303 标准注解；<code>@Validated</code> 是 Spring 扩展，支持<strong>分组校验</strong>（groups 参数），可针对不同操作使用不同校验规则（如 Create 和 Update）。</div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

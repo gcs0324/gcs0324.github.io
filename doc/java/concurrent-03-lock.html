@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 并发 03 · 锁机制</title>
+<style>
+header::before{content:'LOCK'}
+/* 锁升级流程 */
+.lock-flow{display:flex;align-items:center;gap:0;margin:14px 0;flex-wrap:wrap}
+.lock-state{padding:10px 16px;border-radius:6px;text-align:center;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;border:1px solid}
+.lock-state.s0{background:var(--bg2);color:var(--tx3);border-color:var(--bd)}
+.lock-state.s1{background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border-color:var(--green-b,#9ed4b0)}
+.lock-state.s2{background:var(--yellow-bg,#fffbe6);color:var(--yellow,#b45309);border-color:var(--yellow-b,#f0d060)}
+.lock-state.s3{background:var(--red-bg);color:var(--red);border-color:var(--red-b)}
+.lock-arrow{padding:0 8px;color:var(--tx3);font-size:18px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-concurrent.js"></script>
+<header>
+  <div class="htag">CONCURRENT · 03 · LOCK</div>
+  <h1>锁机制</h1>
+  <p class="sub">synchronized 锁升级 · ReentrantLock · AQS 原理 · 读写锁 · 死锁</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#sync"><span class="s-num">01</span>synchronized</a>
+    <a class="s-link" href="#upgrade"><span class="s-num">02</span>锁升级</a>
+    <a class="s-link" href="#reentrant"><span class="s-num">03</span>ReentrantLock</a>
+    <a class="s-link" href="#compare"><span class="s-num">04</span>sync vs Lock 对比</a>
+    <a class="s-link" href="#aqs"><span class="s-num">05</span>AQS 原理</a>
+    <a class="s-link" href="#rwlock"><span class="s-num">06</span>读写锁</a>
+    <a class="s-link" href="#deadlock"><span class="s-num">07</span>死锁</a>
+    <a class="s-link" href="#locktype"><span class="s-num">08</span>锁的分类</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="concurrent-06-interview.html#lock">→ 面试题 锁</a>
+    <a class="s-link" href="concurrent-04-juc.html">→ 下一章：JUC</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 synchronized -->
+    <div class="sec" id="sync"><span class="sn">01</span>synchronized</div>
+    <div class="card">
+      <div class="ct">三种使用方式</div>
+      <pre>// 1. 修饰实例方法 — 锁是当前实例对象（this）
+public synchronized void instanceMethod() { ... }
+
+// 2. 修饰静态方法 — 锁是当前 Class 对象
+public static synchronized void staticMethod() { ... }
+
+// 3. 修饰代码块 — 锁是括号内指定对象
+public void blockMethod() {
+    synchronized (this) { ... }       // 锁 this
+    synchronized (MyClass.class) { }  // 锁 Class 对象
+    synchronized (lockObj) { }        // 锁任意对象
+}</pre>
+      <p>字节码层面：同步方法通过 <code>ACC_SYNCHRONIZED</code> 标志；同步代码块通过 <code>monitorenter / monitorexit</code> 指令实现。两者底层都依赖 <span class="kw">Monitor（监视器）</span>。</p>
+    </div>
+    <div class="card">
+      <div class="ct">Mark Word 结构（64位 JVM）</div>
+      <p>对象头中的 Mark Word 随锁状态变化存储不同内容：</p>
+      <table class="tbl">
+        <tr><th>锁状态</th><th>存储内容</th><th>标志位</th></tr>
+        <tr><td>无锁</td><td>hashCode(31bit) + GC年龄(4bit) + 偏向(1bit=0)</td><td>01</td></tr>
+        <tr><td>偏向锁</td><td>线程ID(54bit) + Epoch(2bit) + GC年龄(4bit) + 偏向(1bit=1)</td><td>01</td></tr>
+        <tr><td>轻量级锁</td><td>指向栈中锁记录的指针（62bit）</td><td>00</td></tr>
+        <tr><td>重量级锁</td><td>指向 Monitor 对象的指针（62bit）</td><td>10</td></tr>
+        <tr><td>GC 标记</td><td>空</td><td>11</td></tr>
+      </table>
+    </div>
+
+    <!-- 02 锁升级 -->
+    <div class="sec" id="upgrade"><span class="sn">02</span>锁升级（JDK 6+ 优化）</div>
+    <div class="card">
+      <div class="ct">锁升级流程（单向，不可降级）</div>
+      <div class="lock-flow">
+        <div class="lock-state s0">无锁</div>
+        <div class="lock-arrow">→</div>
+        <div class="lock-state s1">偏向锁</div>
+        <div class="lock-arrow">→</div>
+        <div class="lock-state s2">轻量级锁</div>
+        <div class="lock-arrow">→</div>
+        <div class="lock-state s3">重量级锁</div>
+      </div>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th>锁状态</th><th>适用场景</th><th>实现机制</th><th>性能</th></tr>
+        <tr><td>偏向锁</td><td>只有一个线程访问</td><td>Mark Word 记录线程ID，下次进入无需 CAS</td><td>最快，几乎无开销</td></tr>
+        <tr><td>轻量级锁</td><td>多线程交替访问（无竞争）</td><td>CAS 将 Mark Word 复制到栈帧的 Lock Record</td><td>快，CAS 操作</td></tr>
+        <tr><td>重量级锁</td><td>多线程激烈竞争</td><td>OS Mutex，线程挂起/唤醒，涉及用户态/内核态切换</td><td>慢，有上下文切换开销</td></tr>
+      </table>
+      <div class="note info"><strong>JDK 15 废弃偏向锁</strong>：现代多核 CPU 下，启用偏向锁的 JVM 维护成本（撤销偏向锁的 STW）高于收益。JDK 15 中默认禁用，JDK 18 彻底删除。新项目无需考虑偏向锁优化。</div>
+    </div>
+    <div class="card">
+      <div class="ct">JDK 6 其他锁优化</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">自旋锁 / 自适应自旋</strong>：竞争失败时不立即挂起，而是 CAS 循环尝试（默认 10 次）。JDK 6 引入自适应自旋，根据历史成功率动态调整自旋次数</span></li>
+        <li><span class="b">②</span><span><strong class="kw">锁消除</strong>：JIT 通过逃逸分析发现锁对象不可能被共享，直接消除锁（如方法内的 StringBuffer 操作）</span></li>
+        <li><span class="b">③</span><span><strong class="kw">锁粗化</strong>：连续多次对同一对象加解锁，JIT 将其合并为一次更大范围的锁（减少加解锁开销）</span></li>
+      </ul>
+    </div>
+
+    <!-- 03 ReentrantLock -->
+    <div class="sec" id="reentrant"><span class="sn">03</span>ReentrantLock</div>
+    <div class="card">
+      <div class="ct">核心特性与用法</div>
+      <pre>ReentrantLock lock = new ReentrantLock(true); // true=公平锁
+
+// 标准用法：必须在 finally 中 unlock
+lock.lock();
+try {
+    // 临界区
+} finally {
+    lock.unlock(); // 必须！
+}
+
+// 可中断锁（响应 interrupt()）
+lock.lockInterruptibly();
+
+// 超时尝试获取锁
+if (lock.tryLock(500, TimeUnit.MILLISECONDS)) {
+    try { ... } finally { lock.unlock(); }
+} else {
+    // 获取超时，处理降级
+}
+
+// Condition（更精确的等待/通知）
+Condition notFull  = lock.newCondition();
+Condition notEmpty = lock.newCondition();
+notFull.await();    // 类似 wait()，释放锁
+notFull.signal();   // 类似 notify()，唤醒等待 notFull 的线程</pre>
+    </div>
+    <div class="card">
+      <div class="ct">公平锁 vs 非公平锁</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>公平锁（fair=true）</th><th>非公平锁（默认）</th></tr>
+        <tr><td>获取顺序</td><td>严格按等待队列顺序（FIFO）</td><td>先 CAS 抢锁，失败再入队</td></tr>
+        <tr><td>吞吐量</td><td>低（线程切换多）</td><td>高（减少线程切换）</td></tr>
+        <tr><td>饥饿风险</td><td>无</td><td>极端情况可能饥饿</td></tr>
+        <tr><td>适用场景</td><td>等待时间敏感</td><td>吞吐量优先（绝大多数场景）</td></tr>
+      </table>
+    </div>
+
+    <!-- 04 sync vs Lock 对比 -->
+    <div class="sec" id="compare"><span class="sn">04</span>synchronized vs ReentrantLock</div>
+    <div class="card">
+      <div class="ct">全面对比</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>synchronized</th><th>ReentrantLock</th></tr>
+        <tr><td>实现层面</td><td>JVM 关键字，字节码指令</td><td>Java API，基于 AQS</td></tr>
+        <tr><td>锁释放</td><td>自动释放（代码块结束/异常）</td><td>必须手动 unlock()（finally 中）</td></tr>
+        <tr><td>中断响应</td><td>❌ 不可中断</td><td>✅ lockInterruptibly()</td></tr>
+        <tr><td>超时获取</td><td>❌ 无</td><td>✅ tryLock(timeout)</td></tr>
+        <tr><td>公平锁</td><td>❌ 非公平</td><td>✅ 可选公平/非公平</td></tr>
+        <tr><td>条件变量</td><td>wait/notify（只有1个条件队列）</td><td>Condition（可多个精确队列）</td></tr>
+        <tr><td>锁升级</td><td>✅ 偏向→轻量→重量级</td><td>❌ 无（直接 CAS + AQS 队列）</td></tr>
+        <tr><td>可重入</td><td>✅</td><td>✅</td></tr>
+        <tr><td>性能（JDK 6+）</td><td>基本相当</td><td>基本相当</td></tr>
+        <tr><td>推荐场景</td><td>简单同步需求，代码可读性好</td><td>需要高级特性（中断/超时/多条件）</td></tr>
+      </table>
+    </div>
+
+    <!-- 05 AQS -->
+    <div class="sec" id="aqs"><span class="sn">05</span>AQS（AbstractQueuedSynchronizer）</div>
+    <div class="card">
+      <div class="ct">AQS 核心数据结构</div>
+      <p>AQS 是 JUC 锁框架的基础，通过一个 <span class="kw">volatile int state</span> 变量和一个 <span class="kw">CLH 变体双向队列</span>实现同步：</p>
+      <ul class="dl">
+        <li><span class="b">state</span><span>同步状态，不同锁语义不同：ReentrantLock 中是重入次数；Semaphore 中是剩余许可数；CountDownLatch 中是倒计数值</span></li>
+        <li><span class="b">队列</span><span>等待获取锁的线程以 Node 结点形式排列在双向链表中，head 为虚节点，首个真实等待结点为 head.next</span></li>
+        <li><span class="b">Node</span><span>包含：等待线程引用、waitStatus（CANCELLED/-1=SIGNAL/-2=CONDITION/-3=PROPAGATE）、prev/next 指针</span></li>
+      </ul>
+      <pre>// 独占模式（ReentrantLock）核心流程
+acquire(1):
+  if (!tryAcquire(1))           // 子类实现：CAS 尝试设置 state
+    addWaiter(Node.EXCLUSIVE)   // 入队
+    acquireQueued(node, 1)      // 自旋+park 等待
+
+release(1):
+  if (tryRelease(1))            // 子类实现：state 减 1，=0 则释放成功
+    unparkSuccessor(head)       // 唤醒后继结点</pre>
+    </div>
+    <div class="card">
+      <div class="ct">基于 AQS 的实现</div>
+      <table class="tbl">
+        <tr><th>类</th><th>模式</th><th>state 含义</th></tr>
+        <tr><td>ReentrantLock</td><td>独占</td><td>0=未锁定，>0=重入次数</td></tr>
+        <tr><td>Semaphore</td><td>共享</td><td>剩余许可数</td></tr>
+        <tr><td>CountDownLatch</td><td>共享</td><td>倒计数，减到 0 全部唤醒</td></tr>
+        <tr><td>ReentrantReadWriteLock</td><td>独占+共享</td><td>高16位=读锁数，低16位=写锁重入次数</td></tr>
+        <tr><td>CyclicBarrier</td><td>（基于 ReentrantLock）</td><td>count 剩余等待数</td></tr>
+      </table>
+    </div>
+
+    <!-- 06 读写锁 -->
+    <div class="sec" id="rwlock"><span class="sn">06</span>读写锁</div>
+    <div class="card">
+      <div class="ct">ReentrantReadWriteLock</div>
+      <p>读写互斥规则：读读不互斥 / 读写互斥 / 写写互斥。适合<span class="kw">读多写少</span>场景：</p>
+      <pre>ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
+Lock readLock = rwLock.readLock();
+Lock writeLock = rwLock.writeLock();
+
+// 读操作（共享）：允许多个读线程并发
+readLock.lock();
+try { return cache.get(key); }
+finally { readLock.unlock(); }
+
+// 写操作（独占）：排它
+writeLock.lock();
+try { cache.put(key, value); }
+finally { writeLock.unlock(); }</pre>
+      <div class="note warn"><strong>写锁饥饿风险</strong>：高并发读场景下，读锁不断被获取，写锁可能长期等待。StampedLock 的乐观读可缓解此问题。</div>
+    </div>
+    <div class="card">
+      <div class="ct">StampedLock（JDK 8+）</div>
+      <p>提供乐观读（不阻塞写），解决 ReadWriteLock 写饥饿问题：</p>
+      <pre>StampedLock sl = new StampedLock();
+
+// 乐观读（不加锁，需验证）
+long stamp = sl.tryOptimisticRead();
+int x = this.x, y = this.y;
+if (!sl.validate(stamp)) { // 期间有写操作，升级为悲观读
+    stamp = sl.readLock();
+    try { x = this.x; y = this.y; }
+    finally { sl.unlockRead(stamp); }
+}
+
+// 写锁
+long stamp = sl.writeLock();
+try { this.x = newX; }
+finally { sl.unlockWrite(stamp); }</pre>
+      <div class="note warn"><strong>StampedLock 不可重入</strong>：同一线程不能重复获取写锁，且不支持 Condition，使用场景比 ReadWriteLock 受限。</div>
+    </div>
+
+    <!-- 07 死锁 -->
+    <div class="sec" id="deadlock"><span class="sn">07</span>死锁</div>
+    <div class="card">
+      <div class="ct">死锁的四个必要条件</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">互斥</strong>：资源同一时刻只能被一个线程占用</span></li>
+        <li><span class="b">②</span><span><strong class="kw">持有并等待</strong>：线程持有资源的同时等待其他资源</span></li>
+        <li><span class="b">③</span><span><strong class="kw">不可抢占</strong>：已持有的资源不能被强制剥夺</span></li>
+        <li><span class="b">④</span><span><strong class="kw">循环等待</strong>：存在线程间循环等待资源的环路</span></li>
+      </ul>
+      <p style="margin-top:12px">破坏任意一个条件即可预防死锁：</p>
+      <ul class="dl">
+        <li><span class="b">破②</span><span>一次性申请所有资源（原子获取）</span></li>
+        <li><span class="b">破③</span><span>tryLock 超时放弃，释放已持有资源重试（ReentrantLock）</span></li>
+        <li><span class="b">破④</span><span>对所有资源<strong>统一排序</strong>，按固定顺序申请（最常用方法）</span></li>
+      </ul>
+      <pre>// 死锁检测：jstack 查看线程堆栈
+$ jstack &lt;pid&gt; | grep -A 30 "deadlock"
+
+// 或使用 ThreadMXBean
+ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+long[] ids = bean.findDeadlockedThreads(); // 返回死锁线程ID</pre>
+    </div>
+
+    <!-- 08 锁分类 -->
+    <div class="sec" id="locktype"><span class="sn">08</span>锁的分类</div>
+    <div class="card">
+      <div class="ct">常见锁类型</div>
+      <table class="tbl">
+        <tr><th>分类维度</th><th>类型</th><th>代表</th></tr>
+        <tr><td>竞争策略</td><td>乐观锁 / 悲观锁</td><td>CAS / synchronized、ReentrantLock</td></tr>
+        <tr><td>等待策略</td><td>自旋锁 / 阻塞锁</td><td>CAS自旋 / OS Mutex</td></tr>
+        <tr><td>公平性</td><td>公平锁 / 非公平锁</td><td>ReentrantLock(true/false)</td></tr>
+        <tr><td>重入性</td><td>可重入锁 / 不可重入锁</td><td>ReentrantLock / 自旋锁</td></tr>
+        <tr><td>共享性</td><td>独占锁 / 共享锁</td><td>写锁 / 读锁</td></tr>
+        <tr><td>粒度</td><td>分段锁</td><td>ConcurrentHashMap 分段</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

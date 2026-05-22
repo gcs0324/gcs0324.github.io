@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分布式系统 04 · 高频面试题</title>
+<style>
+:root{--accent-color:var(--purple);--accent-bg:var(--purple-bg);--accent-b:var(--purple-b)}
+header::before{content:'DIST'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dist.js"></script>
+<header>
+  <div class="htag">DIST · 04 · INTERVIEW</div>
+  <h1>分布式系统高频面试题</h1>
+  <p class="sub">面试官视角 · 口语化回答 · 知识点跳转 — 32 道真题</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">题目分类</span>
+    <div class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">全展开</button>
+      <button class="s-btn" onclick="toggleAll(false)">全收起</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/32</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">01</span>
+      <span class="scat-label">理论基础</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">CAP 定理三选二的精确含义</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">BASE 理论 vs ACID</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">一致性等级谱系</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">Paxos 核心流程</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">Raft 选主 &amp; 日志复制</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">ZAB vs Raft 区别</span></a>
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">ZK 是 CP 还是 AP</span></a>
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">拜占庭容错 BFT</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">02</span>
+      <span class="scat-label">分布式事务</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">分布式事务常见方案</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">2PC 流程与三大问题</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">3PC 真的解决问题了吗</span></a>
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">TCC 空回滚/幂等/悬挂</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">Saga 编排 vs 协调</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">本地消息表 / 最大努力通知</span></a>
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">RocketMQ 事务消息原理</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">Seata AT 怎么回滚</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">03</span>
+      <span class="scat-label">分布式锁</span>
+      <span class="scat-count">7题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">实现分布式锁的几种方式</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">Redis 锁 SET NX PX 演化</span></a>
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">为什么要 Lua 释放锁</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">Redlock 是什么 / 为何有争议</span></a>
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">ZK 锁原理 / 为何监听前驱</span></a>
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">Redis 锁 vs ZK 锁怎么选</span></a>
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">Redisson 看门狗机制</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">04</span>
+      <span class="scat-label">分布式 ID</span>
+      <span class="scat-count">5题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">分布式 ID 方案选型</span></a>
+      <a class="scat-item" href="#q25"><span class="scat-item-num">Q25</span><span class="scat-item-txt">雪花算法 64 位结构</span></a>
+      <a class="scat-item" href="#q26"><span class="scat-item-num">Q26</span><span class="scat-item-txt">时钟回拨怎么处理</span></a>
+      <a class="scat-item" href="#q27"><span class="scat-item-num">Q27</span><span class="scat-item-txt">号段模式 + 双 Buffer</span></a>
+      <a class="scat-item" href="#q28"><span class="scat-item-num">Q28</span><span class="scat-item-txt">UUID 为什么不适合做主键</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">05</span>
+      <span class="scat-label">综合实战</span>
+      <span class="scat-count">4题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q29"><span class="scat-item-num">Q29</span><span class="scat-item-txt">限流 / 熔断 / 降级 三件套</span></a>
+      <a class="scat-item" href="#q30"><span class="scat-item-num">Q30</span><span class="scat-item-txt">跨服务问题排查思路</span></a>
+      <a class="scat-item" href="#q31"><span class="scat-item-num">Q31</span><span class="scat-item-txt">一致性 vs 性能 怎么权衡</span></a>
+      <a class="scat-item" href="#q32"><span class="scat-item-num">Q32</span><span class="scat-item-txt">项目中事务方案怎么选</span></a>
+    </div>
+  </div>
+</aside>
+
+<div class="mc">
+
+<!-- ── 01 理论基础 ── -->
+<div class="sec" id="cat1"><span class="sn">01</span> 理论基础 <span class="q-count">Q1–Q8</span></div>
+
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">CAP 定理是什么？所谓"三选二"的真实含义？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>CAP 是分布式入门题，但市面上的"三选二"说法有误导性。能讲清"P 是必选"加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>CAP 是说一致性（C）、可用性（A）、分区容忍性（P）三者不可兼得：</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">C</span>：所有节点同一时刻看到相同数据，读必读到最新写</li>
+        <li><span class="b">▸</span> <span class="kw">A</span>：非故障节点都能在合理时间返回非错误响应</li>
+        <li><span class="b">▸</span> <span class="kw">P</span>：网络分区时系统继续工作</li>
+      </ul>
+      <p>真实的取舍<strong>不是三选二，而是 P 必选</strong>。因为在真实分布式系统里网络分区一定会发生，放弃 P 就退化成单机。所以选择只发生在<span class="kw">分区时选 C 还是选 A</span>：</p>
+      <table class="tbl">
+        <tr><th>类型</th><th>分区时行为</th><th>代表</th></tr>
+        <tr><td>CP</td><td>少数派拒绝服务，宁可不可用也不返回旧数据</td><td>ZK、etcd、HBase</td></tr>
+        <tr><td>AP</td><td>各分区继续服务，可能返回旧数据，事后收敛</td><td>Eureka、Cassandra、Dynamo</td></tr>
+      </table>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#cap">CAP 详解 + 三角图</a>
+      <a class="qa-link" href="dist-01-theory.html#base">BASE 理论</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">BASE 理论和 ACID 有什么区别？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>常和 CAP 一起考。重点是"BASE 是 AP 的工程落地，与 ACID 是取舍关系而非对立"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>BASE 是 <span class="kw">Basically Available（基本可用）</span>、<span class="kw">Soft state（软状态）</span>、<span class="kw">Eventually consistent（最终一致）</span>，是 eBay 工程师对 CAP 中 AP 一侧的落地总结。</p>
+      <table class="tbl">
+        <tr><th>维度</th><th>ACID</th><th>BASE</th></tr>
+        <tr><td>一致性</td><td>强一致：写完立即可见</td><td>最终一致：可能短暂看到旧值</td></tr>
+        <tr><td>可用性</td><td>故障时宁可不可用</td><td>故障时降级保响应</td></tr>
+        <tr><td>性能</td><td>跨节点协调开销大</td><td>异步复制，吞吐高</td></tr>
+        <tr><td>典型场景</td><td>银行转账、库存扣减</td><td>商品浏览、社交评论</td></tr>
+      </table>
+      <p>实际系统几乎都是"<strong>局部 ACID + 全局 BASE</strong>"：单库内用事务保强一致，跨库跨服务用消息/补偿走最终一致。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#base">BASE 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">说说你理解的"一致性"等级？强一致和最终一致区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>分布式系统里"一致性"有多种精细划分，能讲出 4~5 档基本到位。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>等级</th><th>含义</th></tr>
+        <tr><td>线性一致</td><td>所有操作像在全局时钟下原子按真实时间执行。读必读到最新写</td></tr>
+        <tr><td>顺序一致</td><td>所有节点看到的操作顺序一致，但不要求和真实时间一致。ZK 是这一档</td></tr>
+        <tr><td>因果一致</td><td>有因果关系的操作所有节点看到顺序一致，无因果不要求</td></tr>
+        <tr><td>读己之写</td><td>用户能读到自己刚写的（避免发完朋友圈刷不到自己）</td></tr>
+        <tr><td>最终一致</td><td>停止写入后，足够长时间后所有副本收敛一致</td></tr>
+      </table>
+      <p><strong>线性一致 vs 顺序一致的小例子</strong>：A 在 10:00 写 x=1，B 在 10:01 读 x。线性一致要求 B 必读到 1；顺序一致只要求"全集群先看到写、再看到读"这个顺序，具体时间可以滞后，B 可能读到 0。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#consistency">一致性谱系</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">Paxos 算法的核心流程？为什么工程上很少直接用？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>不要求复述完整证明，能讲两阶段流程 + Multi-Paxos 工程难点即可。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Basic Paxos 让多个节点对一个值达成一致，分两阶段：</p>
+      <ul>
+        <li><span class="b">①</span> <span class="kw">Prepare</span>：Proposer 选递增编号 N，向 Acceptor 发 Prepare(N)。Acceptor 承诺"不再接受 &lt; N 的提案"，回复已接受的最大提案</li>
+        <li><span class="b">②</span> <span class="kw">Accept</span>：Proposer 收到多数派回复后，从回复里挑"已接受的最大编号"对应的值（没有就用自己想提的），发 Accept(N, v)。多数派接受即达成共识</li>
+      </ul>
+      <p>工程上很少直接用的原因：</p>
+      <ul>
+        <li><span class="b">▸</span> 只能对<strong>单个值</strong>达成共识，实际要 Multi-Paxos 选 Leader 跳过 Prepare 才能复制日志</li>
+        <li><span class="b">▸</span> 论文只给核心证明，<strong>不给完整工程实现</strong>，每家公司的 Paxos 长得都不一样</li>
+        <li><span class="b">▸</span> Leader 选举、日志补洞、配置变更等都要自己设计，正是因为难懂难落地才催生了 Raft</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#paxos">Paxos 详解</a>
+      <a class="qa-link" href="dist-01-theory.html#raft">Raft 对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">Raft 怎么选 Leader？怎么保证日志一致？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>共识算法里最常考的。能说出"随机超时"和"日志至少和我一样新"这两个关键点加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>选 Leader</strong>：节点有 Follower / Candidate / Leader 三态。Follower 在<span class="kw">随机选举超时</span>（150~300ms）没收到心跳就变 Candidate，term + 1 给自己投一票，向其他节点拉票。投票规则：① 本 term 还没投过 ② 候选人日志至少和我一样新（按 last log term，相同比 last log index）。赢得多数派即变 Leader。</p>
+      <p><strong>日志复制</strong>：Leader 收到写请求 → 追加本地日志 → 并行发 AppendEntries 给 Follower → 多数派写入后推进 commitIndex → 应用到状态机 → 返回客户端。</p>
+      <p><strong>关键安全约束</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">Election Restriction</span>：日志比候选人新的节点不会投票给他，保证 Leader 一定有最新的已提交日志</li>
+        <li><span class="b">▸</span> <span class="kw">Log Matching</span>：相同 (term, index) 位置内容相同，则之前所有日志都相同。Leader 用 prevLogIndex/prevLogTerm 强制 Follower 对齐</li>
+      </ul>
+      <p>这两条加起来，保证<strong>已提交的日志永远不会被覆盖</strong>。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#raft">Raft 详解 + 状态机图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">ZAB 协议和 Raft 有什么区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>容易混淆，能说清两个关键差异（提交方式、读策略）就到位。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>ZAB 是 ZooKeeper 专用的原子广播协议，本质和 Multi-Paxos / Raft 解决同一类问题，主要差异：</p>
+      <table class="tbl">
+        <tr><th>维度</th><th>ZAB</th><th>Raft</th></tr>
+        <tr><td>提交方式</td><td>两阶段 propose + commit</td><td>一阶段 AppendEntries 携带 commitIndex</td></tr>
+        <tr><td>选主标准</td><td>zxid 最大者优先</td><td>(last log term, last log index) 大者优先</td></tr>
+        <tr><td>日志同步</td><td>选主后专门的 Sync 阶段补齐</td><td>运行中通过 AppendEntries 自动回退到匹配点</td></tr>
+        <tr><td>读一致性</td><td>默认本地读（顺序一致）</td><td>默认走 Leader（线性一致）</td></tr>
+        <tr><td>典型实现</td><td>ZooKeeper</td><td>etcd、TiKV、Consul</td></tr>
+      </table>
+      <p>本质上都是基于多数派共识 + 选主 + 日志复制的同一类协议，差异在工程细节。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#zab">ZAB 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">ZooKeeper 是 CP 还是 AP？为什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>CAP 落地题，常和 Eureka 对比。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>ZK 是 <span class="kw">CP</span>。原因有两点：</p>
+      <ul>
+        <li><span class="b">①</span> 写操作必须走 ZAB 共识，由 Leader 协调所有 Follower 达成多数派一致才返回成功</li>
+        <li><span class="b">②</span> 发生网络分区时，<span class="kw">少数派分区</span>因为凑不齐多数派，<strong>拒绝服务</strong>。整个集群对外表现为"不可用"，但保证不会返回不一致数据</li>
+      </ul>
+      <p>对比 Eureka（AP）：分区时每个节点都继续提供服务，宁可返回过期的服务列表也要响应，事后收敛。两者代表 CAP 的两种典型取舍。</p>
+      <p><strong>面试加分</strong>：① ZK 严格说是"顺序一致"而非"线性一致"，但分区时少数派不可用，整体属于 CP；② Nacos 同时提供 CP 模式（基于 Raft）和 AP 模式（基于 Distro 协议），可选择。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#cap">CAP 详解</a>
+      <a class="qa-link" href="dist-01-theory.html#zab">ZAB 协议</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">什么是拜占庭将军问题？CFT 和 BFT 有什么区别？</span>
+    <span class="qa-badge">基础</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>偏理论。日常工作几乎不用，能点到核心区别即可，深挖 PBFT 是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>拜占庭将军问题描述的是<strong>节点可能作恶</strong>的共识场景：发假消息、给不同人发不同消息。Paxos / Raft / ZAB 都假设所有活节点诚实，只容忍宕机，属于 CFT；要容忍作恶就需要 BFT。</p>
+      <table class="tbl">
+        <tr><th>对比</th><th>CFT</th><th>BFT</th></tr>
+        <tr><td>故障模型</td><td>宕机 / 丢包，但不撒谎</td><td>节点可能任意作恶</td></tr>
+        <tr><td>节点数要求</td><td>≥ 2f+1 容忍 f 个故障</td><td>≥ 3f+1 容忍 f 个作恶</td></tr>
+        <tr><td>性能</td><td>高</td><td>低，消息复杂度 O(n²)</td></tr>
+        <tr><td>场景</td><td>公司内网集群</td><td>公链、跨组织联盟链</td></tr>
+        <tr><td>代表</td><td>Paxos、Raft、ZAB</td><td>PBFT、HotStuff、Tendermint</td></tr>
+      </table>
+      <p>日常工作接触的中间件（ZK / etcd / Kafka / Redis）几乎全是 CFT。BFT 只在区块链和跨机构联盟系统里需要。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-01-theory.html#bft">拜占庭容错</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 02 分布式事务 ── -->
+<div class="sec" id="cat2"><span class="sn">02</span> 分布式事务 <span class="q-count">Q9–Q16</span></div>
+
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">为什么需要分布式事务？说说你了解的常见方案？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放题，主要看能不能把方案分类讲清楚，并说出各自适用场景。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>单库事务靠 MySQL 的 redo/undo log + 锁就能保证 ACID。一旦跨库（分库分表）或跨服务（订单 → 库存 → 支付），各方有自己的事务日志互相看不到，谁都不能单独决定提交还是回滚。常见方案按一致性强度分两类：</p>
+      <table class="tbl">
+        <tr><th>类型</th><th>方案</th><th>特点</th></tr>
+        <tr><td>强一致</td><td>2PC / XA</td><td>同步阻塞，性能低，金融行业常用</td></tr>
+        <tr><td>强一致</td><td>TCC</td><td>资源预留，业务侵入大，性能高</td></tr>
+        <tr><td>最终一致</td><td>Saga</td><td>本地事务 + 补偿，适合长流程</td></tr>
+        <tr><td>最终一致</td><td>本地消息表</td><td>业务表 + 消息表同事务，简单可靠</td></tr>
+        <tr><td>最终一致</td><td>MQ 事务消息</td><td>RocketMQ 半消息 + 二次确认 + 回查</td></tr>
+        <tr><td>最终一致</td><td>Seata AT</td><td>业务无侵入，自动写 undo_log 回滚</td></tr>
+      </table>
+      <p>面试时先反问"业务一致性要求多强"，再给方案。盲目套 2PC / TCC 会被认为缺乏经验。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#choose">方案选型矩阵</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">2PC 协议是什么？有哪些经典问题？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>必考。流程要熟，三大缺陷必背。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>2PC = Two-Phase Commit。协调者 + 参与者，分两阶段：</p>
+      <ul>
+        <li><span class="b">①</span> <span class="kw">Prepare</span>：协调者问所有参与者"能提交吗"，参与者执行本地事务（写 undo/redo log），但不提交持锁等待，回 YES / NO</li>
+        <li><span class="b">②</span> <span class="kw">Commit / Rollback</span>：协调者收齐投票，全 YES 发 commit，任一 NO 或超时发 rollback</li>
+      </ul>
+      <p>三大缺陷：</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">同步阻塞</span>：阶段 1 后所有参与者持锁等待，锁定时间长，吞吐被锁死</li>
+        <li><span class="b">▸</span> <span class="kw">单点故障</span>：协调者宕机，参与者不知道该 commit 还是 rollback，只能死等</li>
+        <li><span class="b">▸</span> <span class="kw">数据不一致</span>：阶段 2 commit 时若部分参与者收到、部分没收到（网络故障），就会出现部分提交、部分未提交</li>
+      </ul>
+      <p>正是因为这三个缺陷，生产环境几乎不直接用原生 2PC。MySQL 内部 binlog 与 redo log 的协同其实就是 2PC，但那是单机内的。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#2pc">2PC 详解 + 时序图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">3PC 比 2PC 好在哪里？真的解决问题了吗？</span>
+    <span class="qa-badge">进阶</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>3PC 是经典反面教材：解决了部分问题但没解决根本问题。能讲清这一层即到位。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>3PC 把 2PC 的两阶段拆成三阶段，<strong>引入超时机制 + 询问阶段</strong>：</p>
+      <ul>
+        <li><span class="b">①</span> CanCommit：协调者问参与者"能不能提交"，只做轻量检查（资源是否就绪），不真正执行事务</li>
+        <li><span class="b">②</span> PreCommit：收齐 YES 后正式执行本地事务，写 undo/redo，持锁</li>
+        <li><span class="b">③</span> DoCommit：协调者发提交。若参与者 PreCommit 后<strong>超时没收到</strong> DoCommit，<span class="kw">默认自动提交</span>（赌大家都准备好了，协调者大概率发的是 commit）</li>
+      </ul>
+      <p><strong>3PC 没解决根本问题</strong>：超时自动提交看似减少阻塞，但如果协调者实际发的是 rollback 只是网络丢了，参与者就会自动错误地提交，依然产生不一致。3PC 工程上几乎没人用，复杂度上升一档但可靠性没本质提升。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#3pc">3PC 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">TCC 是什么？空回滚、幂等、悬挂分别是什么？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>TCC 三大坑是高频深挖题，能讲清成因 + 解决方案才算通过。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>TCC = <span class="kw">Try / Confirm / Cancel</span>，把业务操作拆成三个方法：</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">Try</span>：预留资源（冻结余额、占用库存），不真正扣减</li>
+        <li><span class="b">▸</span> <span class="kw">Confirm</span>：全部 Try 成功后，把冻结的资源真正扣掉</li>
+        <li><span class="b">▸</span> <span class="kw">Cancel</span>：任一 Try 失败，释放预留资源</li>
+      </ul>
+      <p><strong>三大经典坑：</strong></p>
+      <ul>
+        <li><span class="b">①</span> <span class="kw">空回滚</span>：Try 因为网络问题没执行，但协调器超时了直接调 Cancel。Cancel 收到一个自己根本没 Try 过的 txId。<br>解决：Cancel 时先查"是否有 Try 过的痕迹"，没有则空操作</li>
+        <li><span class="b">②</span> <span class="kw">幂等</span>：Confirm 和 Cancel 可能因为重试被调多次。<br>解决：用 txId 做唯一键去重，已处理的直接返回成功</li>
+        <li><span class="b">③</span> <span class="kw">悬挂</span>：Cancel 先到（网络乱序），Try 后到。如果 Cancel 已"假装回滚"，Try 又来冻结资源，就再也没人 Cancel 这一笔了，资源永远悬挂。<br>解决：Cancel 时记录"已被取消"标志，Try 看到标志直接拒绝</li>
+      </ul>
+      <p>所以 TCC 业务侵入大，适合一致性要求高、性能要求高的核心业务（支付、账务），不适合普通 CRUD。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#tcc">TCC 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">Saga 模式是什么？编排式和协调式有什么区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>长流程业务场景下的常见方案，能讲清和 TCC 的区别加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Saga 把长事务拆成一连串<strong>本地事务 T1, T2, ..., Tn</strong>，每个本地事务对应一个<strong>补偿事务 C1, C2, ..., Cn</strong>。任一步失败，按逆序调用前面已成功步骤的补偿。</p>
+      <p>和 TCC 的核心区别：Saga 直接执行业务，<strong>没有 Try 阶段的预留</strong>。中间状态对外可见。</p>
+      <table class="tbl">
+        <tr><th>风格</th><th>原理</th><th>优缺点</th></tr>
+        <tr><td>Choreography 编排式</td><td>服务通过事件互相驱动，T1 完成发事件，下游订阅事件触发 T2</td><td>去中心化、低耦合；但链路看不见、调试难、循环依赖风险</td></tr>
+        <tr><td>Orchestration 协调式</td><td>中央协调器按预定流程显式调用每个服务</td><td>流程清晰、易追踪；协调器是中心化组件，要保证它本身高可用</td></tr>
+      </table>
+      <p>补偿设计要点：① 幂等 ② 允许"语义补偿"而非"数据回滚"（短信无法撤回，发修正短信） ③ 补偿失败要重试 + 人工兜底。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#saga">Saga 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">本地消息表和最大努力通知怎么实现？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>互联网常用方案，实现简单但要讲清"为什么把业务表和消息表放同库"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>核心思路：把"业务操作"和"要发的消息"放在<span class="kw">同一个本地事务</span>里。业务表 + 消息表同库同事务，要么都成功要么都失败，就把"分布式事务"问题降级为"本地事务 + 异步重试"。</p>
+      <ul>
+        <li><span class="b">①</span> 业务库写入业务表 + 消息表（同事务，消息 status=待发送）</li>
+        <li><span class="b">②</span> 独立线程/定时任务扫消息表，把待发送的消息发到 MQ，发成功后改为已发送</li>
+        <li><span class="b">③</span> 消费者处理 + 回执确认。失败则不断重试</li>
+      </ul>
+      <p><strong>最大努力通知</strong>是本地消息表的近亲：扫描表里"未确认成功"的消息，按递减频率不断重试（1s → 5s → 30s → 5min → 1h），直到收到下游回执或超过最大次数转人工。常用于跨公司接口（支付通知商户、银行通知客户）。</p>
+      <p>优点：实现简单、性能高、可靠性好；缺点：只能最终一致、消息表与业务库耦合（分库分表时每片都要有）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#localmq">本地消息表详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">RocketMQ 事务消息是怎么实现的？为什么需要回查？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>RocketMQ 特色功能，能讲全四个步骤 + 回查作用即到位。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>RocketMQ 通过"<strong>半消息 + 二次确认 + 事务回查</strong>"做到"消息发送与本地事务的原子性"：</p>
+      <ul>
+        <li><span class="b">①</span> 生产者发<span class="kw">半消息</span>到 Broker，半消息已存储但对消费者不可见</li>
+        <li><span class="b">②</span> 生产者收到 Broker 确认后，执行本地事务（写订单库）</li>
+        <li><span class="b">③</span> 根据本地事务结果，向 Broker 发<span class="kw">二次确认</span>：commit → 半消息转正常消息可见；rollback → 删除半消息</li>
+        <li><span class="b">④</span> <span class="kw">事务回查</span>：如果生产者执行本地事务后宕机，二次确认丢了，Broker 一段时间未收到确认会<strong>主动回查</strong>生产者"这笔事务到底成没成"，生产者根据本地状态告诉 Broker commit 还是 rollback</li>
+      </ul>
+      <p><strong>为什么需要回查</strong>：第 ② 步和第 ③ 步之间生产者可能宕机，二次确认永远不会到达。如果没有回查，半消息会永远挂在 Broker 里。回查是兜底机制，保证最终一致性。</p>
+      <p><strong>实现成本</strong>：业务方必须根据事务 ID 能查询本地事务最终状态。这意味着事务状态要持久化，并提供查询接口。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#mqtx">RocketMQ 事务消息 + 流程图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">Seata 有几种模式？AT 模式怎么回滚？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Seata 是阿里开源框架，AT 模式是默认且最常用的，重点考"自动写 undo_log 回滚"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Seata 有四种模式：<span class="kw">AT</span>（默认）、<span class="kw">TCC</span>、<span class="kw">Saga</span>、<span class="kw">XA</span>。架构都是 TC（事务协调器，独立部署）+ TM（事务管理器，发起方）+ RM（资源管理器，参与方）三角色。</p>
+      <p><strong>AT 模式回滚流程</strong>：</p>
+      <ul>
+        <li><span class="b">①</span> 一阶段：Seata 拦截业务 SQL，在执行前后分别查询数据快照，把"修改前镜像 + 修改后镜像"写入 <code>undo_log</code> 表（与业务表同库）。本地事务直接提交，<strong>立即释放行锁</strong></li>
+        <li><span class="b">②</span> 二阶段：全局事务成功 → TC 通知 RM 异步删除 undo_log；失败 → RM 读 undo_log 中"修改前镜像"反向生成 SQL 回滚数据</li>
+      </ul>
+      <p><strong>AT 模式的隔离性问题</strong>：一阶段就提交本地事务释放行锁，意味着其他事务能立刻看到"未最终提交"的脏数据。Seata 通过 <code>SELECT ... FOR UPDATE</code> 改写 + 全局锁解决，但仍有性能折损。AT 适合 CRUD 中等并发，不适合高并发热点账户。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#seata">Seata 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 03 分布式锁 ── -->
+<div class="sec" id="cat3"><span class="sn">03</span> 分布式锁 <span class="q-count">Q17–Q23</span></div>
+
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext">实现分布式锁有哪几种方式？各自的优缺点？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放题，主要看分类清不清楚 + 取舍是否说得到位。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>一致性</th><th>性能</th><th>适用场景</th></tr>
+        <tr><td>数据库锁</td><td>强一致</td><td>低</td><td>低频任务、调度</td></tr>
+        <tr><td>Redis 单节点</td><td>AP</td><td>极高</td><td>普通业务、高并发</td></tr>
+        <tr><td>Redlock</td><td>AP（争议大）</td><td>高</td><td>不推荐</td></tr>
+        <tr><td>ZooKeeper</td><td>CP</td><td>中</td><td>金融、核心一致性</td></tr>
+        <tr><td>etcd</td><td>CP</td><td>中</td><td>云原生 / K8s 生态</td></tr>
+      </table>
+      <p>无论哪种实现，都要满足 5 个核心要求：<span class="kw">互斥</span>、<span class="kw">不死锁</span>（持锁者宕机能释放）、<span class="kw">容错</span>、<span class="kw">防误删</span>（只能释放自己的锁）、<span class="kw">可重入</span>。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#lock-choose">锁方案对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext">Redis 分布式锁怎么实现？为什么是 SET NX PX 一条命令？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>必考。要能讲清 SETNX + EXPIRE 分两步的隐患。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>// ❌ 第 1 版：分两步，非原子
+SETNX lock:order:123 app-1     // 抢锁
+EXPIRE lock:order:123 30       // 设过期时间
+// 问题：SETNX 后 EXPIRE 前如果客户端宕机
+// 锁永远不会过期，死锁
+
+// ✅ 第 2 版：一条命令
+SET lock:order:123 app-1 NX PX 30000
+// NX = key 不存在才设置；PX = 毫秒级过期
+// 原子操作，要么都成功要么都失败</pre>
+      <p>三个要点：</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">NX</span> 保证互斥（只有第一个能抢到）</li>
+        <li><span class="b">▸</span> <span class="kw">PX</span> 保证不死锁（客户端挂了锁会自动释放）</li>
+        <li><span class="b">▸</span> value 要设为<span class="kw">客户端唯一 ID（UUID）</span>，释放锁时验证身份，防止误删</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#redis-lock">Redis 锁详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext">释放 Redis 分布式锁为什么要用 Lua 脚本？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>常和 Q18 一起考。要能讲清"误删别人的锁"这个场景。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>// ❌ 直接 DEL 有风险
+if (get(lock) == myUuid) {  // 第 1 步：判 value
+    del(lock);              // 第 2 步：删 key
+}
+// 问题：① app-1 GC 卡顿 30s，锁已自动过期
+//      ② app-2 抢到新锁
+//      ③ app-1 醒来执行 del → 把 app-2 的锁误删
+
+// ✅ Lua 脚本：判 + 删 原子
+if redis.call('get', KEYS[1]) == ARGV[1] then
+    return redis.call('del', KEYS[1])
+else
+    return 0
+end</pre>
+      <p>Redis 单条命令是原子的，但<span class="kw">多条命令组合不是原子的</span>。Lua 脚本在 Redis 中作为一个整体执行，中间不会被其他命令打断，保证"判 value → 删 key"必然连续。</p>
+      <p>面试时常被追问"为什么 Redis 事务 MULTI/EXEC 不行"：MULTI 不能在事务中根据中间结果决策，没法做 if 判断；Lua 才能写控制流。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#redis-lock">Redis 锁详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">Redlock 是什么？为什么有争议？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>进阶题。能说出 Martin Kleppmann 的质疑加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>单 Redis 节点的锁有隐患：主节点宕机切到从时，如果主从没完成同步，新主可能丢失这把锁，导致两个客户端同时持锁。Redis 作者 antirez 为此提出<strong>Redlock</strong>：</p>
+      <ul>
+        <li><span class="b">①</span> 向 N 个独立 Redis 节点（通常 5 个）依次申请锁，记录起始时间 T0</li>
+        <li><span class="b">②</span> 如果 ≥ ⌈N/2⌉+1 个节点抢锁成功，<strong>且总耗时 &lt; 锁有效期</strong>，视为获锁成功</li>
+        <li><span class="b">③</span> 真正可用有效期 = 原有效期 − 申请阶段总耗时</li>
+      </ul>
+      <p><strong>著名争议</strong>：Martin Kleppmann（《DDIA》作者）撰文指出，Redlock 在 GC 暂停、时钟漂移等场景下仍可能两个客户端同时持锁，本质上是因为它依赖"墙上时间"判断锁有效性。antirez 撰文回应，争议至今没有定论。</p>
+      <p><strong>实践建议</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> 普通业务用单节点 + Redisson 看门狗已经够用</li>
+        <li><span class="b">▸</span> 对正确性要求极高（金融）应该用 ZooKeeper / etcd 的 CP 锁，不要用 Redlock</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#redis-lock">Redlock 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">ZooKeeper 怎么实现分布式锁？为什么只监听前一个节点？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>"避免惊群"是关键考点，没说到这一层算没答完。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>ZK 锁基于两个核心特性：<span class="kw">临时节点</span>（会话断开自动删）+ <span class="kw">顺序节点</span>（ZK 自动给名字加递增后缀）。</p>
+      <ul>
+        <li><span class="b">①</span> 客户端在 /lock 下创建临时顺序节点，比如 /lock/req-0001</li>
+        <li><span class="b">②</span> 看自己是不是最小的节点，是 → 获锁</li>
+        <li><span class="b">③</span> 不是最小 → 只监听<strong>前一个</strong>节点的删除事件，挂起等待</li>
+        <li><span class="b">④</span> 收到 watch 通知 → 再检查自己是否最小 → 是则获锁</li>
+      </ul>
+      <p><strong>为什么只监听前一个</strong>：如果所有等待者都监听 /lock 整个目录，锁释放时会"<span class="kw">惊群</span>"——N 个客户端同时被唤醒抢锁，但只有一个能成功，其余 N-1 个白醒。只监听前驱，每次释放只唤醒紧接着的下一个，避免惊群效应。</p>
+      <p><strong>客户端宕机</strong>：会话超时（默认 30s）后临时节点自动删，后继自动获锁。比 Redis 锁的 TTL 更可靠（TTL 是估算业务耗时，会话超时是探测真实存活）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#zk-lock">ZK 锁详解 + 结构图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">Redis 锁和 ZooKeeper 锁怎么选？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>看场景判断能力。先反问业务再给方案。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Redis 锁</th><th>ZK 锁</th></tr>
+        <tr><td>一致性</td><td>AP，主从切换可能丢锁</td><td>CP，强一致</td></tr>
+        <tr><td>性能</td><td>高（内存操作）</td><td>低（每次写都走 ZAB 共识）</td></tr>
+        <tr><td>客户端死亡</td><td>靠 TTL 自动过期</td><td>会话超时自动释放</td></tr>
+        <tr><td>典型场景</td><td>普通业务、高并发</td><td>金融、核心一致性</td></tr>
+      </table>
+      <p>选型口诀：<strong>性能优先选 Redis，正确性优先选 ZK</strong>。绝大多数业务用 Redis + Redisson 已经够用，只有"绝对不能两个人同时持锁"的金融场景才上 ZK。</p>
+      <p>实际选型还要看团队基础设施：已经有 ZK 集群就别再为锁单独引入；已经有 Redis 集群就优先用 Redisson。新引入一个中间件的运维成本很高。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#lock-choose">锁方案对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">Redisson 的看门狗机制是怎么实现的？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>常被问的细节题。能讲出"自动续期 + 客户端宕机自动失效"加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>SET NX PX 的最大痛点：TTL 怎么定？设短了业务还没干完就过期；设长了宕机后别人等太久。Redisson 用<span class="kw">看门狗</span>自动续期解决：</p>
+      <pre>// 不显式指定 TTL → 开启看门狗
+RLock lock = redisson.getLock("order:123");
+lock.lock();  // 默认 30 秒锁，每 10 秒续期一次
+try {
+    // 业务代码...
+} finally {
+    lock.unlock();
+}
+
+// 显式指定 TTL → 不开看门狗
+lock.lock(10, TimeUnit.SECONDS); // 10 秒后必释放</pre>
+      <ul>
+        <li><span class="b">▸</span> <strong>续期周期</strong> = lockWatchdogTimeout / 3，默认 30s/3 = 10s 续一次</li>
+        <li><span class="b">▸</span> <strong>客户端宕机</strong> → 后台续期任务不再运行 → 30s 后锁自动释放</li>
+        <li><span class="b">▸</span> <strong>底层实现</strong>：每次续期都是一个 Lua 脚本，先检查是不是自己的锁，再 PEXPIRE 续到 30s</li>
+      </ul>
+      <p>可重入也基于 Hash 实现：field=客户端ID，value=重入次数，加一次 +1，释放时 -1 减到 0 才真正 DEL。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#redisson">Redisson 细节</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 04 分布式 ID ── -->
+<div class="sec" id="cat4"><span class="sn">04</span> 分布式 ID <span class="q-count">Q24–Q28</span></div>
+
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">常见的分布式 ID 方案有哪些？怎么选？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放题，主要看能不能把方案分类讲清楚 + 给出选型依据。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>分布式 ID 的核心诉求：<span class="kw">全局唯一</span>、<span class="kw">趋势递增</span>（InnoDB 主键友好）、<span class="kw">信息安全</span>、<span class="kw">高性能</span>、<span class="kw">高可用</span>。</p>
+      <table class="tbl">
+        <tr><th>方案</th><th>有序</th><th>性能</th><th>依赖</th><th>推荐场景</th></tr>
+        <tr><td>UUID</td><td>❌</td><td>极高</td><td>无</td><td>非主键 ID（token、trace）</td></tr>
+        <tr><td>DB 自增</td><td>✅ 严格</td><td>低</td><td>DB</td><td>低频、小规模</td></tr>
+        <tr><td>号段模式</td><td>✅ 趋势</td><td>高</td><td>DB</td><td>中等并发，简单可控</td></tr>
+        <tr><td>Snowflake</td><td>✅ 趋势</td><td>极高</td><td>无</td><td>高并发，无时钟回拨风险</td></tr>
+        <tr><td>Leaf</td><td>✅ 趋势</td><td>极高</td><td>DB + ZK</td><td>互联网中大型公司首选</td></tr>
+      </table>
+      <p>选型口诀：① 不做主键 → UUID。② 小规模 → DB 自增 / 号段。③ 高并发互联网业务 → 雪花算法或 Leaf。④ 绝对避免时钟回拨 → Leaf-segment 模式。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#id-choose">ID 方案对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q25">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q25</span>
+    <span class="qa-qtext">雪花算法的 64 位是怎么分配的？峰值能达到多少？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>必备题。要能背出四段结构和容量上限。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Twitter 的 Snowflake 把 64 位 long 切成四段：</p>
+      <table class="tbl">
+        <tr><th>位</th><th>含义</th><th>容量</th></tr>
+        <tr><td>1 bit</td><td>符号位</td><td>恒为 0（保证非负）</td></tr>
+        <tr><td>41 bit</td><td>毫秒级时间戳（差值）</td><td>支持约 69 年</td></tr>
+        <tr><td>10 bit</td><td>工作机器 ID（5 数据中心 + 5 机器）</td><td>1024 个节点</td></tr>
+        <tr><td>12 bit</td><td>同毫秒内序列号</td><td>4096 / 毫秒</td></tr>
+      </table>
+      <p><strong>单节点峰值 = 4096 × 1000 = 409.6 万 ID/秒</strong>。本地生成无网络开销，趋势递增对 MySQL InnoDB 友好。</p>
+      <p>实际工程中各家公司会调整 bit 分配：百度 UidGenerator 把时间戳精度降到秒级，给 workerId 和 sequence 更多位数；美团 Leaf 沿用原版 64 位分配。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#snowflake">雪花算法 + 结构图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q26">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q26</span>
+    <span class="qa-qtext">雪花算法的时钟回拨问题怎么解决？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>能讲出几种典型应对方案即可。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Snowflake 严重依赖本机时钟。如果机器时钟被回拨（NTP 同步、运维误操作），同一时间戳 + 同一序列号会生成相同 ID。常见解决方案：</p>
+      <ul>
+        <li><span class="b">①</span> <strong>等待</strong>：检测到小幅回拨（&lt; 几秒），等待时钟追上来再发号</li>
+        <li><span class="b">②</span> <strong>拒绝</strong>：回拨幅度大直接抛异常拒绝发号，等运维介入</li>
+        <li><span class="b">③</span> <strong>扩展 bit</strong>：百度 UidGenerator 用额外字段记录"回拨次数"，回拨时给这个字段 +1 规避冲突</li>
+        <li><span class="b">④</span> <strong>外部校验</strong>：美团 Leaf 的 leaf-snowflake 模式，启动时去 ZK 比对时间，确认未回拨才发号</li>
+        <li><span class="b">⑤</span> <strong>绕开时钟</strong>：彻底放弃雪花，改用号段模式（Leaf-segment）</li>
+      </ul>
+      <p>生产中常用组合：检测到回拨小幅就等待，大幅就拒绝并告警，运维介入处理时钟问题。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#snowflake">时钟回拨详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q27">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q27</span>
+    <span class="qa-qtext">号段模式是什么？Leaf 的双 Buffer 是怎么优化的？</span>
+    <span class="qa-badge">进阶</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>号段切换抖动是关键考点，能讲清"为什么需要双 Buffer"加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>号段模式</strong>：每次从 DB 批量取一段 ID 到内存，比如 step=1000 就一次取 1000 个，内存里分配完了再去 DB 取下一段。QPS 直接放大 1000 倍。</p>
+      <pre>// 号段表
+CREATE TABLE id_segment (
+    biz_tag VARCHAR(64) PRIMARY KEY,
+    max_id BIGINT,
+    step INT
+);
+// 取号段：UPDATE max_id = max_id + step</pre>
+      <p><strong>问题</strong>：当前号段用完时去 DB 取下一段，这一瞬间会卡几毫秒，并发请求堆积。</p>
+      <p><strong>Leaf 双 Buffer 优化</strong>：服务端维护<span class="kw">两个号段 Buffer（current + next）</span>。当 current 用了 10% 时<strong>异步预取</strong> next，等 current 真正用完时直接切到 next，几乎无感知。next 用了 10% 又异步预取下一段。</p>
+      <ul>
+        <li><span class="b">▸</span> 平时：current 用 90%、next 待命</li>
+        <li><span class="b">▸</span> current 用尽：切到 next（瞬时），同时异步取下一个 next</li>
+        <li><span class="b">▸</span> DB 短暂不可用：靠 next 撑过去，期间不阻塞业务</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#segment">号段模式</a>
+      <a class="qa-link" href="dist-03-lock-id.html#leaf">Leaf 双 Buffer</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q28">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q28</span>
+    <span class="qa-qtext">为什么 UUID 不适合做 MySQL 主键？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>InnoDB 聚簇索引底层知识。能说出"页分裂"和"索引膨胀"加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>UUID 是 36 字符随机字符串，作为 InnoDB 主键有三个硬伤：</p>
+      <ul>
+        <li><span class="b">①</span> <span class="kw">无序导致页分裂</span>：InnoDB 主键是<strong>聚簇索引</strong>，数据按主键顺序存储。新插入的 UUID 是随机的，会插到 B+ 树中间，导致频繁页分裂和数据移动，写性能大幅下降</li>
+        <li><span class="b">②</span> <span class="kw">索引体积大</span>：UUID 36 字符（即使去掉横线也 32 字符），而 bigint 只占 8 字节。MySQL 所有二级索引都包含主键，主键大 → 二级索引也膨胀 → 内存放下的索引页减少 → 查询变慢</li>
+        <li><span class="b">③</span> <span class="kw">不可读</span>：日志里看 UUID 没业务意义，不像数字 ID 能看出大致下单时间</li>
+      </ul>
+      <p><strong>正确做法</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> 主键用<strong>趋势递增的数字 ID</strong>（雪花算法、Leaf）</li>
+        <li><span class="b">▸</span> UUID 适合做"对外暴露的非主键 ID"——用户 token、文件名、trace ID、分享链接，这些不进聚簇索引</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-03-lock-id.html#uuid">UUID 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 05 综合实战 ── -->
+<div class="sec" id="cat5"><span class="sn">05</span> 综合实战 <span class="q-count">Q29–Q32</span></div>
+
+<div class="qa-card" id="q29">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q29</span>
+    <span class="qa-qtext">限流、熔断、降级三件套各自解决什么问题？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>容易混淆，能说清三者的触发条件和目标区别即到位。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>三件套</th><th>解决什么问题</th><th>触发条件</th><th>典型实现</th></tr>
+        <tr><td>限流</td><td>防止流量超过系统承载</td><td>QPS / 并发数 超过阈值</td><td>令牌桶、漏桶（Sentinel、Guava RateLimiter）</td></tr>
+        <tr><td>熔断</td><td>下游故障时快速失败，避免雪崩</td><td>错误率 / 慢调用比例超阈值</td><td>Hystrix、Sentinel、Resilience4j</td></tr>
+        <tr><td>降级</td><td>非核心功能丢车保帅</td><td>系统负载高 / 主动开关</td><td>返回兜底数据、关闭非核心功能</td></tr>
+      </table>
+      <p><strong>三者关系</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> 限流是<span class="kw">入口防护</span>，拦住超量请求不进系统</li>
+        <li><span class="b">▸</span> 熔断是<span class="kw">出口防护</span>，调下游慢/挂时不再调，直接走 fallback</li>
+        <li><span class="b">▸</span> 降级是<span class="kw">主动选择</span>，把非核心功能暂时关掉，保住核心链路</li>
+      </ul>
+      <p>三者经常组合使用，但触发主体和目标不同。面试时不要混着说"限流就是降级"。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q30">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q30</span>
+    <span class="qa-qtext">在微服务里你怎么排查一个跨服务调用的问题？</span>
+    <span class="qa-badge">开放</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>实战题，看是否有真实排查经验。能讲出 trace、监控、日志的配合加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>我的排查思路通常按这个顺序：</p>
+      <ul>
+        <li><span class="b">①</span> <span class="kw">看监控大盘</span>：先看哪个服务的接口 QPS、延迟、错误率异常，定位"哪个环节出问题"</li>
+        <li><span class="b">②</span> <span class="kw">拿 traceId 串全链路</span>：从入口请求拿到 traceId，去 SkyWalking / Zipkin / Pinpoint 上看完整调用链路，找到耗时长或失败的那一跳</li>
+        <li><span class="b">③</span> <span class="kw">看具体服务日志</span>：用 traceId 在 ELK 检索，看慢请求/失败请求当时的上下文（参数、异常栈）</li>
+        <li><span class="b">④</span> <span class="kw">看基础设施</span>：DB 慢查询日志、Redis 慢日志、MQ 积压、网络抖动（机房间 ping），这些往往是上游慢的真凶</li>
+        <li><span class="b">⑤</span> <span class="kw">复现 + 验证</span>：在测试环境复现，加日志、上 Arthas 看线程栈，确认根因后修复</li>
+      </ul>
+      <p>关键能力：traceId 是<strong>分布式系统的眼睛</strong>，没接入 trace 框架基本没法排查跨服务问题。所有日志必须打 traceId。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q31">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q31</span>
+    <span class="qa-qtext">你怎么权衡分布式系统中的一致性和性能？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放设计题，看架构思维。能从业务出发讲取舍加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>核心原则：<strong>不是技术决定一致性等级，是业务决定</strong>。我会按业务分层来设计：</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">金钱、库存、账务</span>：强一致优先。本地事务能解决就单库 ACID；跨库跨服务上 TCC 或 Seata AT</li>
+        <li><span class="b">▸</span> <span class="kw">订单状态、用户基础信息</span>：读多写少，加 Redis 缓存做读扩散，写时同步双删保证缓存一致</li>
+        <li><span class="b">▸</span> <span class="kw">评论、点赞、动态、推荐</span>：最终一致即可。先入 MQ 异步落库、异步同步到搜索引擎，用户感知不到</li>
+        <li><span class="b">▸</span> <span class="kw">日志、监控、统计</span>：最弱一致，丢一点没关系，用 Kafka + Flink 流处理</li>
+      </ul>
+      <p>每层都对应不同的存储和处理模式。<strong>把所有业务一律按强一致设计是新手最常见的过度设计</strong>，会浪费性能预算并把简单问题变复杂。</p>
+      <p>另一个常用技巧：<span class="kw">把"看似的强一致"降级为"最终一致 + 用户侧补偿"</span>。比如下完订单立即显示"已下单成功"（其实只写了主库，库存异步扣），后台再异步处理后续动作，体验上是即时的，但底层是最终一致。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q32">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q32</span>
+    <span class="qa-qtext">在你做过的项目里，分布式事务方案是怎么选的？为什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>典型项目经验题。要结合具体业务场景讲，避免空谈方案。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>我会按下面这个顺序问自己（也是回答这种题的模板）：</p>
+      <ul>
+        <li><span class="b">①</span> <strong>业务一致性强度</strong>：能接受秒级最终一致 → 走 MQ / 本地消息表；不能接受 → 走 TCC / Seata</li>
+        <li><span class="b">②</span> <strong>是否高并发</strong>：高 QPS（&gt; 1000）就别用 XA / Seata AT 这种持锁方案</li>
+        <li><span class="b">③</span> <strong>业务能否改造</strong>：原有业务代码不能动 → Seata AT 注解式；能改造 → TCC / Saga</li>
+        <li><span class="b">④</span> <strong>团队能力</strong>：Seata 部署成本、TCC 三大坑、Saga 补偿设计，都需要团队真有人能扛</li>
+      </ul>
+      <p><strong>举两个真实例子的回答模板（可替换为你自己的项目）</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> <strong>下单扣库存场景</strong>：用 RocketMQ 事务消息。下单是写订单库 + 发"扣库存"消息，业务可以接受库存秒级延迟。RocketMQ 半消息 + 二次确认保证订单和消息原子，库存服务异步消费。性能好，业务侵入小</li>
+        <li><span class="b">▸</span> <strong>支付扣款场景</strong>：用 TCC。资金账户要求强一致，且高并发（活动期 QPS 几万）。Try 阶段冻结余额、Confirm 阶段真正扣减，配合幂等表防重复，业务侵入大但性能和正确性都满足</li>
+      </ul>
+      <p><strong>面试加分</strong>：能讲出"为什么没选另一种方案"——比如"为什么下单没用 TCC"（TCC 拆三方法成本太高，库存只是普通业务不值得）——说明真做过取舍。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="dist-02-transaction.html#choose">方案选型矩阵</a>
+    </div></div>
+  </div>
+</div>
+
+</div><!-- end .mc -->
+</div><!-- end .layout -->
+
+<script>
+function toggleQA(el){const c=el.closest('.qa-card');c.classList.toggle('open',!c.classList.contains('open'));updateProgress()}
+function toggleScat(el){const s=el.closest('.scat');s.classList.toggle('open')}
+function toggleAll(open){document.querySelectorAll('.qa-card').forEach(c=>c.classList.toggle('open',open));updateProgress()}
+function filterByBadge(type){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===type));
+  document.querySelectorAll('.qa-card').forEach(card=>{if(!type){card.style.display='';return}card.style.display=card.querySelector('.qa-badge.'+type)?'':'none'});
+  updateProgress();
+}
+function updateProgress(){
+  const visible=[...document.querySelectorAll('.qa-card')].filter(c=>c.style.display!=='none');
+  const open=visible.filter(c=>c.classList.contains('open'));
+  document.getElementById('pfill').style.width=(visible.length?open.length/visible.length*100:0)+'%';
+  document.getElementById('ptxt').textContent=open.length+'/'+visible.length;
+}
+const items=document.querySelectorAll('.scat-item');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  document.querySelectorAll('.qa-card[id]').forEach(c=>{if(c.getBoundingClientRect().top<=80)cur=c.id});
+  items.forEach(i=>i.classList.toggle('active',i.getAttribute('href')==='#'+cur));
+});
+updateProgress();
+</script>
+</body>
+</html>

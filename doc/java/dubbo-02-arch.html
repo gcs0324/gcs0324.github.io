@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dubbo 架构</title>
+<style>
+:root{--accent-color:var(--red);--accent-bg:var(--red-bg);--accent-b:var(--red-b)}
+header::before{content:'ARCH'}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+.fbox{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:8px 14px;font-size:.82rem;text-align:center}
+.farrow{color:var(--tx2);font-size:1.2rem}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dubbo.js"></script>
+<header>
+  <div class="htag">DUBBO · 02 · 架构</div>
+  <h1>Dubbo 架构</h1>
+  <p class="sub">四大角色 · 分层架构 · SPI 扩展机制 · 服务导出 · 服务引入</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#roles">1. 四大角色</a>
+  <a class="sb-link" href="#layers">2. 分层架构</a>
+  <a class="sb-link" href="#spi">3. SPI 扩展机制</a>
+  <a class="sb-link" href="#export">4. 服务导出</a>
+  <a class="sb-link" href="#refer">5. 服务引入</a>
+  <a class="sb-link" href="#filter">6. Filter 链</a>
+  <a class="sb-link" href="#config">7. 配置体系</a>
+</aside>
+<main>
+  <h2 class="sec" id="roles">1. 四大角色</h2>
+  <div class="table-wrap"><table>
+    <tr><th>角色</th><th>职责</th><th>说明</th></tr>
+    <tr><td>Provider（服务提供者）</td><td>暴露服务</td><td>启动时向注册中心注册，监听端口等待调用</td></tr>
+    <tr><td>Consumer（服务消费者）</td><td>调用服务</td><td>从注册中心订阅，获取地址列表后发起调用</td></tr>
+    <tr><td>Registry（注册中心）</td><td>服务注册发现</td><td>ZooKeeper / Nacos / Redis 等</td></tr>
+    <tr><td>Monitor（监控中心）</td><td>统计调用</td><td>收集调用次数、耗时、异常，可选组件</td></tr>
+  </table></div>
+  <pre>// 调用关系
+Provider ──注册──▶ Registry ◀──订阅── Consumer
+Provider ◀─────────────────────────── Consumer（直接调用，注册中心可不在线）
+Provider ──统计──▶ Monitor ◀──统计── Consumer</pre>
+
+  <h2 class="sec" id="layers">2. 分层架构（10层）</h2>
+  <div class="table-wrap"><table>
+    <tr><th>层次</th><th>组件</th><th>作用</th></tr>
+    <tr><td>Service</td><td>业务接口</td><td>用户业务代码层</td></tr>
+    <tr><td>Config</td><td>ServiceConfig / ReferenceConfig</td><td>配置信息封装</td></tr>
+    <tr><td>Proxy</td><td>StubProxyFactoryWrapper</td><td>动态代理生成 Stub</td></tr>
+    <tr><td>Registry</td><td>RegistryDirectory</td><td>封装注册中心逻辑</td></tr>
+    <tr><td>Cluster</td><td>FailoverCluster 等</td><td>集群容错策略</td></tr>
+    <tr><td>Monitor</td><td>MonitorFilter</td><td>调用统计</td></tr>
+    <tr><td>Protocol</td><td>DubboProtocol</td><td>RPC 调用封装</td></tr>
+    <tr><td>Exchange</td><td>HeaderExchangeChannel</td><td>请求-响应语义</td></tr>
+    <tr><td>Transport</td><td>NettyTransporter</td><td>网络传输</td></tr>
+    <tr><td>Serialize</td><td>HessianSerialization</td><td>序列化/反序列化</td></tr>
+  </table></div>
+  <div class="tip">💡 Dubbo 分层设计体现了"关注点分离"，每层只依赖下层，通过 SPI 可替换任意层的实现。</div>
+
+  <h2 class="sec" id="spi">3. SPI 扩展机制</h2>
+  <h3>Java SPI vs Dubbo SPI</h3>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Java SPI</th><th>Dubbo SPI</th></tr>
+    <tr><td>配置文件位置</td><td>META-INF/services/</td><td>META-INF/dubbo/</td></tr>
+    <tr><td>加载方式</td><td>一次加载所有实现</td><td>按需加载（key=class）</td></tr>
+    <tr><td>IoC 支持</td><td>❌</td><td>✅（自动注入 setter）</td></tr>
+    <tr><td>AOP 支持</td><td>❌</td><td>✅（Wrapper 机制）</td></tr>
+    <tr><td>自适应扩展</td><td>❌</td><td>✅（@Adaptive 根据 URL 参数动态选择）</td></tr>
+  </table></div>
+  <pre>// Dubbo SPI 配置文件：META-INF/dubbo/com.alibaba.dubbo.rpc.Protocol
+dubbo=com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol
+http=com.alibaba.dubbo.rpc.protocol.http.HttpProtocol
+injvm=com.alibaba.dubbo.rpc.protocol.injvm.InjvmProtocol
+
+// 使用
+@SPI("dubbo")  // 默认扩展名
+public interface Protocol {
+    @Adaptive  // 自适应：根据 URL 的 protocol 参数选择实现
+    Exporter&lt;?&gt; export(Invoker&lt;?&gt; invoker);
+}
+
+// 加载扩展
+Protocol protocol = ExtensionLoader
+    .getExtensionLoader(Protocol.class)
+    .getExtension("dubbo");</pre>
+
+  <h2 class="sec" id="export">4. 服务导出（Provider 启动）</h2>
+  <ol>
+    <li><strong>解析配置</strong>：读取 ServiceConfig，收集接口、实现类、协议、注册中心等配置</li>
+    <li><strong>创建 Invoker</strong>：通过 ProxyFactory 将服务实现包装为 Invoker</li>
+    <li><strong>导出 URL</strong>：构建 <code>dubbo://host:port/interface?params</code> 格式 URL</li>
+    <li><strong>本地导出</strong>：InjvmProtocol 导出（同 JVM 内调用）</li>
+    <li><strong>远程导出</strong>：DubboProtocol.export() → Netty 启动监听端口</li>
+    <li><strong>注册到注册中心</strong>：RegistryProtocol → ZooKeeper/Nacos 写入节点</li>
+  </ol>
+  <pre>// URL 样例
+dubbo://192.168.1.100:20880/com.example.UserService
+    ?application=user-provider
+    &methods=getUser,listUsers
+    &version=1.0.0
+    &timeout=3000
+    &serialization=hessian2</pre>
+
+  <h2 class="sec" id="refer">5. 服务引入（Consumer 启动）</h2>
+  <ol>
+    <li><strong>解析 @Reference</strong>：Spring BeanPostProcessor 处理 ReferenceConfig</li>
+    <li><strong>从注册中心订阅</strong>：RegistryDirectory 监听 ZooKeeper 节点，获取 Provider 列表</li>
+    <li><strong>创建 Directory</strong>：保存 URL → Invoker 映射，随注册中心变化动态更新</li>
+    <li><strong>创建 Cluster Invoker</strong>：包装容错策略（FailoverClusterInvoker 等）</li>
+    <li><strong>创建代理</strong>：ProxyFactory.getProxy() 生成动态代理，注入到 Spring Bean</li>
+  </ol>
+
+  <h2 class="sec" id="filter">6. Filter 链</h2>
+  <p>Dubbo Filter 是 AOP 机制，通过 SPI + Wrapper 实现链式拦截，类似 Servlet Filter。</p>
+  <div class="table-wrap"><table>
+    <tr><th>内置 Filter</th><th>作用</th><th>侧（P=Provider, C=Consumer）</th></tr>
+    <tr><td>TimeoutFilter</td><td>超时检测</td><td>P</td></tr>
+    <tr><td>TokenFilter</td><td>Token 鉴权</td><td>P</td></tr>
+    <tr><td>ExceptionFilter</td><td>异常统一处理</td><td>P</td></tr>
+    <tr><td>MonitorFilter</td><td>调用统计</td><td>P + C</td></tr>
+    <tr><td>ActiveLimitFilter</td><td>并发数控制</td><td>C</td></tr>
+    <tr><td>CacheFilter</td><td>结果缓存</td><td>C</td></tr>
+    <tr><td>ConsumerContextFilter</td><td>传递 RPC 上下文</td><td>C</td></tr>
+  </table></div>
+  <pre>// 自定义 Filter
+@Activate(group = {CommonConstants.CONSUMER})
+public class TraceFilter implements Filter {
+    @Override
+    public Result invoke(Invoker&lt;?&gt; invoker, Invocation inv) throws RpcException {
+        String traceId = UUID.randomUUID().toString();
+        RpcContext.getContext().setAttachment("traceId", traceId);
+        return invoker.invoke(inv);  // 责任链传递
+    }
+}</pre>
+
+  <h2 class="sec" id="config">7. 配置体系</h2>
+  <div class="table-wrap"><table>
+    <tr><th>配置级别（优先级高→低）</th><th>方式</th></tr>
+    <tr><td>方法级配置（Consumer）</td><td>@Reference(methods={@Method(name="...",timeout=100)})</td></tr>
+    <tr><td>接口级配置（Consumer）</td><td>@Reference(timeout=1000)</td></tr>
+    <tr><td>接口级配置（Provider）</td><td>@Service(timeout=2000)</td></tr>
+    <tr><td>全局配置（Consumer）</td><td>dubbo.consumer.timeout=3000</td></tr>
+    <tr><td>全局配置（Provider）</td><td>dubbo.provider.timeout=5000</td></tr>
+  </table></div>
+  <div class="tip">💡 Consumer 配置优先于 Provider 配置，方法级配置优先于接口级配置，接口级配置优先于全局配置。</div>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

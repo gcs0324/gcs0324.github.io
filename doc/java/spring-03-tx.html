@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 03 · 事务管理</title>
+<style>
+header::before{content:'TX'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<header>
+  <div class="htag">SPRING · 03 · TRANSACTION</div>
+  <h1>事务管理</h1>
+  <p class="subtitle">事务抽象 · 7种传播行为 · 隔离级别 · @Transactional 失效 · 分布式事务</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#abstraction"><span class="s-link-num">01</span>事务抽象</a>
+    <a class="s-link" href="#propagation"><span class="s-link-num">02</span>传播行为（7种）</a>
+    <a class="s-link" href="#isolation"><span class="s-link-num">03</span>隔离级别</a>
+    <a class="s-link" href="#transactional"><span class="s-link-num">04</span>@Transactional</a>
+    <a class="s-link" href="#fail"><span class="s-link-num">05</span>事务失效场景</a>
+    <a class="s-link" href="#programmatic"><span class="s-link-num">06</span>编程式事务</a>
+    <a class="s-link" href="#distributed"><span class="s-link-num">07</span>分布式事务</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="spring-06-interview.html#tx">→ 面试题 事务章节</a>
+    <a class="s-link" href="spring-04-mvc.html">→ 下一章：MVC</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 事务抽象 ═══ -->
+    <div class="sec" id="abstraction"><span class="sec-num">01</span>Spring 事务抽象</div>
+
+    <div class="card">
+      <div class="card-title">PlatformTransactionManager</div>
+      <p>Spring 定义了统一的事务管理接口 <code>PlatformTransactionManager</code>，屏蔽底层不同数据访问技术的事务实现差异：</p>
+      <pre>public interface PlatformTransactionManager {
+    // 开启事务（根据 TransactionDefinition 定义传播行为/隔离级别等）
+    TransactionStatus getTransaction(TransactionDefinition definition);
+    // 提交事务
+    void commit(TransactionStatus status);
+    // 回滚事务
+    void rollback(TransactionStatus status);
+}</pre>
+      <table class="tbl">
+        <tr><th>实现类</th><th>适用场景</th></tr>
+        <tr><td>DataSourceTransactionManager</td><td>JDBC / MyBatis</td></tr>
+        <tr><td>JpaTransactionManager</td><td>JPA / Hibernate</td></tr>
+        <tr><td>JtaTransactionManager</td><td>JTA 分布式事务</td></tr>
+        <tr><td>ReactiveTransactionManager</td><td>响应式编程（R2DBC）</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 02 传播行为 ═══ -->
+    <div class="sec" id="propagation"><span class="sec-num">02</span>7 种事务传播行为</div>
+
+    <div class="card">
+      <div class="card-title">传播行为速查（按使用频率排序）</div>
+      <table class="tbl">
+        <tr><th>传播行为</th><th>外层有事务</th><th>外层无事务</th><th>使用场景</th></tr>
+        <tr><td>REQUIRED（默认）</td><td>加入外层事务</td><td>新建事务</td><td>绝大多数业务方法</td></tr>
+        <tr><td>REQUIRES_NEW</td><td>挂起外层，新建独立事务</td><td>新建事务</td><td>操作日志、审计（必须独立提交）</td></tr>
+        <tr><td>NESTED</td><td>在外层内嵌套（保存点）</td><td>同 REQUIRED</td><td>批量操作允许部分回滚</td></tr>
+        <tr><td>SUPPORTS</td><td>加入外层事务</td><td>非事务方式执行</td><td>可选事务的查询</td></tr>
+        <tr><td>NOT_SUPPORTED</td><td>挂起外层，非事务执行</td><td>非事务方式执行</td><td>不需要事务的耗时操作</td></tr>
+        <tr><td>MANDATORY</td><td>加入外层事务</td><td>抛出异常</td><td>强制要求在事务中调用</td></tr>
+        <tr><td>NEVER</td><td>抛出异常</td><td>非事务方式执行</td><td>明确禁止在事务中调用</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">REQUIRES_NEW vs NESTED 关键区别</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>REQUIRES_NEW</th><th>NESTED</th></tr>
+        <tr><td>事务独立性</td><td>完全独立，不同数据库连接</td><td>嵌套在外层事务内（同一连接）</td></tr>
+        <tr><td>内层回滚是否影响外层</td><td>不影响（内层已提交或独立回滚）</td><td>不影响外层（回滚到保存点）</td></tr>
+        <tr><td>外层回滚是否影响内层</td><td>不影响（内层事务独立）</td><td>影响（内层随外层一起回滚）</td></tr>
+        <tr><td>数据库支持</td><td>全部支持</td><td>需数据库支持 Savepoint</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 03 隔离级别 ═══ -->
+    <div class="sec" id="isolation"><span class="sec-num">03</span>隔离级别</div>
+
+    <div class="card">
+      <div class="card-title">隔离级别与并发问题</div>
+      <table class="tbl">
+        <tr><th>隔离级别</th><th>脏读</th><th>不可重复读</th><th>幻读</th><th>说明</th></tr>
+        <tr><td>READ_UNCOMMITTED</td><td>❌ 可能</td><td>❌ 可能</td><td>❌ 可能</td><td>性能最好，安全性最差</td></tr>
+        <tr><td>READ_COMMITTED</td><td>✅ 避免</td><td>❌ 可能</td><td>❌ 可能</td><td>Oracle/PgSQL 默认</td></tr>
+        <tr><td>REPEATABLE_READ</td><td>✅ 避免</td><td>✅ 避免</td><td>❌ 可能*</td><td>MySQL InnoDB 默认（MVCC 解决幻读）</td></tr>
+        <tr><td>SERIALIZABLE</td><td>✅ 避免</td><td>✅ 避免</td><td>✅ 避免</td><td>性能最差，完全串行</td></tr>
+        <tr><td>DEFAULT</td><td colspan="3">使用数据库自身默认隔离级别</td><td>推荐生产环境使用</td></tr>
+      </table>
+      <div class="note info">*MySQL InnoDB 在 REPEATABLE_READ 下通过 MVCC + Gap Lock 基本解决了幻读问题，实际表现优于标准定义。</div>
+    </div>
+
+    <!-- ═══ 04 @Transactional ═══ -->
+    <div class="sec" id="transactional"><span class="sec-num">04</span>@Transactional 详解</div>
+
+    <div class="card">
+      <div class="card-title">常用属性速查</div>
+      <pre>@Transactional(
+    propagation = Propagation.REQUIRED,       // 传播行为
+    isolation = Isolation.DEFAULT,            // 隔离级别
+    timeout = 30,                             // 超时时间（秒），-1 表示永不超时
+    readOnly = false,                         // 只读优化
+    rollbackFor = Exception.class,            // 触发回滚的异常类型
+    noRollbackFor = BusinessException.class   // 不触发回滚的异常类型
+)</pre>
+      <div class="note warn"><strong>默认行为</strong>：不指定 rollbackFor 时，只对 <code>RuntimeException</code> 和 <code>Error</code> 回滚，checked 异常（如 <code>IOException</code>）不回滚。建议显式配置 <code>rollbackFor = Exception.class</code>。</div>
+    </div>
+
+    <!-- ═══ 05 事务失效 ═══ -->
+    <div class="sec" id="fail"><span class="sec-num">05</span>@Transactional 失效场景</div>
+
+    <div class="card">
+      <div class="card-title">7 种常见失效场景</div>
+      <div class="fail-item">
+        <span class="fail-num">失效①</span>
+        <div><div class="fail-title">方法非 public</div><div class="fail-desc">Spring AOP 基于代理，无法拦截非 public 方法（CGLIB 子类覆盖限制）。解决：改为 public。</div></div>
+      </div>
+      <div class="fail-item">
+        <span class="fail-num">失效②</span>
+        <div><div class="fail-title">同类自调用（this.method()）</div><div class="fail-desc">this 指向原始对象，绕过代理。解决：注入自身代理或用 AopContext.currentProxy()。</div></div>
+      </div>
+      <div class="fail-item">
+        <span class="fail-num">失效③</span>
+        <div><div class="fail-title">异常被 catch 吞掉</div><div class="fail-desc">try-catch 内没有 rethrow，事务感知不到异常，正常提交。解决：catch 后重新抛出或手动调用 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()。</div></div>
+      </div>
+      <div class="fail-item">
+        <span class="fail-num">失效④</span>
+        <div><div class="fail-title">异常类型不匹配</div><div class="fail-desc">默认只回滚 RuntimeException 和 Error，抛 checked 异常不回滚。解决：配置 rollbackFor = Exception.class。</div></div>
+      </div>
+      <div class="fail-item">
+        <span class="fail-num">失效⑤</span>
+        <div><div class="fail-title">多线程操作</div><div class="fail-desc">事务上下文绑定在 ThreadLocal，子线程无法继承父线程的事务，子线程操作不在事务内。</div></div>
+      </div>
+      <div class="fail-item">
+        <span class="fail-num">失效⑥</span>
+        <div><div class="fail-title">数据库引擎不支持事务</div><div class="fail-desc">MySQL MyISAM 不支持事务，InnoDB 才支持。检查建表语句的 ENGINE 设置。</div></div>
+      </div>
+      <div class="fail-item">
+        <span class="fail-num">失效⑦</span>
+        <div><div class="fail-title">传播行为配置问题</div><div class="fail-desc">如配置了 PROPAGATION_NOT_SUPPORTED（挂起当前事务）或调用方未开启事务而被调用方使用了 MANDATORY。</div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 06 编程式事务 ═══ -->
+    <div class="sec" id="programmatic"><span class="sec-num">06</span>编程式事务</div>
+
+    <div class="card">
+      <div class="card-title">TransactionTemplate 使用</div>
+      <p>声明式事务是方法级别的粗粒度控制，编程式事务可精确到代码块：</p>
+      <pre>@Autowired
+private TransactionTemplate transactionTemplate;
+
+public void batchProcess(List&lt;Item&gt; items) {
+    for (Item item : items) {
+        // 每条数据独立事务，互不影响
+        transactionTemplate.execute(status -&gt; {
+            try {
+                itemDao.save(item);
+                return null;
+            } catch (Exception e) {
+                status.setRollbackOnly(); // 手动标记回滚
+                log.error("item {} 处理失败", item.getId());
+                return null;
+            }
+        });
+    }
+}</pre>
+      <p>适用场景：循环体内细粒度事务控制、根据运行时条件动态决定是否开事务、只有方法中几行代码需要事务保护。</p>
+    </div>
+
+    <!-- ═══ 07 分布式事务 ═══ -->
+    <div class="sec" id="distributed"><span class="sec-num">07</span>分布式事务</div>
+
+    <div class="card">
+      <div class="card-title">主流解决方案对比</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>一致性</th><th>性能</th><th>侵入性</th><th>适用场景</th></tr>
+        <tr><td>2PC / XA</td><td>强一致</td><td>低</td><td>低</td><td>少量跨库操作，容忍阻塞</td></tr>
+        <tr><td>TCC</td><td>最终一致</td><td>高</td><td>高（需写 Try/Confirm/Cancel）</td><td>资金、库存等强业务语义</td></tr>
+        <tr><td>Saga</td><td>最终一致</td><td>中</td><td>中（需写补偿逻辑）</td><td>长事务、订单流程</td></tr>
+        <tr><td>消息最终一致</td><td>最终一致</td><td>高</td><td>低</td><td>跨服务异步操作</td></tr>
+        <tr><td>Seata AT</td><td>最终一致</td><td>中</td><td>极低（@GlobalTransactional）</td><td>微服务通用场景推荐</td></tr>
+      </table>
+      <div class="note info"><strong>Seata AT 原理</strong>：AT 模式在业务 SQL 执行前后自动记录 undo_log（回滚日志），通过全局事务协调器（TC）管理提交/回滚，对业务代码几乎无侵入。适合不追求极致性能的普通微服务场景。</div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

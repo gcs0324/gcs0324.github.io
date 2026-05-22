@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>创建型设计模式</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'CREATIONAL'}
+.pattern-badge{display:inline-block;background:var(--green-bg);color:var(--green);font-size:.72rem;padding:2px 8px;border-radius:4px;font-weight:600;margin-left:8px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-design.js"></script>
+<header>
+  <div class="htag">DESIGN · 01 · 创建型</div>
+  <h1>创建型设计模式</h1>
+  <p class="sub">单例 · 工厂方法 · 抽象工厂 · 建造者 · 原型</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#singleton">1. 单例模式</a>
+  <a class="sb-link" href="#factory">2. 工厂方法</a>
+  <a class="sb-link" href="#abstractfactory">3. 抽象工厂</a>
+  <a class="sb-link" href="#builder">4. 建造者模式</a>
+  <a class="sb-link" href="#prototype">5. 原型模式</a>
+  <a class="sb-link" href="#spring">6. Spring 中的应用</a>
+</aside>
+<main>
+  <h2 class="sec" id="singleton">1. 单例模式 <span class="pattern-badge">Singleton</span></h2>
+  <p><strong>意图</strong>：确保一个类只有一个实例，并提供全局访问点。</p>
+  <div class="table-wrap"><table>
+    <tr><th>实现方式</th><th>线程安全</th><th>懒加载</th><th>推荐</th></tr>
+    <tr><td>饿汉式（static final）</td><td>✅</td><td>❌</td><td>✅ 简单</td></tr>
+    <tr><td>懒汉式（无同步）</td><td>❌</td><td>✅</td><td>❌</td></tr>
+    <tr><td>懒汉式（synchronized）</td><td>✅</td><td>✅</td><td>❌ 性能差</td></tr>
+    <tr><td>DCL 双重检查</td><td>✅（需 volatile）</td><td>✅</td><td>✅ 推荐</td></tr>
+    <tr><td>静态内部类</td><td>✅（JVM 类加载）</td><td>✅</td><td>✅ 最推荐</td></tr>
+    <tr><td>枚举</td><td>✅</td><td>❌</td><td>✅ 防反射/序列化破坏</td></tr>
+  </table></div>
+  <pre>// 1. 饿汉式
+public class Singleton {
+    private static final Singleton INSTANCE = new Singleton();
+    private Singleton() {}
+    public static Singleton getInstance() { return INSTANCE; }
+}
+
+// 2. DCL（双重检查锁）
+public class Singleton {
+    private volatile static Singleton instance;  // volatile 防止指令重排
+    private Singleton() {}
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {   // 第二次检查
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+// 3. 静态内部类（推荐：利用 JVM 类加载机制保证线程安全 + 懒加载）
+public class Singleton {
+    private Singleton() {}
+    private static class Holder {
+        static final Singleton INSTANCE = new Singleton();
+    }
+    public static Singleton getInstance() { return Holder.INSTANCE; }
+}
+
+// 4. 枚举（防止序列化/反射破坏单例）
+public enum Singleton {
+    INSTANCE;
+    public void doSomething() { ... }
+}</pre>
+  <div class="warn">⚠️ DCL 中 <code>volatile</code> 必不可少：<code>new Singleton()</code> 分三步（分配内存→初始化→赋值引用），指令重排可能导致其他线程拿到半初始化对象。</div>
+
+  <h2 class="sec" id="factory">2. 工厂方法模式 <span class="pattern-badge">Factory Method</span></h2>
+  <p><strong>意图</strong>：定义创建对象的接口，让子类决定实例化哪个类，将对象创建延迟到子类。</p>
+  <pre>// 抽象工厂方法
+interface LoggerFactory {
+    Logger createLogger();
+}
+class FileLoggerFactory implements LoggerFactory {
+    public Logger createLogger() { return new FileLogger(); }
+}
+class DbLoggerFactory implements LoggerFactory {
+    public Logger createLogger() { return new DbLogger(); }
+}
+
+// 使用
+LoggerFactory factory = new FileLoggerFactory();
+Logger logger = factory.createLogger();  // 不关心具体实现</pre>
+  <p><strong>Spring 体现</strong>：<code>BeanFactory</code>（工厂接口），<code>FactoryBean</code>（自定义 Bean 创建），<code>SessionFactory</code>（Hibernate）</p>
+
+  <h2 class="sec" id="abstractfactory">3. 抽象工厂模式 <span class="pattern-badge">Abstract Factory</span></h2>
+  <p><strong>意图</strong>：创建一系列相关对象（产品族），无需指定具体类。与工厂方法的区别：工厂方法创建一种产品，抽象工厂创建一族产品。</p>
+  <pre>// 产品族：UI 组件（Light 主题 vs Dark 主题）
+interface Button { void render(); }
+interface Checkbox { void render(); }
+
+interface UIFactory {
+    Button createButton();
+    Checkbox createCheckbox();
+}
+class LightUIFactory implements UIFactory {
+    public Button createButton() { return new LightButton(); }
+    public Checkbox createCheckbox() { return new LightCheckbox(); }
+}
+class DarkUIFactory implements UIFactory {
+    public Button createButton() { return new DarkButton(); }
+    public Checkbox createCheckbox() { return new DarkCheckbox(); }
+}
+// 切换主题只需换工厂，组件保持一致风格</pre>
+  <div class="tip">💡 Spring 的 <code>AbstractBeanFactory</code> + 不同 ApplicationContext 实现体现了抽象工厂思想。</div>
+
+  <h2 class="sec" id="builder">4. 建造者模式 <span class="pattern-badge">Builder</span></h2>
+  <p><strong>意图</strong>：分步骤构建复杂对象，将构建过程与表示分离，支持同一构建过程创建不同表示。</p>
+  <pre>// Java 中最常见的 Builder（流式 API）
+User user = User.builder()
+    .id(1L)
+    .name("Alice")
+    .email("alice@example.com")
+    .age(25)
+    .build();
+
+// Lombok @Builder 实现
+@Builder
+@Data
+public class User {
+    private Long id;
+    private String name;
+    private String email;
+    private Integer age;
+}
+
+// 手动实现（static 内部类）
+public class User {
+    private final Long id;       // 不可变
+    private final String name;
+    private User(Builder b) { this.id=b.id; this.name=b.name; }
+    public static class Builder {
+        private Long id; private String name;
+        public Builder id(Long id){ this.id=id; return this; }
+        public Builder name(String n){ this.name=n; return this; }
+        public User build(){ return new User(this); }
+    }
+}</pre>
+  <p><strong>适用</strong>：构造参数多（4个以上）、有可选参数、需要不可变对象。<strong>Spring 体现</strong>：<code>BeanDefinitionBuilder</code>、<code>MockMvcRequestBuilders</code>。</p>
+
+  <h2 class="sec" id="prototype">5. 原型模式 <span class="pattern-badge">Prototype</span></h2>
+  <p><strong>意图</strong>：通过拷贝现有对象创建新对象，而非从头创建。适合创建成本高的对象。</p>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>浅拷贝（Shallow Copy）</th><th>深拷贝（Deep Copy）</th></tr>
+    <tr><td>基本类型</td><td>复制值</td><td>复制值</td></tr>
+    <tr><td>引用类型</td><td>复制引用（共享对象）</td><td>递归复制（独立对象）</td></tr>
+    <tr><td>实现</td><td>Object.clone()（实现 Cloneable）</td><td>序列化/反序列化 或 手动递归</td></tr>
+    <tr><td>问题</td><td>修改引用类型影响原对象</td><td>开销大</td></tr>
+  </table></div>
+  <pre>// 深拷贝（序列化方式，最简单）
+public &lt;T extends Serializable&gt; T deepCopy(T obj) {
+    try {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(obj);
+        ObjectInputStream ois = new ObjectInputStream(
+            new ByteArrayInputStream(bos.toByteArray()));
+        return (T) ois.readObject();
+    } catch (Exception e) { throw new RuntimeException(e); }
+}
+// Spring 的 BeanUtils.copyProperties() 是浅拷贝</pre>
+
+  <h2 class="sec" id="spring">6. Spring 中的创建型模式应用</h2>
+  <div class="table-wrap"><table>
+    <tr><th>模式</th><th>Spring 中的体现</th></tr>
+    <tr><td>单例</td><td>Spring Bean 默认 scope=singleton，IOC 容器维护实例缓存</td></tr>
+    <tr><td>工厂方法</td><td>BeanFactory、FactoryBean、@Bean 方法</td></tr>
+    <tr><td>抽象工厂</td><td>ApplicationContext（AnnotationConfigAC vs ClassPathXmlAC）</td></tr>
+    <tr><td>建造者</td><td>BeanDefinitionBuilder、RestTemplateBuilder、MockMvcBuilders</td></tr>
+    <tr><td>原型</td><td>scope=prototype，每次 getBean() 返回新实例</td></tr>
+  </table></div>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

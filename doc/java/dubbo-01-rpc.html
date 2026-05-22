@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPC 原理</title>
+<style>
+:root{--accent-color:var(--red);--accent-bg:var(--red-bg);--accent-b:var(--red-b)}
+header::before{content:'RPC'}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+.fbox{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:8px 14px;font-size:.82rem;text-align:center}
+.farrow{color:var(--tx2);font-size:1.2rem}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dubbo.js"></script>
+<header>
+  <div class="htag">DUBBO · 01 · RPC</div>
+  <h1>RPC 原理</h1>
+  <p class="sub">什么是 RPC · RPC vs HTTP · 调用流程 · 序列化 · 网络传输</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#what">1. 什么是 RPC</a>
+  <a class="sb-link" href="#vs">2. RPC vs HTTP</a>
+  <a class="sb-link" href="#flow">3. RPC 调用流程</a>
+  <a class="sb-link" href="#serial">4. 序列化</a>
+  <a class="sb-link" href="#transport">5. 网络传输</a>
+  <a class="sb-link" href="#proxy">6. 动态代理</a>
+  <a class="sb-link" href="#protocol">7. 协议设计</a>
+</aside>
+<main>
+  <h2 class="sec" id="what">1. 什么是 RPC</h2>
+  <p>RPC（Remote Procedure Call，远程过程调用）：调用远程服务就像调用本地方法一样，屏蔽网络通信细节。</p>
+  <p>核心组成：<strong>服务注册中心 + 序列化 + 网络传输 + 动态代理</strong>。</p>
+  <div class="flow">
+    <div class="fbox">Client<br>调用本地代理</div>
+    <div class="farrow">→</div>
+    <div class="fbox">Stub<br>序列化参数</div>
+    <div class="farrow">→</div>
+    <div class="fbox">网络传输<br>TCP/HTTP2</div>
+    <div class="farrow">→</div>
+    <div class="fbox">服务端 Stub<br>反序列化</div>
+    <div class="farrow">→</div>
+    <div class="fbox">Server<br>执行真实方法</div>
+  </div>
+
+  <h2 class="sec" id="vs">2. RPC vs HTTP</h2>
+  <div class="table-wrap"><table>
+    <tr><th>维度</th><th>RPC（如 Dubbo）</th><th>HTTP（REST / gRPC）</th></tr>
+    <tr><td>协议</td><td>自定义二进制（Dubbo Protocol）</td><td>HTTP/1.1 或 HTTP/2</td></tr>
+    <tr><td>数据格式</td><td>Hessian / Protobuf（二进制）</td><td>JSON（文本）/ Protobuf</td></tr>
+    <tr><td>性能</td><td>更高（二进制小包）</td><td>相对低（JSON 大）</td></tr>
+    <tr><td>耦合度</td><td>高（共享接口 jar）</td><td>低（契约/文档驱动）</td></tr>
+    <tr><td>跨语言</td><td>弱（语言绑定）</td><td>强</td></tr>
+    <tr><td>适用</td><td>内部微服务（同技术栈）</td><td>对外 API / 多语言</td></tr>
+    <tr><td>代表</td><td>Dubbo, gRPC, Thrift</td><td>Spring MVC, Feign</td></tr>
+  </table></div>
+  <div class="tip">💡 gRPC 是基于 HTTP/2 + Protobuf 的 RPC，兼顾跨语言与高性能，适合云原生场景。</div>
+
+  <h2 class="sec" id="flow">3. RPC 调用流程</h2>
+  <ol>
+    <li><strong>服务注册</strong>：Provider 启动时向注册中心注册服务元数据（IP、端口、接口、版本）</li>
+    <li><strong>服务发现</strong>：Consumer 启动时从注册中心订阅服务，获取 Provider 地址列表</li>
+    <li><strong>代理生成</strong>：Consumer 通过动态代理生成本地 Stub，调用 Stub 如同调用本地方法</li>
+    <li><strong>参数序列化</strong>：将方法名、参数类型、参数值序列化为字节流</li>
+    <li><strong>网络传输</strong>：通过 TCP 长连接（Netty）将请求发送到 Provider</li>
+    <li><strong>反序列化</strong>：Provider 端反序列化请求，通过反射调用目标方法</li>
+    <li><strong>结果返回</strong>：将返回值序列化后，通过同一 TCP 连接返回</li>
+    <li><strong>Consumer 接收</strong>：反序列化结果，代理层返回给调用方</li>
+  </ol>
+
+  <h2 class="sec" id="serial">4. 序列化</h2>
+  <div class="table-wrap"><table>
+    <tr><th>序列化框架</th><th>格式</th><th>性能</th><th>跨语言</th><th>适用场景</th></tr>
+    <tr><td>Java 原生</td><td>二进制</td><td>慢</td><td>❌</td><td>不推荐（Serializable 安全问题）</td></tr>
+    <tr><td>JSON（Jackson/Gson）</td><td>文本</td><td>中</td><td>✅</td><td>对外接口，可读性好</td></tr>
+    <tr><td>Hessian</td><td>二进制</td><td>较快</td><td>部分</td><td>Dubbo 默认</td></tr>
+    <tr><td>Protobuf</td><td>二进制</td><td>最快</td><td>✅</td><td>gRPC，跨语言高性能</td></tr>
+    <tr><td>Kryo</td><td>二进制</td><td>最快</td><td>❌</td><td>JVM 内部，如 Spark</td></tr>
+    <tr><td>FST</td><td>二进制</td><td>快</td><td>❌</td><td>纯 Java 高性能</td></tr>
+  </table></div>
+  <h3>序列化关键注意点</h3>
+  <ul>
+    <li>字段增减需<strong>向后兼容</strong>（Protobuf 通过 tag 号实现，Hessian 通过字段名）</li>
+    <li>避免序列化敏感字段（密码等），用 <code>transient</code> 或 <code>@JsonIgnore</code></li>
+    <li>Java 原生序列化存在安全漏洞（反序列化攻击），生产禁用</li>
+    <li>循环引用需特殊处理（Jackson @JsonIdentityInfo）</li>
+  </ul>
+
+  <h2 class="sec" id="transport">5. 网络传输</h2>
+  <h3>为什么用 TCP 长连接？</h3>
+  <ul>
+    <li>避免每次请求建立 TCP 三次握手的开销</li>
+    <li>Dubbo 默认每个 Provider 地址保持一条 TCP 长连接，通过多路复用</li>
+    <li>连接池管理复用，保持心跳</li>
+  </ul>
+  <h3>Netty 线程模型</h3>
+  <pre>// Dubbo 基于 Netty 的 Reactor 模型
+Boss EventLoop Group  ← 接收连接
+    ↓
+Worker EventLoop Group ← IO 读写（反序列化、路由）
+    ↓
+Business Thread Pool  ← 业务逻辑执行（避免阻塞 IO 线程）</pre>
+  <h3>粘包/半包问题</h3>
+  <p>TCP 是流协议，无消息边界。RPC 通过<strong>定长头部（Header）+ 消息体长度</strong>解决：</p>
+  <pre>Dubbo 协议帧：
+┌─────────────────────────────────────────────────────┐
+│ Magic(2B) │ Flag(1B) │ Status(1B) │ RequestID(8B) │ DataLength(4B) │ Body │
+└─────────────────────────────────────────────────────┘
+- 固定 16 字节头，Body 长度由 DataLength 指定
+- Netty LengthFieldBasedFrameDecoder 按帧解码</pre>
+
+  <h2 class="sec" id="proxy">6. 动态代理</h2>
+  <p>Consumer 调用的"接口"实际是动态代理生成的 Stub，代理拦截方法调用，组装 Request，通过网络发送。</p>
+  <pre>// Dubbo 使用 Javassist（默认）或 JDK 动态代理
+// Consumer 侧：通过代理将方法调用转为网络请求
+@Reference
+UserService userService; // 实际是代理对象
+
+userService.getUser(1L); // 代理拦截 → 序列化 → TCP → Provider
+
+// Proxy 核心逻辑
+public Object invoke(Object proxy, Method method, Object[] args) {
+    RpcInvocation inv = new RpcInvocation(method, args);
+    return invoker.invoke(inv).recreate(); // 发出请求，等待响应
+}</pre>
+
+  <h2 class="sec" id="protocol">7. 协议设计要点</h2>
+  <div class="table-wrap"><table>
+    <tr><th>要素</th><th>说明</th></tr>
+    <tr><td>魔数（Magic）</td><td>快速识别协议，如 Dubbo 用 0xdabb</td></tr>
+    <tr><td>版本号</td><td>协议向后兼容，支持协议升级</td></tr>
+    <tr><td>序列化类型</td><td>告知对端使用何种序列化</td></tr>
+    <tr><td>请求 ID</td><td>异步请求-响应匹配（Future Map）</td></tr>
+    <tr><td>消息类型</td><td>区分请求/响应/心跳</td></tr>
+    <tr><td>数据长度</td><td>解决 TCP 粘包半包</td></tr>
+    <tr><td>状态码</td><td>SUCCESS/ERROR/SERVER_TIMEOUT 等</td></tr>
+  </table></div>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>系统设计方法论</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'SYSTEM'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-design.js"></script>
+<header>
+  <div class="htag">DESIGN · 04 · 系统</div>
+  <h1>系统设计方法论</h1>
+  <p class="sub">CAP / BASE · SOLID 原则 · 限流算法 · 缓存策略 · 分库分表</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#cap">1. CAP / BASE</a>
+  <a class="sb-link" href="#solid">2. SOLID 原则</a>
+  <a class="sb-link" href="#ratelimit">3. 限流算法</a>
+  <a class="sb-link" href="#cache">4. 缓存策略</a>
+  <a class="sb-link" href="#sharding">5. 分库分表</a>
+  <a class="sb-link" href="#ha">6. 高可用设计</a>
+  <a class="sb-link" href="#scenarios">7. 典型场景</a>
+</aside>
+<main>
+  <h2 class="sec" id="cap">1. CAP 定理 / BASE 理论</h2>
+  <h3>CAP 定理</h3>
+  <p>分布式系统中只能同时满足以下三点中的两点：</p>
+  <div class="table-wrap"><table>
+    <tr><th>特性</th><th>说明</th><th>典型系统</th></tr>
+    <tr><td><strong>C</strong>onsistency（一致性）</td><td>所有节点读到相同数据</td><td>ZooKeeper（CP）</td></tr>
+    <tr><td><strong>A</strong>vailability（可用性）</td><td>每个请求都有响应（成功/失败）</td><td>Eureka（AP）</td></tr>
+    <tr><td><strong>P</strong>artition Tolerance（分区容忍）</td><td>网络分区时系统继续运行</td><td>几乎所有分布式系统必须满足</td></tr>
+  </table></div>
+  <div class="tip">💡 网络分区是不可避免的，所以分布式系统实际选择是 CP 或 AP。ZooKeeper 选 CP（Leader 挂掉时短暂不可用）；Eureka 选 AP（节点挂掉后其他节点继续服务，但数据可能不一致）。</div>
+  <h3>BASE 理论（AP 系统的补充）</h3>
+  <ul>
+    <li><strong>B</strong>asically Available：基本可用（允许响应时间延长或部分功能降级）</li>
+    <li><strong>S</strong>oft State：软状态（允许数据中间状态，不要求时刻一致）</li>
+    <li><strong>E</strong>ventually Consistent：最终一致（经过一段时间后达到一致）</li>
+  </ul>
+
+  <h2 class="sec" id="solid">2. SOLID 设计原则</h2>
+  <div class="table-wrap"><table>
+    <tr><th>原则</th><th>英文</th><th>核心思想</th><th>例子</th></tr>
+    <tr><td>单一职责 SRP</td><td>Single Responsibility</td><td>一个类只有一个改变原因</td><td>UserService 只管用户，不管邮件发送</td></tr>
+    <tr><td>开闭原则 OCP</td><td>Open/Closed</td><td>对扩展开放，对修改关闭</td><td>策略模式新增算法无需改 Context</td></tr>
+    <tr><td>里氏替换 LSP</td><td>Liskov Substitution</td><td>子类可替换父类，不改变程序正确性</td><td>不要在子类中 throws 父类没有的异常</td></tr>
+    <tr><td>接口隔离 ISP</td><td>Interface Segregation</td><td>接口细化，客户端只依赖需要的方法</td><td>拆分大接口为多个小接口</td></tr>
+    <tr><td>依赖倒置 DIP</td><td>Dependency Inversion</td><td>高层不依赖低层，都依赖抽象</td><td>Spring IoC，依赖接口而非实现</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="ratelimit">3. 限流算法</h2>
+  <div class="table-wrap"><table>
+    <tr><th>算法</th><th>原理</th><th>优缺点</th><th>适用</th></tr>
+    <tr><td>固定窗口</td><td>时间窗口内计数，超出拒绝</td><td>简单；边界突刺（窗口切换瞬间2倍流量）</td><td>简单场景</td></tr>
+    <tr><td>滑动窗口</td><td>细粒度时间格，滑动计数</td><td>解决边界突刺；内存略大</td><td>精确限流</td></tr>
+    <tr><td>漏桶</td><td>请求入桶，固定速率出桶</td><td>流量平滑；无法应对突发</td><td>平滑输出（如消息发送）</td></tr>
+    <tr><td>令牌桶（推荐）</td><td>固定速率往桶加令牌，请求取令牌</td><td>允许突发（桶满时），平均速率限制</td><td>API 限流（Guava RateLimiter）</td></tr>
+  </table></div>
+  <pre>// Guava 令牌桶
+RateLimiter limiter = RateLimiter.create(100.0); // 每秒 100 个令牌
+if (limiter.tryAcquire()) {
+    // 处理请求
+} else {
+    // 限流：返回 429 Too Many Requests
+}
+
+// Redis 分布式限流（Lua 脚本保证原子性）
+String script = """
+    local count = redis.call('incr', KEYS[1])
+    if count == 1 then
+        redis.call('expire', KEYS[1], ARGV[1])
+    end
+    return count
+""";
+Long count = redisTemplate.execute(script, List.of("limit:userId:123"), "60");
+if (count > MAX_COUNT) throw new RateLimitException();</pre>
+
+  <h2 class="sec" id="cache">4. 缓存策略</h2>
+  <h3>常见问题与解决方案</h3>
+  <div class="table-wrap"><table>
+    <tr><th>问题</th><th>描述</th><th>解决方案</th></tr>
+    <tr><td>缓存穿透</td><td>查询不存在的 key，每次都打到 DB</td><td>缓存空值（TTL短）、布隆过滤器（前置拦截）</td></tr>
+    <tr><td>缓存击穿</td><td>热点 key 过期瞬间，大量并发打 DB</td><td>互斥锁（仅一个线程回源）、逻辑过期（不设 TTL）</td></tr>
+    <tr><td>缓存雪崩</td><td>大量 key 同时过期，DB 压力骤增</td><td>TTL 加随机值、多级缓存、限流+熔断</td></tr>
+    <tr><td>缓存一致性</td><td>DB 更新后缓存未及时更新</td><td>Cache Aside（旁路缓存）、延迟双删</td></tr>
+  </table></div>
+  <pre>// Cache Aside 模式（最常用）
+// 读：先读缓存，缓存 miss 则读 DB 并回填缓存
+public User getUser(Long id) {
+    User user = cache.get("user:" + id);
+    if (user == null) {
+        user = db.findById(id);
+        if (user != null) cache.set("user:" + id, user, 30, MINUTES);
+    }
+    return user;
+}
+// 写：先更新 DB，再删除缓存（不更新，避免并发问题）
+public void updateUser(User user) {
+    db.update(user);
+    cache.delete("user:" + user.getId()); // 删除而非更新
+}
+// 延迟双删：更新 DB 前删缓存，更新后再延迟删一次（防并发读脏数据）</pre>
+
+  <h2 class="sec" id="sharding">5. 分库分表</h2>
+  <div class="table-wrap"><table>
+    <tr><th>策略</th><th>说明</th><th>优缺点</th></tr>
+    <tr><td>水平分表</td><td>同一库内，按行拆分到多张表</td><td>解决单表数据量大；不解决连接压力</td></tr>
+    <tr><td>水平分库</td><td>按行拆分到多个库（不同实例）</td><td>解决连接/IO压力；跨库查询复杂</td></tr>
+    <tr><td>垂直分库</td><td>按业务模块拆分（用户库/订单库）</td><td>低耦合；跨库事务复杂</td></tr>
+    <tr><td>垂直分表</td><td>大宽表拆为核心表+扩展表</td><td>减少 IO，提高查询效率</td></tr>
+  </table></div>
+  <h3>分片键选择原则</h3>
+  <ul>
+    <li>数据分布均匀（避免热点）</li>
+    <li>业务查询维度匹配（按用户ID分则查询要带用户ID）</li>
+    <li>范围查询友好（取模 vs 范围分片）</li>
+  </ul>
+  <h3>分库分表中间件</h3>
+  <div class="table-wrap"><table>
+    <tr><th>中间件</th><th>类型</th><th>特点</th></tr>
+    <tr><td>ShardingSphere-JDBC</td><td>客户端</td><td>无中心，轻量，Spring Boot 集成友好</td></tr>
+    <tr><td>MyCat</td><td>代理</td><td>数据库层代理，语言无关</td></tr>
+    <tr><td>TiDB</td><td>分布式 DB</td><td>兼容 MySQL，自动分片，HTAP</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="ha">6. 高可用设计</h2>
+  <div class="table-wrap"><table>
+    <tr><th>手段</th><th>说明</th></tr>
+    <tr><td>冗余 + 主备切换</td><td>MySQL 主从，Redis Sentinel，自动 Failover</td></tr>
+    <tr><td>负载均衡</td><td>Nginx/LVS 分流，无状态服务横向扩展</td></tr>
+    <tr><td>熔断（Circuit Breaker）</td><td>Hystrix/Resilience4j，半开状态探测恢复</td></tr>
+    <tr><td>限流</td><td>保护下游，优雅降级而非雪崩</td></tr>
+    <tr><td>超时 + 重试</td><td>快速失败，避免线程堆积；幂等重试</td></tr>
+    <tr><td>异步解耦</td><td>MQ 削峰填谷，避免同步链路过长</td></tr>
+    <tr><td>多机房 + 异地多活</td><td>单机房容灾，就近访问降低延迟</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="scenarios">7. 典型场景设计</h2>
+  <h3>短链系统</h3>
+  <ul>
+    <li>长 URL → MD5 取前 6位 → Base62 编码（0-9A-Za-z）→ 短码</li>
+    <li>哈希冲突：追加随机数或自增序列</li>
+    <li>短码 → 长 URL 映射存 Redis（TTL）+ MySQL（持久化）</li>
+    <li>302 重定向（浏览器缓存）vs 301（无法统计点击）</li>
+  </ul>
+  <h3>秒杀系统</h3>
+  <ul>
+    <li>前端：答题/验证码过滤机器人；页面静态化到 CDN</li>
+    <li>网关层：限流（用户级 + 接口级），重复下单拦截</li>
+    <li>库存：Redis 预扣库存（<code>DECRBY</code>，原子操作），成功才入队</li>
+    <li>MQ：异步创建订单，削峰，Consumer 写 DB</li>
+    <li>DB：乐观锁（version）防超卖，最终校对</li>
+  </ul>
+  <h3>分布式 ID 生成</h3>
+  <div class="table-wrap"><table>
+    <tr><th>方案</th><th>优点</th><th>缺点</th></tr>
+    <tr><td>UUID</td><td>简单无依赖</td><td>无序，索引性能差，128bit 较长</td></tr>
+    <tr><td>数据库自增</td><td>有序，简单</td><td>单点，性能瓶颈</td></tr>
+    <tr><td>Redis INCR</td><td>高性能，有序</td><td>依赖 Redis，持久化有风险</td></tr>
+    <tr><td>Snowflake（雪花）</td><td>趋势递增，64bit，高性能</td><td>时钟回拨问题</td></tr>
+    <tr><td>美团 Leaf</td><td>号段模式 + Snowflake 双模式</td><td>有一定复杂度</td></tr>
+  </table></div>
+  <pre>// Snowflake 结构：64 bit
+// 1位符号位 + 41位时间戳（毫秒）+ 10位机器ID + 12位序列号
+// 41位时间戳可用约 69 年
+// 每毫秒可生成 2^12=4096 个 ID
+long id = ((timestamp - EPOCH) &lt;&lt; 22) | (machineId &lt;&lt; 12) | sequence;</pre>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

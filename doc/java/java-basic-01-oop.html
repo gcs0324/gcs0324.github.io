@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java OOP 面向对象</title>
+<style>
+header::before{content:'OOP'}
+.key{display:inline-block;background:var(--blue-bg);color:var(--blue);font-size:.72rem;padding:1px 8px;border-radius:4px;font-weight:600;margin:2px 2px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-java-basic.js"></script>
+<header>
+  <div class="htag">JAVA BASIC · 01 · OOP</div>
+  <h1>Java 面向对象</h1>
+  <p class="sub">封装 · 继承 · 多态 · 接口 vs 抽象类 · 重写/重载 · Object 核心方法</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#oop">1. OOP 三大特性</a>
+  <a class="sb-link" href="#interface">2. 接口 vs 抽象类</a>
+  <a class="sb-link" href="#override">3. 重写 vs 重载</a>
+  <a class="sb-link" href="#inner">4. 内部类</a>
+  <a class="sb-link" href="#keyword">5. 关键字详解</a>
+  <a class="sb-link" href="#object">6. Object 核心方法</a>
+  <a class="sb-link" href="#string">7. String 不可变性</a>
+</aside>
+<main>
+  <h2 class="sec" id="oop">1. OOP 三大特性</h2>
+  <h3>封装（Encapsulation）</h3>
+  <p>将数据和操作数据的方法封装在类中，通过访问修饰符控制可见性，隐藏实现细节。</p>
+  <div class="table-wrap"><table>
+    <tr><th>修饰符</th><th>同类</th><th>同包</th><th>子类</th><th>其他</th></tr>
+    <tr><td><code>private</code></td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+    <tr><td>（默认）</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+    <tr><td><code>protected</code></td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+    <tr><td><code>public</code></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+  </table></div>
+
+  <h3>继承（Inheritance）</h3>
+  <p>Java 只支持<strong>单继承</strong>（extends），通过继承复用父类代码，子类可以重写父类方法。</p>
+  <ul>
+    <li>构造器不被继承，但子类构造器第一行隐式调用 <code>super()</code></li>
+    <li><code>final</code> 类不可继承，<code>final</code> 方法不可重写</li>
+    <li>继承体现 <strong>is-a</strong> 关系，组合体现 <strong>has-a</strong> 关系（优先组合而非继承）</li>
+  </ul>
+
+  <h3>多态（Polymorphism）</h3>
+  <p>同一接口/父类引用，指向不同子类对象，运行时动态绑定（动态分派）。</p>
+  <pre>Animal a = new Dog();   // 编译期看左边，运行期看右边
+a.speak();              // 调用 Dog.speak()，动态绑定</pre>
+  <div class="tip">💡 多态必须满足：继承/实现 + 方法重写 + 父类引用指向子类对象。成员变量不参与多态（编译期绑定）。</div>
+
+  <h2 class="sec" id="interface">2. 接口 vs 抽象类</h2>
+  <div class="table-wrap"><table>
+    <tr><th>对比维度</th><th>接口（interface）</th><th>抽象类（abstract class）</th></tr>
+    <tr><td>实例化</td><td>❌ 不可</td><td>❌ 不可</td></tr>
+    <tr><td>继承/实现</td><td>类可实现多个接口</td><td>单继承</td></tr>
+    <tr><td>成员变量</td><td>public static final 常量</td><td>任意访问修饰符</td></tr>
+    <tr><td>方法</td><td>abstract + default + static（JDK8）</td><td>任意，可含具体方法</td></tr>
+    <tr><td>构造器</td><td>❌ 无</td><td>✅ 有</td></tr>
+    <tr><td>适用场景</td><td>定义行为契约（能做什么）</td><td>代码复用（是什么）</td></tr>
+    <tr><td>Spring中</td><td>大量接口抽象（BeanFactory 等）</td><td>模板方法模式（AbstractBeanFactory）</td></tr>
+  </table></div>
+  <div class="tip">💡 JDK 8 接口可有 <code>default</code> 方法（解决接口演进问题）和 <code>static</code> 方法；JDK 9 接口可有 <code>private</code> 方法。</div>
+  <pre>interface Flyable {
+    void fly();                        // 抽象方法（隐式 public abstract）
+    default void land() { ... }        // JDK8 默认方法
+    static Flyable of(String type) {   // JDK8 静态方法
+        return ...;
+    }
+}</pre>
+
+  <h2 class="sec" id="override">3. 重写 vs 重载</h2>
+  <div class="table-wrap"><table>
+    <tr><th>对比</th><th>重写（Override）</th><th>重载（Overload）</th></tr>
+    <tr><td>发生时机</td><td>运行时（动态绑定）</td><td>编译时（静态绑定）</td></tr>
+    <tr><td>范围</td><td>父子类之间</td><td>同一类中</td></tr>
+    <tr><td>方法名</td><td>相同</td><td>相同</td></tr>
+    <tr><td>参数列表</td><td>相同</td><td>必须不同</td></tr>
+    <tr><td>返回类型</td><td>相同或协变（子类型）</td><td>无要求</td></tr>
+    <tr><td>访问修饰符</td><td>≥ 父类</td><td>无要求</td></tr>
+    <tr><td>异常</td><td>不能 throws 更宽异常</td><td>无要求</td></tr>
+  </table></div>
+  <div class="warn">⚠️ private/static/final 方法不能被重写；static 方法可被子类"隐藏"（不是多态）。</div>
+
+  <h2 class="sec" id="inner">4. 内部类</h2>
+  <div class="table-wrap"><table>
+    <tr><th>类型</th><th>特点</th><th>典型用途</th></tr>
+    <tr><td>成员内部类</td><td>可访问外部类所有成员，需要外部类实例</td><td>与外部类紧密耦合的逻辑</td></tr>
+    <tr><td>静态内部类</td><td>不依赖外部类实例，只能访问外部类静态成员</td><td>Builder 模式、工具类</td></tr>
+    <tr><td>局部内部类</td><td>定义在方法内，作用域为方法</td><td>较少使用</td></tr>
+    <tr><td>匿名内部类</td><td>无类名，实现接口或继承类，JDK8 后常用 Lambda 替代</td><td>事件监听、Runnable</td></tr>
+  </table></div>
+  <pre>// 静态内部类（推荐）—— 不会持有外部类引用，避免内存泄漏
+class Outer {
+    static class Builder {
+        private String name;
+        Builder name(String n){ this.name=n; return this; }
+        Outer build(){ return new Outer(); }
+    }
+}
+// 使用
+Outer obj = new Outer.Builder().name("test").build();</pre>
+
+  <h2 class="sec" id="keyword">5. 关键字详解</h2>
+  <h3>static</h3>
+  <ul>
+    <li><strong>静态变量</strong>：类级别共享，存放在方法区（JDK8 前 PermGen，JDK8 后 Metaspace）</li>
+    <li><strong>静态方法</strong>：不能访问实例变量/方法，不能使用 this/super</li>
+    <li><strong>静态代码块</strong>：类加载时执行一次，执行顺序：静态块 → 实例块 → 构造器</li>
+    <li><strong>静态内部类</strong>：见上</li>
+  </ul>
+  <h3>final</h3>
+  <ul>
+    <li><strong>final 变量</strong>：基本类型值不可变；引用类型引用不可变（对象内容可变）</li>
+    <li><strong>final 方法</strong>：不可被子类重写（但可重载）</li>
+    <li><strong>final 类</strong>：不可被继承（如 String、Integer）</li>
+  </ul>
+  <div class="tip">💡 <code>final</code> + <code>volatile</code>：final 字段在构造器中写入后对其他线程立即可见（禁止重排序）。</div>
+  <h3>this vs super</h3>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>this</th><th>super</th></tr>
+    <tr><td>引用</td><td>当前对象</td><td>父类部分</td></tr>
+    <tr><td>构造器</td><td>this() 调用本类其他构造器</td><td>super() 调用父类构造器</td></tr>
+    <tr><td>方法</td><td>调用本类方法</td><td>调用父类被重写的方法</td></tr>
+    <tr><td>限制</td><td>this()/super() 必须在构造器第一行，二选一</td><td>同左</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="object">6. Object 核心方法</h2>
+  <div class="table-wrap"><table>
+    <tr><th>方法</th><th>说明</th><th>注意点</th></tr>
+    <tr><td><code>equals()</code></td><td>默认比较引用，需重写比较内容</td><td>重写 equals 必须重写 hashCode</td></tr>
+    <tr><td><code>hashCode()</code></td><td>返回对象哈希值</td><td>equals 相等 → hashCode 必须相等</td></tr>
+    <tr><td><code>toString()</code></td><td>返回对象字符串表示</td><td>建议重写，调试友好</td></tr>
+    <tr><td><code>clone()</code></td><td>浅拷贝，需实现 Cloneable</td><td>深拷贝需递归 clone 或序列化</td></tr>
+    <tr><td><code>finalize()</code></td><td>GC 前调用（已废弃）</td><td>JDK 9 废弃，不可预测，勿用</td></tr>
+    <tr><td><code>wait/notify/notifyAll</code></td><td>线程协作，须在 synchronized 块中调用</td><td>wait 会释放锁，sleep 不释放</td></tr>
+    <tr><td><code>getClass()</code></td><td>返回运行时类</td><td>不可重写（final）</td></tr>
+  </table></div>
+  <pre>// equals/hashCode 契约示例
+@Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof User)) return false;
+    User u = (User) o;
+    return Objects.equals(id, u.id);
+}
+@Override public int hashCode() {
+    return Objects.hash(id);  // 与 equals 一致
+}</pre>
+
+  <h2 class="sec" id="string">7. String 不可变性</h2>
+  <h3>为什么 String 不可变？</h3>
+  <ul>
+    <li>内部 <code>char[]</code>（JDK 9 后 <code>byte[]</code>）被 <code>private final</code> 修饰</li>
+    <li>没有暴露修改数组内容的方法</li>
+    <li>类本身是 <code>final</code>，防止子类破坏不变性</li>
+  </ul>
+  <h3>不可变的好处</h3>
+  <ul>
+    <li><strong>线程安全</strong>：不可变对象天然线程安全</li>
+    <li><strong>字符串常量池</strong>：共享字面量，节省内存</li>
+    <li><strong>哈希值缓存</strong>：hashCode 只计算一次，HashMap key 性能好</li>
+    <li><strong>安全性</strong>：网络连接、类加载路径不会被修改</li>
+  </ul>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>String</th><th>StringBuilder</th><th>StringBuffer</th></tr>
+    <tr><td>可变性</td><td>不可变</td><td>可变</td><td>可变</td></tr>
+    <tr><td>线程安全</td><td>✅</td><td>❌</td><td>✅（synchronized）</td></tr>
+    <tr><td>性能</td><td>拼接慢（每次新建）</td><td>最快</td><td>略慢</td></tr>
+    <tr><td>适用</td><td>少量操作</td><td>单线程大量拼接</td><td>多线程拼接</td></tr>
+  </table></div>
+  <pre>String s1 = "hello";           // 字符串常量池
+String s2 = "hello";           // 复用常量池
+String s3 = new String("hello"); // 堆上新建
+
+s1 == s2;    // true（同一常量池对象）
+s1 == s3;    // false（不同对象）
+s1.equals(s3); // true（内容相同）
+s3.intern() == s1; // true（intern 返回常量池引用）</pre>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

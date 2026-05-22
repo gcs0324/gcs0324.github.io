@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 05 · 分区与副本机制</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'REPLICA';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-zk  {fill:var(--bg3);stroke:var(--bd);stroke-width:1;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace;}
+.dg-yellow{fill:var(--yellow);font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px;}.g2,.g3{grid-template-columns:1fr;}.phase-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">KAFKA · 05 · REPLICATION</div>
+  <h1>分区与副本机制</h1>
+  <p class="subtitle">ISR · LEO · HW · LSO · Leader 选举 · Controller · 分区策略</p>
+</header>
+<nav>
+  <a href="#replica-model">副本模型</a>
+  <a href="#isr">ISR 维护</a>
+  <a href="#watermarks">水位线</a>
+  <a href="#fetch">Fetch 流程</a>
+  <a href="#leader-election">Leader 选举</a>
+  <a href="#controller">Controller</a>
+  <a href="#partition-strategy">分区策略</a>
+  <a href="#interview">面试速答</a>
+</nav>
+<main>
+
+<div class="sec" id="replica-model">Leader / Follower 副本同步</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">Partition-0 副本分布 · ISR 与 OSR 示意</div>
+  <div class="diag-body">
+    <svg width="760" height="200" viewBox="0 0 760 200">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" class="dg-t2" style="fill:var(--tx2)"/>
+        </marker>
+        <marker id="arr-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" class="dg-green" style="fill:var(--green)"/>
+        </marker>
+      </defs>
+
+      <rect x="1" y="1" width="140" height="192" rx="8" class="dg-cluster" stroke-dasharray="6 3"/>
+      <text x="71" y="185" text-anchor="middle" font-size="9" class="dg-green" letter-spacing=".06em">ISR</text>
+
+      <rect x="143" y="1" width="120" height="192" rx="8" class="dg-box-r" stroke-dasharray="5 3"/>
+      <text x="203" y="185" text-anchor="middle" font-size="9" class="dg-red" letter-spacing=".06em">OSR（落后）</text>
+
+      <rect x="60" y="16" width="110" height="70" rx="6" class="dg-box-b"/>
+      <text x="115" y="36" text-anchor="middle" font-size="11" font-weight="700" class="dg-blue">Broker-1</text>
+      <text x="115" y="52" text-anchor="middle" font-size="10" class="dg-t2">Partition-0</text>
+      <text x="115" y="66" text-anchor="middle" font-size="9" font-weight="600" class="dg-blue">Leader</text>
+      <rect x="76" y="72" width="78" height="8" rx="2" class="dg-box-b" opacity=".5"/>
+
+      <rect x="5" y="110" width="110" height="70" rx="6" class="dg-box-g"/>
+      <text x="60" y="130" text-anchor="middle" font-size="11" font-weight="700" class="dg-green">Broker-2</text>
+      <text x="60" y="146" text-anchor="middle" font-size="10" class="dg-t2">Partition-0</text>
+      <text x="60" y="160" text-anchor="middle" font-size="9" font-weight="600" class="dg-green">Follower</text>
+
+      <rect x="153" y="110" width="110" height="70" rx="6" class="dg-box-r"/>
+      <text x="208" y="130" text-anchor="middle" font-size="11" font-weight="700" class="dg-red">Broker-3</text>
+      <text x="208" y="146" text-anchor="middle" font-size="10" class="dg-t2">Partition-0</text>
+      <text x="208" y="160" text-anchor="middle" font-size="9" font-weight="600" class="dg-red">Follower</text>
+
+      <rect x="285" y="60" width="88" height="44" rx="6" class="dg-box-o"/>
+      <text x="329" y="80" text-anchor="middle" font-size="11" font-weight="700" class="dg-orange">Producer</text>
+      <text x="329" y="95" text-anchor="middle" font-size="9" class="dg-t2">write</text>
+
+      <line x1="285" y1="82" x2="178" y2="64" stroke="var(--orange)" stroke-width="1.8" fill="none" marker-end="url(#arr)"/>
+
+      <line x1="115" y1="86" x2="62" y2="110" stroke="var(--green)" stroke-width="1.4" stroke-dasharray="4 3" fill="none" marker-end="url(#arr-g)"/>
+      <text x="72" y="102" text-anchor="middle" font-size="9" class="dg-green">Fetch</text>
+
+      <line x1="153" y1="64" x2="115" y2="64" stroke="var(--red)" stroke-width="1.4" stroke-dasharray="4 3" fill="none" marker-end="url(#arr)"/>
+      <text x="207" y="105" text-anchor="middle" font-size="9" class="dg-red">Fetch</text>
+      <line x1="208" y1="110" x2="148" y2="82" stroke="var(--red)" stroke-width="1.4" stroke-dasharray="4 3" fill="none" marker-end="url(#arr)"/>
+
+      <rect x="420" y="40" width="320" height="130" rx="8" class="dg-box" opacity=".7"/>
+      <text x="580" y="62" text-anchor="middle" font-size="11" font-weight="600" class="dg-t">Kafka 副本同步核心原则</text>
+      <text x="436" y="84" font-size="11" class="dg-t2">· Follower 主动 Pull（类 Consumer）</text>
+      <text x="436" y="102" font-size="11" class="dg-t2">· Leader 接收所有读写请求</text>
+      <text x="436" y="120" font-size="11" class="dg-t2">· HW = ISR 中最小 LEO</text>
+      <text x="436" y="138" font-size="11" class="dg-t2">· ISR 收缩 / 扩张动态发生</text>
+      <text x="436" y="156" font-size="11" class="dg-t2">· Consumer 只读 HW 以下消息</text>
+    </svg>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">LEADER</div>
+      <div class="ovname">Leader 副本</div>
+      <div class="ovsub">处理所有 Producer 写入与 Consumer 读取</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>处理所有 <strong>Producer 写入</strong>和 Consumer 读取请求</li>
+        <li>维护 <strong>ISR 列表</strong>和 HW（High Watermark）</li>
+        <li>选举时唯一候选来源为 <strong>ISR 成员</strong></li>
+        <li>宕机后 Controller 从 ISR 中选出新 Leader</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">FOLLOWER</div>
+      <div class="ovname">Follower 副本</div>
+      <div class="ovsub">主动 Pull，维护自身 LEO，被动接受踢出 / 回归 ISR</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>主动向 Leader 发 <strong>FetchRequest</strong>（类似 Consumer Pull 模式）</li>
+        <li>维护自己的 <strong>LEO</strong>（Log End Offset）</li>
+        <li>落后超过 <strong><code>replica.lag.time.max.ms</code></strong>（默认 30s）则被踢出 ISR</li>
+        <li>追上 Leader HW 后重新加入 ISR</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="isr">ISR 动态维护</div>
+
+<div class="fw c-t">
+  <div class="fwh">
+    <span class="fwb">ISR</span>
+    <span class="fwt">In-Sync Replicas 全生命周期</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">ISR 定义</div>
+        <div class="sd">与 Leader 保持同步的副本集合，<strong>包括 Leader 自身</strong>。只有 ISR 成员才有资格成为新 Leader，是 Kafka 可靠性的核心保障。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">判断标准</div>
+        <div class="sd">Follower 在 <strong><code>replica.lag.time.max.ms</code></strong>（默认 30000ms）内曾向 Leader 发送过 FetchRequest，即认为同步正常，留在 ISR。旧版本按消息数（<code>replica.lag.max.messages</code>）判断已废弃，因为批量写入容易误判。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">踢出 ISR</div>
+        <div class="sd">Follower 超时未 Fetch，Leader 将其移出 ISR，通知 Controller 更新元数据。Follower 仍继续从 Leader 拉数据，只是<strong>不参与 acks 和选举</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">重新加入 ISR</div>
+        <div class="sd">Follower 追上 Leader 的 HW（即自身 LEO ≥ Leader HW）后，Leader 重新将其<strong>加入 ISR</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">5</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">ISR 收缩的影响</div>
+        <div class="sd">ISR 数量低于 <strong><code>min.insync.replicas</code></strong> 时，<code>acks=-1</code> 的 Producer 请求会收到 <code>NotEnoughReplicasException</code>。这是 Kafka 故意设计的安全保护：宁可写入失败，也不降低数据可靠性。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">WARN</span>
+  <p>生产必须监控 <strong>UnderReplicatedPartitions</strong> JMX 指标，>0 立即告警。ISR 频繁收缩通常说明 Follower 有性能瓶颈（GC、磁盘 IO、网络带宽）。</p>
+</div>
+
+<div class="sec" id="watermarks">LEO / HW / LSO 水位线</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">水位线示意 · LEO / HW / LSO</div>
+  <div class="diag-body">
+    <svg width="720" height="190" viewBox="0 0 720 190">
+      <defs>
+        <marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L7,3 z" style="fill:var(--tx3)"/>
+        </marker>
+      </defs>
+
+      <text x="8" y="22" font-size="10" font-weight="600" class="dg-t3">OFFSET</text>
+      <text x="44" y="22" font-size="10" class="dg-t3">0</text>
+      <text x="72" y="22" font-size="10" class="dg-t3">1</text>
+      <text x="100" y="22" font-size="10" class="dg-t3">2</text>
+      <text x="128" y="22" font-size="10" class="dg-t3">3</text>
+      <text x="156" y="22" font-size="10" class="dg-t3">4</text>
+      <text x="184" y="22" font-size="10" class="dg-t3">5</text>
+      <text x="212" y="22" font-size="10" class="dg-t3">6</text>
+      <text x="240" y="22" font-size="10" class="dg-t3">7</text>
+      <text x="268" y="22" font-size="10" class="dg-t3">8</text>
+      <text x="296" y="22" font-size="10" class="dg-t3">9</text>
+      <text x="318" y="22" font-size="10" class="dg-t3">10</text>
+      <text x="346" y="22" font-size="10" class="dg-t3">11</text>
+      <text x="374" y="22" font-size="10" class="dg-t3">12</text>
+      <text x="402" y="22" font-size="10" class="dg-t3">13</text>
+
+      <text x="4" y="52" font-size="10" font-weight="600" class="dg-blue">Leader</text>
+      <rect x="36" y="34" width="392" height="22" rx="3" class="dg-box-b" opacity=".8"/>
+      <text x="450" y="50" font-size="9" class="dg-blue">LEO=14</text>
+
+      <text x="4" y="90" font-size="10" font-weight="600" class="dg-green">Flwr-1</text>
+      <rect x="36" y="72" width="308" height="22" rx="3" class="dg-box-g" opacity=".8"/>
+      <text x="350" y="88" font-size="9" class="dg-green">LEO=11</text>
+
+      <text x="4" y="128" font-size="10" font-weight="600" class="dg-green">Flwr-2</text>
+      <rect x="36" y="110" width="364" height="22" rx="3" class="dg-box-g" opacity=".6"/>
+      <text x="406" y="126" font-size="9" class="dg-green">LEO=13</text>
+
+      <line x1="344" y1="28" x2="344" y2="152" stroke="var(--blue)" stroke-width="1.8" stroke-dasharray="none" fill="none"/>
+      <text x="344" y="162" text-anchor="middle" font-size="9" font-weight="700" class="dg-blue">HW=11</text>
+
+      <line x1="232" y1="28" x2="232" y2="152" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="3 2" fill="none"/>
+      <text x="232" y="162" text-anchor="middle" font-size="9" class="dg-orange">LSO=7</text>
+      <text x="232" y="173" text-anchor="middle" font-size="8" class="dg-t3">（进行中事务）</text>
+
+      <rect x="36" y="144" width="196" height="18" rx="3" fill="var(--grn-bg)" opacity=".6"/>
+      <text x="134" y="157" text-anchor="middle" font-size="9" class="dg-green">read_committed 可见</text>
+
+      <rect x="232" y="144" width="112" height="18" rx="3" fill="var(--ora-bg)" opacity=".6"/>
+      <text x="288" y="157" text-anchor="middle" font-size="9" class="dg-orange">未提交事务</text>
+
+      <rect x="344" y="144" width="84" height="18" rx="3" fill="var(--red-bg)" opacity=".6"/>
+      <text x="386" y="157" text-anchor="middle" font-size="9" class="dg-red">HW 以上不可见</text>
+    </svg>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--blue);">LEO</div>
+    <div class="phase-title" style="color:var(--tx);">Log End Offset</div>
+    <ul class="phase-items">
+      <li>每个副本<strong>独立</strong>维护，指向下一条待写入位置</li>
+      <li>Leader LEO 随 Producer 写入<strong>实时增长</strong></li>
+      <li>Follower LEO 随 Fetch 进度更新</li>
+      <li>Leader 用各 ISR 成员 LEO 计算 HW</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--green);">HW</div>
+    <div class="phase-title" style="color:var(--tx);">High Watermark</div>
+    <ul class="phase-items">
+      <li>Leader 维护，等于 <strong>ISR 中所有副本 LEO 的最小值</strong></li>
+      <li>HW 以下的消息 Consumer <strong>可见</strong>（已被所有 ISR 副本持久化）</li>
+      <li>HW 以上的消息 Consumer <strong>不可见</strong>，防止读到后续可能被截断的数据</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--orange);">LSO</div>
+    <div class="phase-title" style="color:var(--tx);">Last Stable Offset</div>
+    <ul class="phase-items">
+      <li>事务场景专用，<strong><code>read_committed</code></strong> 的 Consumer 只能读到 LSO</li>
+      <li>跳过进行中的事务消息，保证事务一致性</li>
+      <li>无事务场景下 <strong>LSO = HW</strong></li>
+      <li>关系：LSO ≤ HW ≤ Leader LEO</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note bad">
+  <span class="nlbl">WARN</span>
+  <p><strong>HW 截断问题</strong>（Kafka 2.6 前）：Leader 宕机 Follower 晋升新 Leader，若新 Leader 的 HW 低于旧 Leader 已确认的消息，可能出现消息"回退"。Kafka 2.6 引入 <strong>Leader Epoch</strong> 解决：Follower 重启时对比 Leader Epoch，不一致则截断本地日志到安全位置。</p>
+</div>
+
+<div class="sec" id="fetch">Follower Fetch 流程</div>
+
+<div class="fw c-b">
+  <div class="fwh">
+    <span class="fwb">FETCH</span>
+    <span class="fwt">Follower 拉取数据完整链路</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">FetchRequest</div>
+        <div class="sd">Follower 向 Leader 发送请求，携带 <strong>TopicPartition</strong>、<strong>fetchOffset</strong>（自身当前 LEO）、maxBytes、maxWait。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Leader 读取数据</div>
+        <div class="sd">Leader 从 fetchOffset 开始读取 Log（走 <strong>Page Cache</strong>），同时更新该 Follower 在内存中记录的 LEO 值，用于 HW 计算。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">更新 HW</div>
+        <div class="sd">Leader 根据所有 ISR 成员最新的 LEO 重新计算 HW，在 <strong>FetchResponse</strong> 中将新 HW 一并返回。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Follower 更新</div>
+        <div class="sd">Follower 写入数据到本地 Log（更新自身 LEO），然后更新自身 HW = <strong>min(自身 LEO, Response 中的 Leader HW)</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">5</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">长轮询等待</div>
+        <div class="sd">若 Leader 暂无新数据，不立即返回空响应，等待最多 <strong><code>replica.fetch.wait.max.ms</code></strong>（默认 500ms）或有新数据到达，再响应。减少无效轮询，降低 CPU 和网络开销。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="leader-election">Leader 选举</div>
+
+<div class="g2">
+  <div class="ovc c-r">
+    <div class="ovh">
+      <div class="ovtag">TRIGGER</div>
+      <div class="ovname">触发时机</div>
+      <div class="ovsub">以下情况会触发 Partition Leader 重新选举</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>Broker <strong>宕机</strong>或网络隔离</li>
+        <li>Broker <strong>优雅关闭</strong>（kafka-server-stop.sh）</li>
+        <li>Controller 执行<strong>分区平衡</strong>（preferred replica election）</li>
+        <li>管理员手动执行 <strong><code>kafka-leader-election.sh</code></strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">RULE</div>
+      <div class="ovname">选举规则</div>
+      <div class="ovsub">Controller 按优先级依次执行</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>① 优先从 ISR 中选 <strong>Preferred Replica</strong>（AR 列表第一个）</li>
+        <li>② ISR 为空且 <code>unclean.leader.election.enable=false</code>（默认）→ Partition <strong>变 offline</strong></li>
+        <li>③ <code>unclean.leader.election.enable=true</code> → 从所有副本中选，<strong>可能丢数据</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">COMPARE</span>
+    <span class="fwt">unclean 选举对比：CP vs AP</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">✗</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">unclean=false（默认，推荐）</div>
+        <div class="sd">ISR 为空时 Partition <strong>offline</strong>，拒绝读写。保证不丢数据（<strong>CP</strong>）。适合：订单、支付、账务等核心业务，数据一致性高于可用性。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">✓</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">unclean=true</div>
+        <div class="sd">ISR 为空时从 OSR 选 Leader，可能<strong>丢失未同步的消息</strong>。保证可用性（<strong>AP</strong>）。适合：日志收集、埋点统计（少量丢失可接受）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="controller">Controller 职责与选举</div>
+
+<div class="fw c-y">
+  <div class="fwh">
+    <span class="fwb">CONTROLLER</span>
+    <span class="fwt">集群调度中心的五大职责</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">监听 Broker 存活</div>
+        <div class="sd">监听 ZooKeeper 的 <strong><code>/brokers/ids</code></strong> 节点（ZK 模式）或 @metadata 日志（KRaft 模式），发现 Broker 下线后触发 Leader 重新选举。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">批量选举 Leader</div>
+        <div class="sd">为宕机 Broker 上的所有 Partition 重新选举 Leader（从 ISR 中选），批量生成 <strong><code>LeaderAndIsrRequest</code></strong> 发给集群所有存活 Broker，避免逐一通知的开销。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">管理 ISR 变化</div>
+        <div class="sd">接收各 Partition Leader 上报的 ISR 变更，<strong>更新元数据</strong>并广播给所有 Broker。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Topic 生命周期管理</div>
+        <div class="sd">处理 Topic 创建/删除/分区扩容，计算<strong>副本分配方案</strong>，更新元数据。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">5</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Controller 自身选举</div>
+        <div class="sd"><strong>ZK 模式</strong>：所有 Broker 竞争创建 <code>/controller</code> 临时节点，成功者成为 Controller；Controller 宕机时节点消失，其他 Broker 重新竞争。<br><strong>KRaft 模式</strong>：专属 Controller 节点组通过 Raft 协议选举，无需 ZooKeeper，选举更快更稳定。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">INFO</span>
+  <p>Controller 是 Kafka 集群的"调度中心"，但也是单点。<strong>KRaft 模式</strong>下可配置多个 Controller 节点（建议 3 或 5 个），通过 Raft 保证高可用，元数据管理延迟更低，集群规模可支持<strong>百万级 Partition</strong>。</p>
+</div>
+
+<div class="sec" id="partition-strategy">分区策略</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>策略</th>
+        <th>触发条件</th>
+        <th>路由规则</th>
+        <th>优点</th>
+        <th>适用场景</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Hash 路由</td>
+        <td>Key 非 null</td>
+        <td><code>murmur2(key) % numPartitions</code></td>
+        <td>同 Key 必落同 Partition，保证顺序</td>
+        <td>用户 ID、订单 ID 路由，保证顺序</td>
+      </tr>
+      <tr>
+        <td>黏性分区 (Sticky)</td>
+        <td>Key 为 null（Kafka 2.4+ 默认）</td>
+        <td>同 batch 粘在一个 Partition，batch 满或 linger 到期后随机切换</td>
+        <td>减少小 batch，提高吞吐</td>
+        <td>无顺序要求的高吞吐场景</td>
+      </tr>
+      <tr>
+        <td>轮询 (RoundRobin)</td>
+        <td>旧版 Key 为 null 时</td>
+        <td>依次分配到各 Partition</td>
+        <td>均匀分布</td>
+        <td>已被 Sticky 取代</td>
+      </tr>
+      <tr>
+        <td>自定义分区器</td>
+        <td>配置 <code>partitioner.class</code></td>
+        <td>实现 <code>Partitioner</code> 接口</td>
+        <td>完全自定义路由逻辑</td>
+        <td>按地域、业务线、VIP 等级路由</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="fw c-t">
+  <div class="fwh">
+    <span class="fwb">SIZING</span>
+    <span class="fwt">分区数规划四条原则</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">容量公式</div>
+        <div class="sd"><strong>分区数 = 目标吞吐 ÷ 单分区吞吐</strong>（单分区写约 10~100 MB/s，取决于消息大小和硬件）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">集群上限</div>
+        <div class="sd">单集群总分区数建议<strong>不超过 10 万</strong>（每个分区在 Broker 内存和 Controller 各有开销）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">只增不减</div>
+        <div class="sd">分区数<strong>只能增加不能减少</strong>（减少会导致 hash 路由错乱，数据混乱）</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">扩分区前评估下游</div>
+        <div class="sd">若 Consumer 依赖 Hash 顺序，<strong>扩分区后同一 Key 可能换 Partition</strong>，破坏顺序保证。操作前必须通知下游 Consumer。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">PLAN</span>
+  <p>设计初期就规划充足的分区数，生产环境扩分区代价远大于预留。建议：<strong>预期最大分区数 × 1.5 倍预留</strong>，且为 2 的幂次方（方便路由计算）。</p>
+</div>
+
+<div class="sec" id="interview">面试速答</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">Q&amp;A</span>
+    <span class="fwt">分区与副本机制高频面试题</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">ISR 是什么？什么时候副本会被踢出 ISR？</div>
+        <div class="sd">ISR 是与 Leader 保持同步的副本集合。踢出条件：Follower 在 <strong><code>replica.lag.time.max.ms</code></strong>（默认 30s）内未向 Leader 发 FetchRequest。踢出后副本仍继续拉数据，不影响数据存储；追上 Leader HW 后重新加入 ISR。ISR 为空时，<code>acks=-1</code> 的写入会失败（<code>NotEnoughReplicasException</code>）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">LEO、HW、LSO 的含义和区别？</div>
+        <div class="sd"><strong>LEO</strong>：副本日志末尾 Offset（各自独立维护）。<strong>HW</strong>：ISR 中所有副本 LEO 的最小值，Consumer 可见边界。<strong>LSO</strong>：最后一个已完成事务的 Offset，<code>read_committed</code> 消费者的可见边界。关系：<strong>LSO ≤ HW ≤ Leader LEO</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">分区数增加会有什么问题？</div>
+        <div class="sd">① Hash 路由的消息换 Partition，同 Key 消息可能路由到不同 Partition，<strong>破坏顺序保证</strong>；② Rebalance 期间消费暂停；③ Broker 和 Controller 内存、元数据开销增加；④ 已有 Segment 的数据不会迁移。操作建议：低峰期进行，提前评估顺序依赖，必要时通知下游 Consumer 暂停。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">unclean.leader.election.enable 应该设 true 还是 false？</div>
+        <div class="sd">默认 <strong>false</strong>，推荐保持。设 true 会在 ISR 为空时允许从未同步副本选 Leader，可能<strong>丢失消息</strong>（未同步到该副本的消息永久消失）。只在允许少量丢失的场景（日志、埋点）才考虑设 true，核心业务务必保持 false。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q5</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Controller 宕机后集群会怎样？</div>
+        <div class="sd"><strong>ZK 模式</strong>：Controller 宕机后其 ZK 临时节点消失，其他 Broker 监听到后竞争成为新 Controller，通常<strong>数秒内完成</strong>。期间新的 Leader 选举请求会积压，但已有的 Partition Leader 继续正常服务读写。恢复后新 Controller 处理积压任务。<br><strong>KRaft 模式</strong>：通过 Raft 在 Controller Quorum 中选举，无需 ZK，速度更快，通常 <strong>1~2 秒</strong>内完成。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

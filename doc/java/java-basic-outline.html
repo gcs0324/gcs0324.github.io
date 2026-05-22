@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 基础 — 专题导航</title>
+<style>
+.hero{background:linear-gradient(135deg,var(--blue-bg) 0%,var(--bg) 60%);border-bottom:1px solid var(--bd);padding:48px 28px 36px}
+.hero-inner{max-width:900px;margin:0 auto}
+.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+.hero p{color:var(--tx2);font-size:1rem;max-width:560px}
+.stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;text-align:center}
+.stat-num{font-size:1.4rem;font-weight:700;color:var(--blue)}
+.stat-label{font-size:.75rem;color:var(--tx2)}
+.progress-wrap{margin-top:20px;max-width:360px}
+.progress-label{font-size:.8rem;color:var(--tx2);margin-bottom:6px}
+.progress-bar{height:6px;background:var(--bd);border-radius:3px}
+.progress-fill{height:100%;width:0%;background:var(--blue);border-radius:3px;transition:width .4s}
+main{max-width:900px;margin:36px auto;padding:0 28px 60px}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--tx)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:40px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:20px;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.card:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.card-num{font-size:.72rem;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:8px}
+.card-desc{font-size:.82rem;color:var(--tx2);margin-bottom:14px;line-height:1.5}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.72rem;background:var(--blue-bg);color:var(--blue);border-radius:4px;padding:2px 8px}
+.card-link{display:inline-block;margin-top:14px;font-size:.82rem;font-weight:600;color:var(--blue)}
+.interview-card{grid-column:1/-1;background:linear-gradient(135deg,var(--yellow-bg),var(--bg2));border-color:var(--yellow)}
+.interview-card .card-num{color:var(--yellow)}
+.interview-card .card-link{color:var(--yellow)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-java-basic.js"></script>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>Java 基础专题</h1>
+    <p>涵盖 OOP、集合框架、泛型/反射/注解、异常/IO、JDK8+ 新特性，系统梳理 Java 核心知识体系，夯实面试基础。</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">文件</div></div>
+      <div class="stat"><div class="stat-num">35</div><div class="stat-label">小节</div></div>
+      <div class="stat"><div class="stat-num">~180</div><div class="stat-label">分钟</div></div>
+      <div class="stat"><div class="stat-num">32</div><div class="stat-label">面试题</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">学习进度</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="section-title">📚 章节目录</div>
+  <div class="cards">
+    <div class="card" onclick="location.href='java-basic-01-oop.html'">
+      <div class="card-num">Chapter 01</div>
+      <div class="card-title">面向对象 OOP</div>
+      <div class="card-desc">封装/继承/多态三大特性，接口与抽象类，重写与重载，内部类，static/final 关键字</div>
+      <div class="card-tags"><span class="tag">封装</span><span class="tag">继承</span><span class="tag">多态</span><span class="tag">接口</span></div>
+      <a class="card-link" href="java-basic-01-oop.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='java-basic-02-collection.html'">
+      <div class="card-num">Chapter 02</div>
+      <div class="card-title">集合框架</div>
+      <div class="card-desc">List/Set/Map/Queue 体系，ArrayList/LinkedList/HashMap 源码，迭代器与 fail-fast</div>
+      <div class="card-tags"><span class="tag">ArrayList</span><span class="tag">HashMap</span><span class="tag">TreeMap</span><span class="tag">Queue</span></div>
+      <a class="card-link" href="java-basic-02-collection.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='java-basic-03-generic.html'">
+      <div class="card-num">Chapter 03</div>
+      <div class="card-title">泛型 / 反射 / 注解</div>
+      <div class="card-desc">类型擦除，通配符 extends/super，反射 API，动态代理，注解处理器</div>
+      <div class="card-tags"><span class="tag">泛型擦除</span><span class="tag">反射</span><span class="tag">动态代理</span><span class="tag">注解</span></div>
+      <a class="card-link" href="java-basic-03-generic.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='java-basic-04-exception.html'">
+      <div class="card-num">Chapter 04</div>
+      <div class="card-title">异常 / IO / NIO</div>
+      <div class="card-desc">异常体系，checked/unchecked，try-with-resources，BIO/NIO/AIO 对比，Selector 模型</div>
+      <div class="card-tags"><span class="tag">异常体系</span><span class="tag">BIO</span><span class="tag">NIO</span><span class="tag">Selector</span></div>
+      <a class="card-link" href="java-basic-04-exception.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='java-basic-05-jdk8.html'">
+      <div class="card-num">Chapter 05</div>
+      <div class="card-title">JDK 8+ 新特性</div>
+      <div class="card-desc">Lambda，Stream API，Optional，新时间API，接口 default 方法，var，record，sealed</div>
+      <div class="card-tags"><span class="tag">Lambda</span><span class="tag">Stream</span><span class="tag">Optional</span><span class="tag">Record</span></div>
+      <a class="card-link" href="java-basic-05-jdk8.html">开始学习 →</a>
+    </div>
+    <div class="card interview-card" onclick="location.href='java-basic-06-interview.html'">
+      <div class="card-num">🎯 Interview</div>
+      <div class="card-title">Java 基础面试题 — 左侧分类导航</div>
+      <div class="card-desc">32 道高频面试题，覆盖 OOP、集合、泛型反射、异常IO、JDK新特性五大分类，含面试官视角与参考回答</div>
+      <div class="card-tags"><span class="tag">32题</span><span class="tag">5分类</span><span class="tag">高频</span></div>
+      <a class="card-link" href="java-basic-06-interview.html">进入面试题 →</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

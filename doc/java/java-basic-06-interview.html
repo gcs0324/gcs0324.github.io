@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 基础 06 · 高频面试题</title>
+<style>
+header::before{content:'JAVA BASIC'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-java-basic.js"></script>
+<header>
+  <div class="htag">JAVA · 06 · INTERVIEW</div>
+  <h1>Java 基础高频面试题</h1>
+  <p class="sub">面试官视角 · 口语化回答 · 知识点跳转 — 32 道真题</p>
+</header>
+
+<div class="layout">
+<!-- ════════ SIDEBAR ════════ -->
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">快速操作</span>
+    <span class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">展开全部</button>
+      <button class="s-btn" onclick="toggleAll(false)">折叠全部</button>
+    </span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/32</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+  <div class="s-lbl">面试分类</div>
+
+  <div class="scat open" id="scat-oop">
+    <div class="scat-head" onclick="toggleScat('scat-oop')">
+      <span class="scat-icon">01</span><span class="scat-label">OOP 面向对象</span>
+      <span class="scat-count">7题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item active" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">三大特性</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">接口 vs 抽象类</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">重写 vs 重载</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">多态底层原理</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">equals/hashCode 契约</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">String 不可变设计</span></a>
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">== vs equals</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-coll">
+    <div class="scat-head" onclick="toggleScat('scat-coll')">
+      <span class="scat-icon">02</span><span class="scat-label">集合框架</span>
+      <span class="scat-count">7题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">ArrayList vs LinkedList</span></a>
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">HashMap put 流程</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">HashMap 扩容/死循环</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">LRU 缓存实现</span></a>
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">fail-fast 机制</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">ConcurrentHashMap</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">TreeMap 选型</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-generic">
+    <div class="scat-head" onclick="toggleScat('scat-generic')">
+      <span class="scat-icon">03</span><span class="scat-label">泛型/反射/注解</span>
+      <span class="scat-count">6题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">类型擦除</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">PECS 通配符</span></a>
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">反射原理</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">JDK vs CGLIB 代理</span></a>
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">注解原理</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">SPI 机制</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-io">
+    <div class="scat-head" onclick="toggleScat('scat-io')">
+      <span class="scat-icon">04</span><span class="scat-label">异常/IO</span>
+      <span class="scat-count">5题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">异常体系</span></a>
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">try-with-resources</span></a>
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">BIO/NIO/AIO 对比</span></a>
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">NIO 三组件</span></a>
+      <a class="scat-item" href="#q25"><span class="scat-item-num">Q25</span><span class="scat-item-txt">select vs epoll</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-jdk">
+    <div class="scat-head" onclick="toggleScat('scat-jdk')">
+      <span class="scat-icon">05</span><span class="scat-label">JDK 新特性</span>
+      <span class="scat-count">7题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q26"><span class="scat-item-num">Q26</span><span class="scat-item-txt">Lambda 原理</span></a>
+      <a class="scat-item" href="#q27"><span class="scat-item-num">Q27</span><span class="scat-item-txt">Stream 并行流</span></a>
+      <a class="scat-item" href="#q28"><span class="scat-item-num">Q28</span><span class="scat-item-txt">Optional 最佳实践</span></a>
+      <a class="scat-item" href="#q29"><span class="scat-item-num">Q29</span><span class="scat-item-txt">新时间 API</span></a>
+      <a class="scat-item" href="#q30"><span class="scat-item-num">Q30</span><span class="scat-item-txt">Record 类</span></a>
+      <a class="scat-item" href="#q31"><span class="scat-item-num">Q31</span><span class="scat-item-txt">虚拟线程</span></a>
+      <a class="scat-item" href="#q32"><span class="scat-item-num">Q32</span><span class="scat-item-txt">接口 default 方法</span></a>
+    </div>
+  </div>
+
+
+</aside>
+
+<!-- ════════ MAIN ════════ -->
+<div class="mc">
+
+<!-- ═══ 01 OOP ═══ -->
+<div class="sec" id="oop"><span class="sn">01</span> OOP 面向对象 <span class="q-count">Q1–Q7</span></div>
+
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">Java 面向对象三大特性是什么？各自的含义？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>考查对 OOP 核心概念的理解，是基础中的基础。结合代码或实际例子解释更佳，能说出"多态条件"和"成员变量不多态"是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">封装</span><span>将数据和操作封装在类中，通过 private/protected/public 控制访问权限，隐藏实现细节，降低耦合。比如 JavaBean 的 getter/setter。</span></li>
+        <li><span class="b">继承</span><span>子类复用父类代码（extends），支持代码重用，体现 is-a 关系。Java 只支持单继承，但可实现多接口。</span></li>
+        <li><span class="b">多态</span><span>同一类型引用，指向不同子类对象时表现出不同行为（动态绑定）。编译期看左边类型，运行期看实际对象类型（虚方法表）。多态三条件：继承 + 重写 + 父类引用指向子类对象。</span></li>
+      </ul>
+      <div class="note info"><strong>注意</strong>：成员变量不存在多态，访问的是引用类型的变量；只有方法调用才动态绑定。</div>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-01-oop.html">OOP · 三大特性详解</a><a class="qa-link" href="#q4">Q4 · 多态底层原理</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">接口和抽象类的区别？各自适用场景？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>考查设计能力，希望听到 is-a vs can-do、代码复用 vs 行为契约的本质区别，而不只是语法差异的罗列。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>抽象类</th><th>接口</th></tr>
+        <tr><td>构造器</td><td>有</td><td>无</td></tr>
+        <tr><td>成员变量</td><td>可有实例变量</td><td>只有 public static final 常量</td></tr>
+        <tr><td>方法</td><td>可有具体方法</td><td>JDK8+ 可有 default/static 方法</td></tr>
+        <tr><td>继承限制</td><td>单继承</td><td>可实现多个接口</td></tr>
+        <tr><td>设计语义</td><td>is-a，代码复用（模板方法）</td><td>can-do，行为契约（依赖倒置）</td></tr>
+      </table>
+      <p>选择原则：有代码复用需求且有明确 is-a 关系 → 抽象类；只需行为约束且可能多实现 → 接口。Spring 的 AbstractBeanFactory 是抽象类，Comparable / Serializable 是接口。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">方法重写（Override）和重载（Overload）的区别？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>基础题，考查是否清楚编译期 vs 运行期绑定的本质，以及不能重写 static/final/private 的原因。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">重写</span><span>发生在子父类之间，方法签名（名+参数列表）完全相同，返回类型可协变，访问权限 ≥ 父类，<span class="kw">运行时动态绑定</span>（多态基础）。不能重写 static/final/private 方法。</span></li>
+        <li><span class="b">重载</span><span>同一类中，方法名相同但参数列表不同（类型/数量/顺序），<span class="kw">编译期静态绑定</span>，返回类型和访问权限无要求。</span></li>
+      </ul>
+      <pre>// 重写：运行时决定调用哪个
+Animal a = new Dog(); a.speak(); // 调用 Dog.speak()
+
+// 重载：编译时决定调用哪个
+void print(int i) {}
+void print(String s) {}  // 参数类型不同，编译器区分</pre>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">多态的底层实现原理是什么？虚方法表如何工作？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>深挖底层，考查对 JVM 虚方法表机制的理解，能说出 invokevirtual 和 invokeinterface 的候选人层次明显更高。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>Java 多态通过 <span class="kw">虚方法表（vtable）</span> 实现：</p>
+      <ul>
+        <li><span class="b">①</span><span>每个类在类加载时建立虚方法表，存储可重写方法的实际入口地址</span></li>
+        <li><span class="b">②</span><span>子类方法表从父类继承，如果重写则替换对应入口；未重写则指向父类方法</span></li>
+        <li><span class="b">③</span><span>JVM 通过 <code>invokevirtual</code> 指令，根据实际对象类型查虚方法表，找到正确方法入口</span></li>
+        <li><span class="b">④</span><span>接口调用用 <code>invokeinterface</code>，无固定偏移量，需遍历接口表，效率略低</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-01-oop.html">OOP · 多态与虚方法表</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">为什么重写 equals() 必须同时重写 hashCode()？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>基础中的重点，直接关系到 HashMap/HashSet 的正确使用。能说出"先比 hashCode 定桶，再 equals 比较"的候选人更优秀。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">契约</span>：equals 相等的对象，hashCode 必须相等（反之不要求）。</p>
+      <p><span class="kw">原因</span>：HashMap/HashSet 先比 hashCode 定桶，再 equals 比较对象。如果只重写 equals 不重写 hashCode，两个逻辑相等的对象哈希值不同，落入不同桶，导致 HashMap 找不到已存对象，Set 出现重复元素。</p>
+      <pre>// 反例：不重写 hashCode
+User u1 = new User(1L, "Alice");
+User u2 = new User(1L, "Alice");
+u1.equals(u2) == true;          // 重写了 equals 相等
+set.add(u1); set.contains(u2);  // ❌ 可能返回 false！hashCode 不同落入不同桶</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-01-oop.html">OOP · equals/hashCode 规范</a><a class="qa-link" href="#q9">Q9 · HashMap put 流程</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">String 为什么设计成不可变？有什么好处？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>考查对不可变对象设计优势的理解，顺带可延伸到字符串常量池，以及 StringBuilder vs StringBuffer 的选择。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">设计</span>：内部 byte[]（JDK9+）/ char[]（JDK8）被 private final 修饰，且类本身是 final，防止子类破坏不变性。</p>
+      <ul>
+        <li><span class="b">①</span><span><strong>字符串常量池</strong>：不可变才能安全共享同一对象，节省内存。<code>"abc" == "abc"</code> 为 true</span></li>
+        <li><span class="b">②</span><span><strong>哈希缓存</strong>：hashCode 只计算一次（懒计算后缓存），HashMap key 性能好</span></li>
+        <li><span class="b">③</span><span><strong>线程安全</strong>：不可变对象天然线程安全，无需同步</span></li>
+        <li><span class="b">④</span><span><strong>安全性</strong>：类路径、网络连接等 String 参数不可被修改，防止安全漏洞</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">== 和 equals 的区别？Integer 的 == 比较陷阱？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>考查基础概念，常结合 Integer 缓存范围（-128~127）出题，是高频送分题但也是常见失分点。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">==</span><span>比较引用（内存地址），基本类型比较值</span></li>
+        <li><span class="b">equals</span><span>Object 默认同 ==，通常重写为比较内容（String、Integer 等都重写了）</span></li>
+      </ul>
+      <pre>Integer a = 127, b = 127;
+a == b;        // true（-128~127 IntegerCache，同一对象）
+Integer c = 128, d = 128;
+c == d;        // false（超出缓存范围，new Integer()）
+c.equals(d);   // true（比较值）
+
+String s1 = "hello"; String s2 = new String("hello");
+s1 == s2;       // false（不同对象）
+s1.equals(s2);  // true（内容相同）</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 02 集合 ═══ -->
+<div class="sec" id="collection"><span class="sn">02</span> 集合框架 <span class="q-count">Q8–Q14</span></div>
+
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">ArrayList 和 LinkedList 的区别？如何选择？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>考查对数据结构时间复杂度的理解，以及在实际场景中的选择。能说出"90% 场景选 ArrayList"和"频繁头尾插删推荐 ArrayDeque"是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <pre>内存结构对比：
+
+ArrayList（动态数组）
+┌──┬──┬──┬──┬──┬──┐
+│0 │1 │2 │3 │4 │..│  连续内存，缓存友好
+└──┴──┴──┴──┴──┴──┘
+  O(1) 随机访问，O(n) 中间插删（需移位）
+
+LinkedList（双向链表）
+[prev|data|next] ↔ [prev|data|next] ↔ ...
+  O(n) 随机访问（需遍历），O(1) 头尾插删</pre>
+      <table class="tbl">
+        <tr><th>操作</th><th>ArrayList</th><th>LinkedList</th></tr>
+        <tr><td>随机访问 get(i)</td><td>O(1)</td><td>O(n)</td></tr>
+        <tr><td>头部插入</td><td>O(n)（移位）</td><td>O(1)</td></tr>
+        <tr><td>尾部追加</td><td>O(1) 均摊</td><td>O(1)</td></tr>
+        <tr><td>内存</td><td>紧凑，缓存友好</td><td>每节点额外 24 字节开销</td></tr>
+      </table>
+      <p>选择：查多改少选 <span class="kw">ArrayList</span>（90% 场景首选）；频繁头尾插删且不需要随机访问，用 <span class="kw">ArrayDeque</span>（比 LinkedList 更快，内存更好）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-02-collection.html">集合 · List 详解</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">HashMap 的底层数据结构和 put() 流程？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>HashMap 是最高频的 Java 集合题，必须能讲清 JDK8 的红黑树、扰动函数、容量设计。能画出 put 流程图的候选人大大加分。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">结构（JDK8）</span>：数组 + 链表 + 红黑树。初始容量 16，负载因子 0.75，链表 ≥ 8 且数组容量 ≥ 64 时转红黑树，节点 ≤ 6 退化为链表。</p>
+      <pre>put(k,v)
+  │
+  ├─ key==null? → 放 table[0]
+  │
+  ├─ hash(key) → 定位 table[i]
+  │
+  ├─ table[i]==null? → new Node → 放入
+  │
+  ├─ key相同? → 覆盖 value
+  │
+  ├─ 红黑树节点? → 树插入
+  │
+  ├─ 链表遍历 → 尾插 or 覆盖
+  │
+  └─ 链表长度≥8 &amp;&amp; table≥64 → 树化</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-02-collection.html">集合 · HashMap 底层原理</a><a class="qa-link" href="#q10">Q10 · 扩容机制</a><a class="qa-link" href="#q13">Q13 · ConcurrentHashMap</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">HashMap 扩容机制？JDK7 多线程死循环问题？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>深入考查扩容细节和线程安全问题，体现对底层的掌握深度。能说出"头插法导致环形链表"是核心得分点。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">JDK8 扩容优化</span>：扩容为 2 倍时，元素新索引只有两种情况：原位置不变（高位为 0），或原位置 + oldCap（高位为 1）。无需重新计算 hash，效率高。</p>
+      <p><span class="kw">JDK7 死循环</span>：JDK7 用头插法，多线程并发扩容时，链表节点的 next 指针形成环，导致 get() 死循环（CPU 100%）。JDK8 改为尾插法解决，但 HashMap 仍然线程不安全（多线程 put 可能数据丢失），生产必须用 <strong>ConcurrentHashMap</strong>。</p>
+      <div class="note warn"><strong>常见误区</strong>：很多人以为 JDK8 解决了线程安全问题，实际上只是解决了死循环，并发 put 仍然会丢数据。</div>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">如何用 LinkedHashMap 实现 LRU 缓存？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>LRU 是面试高频算法题，考查对 LinkedHashMap 访问顺序模式的理解，能直接写出代码是最好的展示。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <pre>class LRUCache&lt;K,V&gt; extends LinkedHashMap&lt;K,V&gt; {
+    private final int capacity;
+    LRUCache(int cap) {
+        super(cap, 0.75f, true);  // accessOrder=true：访问时移到链表尾部
+        this.capacity = cap;
+    }
+    @Override
+    protected boolean removeEldestEntry(Map.Entry&lt;K,V&gt; eldest) {
+        return size() > capacity;  // 超容量时删除链表头（最久未访问）
+    }
+}
+LRUCache&lt;Integer,Integer&gt; cache = new LRUCache&lt;&gt;(3);
+cache.put(1,1); cache.put(2,2); cache.put(3,3);
+cache.get(1);   // 1 变为最近访问（移到尾部）
+cache.put(4,4); // 容量满，删除最久未访问的 2</pre>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">什么是 fail-fast 机制？如何在迭代时安全删除元素？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>考查集合迭代陷阱的理解，实际开发中的常见 Bug。for-each 循环内直接 remove 会抛异常这个经历很多人都有。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>fail-fast 通过 <code>modCount</code> 记录集合结构修改次数。迭代器每次 <code>next()</code> 时检查 <code>modCount == expectedModCount</code>，不一致抛 <code>ConcurrentModificationException</code>。</p>
+      <p><span class="kw">安全删除的三种方式：</span></p>
+      <ul>
+        <li><span class="b">①</span><span><code>Iterator.remove()</code>（会同步 expectedModCount，最安全）</span></li>
+        <li><span class="b">②</span><span><code>list.removeIf(predicate)</code>（JDK8，推荐，最简洁）</span></li>
+        <li><span class="b">③</span><span>遍历副本或使用 <code>CopyOnWriteArrayList</code>（fail-safe，读写不共享数组）</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">ConcurrentHashMap 在 JDK7 和 JDK8 中的区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>并发集合是面试必考点，JDK7 Segment 分段锁 vs JDK8 CAS+synchronized 的演进体现对锁粒度优化的理解。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">JDK7</span><span>分段锁（Segment），每个 Segment 继承 ReentrantLock，锁粒度为 Segment（默认 16 个），最大并发度为 16。</span></li>
+        <li><span class="b">JDK8</span><span>取消 Segment，改用 <span class="kw">CAS + synchronized</span>，锁粒度细化到每个桶的头节点。put 时若桶为空用 CAS 插入，否则 synchronized 锁头节点，并发度大幅提升（接近 O(1) 锁操作）。</span></li>
+        <li><span class="b">size()</span><span>用 LongAdder 思想的 CounterCell 数组，分散计数，减少 CAS 竞争，解决高并发下 size 统计的性能问题。</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-02-collection.html">集合 · ConcurrentHashMap 详解</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">TreeMap 底层原理？和 HashMap / LinkedHashMap 如何选择？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>TreeMap 底层是<span class="kw">红黑树</span>（自平衡 BST），key 按自然顺序或 Comparator 排序，所有操作 O(log n)。</p>
+      <table class="tbl">
+        <tr><th>选择</th><th>适用场景</th></tr>
+        <tr><td>HashMap</td><td>不关心顺序，O(1) 读写，通用场景（90%）</td></tr>
+        <tr><td>TreeMap</td><td>需要按 key 排序，或需要范围查询（headMap/tailMap/subMap），如排行榜、时间序列</td></tr>
+        <tr><td>LinkedHashMap</td><td>需要按插入/访问顺序迭代，LRU 缓存</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 03 泛型/反射 ═══ -->
+<div class="sec" id="generic"><span class="sn">03</span> 泛型/反射/注解 <span class="q-count">Q15–Q20</span></div>
+
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">Java 泛型的类型擦除是什么？有什么限制？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>泛型是中高级 Java 必考题，类型擦除是很多框架实现的基础，能说出 TypeReference 的原理是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>Java 泛型是"伪泛型"：编译后类型参数被擦除，替换为 Object（无界）或上界类型，编译器自动插入强制类型转换。</p>
+      <p><span class="kw">限制：</span></p>
+      <ul>
+        <li><span class="b">①</span><span>不能 <code>new T()</code> / <code>new T[]</code>（运行时不知道类型）</span></li>
+        <li><span class="b">②</span><span>不能 <code>instanceof List&lt;String&gt;</code>（擦除后都是 List）</span></li>
+        <li><span class="b">③</span><span>静态成员不能使用类泛型参数</span></li>
+      </ul>
+      <p><span class="kw">运行时获取泛型</span>：通过匿名子类 + <code>getGenericSuperclass()</code> 获取 <code>ParameterizedType</code>（Jackson、Gson 的 <code>TypeReference</code> 原理）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-03-generic.html">泛型 · 类型擦除详解</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">什么是 PECS 原则？上界和下界通配符的区别？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>PECS：<span class="kw">P</span>roducer <span class="kw">E</span>xtends，<span class="kw">C</span>onsumer <span class="kw">S</span>uper。</p>
+      <ul>
+        <li><span class="b">? extends T</span><span>（上界）：可读不可写，用于生产者（读取数据来处理），如 <code>Collections.sort(List&lt;? extends Comparable&gt;)</code></span></li>
+        <li><span class="b">? super T</span><span>（下界）：可写不可读（只能读为 Object），用于消费者（写入数据），如 <code>Collection.addAll(Collection&lt;? super E&gt;)</code></span></li>
+      </ul>
+      <pre>// Collections.copy 同时用了两种
+public static &lt;T&gt; void copy(List&lt;? super T&gt; dest, List&lt;? extends T&gt; src)
+//                               消费者(写入)            生产者(读取)</pre>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext">反射的原理是什么？性能影响如何？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>框架基础，考查对反射性能代价的认知，以及实际使用中如何优化（缓存 Method 对象）。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>反射通过 JVM 运行时的类元数据（存于方法区/Metaspace）访问类的结构（字段、方法、构造器）。</p>
+      <p><span class="kw">性能影响（约慢 1-2 个数量级）：</span></p>
+      <ul>
+        <li><span class="b">①</span><span>需要检查访问权限（<code>setAccessible(true)</code> 可绕过，但有安全风险）</span></li>
+        <li><span class="b">②</span><span>参数装箱/拆箱、数组包装开销</span></li>
+        <li><span class="b">③</span><span>无法被 JIT 内联优化</span></li>
+      </ul>
+      <p><span class="kw">优化</span>：缓存 Method/Field 对象，避免重复 getDeclaredMethod。Spring、MyBatis 大量使用反射但都有缓存机制。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext">JDK 动态代理和 CGLIB 代理的区别？Spring 如何选择？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>AOP 基础，Spring 开发者必须掌握。能说出"自调用无法触发代理"的候选人会让面试官眼前一亮。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th></th><th>JDK 动态代理</th><th>CGLIB</th></tr>
+        <tr><td>原理</td><td>实现目标接口，生成 $Proxy 类</td><td>继承目标类，生成子类字节码（ASM）</td></tr>
+        <tr><td>要求</td><td>目标类必须实现接口</td><td>目标类不能是 final</td></tr>
+        <tr><td>核心 API</td><td>Proxy.newProxyInstance + InvocationHandler</td><td>Enhancer + MethodInterceptor</td></tr>
+        <tr><td>性能</td><td>JDK8 后两者相近</td><td>JDK8 后两者相近</td></tr>
+      </table>
+      <p><span class="kw">Spring 选择策略</span>：有接口默认用 JDK 动态代理；无接口或配置 <code>proxyTargetClass=true</code> 用 CGLIB；Spring Boot 2.x 默认 CGLIB。</p>
+      <div class="note warn"><strong>共同限制</strong>：两种代理都不能拦截 private 方法；<code>this.method()</code> 自调用无法触发代理（调用的是原始对象而非代理对象）。</div>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-03-generic.html">泛型反射 · 动态代理详解</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext">注解的原理是什么？@Retention 三个级别的区别？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>注解本质是特殊接口（extends Annotation），通过反射在运行时读取（RUNTIME 级）或在编译时处理（SOURCE/CLASS 级，APT）。</p>
+      <pre>@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)  // 运行时保留，可通过反射读取
+public @interface Log {
+    String value() default "";
+}
+// 运行时读取
+if (method.isAnnotationPresent(Log.class)) {
+    String v = method.getAnnotation(Log.class).value();
+}</pre>
+      <ul>
+        <li><span class="b">SOURCE</span><span>编译后丢弃，用于代码生成（Lombok @Data）</span></li>
+        <li><span class="b">CLASS</span><span>保留在 class 文件，运行时不可读，用于字节码工具（默认）</span></li>
+        <li><span class="b">RUNTIME</span><span>运行时保留，可通过反射读取（Spring @Transactional、@Autowired）</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">Java SPI 机制是什么？和 Dubbo SPI 有何区别？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>SPI 是扩展机制，Dubbo/JDBC/SLF4J 都用到了，体现对框架设计的理解。能说出 Dubbo SPI 的 @Adaptive 自适应扩展是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>SPI（Service Provider Interface）：调用方定义接口，服务提供方在 <code>META-INF/services/</code> 中配置实现类，运行时通过 <code>ServiceLoader</code> 加载。</p>
+      <table class="tbl">
+        <tr><th></th><th>Java SPI</th><th>Dubbo SPI</th></tr>
+        <tr><td>加载策略</td><td>一次性加载所有实现</td><td>按 key 按需加载</td></tr>
+        <tr><td>IoC</td><td>❌</td><td>✅ setter 注入</td></tr>
+        <tr><td>AOP</td><td>❌</td><td>✅ Wrapper 包装器</td></tr>
+        <tr><td>自适应</td><td>❌</td><td>✅ @Adaptive（运行时根据 URL 参数选实现）</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 04 异常/IO ═══ -->
+<div class="sec" id="io"><span class="sn">04</span> 异常/IO <span class="q-count">Q21–Q25</span></div>
+
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">Java 异常体系？checked 和 unchecked 的区别？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <pre>Throwable
+├── Error（严重错误，不应捕获）
+│     OutOfMemoryError / StackOverflowError
+└── Exception
+      ├── RuntimeException（unchecked，编译器不强制）
+      │     NullPointerException / ArrayIndexOutOfBoundsException
+      └── 其他 Exception（checked，必须 catch 或 throws 声明）
+            IOException / SQLException</pre>
+      <ul>
+        <li><span class="b">Checked</span><span>编译器强制捕获或声明，表示可恢复的外部错误（IOException、SQLException）</span></li>
+        <li><span class="b">Unchecked</span><span>RuntimeException 及其子类，表示编程错误（NPE、AIOBE），不强制处理</span></li>
+        <li><span class="b">Spring 实践</span><span>将 checked 异常包装为 unchecked（DataAccessException），调用方不必强制处理，更简洁</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">try-with-resources 是什么？finally 中 return 有什么问题？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>实际编程规范题，考查资源管理和异常抑制机制。finally return 吞异常是很多人不知道的陷阱。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>try-with-resources（JDK7）：实现 AutoCloseable 的资源自动关闭，编译器生成 finally 块，并通过 <code>addSuppressed()</code> 保留 close() 中的异常（不丢失原始异常）。</p>
+      <pre>try (InputStream in = new FileInputStream("f");
+     Connection conn = dataSource.getConnection()) {
+    // 使用资源，自动按声明逆序关闭
+} // 等价于带 addSuppressed 的 finally 块</pre>
+      <p><span class="kw">finally return 陷阱</span>：finally 中的 return 会覆盖 try 中的 return，甚至吞掉 try 块中的异常，强烈不建议在 finally 中使用 return。</p>
+      <div class="note warn"><strong>面试陷阱</strong>：<code>try{ return 1; } finally{ return 2; }</code> 最终返回 2，try 块的 return 被覆盖。</div>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">BIO、NIO、AIO 的区别？各自适合什么场景？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>IO 模型是网络编程基础，Netty 相关问题的前置知识。能说出 C10K 问题和 Reactor 模型是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <pre>BIO: Thread ──等待──> Socket read ──阻塞──>
+NIO: Thread ──轮询──> Selector ──就绪──> Channel read
+AIO: Thread ──注册──> OS ──完成回调──> Handler</pre>
+      <ul>
+        <li><span class="b">BIO</span><span>同步阻塞，一连接一线程，C10K 问题（1万并发=1万线程），简单但不可扩展</span></li>
+        <li><span class="b">NIO</span><span>同步非阻塞，多路复用，单线程处理多连接（Selector），Netty 基于此实现</span></li>
+        <li><span class="b">AIO</span><span>异步非阻塞，注册回调，OS 完成后通知。Linux 基于 epoll 模拟，Windows 原生 IOCP</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row"><a class="qa-link" href="java-basic-04-exception.html">异常IO · NIO 详解</a><a class="qa-link" href="#q24">Q24 · NIO 三组件</a></div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">NIO 的 Buffer、Channel、Selector 各自的作用和关系？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>NIO 核心 API，理解才能写好 Netty 相关代码。Buffer 的 flip() 和 clear() 是常见混淆点。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <pre>Selector
+  │ register(channel, ops)
+  ├── Channel ←──→ Buffer (read/write)
+  │       │
+  │   ServerSocketChannel / SocketChannel
+  └── select() → SelectionKey set → 处理事件</pre>
+      <ul>
+        <li><span class="b">Buffer</span><span>数据容器（ByteBuffer 最常用），有 position/limit/capacity 三个指针。写完数据调 <code>flip()</code> 切换读模式，读完调 <code>clear()</code> 或 <code>compact()</code>（保留未读数据）。</span></li>
+        <li><span class="b">Channel</span><span>双向数据通道，比 BIO 的单向 Stream 更灵活，支持非阻塞模式。</span></li>
+        <li><span class="b">Selector</span><span>IO 多路复用器，监听多个 Channel 的事件。<code>select()</code> 阻塞直到有事件，<code>selectedKeys()</code> 获取就绪事件集合。</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q25">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q25</span>
+    <span class="qa-qtext">Linux IO 多路复用：select、poll、epoll 的区别？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>深入系统层，高级 Java 岗常考，体现对底层的理解深度。能说出 epoll 的 mmap 和 ET/LT 模式是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>机制</th><th>FD 上限</th><th>扫描方式</th><th>内存拷贝</th><th>场景</th></tr>
+        <tr><td>select</td><td>1024（默认）</td><td>线性全量扫描</td><td>每次全量拷贝</td><td>古老，不推荐</td></tr>
+        <tr><td>poll</td><td>无限制</td><td>线性全量扫描</td><td>每次全量拷贝</td><td>改善上限问题</td></tr>
+        <tr><td>epoll</td><td>无限制</td><td>O(1) 事件通知</td><td>mmap 共享内存</td><td>Linux 生产首选</td></tr>
+      </table>
+      <p>epoll 是 Netty、Redis、Nginx 的底层支撑。三个核心 API：<code>epoll_create</code>（建实例）/ <code>epoll_ctl</code>（注册 FD）/ <code>epoll_wait</code>（等待事件）。支持 LT（水平触发，未读完反复通知）和 ET（边缘触发，只通知一次，性能更好）两种模式。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 05 JDK 新特性 ═══ -->
+<div class="sec" id="jdk"><span class="sn">05</span> JDK 新特性 <span class="q-count">Q26–Q32</span></div>
+
+<div class="qa-card" id="q26">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q26</span>
+    <span class="qa-qtext">Lambda 表达式的实现原理？和匿名内部类的区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>JDK8 核心特性，考查对字节码实现的理解。能说出 invokedynamic 而非"只是匿名内部类的语法糖"的候选人大大加分。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">实现原理</span>：Lambda 不是匿名内部类的语法糖，而是通过 <code>invokedynamic</code> 指令实现。首次调用时 LambdaMetafactory 动态生成函数式接口实现类（比匿名内部类更轻量）。</p>
+      <table class="tbl">
+        <tr><th></th><th>匿名内部类</th><th>Lambda</th></tr>
+        <tr><td>.class 文件</td><td>每个生成一个 $1.class</td><td>无额外 .class 文件</td></tr>
+        <tr><td>外部引用</td><td>持有外部类引用（可能泄漏）</td><td>无状态时复用同一实例</td></tr>
+        <tr><td>变量捕获</td><td>可引用外部 final 变量</td><td>只能引用 effectively final 变量</td></tr>
+        <tr><td>this 含义</td><td>指向匿名类实例</td><td>指向外部类实例</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q27">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q27</span>
+    <span class="qa-qtext">Stream 流的惰性求值是什么？并行流有哪些注意事项？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">惰性求值</span>：中间操作（filter/map/sorted）不立即执行，只在终结操作（collect/forEach/count）触发时，构建执行管道一次性处理数据，可进行短路优化（如 findFirst 找到后不继续处理）。</p>
+      <p><span class="kw">并行流注意事项：</span></p>
+      <ul>
+        <li><span class="b">①</span><span>使用 <code>ForkJoinPool.commonPool()</code>，与整个 JVM 共享，会影响其他并行操作</span></li>
+        <li><span class="b">②</span><span>数据量小时线程开销反而更慢（通常 10000+ 元素才有收益）</span></li>
+        <li><span class="b">③</span><span>操作必须无副作用，避免共享变量（使用 Collectors.toList() 是安全的）</span></li>
+        <li><span class="b">④</span><span>流只能消费一次，重复终止操作抛 <code>IllegalStateException</code></span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q28">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q28</span>
+    <span class="qa-qtext">Optional 的正确使用方式？不应该用在哪些场合？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">适合</span><span>方法返回值，显式表达"可能没有结果"，配合 map/flatMap/orElse 链式处理</span></li>
+        <li><span class="b">不适合</span><span>方法参数（调用方还是需要判断是否传 Optional，更复杂）</span></li>
+        <li><span class="b">不适合</span><span>类字段（Optional 不可序列化，JPA 会有问题）</span></li>
+        <li><span class="b">不适合</span><span><code>isPresent() + get()</code>（等价于 if != null，没有任何意义）</span></li>
+      </ul>
+      <pre>// 推荐链式写法
+Optional.ofNullable(user)
+    .map(User::getAddress)
+    .map(Address::getCity)
+    .orElse("未知");  // 而非三层 if null 嵌套</pre>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q29">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q29</span>
+    <span class="qa-qtext">JDK8 新时间 API 为什么要替代 Date/Calendar？</span>
+    <span class="qa-badge hot">高频</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">Date/Calendar 的问题：</span>Date 可变，线程不安全；Calendar API 繁琐，月份从 0 开始（1月=0）；SimpleDateFormat 非线程安全，多线程需 ThreadLocal 包装。</p>
+      <p><span class="kw">java.time 的优势（JSR-310）：</span></p>
+      <ul>
+        <li><span class="b">①</span><span>不可变，天然线程安全，DateTimeFormatter 可静态常量共享</span></li>
+        <li><span class="b">②</span><span>API 清晰：<code>LocalDate</code>（日期）/ <code>LocalDateTime</code>（日期时间）/ <code>Instant</code>（时间戳）/ <code>ZonedDateTime</code>（带时区）/ <code>Duration</code>（时间段）</span></li>
+        <li><span class="b">③</span><span>更好的时区支持（ZoneId.of("Asia/Shanghai")）</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q30">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q30</span>
+    <span class="qa-qtext">Record 类是什么？和普通类有什么区别？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>JDK16 正式特性，体现对现代 Java 的了解。能说出 Record 的限制（不能 extends 普通类）是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>Record（JDK16 正式）：不可变数据载体，自动生成构造器、accessor 方法（无 get 前缀）、equals、hashCode、toString。</p>
+      <pre>record Point(int x, int y) {}
+// 等价于一个不可变类，字段 private final
+Point p = new Point(3, 4);
+p.x();  // 访问器，不是 getX()
+
+// 限制：不能 extends 类（隐式继承 java.lang.Record），可实现接口
+// 不能有实例字段（只有 record 组件），但可有静态字段和自定义方法</pre>
+      <p><span class="kw">适用</span>：DTO、Value Object、API 响应对象，配合 Sealed 类实现代数数据类型。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q31">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q31</span>
+    <span class="qa-qtext">JDK21 的虚拟线程是什么？解决了什么问题？有什么限制？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">面试官视角</div><p>JDK21 最重要特性，体现对 Java 发展趋势的了解。能说出"synchronized 块中阻塞会 pin 住平台线程"是加分项。</p></div>
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p>虚拟线程（Project Loom）：JVM 管理的轻量级线程，多对多映射到平台线程（OS 线程）。</p>
+      <ul>
+        <li><span class="b">解决问题</span><span>BIO 一连接一线程无法扩展（C10K），NIO 编程模型复杂。虚拟线程阻塞时自动<span class="kw">卸载</span>平台线程，不占用 OS 线程，可创建百万级并发。</span></li>
+        <li><span class="b">使用方式</span><span><code>Thread.ofVirtual().start(task)</code> 或 <code>Executors.newVirtualThreadPerTaskExecutor()</code></span></li>
+        <li><span class="b">限制</span><span>不适合 CPU 密集型任务；<span class="kw">synchronized 块中阻塞会 pin 住平台线程</span>（推荐改用 ReentrantLock）；Spring Boot 3.2+ 可自动为 Tomcat 启用虚拟线程。</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q32">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q32</span>
+    <span class="qa-qtext">接口 default 方法解决了什么问题？多 default 方法冲突如何处理？</span>
+    <span class="qa-badge key">重点</span><span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-ans"><div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">解决问题</span>：Java 集合接口升级（如 Collection.stream()、List.sort()）时，若不加 default 则所有已有实现类都需修改，破坏向后兼容性。JDK8 通过 default 方法实现接口的非破坏性演进。</p>
+      <p><span class="kw">冲突处理（优先级规则）：</span></p>
+      <ul>
+        <li><span class="b">1</span><span>类或父类的具体方法（最高优先级）</span></li>
+        <li><span class="b">2</span><span>子接口的 default 方法（接口继承层次越深越优先）</span></li>
+        <li><span class="b">3</span><span>多个接口的 default 方法平级冲突 → 实现类<span class="kw">必须显式重写</span>，否则编译报错</span></li>
+      </ul>
+      <pre>interface A { default void hi() { /* A */ } }
+interface B { default void hi() { /* B */ } }
+class C implements A, B {
+    @Override public void hi() { A.super.hi(); }  // 必须显式选择
+}</pre>
+    </div>
+  </div>
+</div>
+
+</div><!-- /mc -->
+</div><!-- /layout -->
+
+<script>
+function toggleQA(el){
+  const card=el.closest('.qa-card');
+  card.classList.toggle('open',!card.classList.contains('open'));
+  updateProgress();
+}
+function toggleScat(id){document.getElementById(id).classList.toggle('open')}
+function toggleAll(open){
+  document.querySelectorAll('.qa-card').forEach(c=>c.classList.toggle('open',open));
+  updateProgress();
+}
+function filterByBadge(type){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===type));
+  document.querySelectorAll('.qa-card').forEach(card=>{
+    if(!type){card.style.display='';return}
+    card.style.display=card.querySelector('.qa-badge.'+type)?'':'none';
+  });
+}
+function updateProgress(){
+  const total=document.querySelectorAll('.qa-card').length;
+  const opened=document.querySelectorAll('.qa-card.open').length;
+  document.getElementById('pfill').style.width=(opened/total*100)+'%';
+  document.getElementById('ptxt').textContent=opened+'/'+total;
+}
+window.addEventListener('scroll',()=>{
+  const cards=document.querySelectorAll('.qa-card');
+  let cur=null;
+  cards.forEach(c=>{if(c.getBoundingClientRect().top<=80)cur=c.id});
+  document.querySelectorAll('.scat-item').forEach(item=>{
+    item.classList.toggle('active',item.getAttribute('href').replace('#','')=== cur);
+  });
+});
+updateProgress();
+</script>
+</body>
+</html>

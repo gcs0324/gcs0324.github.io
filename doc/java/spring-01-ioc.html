@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 01 · IoC 容器与依赖注入</title>
+<style>
+header::before{content:'IoC'}
+/* step */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+.placeholder{border:2px dashed var(--bd);border-radius:8px;padding:40px;text-align:center;color:var(--tx3);font-family:'IBM Plex Mono',monospace;font-size:12px;margin:20px 0}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<header>
+  <div class="htag">SPRING · 01 · IOC</div>
+  <h1>IoC 容器与依赖注入</h1>
+  <p class="subtitle">控制反转 · Bean 生命周期 · 循环依赖 · 注解驱动 · 容器启动 refresh()</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#ioc-concept"><span class="s-link-num">01</span>IoC 核心概念</a>
+    <a class="s-link" href="#inject"><span class="s-link-num">02</span>依赖注入方式</a>
+    <a class="s-link" href="#lifecycle"><span class="s-link-num">03</span>Bean 生命周期</a>
+    <a class="s-link" href="#scope"><span class="s-link-num">04</span>Bean 作用域</a>
+    <a class="s-link" href="#circular"><span class="s-link-num">05</span>循环依赖</a>
+    <a class="s-link" href="#refresh"><span class="s-link-num">06</span>容器启动流程</a>
+    <a class="s-link" href="#annotation"><span class="s-link-num">07</span>注解驱动</a>
+    <a class="s-link" href="#factory"><span class="s-link-num">08</span>FactoryBean</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="spring-06-interview.html#ioc">→ 面试题 IoC 章节</a>
+    <a class="s-link" href="spring-02-aop.html">→ 下一章：AOP</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 IoC 核心概念 ═══ -->
+    <div class="sec" id="ioc-concept"><span class="sec-num">01</span>IoC 核心概念</div>
+
+    <div class="card">
+      <div class="card-title">什么是 IoC（控制反转）</div>
+      <p><span class="kw">IoC（Inversion of Control）</span>是一种设计思想，将对象的<strong>创建权</strong>和<strong>依赖管理权</strong>从代码本身转移给外部容器。传统方式：对象自己 new 依赖对象；IoC 方式：容器负责创建并注入依赖。</p>
+      <p>核心价值：<span class="kw">解耦</span>。上层模块不依赖下层模块的具体实现，依赖于抽象（接口），容器在运行时决定注入哪个实现。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">BeanFactory vs ApplicationContext</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>BeanFactory</th><th>ApplicationContext</th></tr>
+        <tr><td>定位</td><td>IoC 容器顶层接口，基础功能</td><td>BeanFactory 子接口，企业级功能</td></tr>
+        <tr><td>加载时机</td><td>懒加载（getBean 时才实例化）</td><td>预加载（启动时实例化所有单例）</td></tr>
+        <tr><td>功能扩展</td><td>仅 Bean 管理</td><td>+国际化 / +事件 / +AOP / +资源加载</td></tr>
+        <tr><td>使用场景</td><td>内存敏感的轻量级场景</td><td>绝大多数 Spring 应用</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 02 依赖注入 ═══ -->
+    <div class="sec" id="inject"><span class="sec-num">02</span>依赖注入方式</div>
+
+    <div class="card">
+      <div class="card-title">三种注入方式对比</div>
+      <table class="tbl">
+        <tr><th>方式</th><th>写法</th><th>优缺点</th></tr>
+        <tr><td>构造器注入</td><td><code>@Autowired</code> 在构造器上</td><td>✅ 依赖不可变，可保证必要依赖；❌ 参数过多时臃肿；Spring 官方推荐</td></tr>
+        <tr><td>Setter 注入</td><td><code>@Autowired</code> 在 setter 方法</td><td>✅ 可选依赖灵活；❌ 依赖可变，可能被意外修改</td></tr>
+        <tr><td>字段注入</td><td><code>@Autowired</code> 直接在字段</td><td>✅ 写法简洁；❌ 无法注入 final 字段，不利于单元测试，不推荐</td></tr>
+      </table>
+      <div class="note warn"><strong>最佳实践</strong>：必需依赖用构造器注入，可选依赖用 Setter 注入，避免使用字段注入。</div>
+    </div>
+
+    <!-- ═══ 03 Bean 生命周期 ═══ -->
+    <div class="sec" id="lifecycle"><span class="sec-num">03</span>Bean 生命周期</div>
+
+    <div class="card">
+      <div class="card-title">完整生命周期 7 阶段</div>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">实例化（Instantiation）</div><div class="step-desc">容器通过反射调用构造器（或工厂方法）创建 Bean 的原始 Java 对象，属性值均为零值</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">属性填充（Populate）</div><div class="step-desc">依赖注入：填充 @Autowired、@Value、@Resource 等注解标注的属性；三级缓存解循环依赖发生在此阶段</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">Aware 回调</div><div class="step-desc">若 Bean 实现了 BeanNameAware → setBeanName()；BeanFactoryAware → setBeanFactory()；ApplicationContextAware → setApplicationContext()</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">BeanPostProcessor#before</div><div class="step-desc">调用所有注册的 BeanPostProcessor 的 postProcessBeforeInitialization() 方法，可在初始化前修改 Bean</div></div></div>
+        <div class="step"><div class="step-num">⑤</div><div><div class="step-title">初始化（Initialization）</div><div class="step-desc">顺序：① @PostConstruct 注解方法 → ② InitializingBean#afterPropertiesSet() → ③ 自定义 init-method</div></div></div>
+        <div class="step"><div class="step-num">⑥</div><div><div class="step-title">BeanPostProcessor#after ← AOP 代理在此生成</div><div class="step-desc">调用 postProcessAfterInitialization()；AbstractAutoProxyCreator 在此检查是否需要创建 AOP 代理，若需要则返回代理对象替换原始对象</div></div></div>
+        <div class="step"><div class="step-num">⑦</div><div><div class="step-title">销毁（Destruction）</div><div class="step-desc">容器关闭时：① @PreDestroy → ② DisposableBean#destroy() → ③ 自定义 destroy-method</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 04 Bean 作用域 ═══ -->
+    <div class="sec" id="scope"><span class="sec-num">04</span>Bean 作用域</div>
+
+    <div class="card">
+      <div class="card-title">5 种作用域</div>
+      <table class="tbl">
+        <tr><th>作用域</th><th>说明</th><th>线程安全</th></tr>
+        <tr><td>singleton（默认）</td><td>容器内唯一实例，随容器启动创建，随容器关闭销毁</td><td>无状态则安全</td></tr>
+        <tr><td>prototype</td><td>每次 getBean() 创建新实例，容器不管理其销毁</td><td>各自独立，安全</td></tr>
+        <tr><td>request</td><td>每个 HTTP 请求创建新实例，请求结束销毁</td><td>请求内安全</td></tr>
+        <tr><td>session</td><td>每个 HTTP Session 创建新实例，Session 超时销毁</td><td>单用户安全</td></tr>
+        <tr><td>application</td><td>ServletContext 生命周期内唯一实例</td><td>同 singleton</td></tr>
+      </table>
+      <div class="note info"><strong>注意</strong>：在 singleton Bean 中注入 prototype Bean 时，直接 @Autowired 只会注入一次，之后每次用的都是同一个 prototype 实例。解决方案：通过 ApplicationContext#getBean() 或 @Lookup 注解每次获取新实例。</div>
+    </div>
+
+    <!-- ═══ 05 循环依赖 ═══ -->
+    <div class="sec" id="circular"><span class="sec-num">05</span>循环依赖与三级缓存</div>
+
+    <div class="card">
+      <div class="card-title">三级缓存数据结构</div>
+      <table class="tbl">
+        <tr><th>缓存</th><th>Map 名称</th><th>存储内容</th><th>用途</th></tr>
+        <tr><td>一级缓存</td><td>singletonObjects</td><td>完整 Bean（初始化完成）</td><td>正常的单例对象池</td></tr>
+        <tr><td>二级缓存</td><td>earlySingletonObjects</td><td>早期暴露的 Bean（可能是代理）</td><td>防止同一 Bean 被多次代理</td></tr>
+        <tr><td>三级缓存</td><td>singletonFactories</td><td>ObjectFactory Lambda</td><td>按需生成（可能被 AOP 代理的）早期 Bean</td></tr>
+      </table>
+      <p>解决循环依赖的流程：A 创建时先把自己的 ObjectFactory 放入三级缓存 → 填充属性时需要 B → 创建 B → B 填充属性需要 A → 从三级缓存获取 A 的 ObjectFactory，调用生成早期 A（或 A 的代理）放入二级缓存 → B 创建完成 → A 继续完成初始化 → A 的最终对象（代理或原始）进入一级缓存。</p>
+      <div class="note warn"><strong>哪些循环依赖无法解决？</strong><br>① 构造器注入的循环依赖（实例化时就需要依赖，三级缓存未建立）<br>② prototype 作用域的循环依赖（容器不缓存 prototype Bean）</div>
+    </div>
+
+    <!-- ═══ 06 容器启动流程 ═══ -->
+    <div class="sec" id="refresh"><span class="sec-num">06</span>容器启动 — refresh() 核心流程</div>
+
+    <div class="card">
+      <div class="card-title">AbstractApplicationContext#refresh() 12 步</div>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">prepareRefresh()</div><div class="step-desc">记录启动时间，设置容器状态，校验必要的环境属性</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">obtainFreshBeanFactory()</div><div class="step-desc">创建 DefaultListableBeanFactory，解析 XML/注解，加载所有 BeanDefinition</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">prepareBeanFactory()</div><div class="step-desc">配置类加载器，注册内置 BeanPostProcessor（如 ApplicationContextAwareProcessor）</div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-title">postProcessBeanFactory()</div><div class="step-desc">子类扩展钩子，Web 容器在此注册 Servlet 相关作用域</div></div></div>
+        <div class="step"><div class="step-num">5 ★</div><div><div class="step-title">invokeBeanFactoryPostProcessors()</div><div class="step-desc">执行所有 BeanFactoryPostProcessor；ConfigurationClassPostProcessor 在此解析 @Configuration、@ComponentScan、@Import、@Bean</div></div></div>
+        <div class="step"><div class="step-num">6 ★</div><div><div class="step-title">registerBeanPostProcessors()</div><div class="step-desc">注册所有 BeanPostProcessor；AOP 的 AnnotationAwareAspectJAutoProxyCreator 在此注册</div></div></div>
+        <div class="step"><div class="step-num">7-11</div><div><div class="step-title">消息源 / 事件广播 / 子类扩展 / 监听器注册</div><div class="step-desc">initMessageSource / initApplicationEventMulticaster / onRefresh（Web 容器在此创建内嵌 Tomcat）/ registerListeners</div></div></div>
+        <div class="step"><div class="step-num">12 ★</div><div><div class="step-title">finishBeanFactoryInitialization()</div><div class="step-desc">实例化所有非懒加载的单例 Bean，触发完整 Bean 生命周期。这是容器启动最耗时的步骤</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 07 注解驱动 ═══ -->
+    <div class="sec" id="annotation"><span class="sec-num">07</span>注解驱动</div>
+
+    <div class="card">
+      <div class="card-title">常用注解速查</div>
+      <table class="tbl">
+        <tr><th>注解</th><th>作用</th><th>说明</th></tr>
+        <tr><td>@Component</td><td>标记为 Spring 组件</td><td>通用；@Service / @Repository / @Controller 是其语义化别名</td></tr>
+        <tr><td>@Autowired</td><td>依赖注入</td><td>按类型注入，多候选时按字段名 / @Qualifier 区分</td></tr>
+        <tr><td>@Resource</td><td>依赖注入（JSR-250）</td><td>按名称注入，name 属性指定 Bean 名</td></tr>
+        <tr><td>@Value</td><td>注入配置值</td><td><code>@Value("${key}")</code> 或 <code>@Value("#{expression}")</code></td></tr>
+        <tr><td>@Configuration</td><td>声明配置类</td><td>Full 模式（CGLIB 代理），保证 @Bean 方法单例语义</td></tr>
+        <tr><td>@Bean</td><td>声明 Bean</td><td>配合 @Configuration 使用，方法返回值注册为 Bean</td></tr>
+        <tr><td>@Conditional</td><td>条件化注册</td><td>@ConditionalOnClass / @ConditionalOnMissingBean 等</td></tr>
+        <tr><td>@Lazy</td><td>懒加载</td><td>延迟到第一次使用时才创建</td></tr>
+        <tr><td>@Primary</td><td>首选候选</td><td>多个同类型 Bean 时，标注此注解的优先被注入</td></tr>
+        <tr><td>@Qualifier</td><td>精确指定</td><td>按名称区分多个同类型 Bean</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 08 FactoryBean ═══ -->
+    <div class="sec" id="factory"><span class="sec-num">08</span>FactoryBean</div>
+
+    <div class="card">
+      <div class="card-title">FactoryBean 接口</div>
+      <p>实现 <code>FactoryBean&lt;T&gt;</code> 接口可以控制 Bean 的创建逻辑，容器调用 <code>getObject()</code> 获取实际注册的对象：</p>
+      <pre>public class MyFactoryBean implements FactoryBean&lt;MyService&gt; {
+    @Override
+    public MyService getObject() {
+        // 复杂的创建逻辑，如动态代理
+        return (MyService) Proxy.newProxyInstance(...);
+    }
+    @Override
+    public Class&lt;?&gt; getObjectType() { return MyService.class; }
+    @Override
+    public boolean isSingleton() { return true; }
+}
+
+// 注入的是 getObject() 返回的 MyService（代理对象）
+@Autowired MyService myService;
+
+// 加 & 前缀获取 FactoryBean 本身
+@Autowired @Qualifier("&myFactoryBean") MyFactoryBean fb;</pre>
+      <p>典型应用：MyBatis <code>MapperFactoryBean</code>、Spring AOP <code>ProxyFactoryBean</code>、Dubbo 服务代理。</p>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

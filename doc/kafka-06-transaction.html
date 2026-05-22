@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 06 · 事务与 Exactly-Once</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'TXNEOS';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-zk  {fill:var(--bg3);stroke:var(--bd);stroke-width:1;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace;}
+.dg-yellow{fill:var(--yellow);font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px;}.g2,.g3{grid-template-columns:1fr;}.phase-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · 06 · TRANSACTION</div>
+  <h1>事务与 Exactly-Once</h1>
+  <p class="subtitle">幂等 Producer · Transaction Coordinator · 2PC · EOS · 隔离级别 · Flink 集成</p>
+</header>
+
+<nav>
+  <a href="#overview">概览</a>
+  <a href="#idempotence">幂等 Producer</a>
+  <a href="#txn-api">事务 API</a>
+  <a href="#txn-flow">执行全流程</a>
+  <a href="#2pc">两阶段提交</a>
+  <a href="#eos">端到端 EOS</a>
+  <a href="#isolation">隔离级别</a>
+  <a href="#interview">面试速答</a>
+</nav>
+
+<main>
+
+<div class="sec" id="overview">三层保障体系概览</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--orange);">LAYER 01 · AT-LEAST-ONCE</div>
+    <div class="phase-title">至少一次</div>
+    <ul class="phase-items">
+      <li><strong>acks=-1</strong> + <strong>retries</strong> 保证消息不丢</li>
+      <li>网络抖动重传时可能产生<strong>重复消息</strong></li>
+      <li>默认配置，适合大多数业务场景</li>
+      <li>消费端需要做幂等处理</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--blue);">LAYER 02 · 幂等（单分区 EOS）</div>
+    <div class="phase-title">精确一次（单分区）</div>
+    <ul class="phase-items">
+      <li><strong>enable.idempotence=true</strong></li>
+      <li>单 Producer + 单 Session + 单 Partition</li>
+      <li>实现：<strong>PID + Sequence Number</strong> Broker 端去重</li>
+      <li>性能开销约 <strong>5%</strong></li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--green);">LAYER 03 · 事务（跨分区 EOS）</div>
+    <div class="phase-title">精确一次（端到端）</div>
+    <ul class="phase-items">
+      <li><strong>transactional.id</strong> + 事务 API</li>
+      <li>跨多个 Partition 的原子写入</li>
+      <li>支持 <strong>Consume-Transform-Produce</strong> 模式</li>
+      <li>性能开销约 <strong>20%</strong></li>
+    </ul>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">INFO</span>
+  <p>三层是<strong>递进关系</strong>：开启幂等自动满足 at-least-once，开启事务自动开启幂等。代价也依次增加：性能开销约 5%（幂等）→ 约 20%（事务）。根据业务对一致性的实际要求选择合适层次，不要过度设计。</p>
+</div>
+
+
+<div class="sec" id="idempotence">幂等 Producer 原理</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">幂等机制 — PID + Sequence Number 去重</div>
+  <div class="diag-body">
+    <svg width="720" height="180" viewBox="0 0 720 180">
+      <rect x="20" y="30" width="140" height="120" rx="8" class="dg-box-b"/>
+      <text x="90" y="55" text-anchor="middle" font-size="12" font-weight="600" class="dg-t">Producer</text>
+      <text x="90" y="75" text-anchor="middle" font-size="11" class="dg-blue">PID = 1001</text>
+      <rect x="45" y="88" width="90" height="26" rx="4" class="dg-box"/>
+      <text x="90" y="106" text-anchor="middle" font-size="11" class="dg-t2">Seq = 5</text>
+
+      <line x1="160" y1="90" x2="290" y2="90" class="dg-ln"/>
+      <polygon points="290,86 300,90 290,94" class="dg-t2" style="fill:var(--tx2);"/>
+      <text x="225" y="82" text-anchor="middle" font-size="10" class="dg-t3">Seq=5</text>
+      <line x1="290" y1="120" x2="160" y2="120" class="dg-ln-d" stroke-dasharray="4 3"/>
+      <polygon points="160,116 150,120 160,124" class="dg-t2" style="fill:var(--tx2);"/>
+      <text x="225" y="140" text-anchor="middle" font-size="10" class="dg-t3">重传</text>
+
+      <rect x="300" y="62" width="120" height="56" rx="6" class="dg-box-y"/>
+      <text x="360" y="85" text-anchor="middle" font-size="11" font-weight="600" class="dg-t">Broker 状态</text>
+      <text x="360" y="102" text-anchor="middle" font-size="10" class="dg-t2">PID=1001, P-0</text>
+      <text x="360" y="116" text-anchor="middle" font-size="10" class="dg-orange">MaxSeq = 4</text>
+
+      <line x1="420" y1="90" x2="450" y2="90" class="dg-ln"/>
+      <polygon points="450,86 460,90 450,94" class="dg-t2" style="fill:var(--tx2);"/>
+
+      <rect x="460" y="24" width="236" height="132" rx="8" class="dg-box"/>
+      <text x="578" y="45" text-anchor="middle" font-size="11" font-weight="600" class="dg-t">三种判断结果</text>
+      <rect x="472" y="54" width="212" height="28" rx="4" class="dg-box-g"/>
+      <text x="578" y="73" text-anchor="middle" font-size="11" class="dg-green">Seq=5 == MaxSeq+1 → 接受写入，MaxSeq→5</text>
+      <rect x="472" y="88" width="212" height="28" rx="4" class="dg-box-y"/>
+      <text x="578" y="107" text-anchor="middle" font-size="11" class="dg-yellow">Seq=5 &lt;= MaxSeq → 重复，丢弃，ACK</text>
+      <rect x="472" y="122" width="212" height="28" rx="4" class="dg-box-r"/>
+      <text x="578" y="141" text-anchor="middle" font-size="11" class="dg-red">Seq=5 &gt; MaxSeq+1 → 乱序，OutOfOrder</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-g">
+  <div class="fwh">
+    <span class="fwb">STEPS</span>
+    <span class="fwt">幂等 Producer 工作机制</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">开启配置</div>
+        <div class="sd"><code>enable.idempotence=true</code>（Kafka 3.0+ 默认开启）。Kafka 自动强制：<strong>acks=-1</strong>、<strong>retries=Integer.MAX_VALUE</strong>、<strong>max.in.flight.requests.per.connection≤5</strong>，不符合则启动时报错。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">PID 分配</div>
+        <div class="sd">Producer 启动时向 Broker 的 <strong>InitProducerId</strong> 接口申请全局唯一的 ProducerID（PID）。PID 在 Producer 重启后重新申请，因此<strong>幂等只在单次 Session 有效</strong>（这是幂等 vs 事务的核心区别）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Sequence Number</div>
+        <div class="sd">每个 <code>&lt;PID, TopicPartition&gt;</code> 维护独立的序列号（从 0 开始，单调递增），写入每条 RecordBatch 的 header 中。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Broker 去重</div>
+        <div class="sd">Broker 内存中为每个 <code>&lt;PID, Partition&gt;</code> 记录最近 5 个 batch 的序列号范围。重传时比较序列号：<strong>等于已记录则 ACK 不写盘</strong>（去重），小于则丢弃，跳跃则报错（乱序检测）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">WARN</span>
+  <p>幂等只保证<strong>单 Producer + 单 Session + 单 Partition</strong> 内不重复。Producer 重启后 PID 变化，跨 Partition 写入没有原子性。需要跨 Partition 原子写或跨 Session 保证幂等，必须使用<strong>事务</strong>。</p>
+</div>
+
+
+<div class="sec" id="txn-api">事务 API 使用</div>
+
+<div class="fw c-y">
+  <div class="fwh">
+    <span class="fwb">CODE</span>
+    <span class="fwt">Producer 事务 API 完整示例</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">▶</div></div>
+      <div class="sb" style="width:100%;">
+        <div class="sc"><span class="cm">// 配置</span>
+Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("transactional.id", "order-producer-001");
+props.put("enable.idempotence", "true");
+
+KafkaProducer&lt;String, String&gt; producer = new KafkaProducer&lt;&gt;(props);
+
+<span class="cm">// 初始化事务（只调用一次）</span>
+producer.initTransactions();
+
+try {
+    producer.beginTransaction();
+
+    <span class="cm">// 跨多个 Partition 原子写入</span>
+    producer.send(new ProducerRecord&lt;&gt;("order-topic",     orderId, orderJson));
+    producer.send(new ProducerRecord&lt;&gt;("inventory-topic", itemId,  stockJson));
+    producer.send(new ProducerRecord&lt;&gt;("payment-topic",   payId,   payJson));
+
+    <span class="cm">// 提交事务（Consumer 在 read_committed 模式下才能看到以上消息）</span>
+    producer.commitTransaction();
+
+} catch (ProducerFencedException e) {
+    <span class="cm">// 被新 Producer 实例 Fence 掉（epoch 过期），直接关闭</span>
+    producer.close();
+} catch (Exception e) {
+    <span class="cm">// 其他异常，中止事务</span>
+    producer.abortTransaction();
+}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">INFO</span>
+  <p><code>transactional.id</code> 是业务层面的唯一标识，相同 ID 的新 Producer 启动会使旧 Producer 失效（epoch+1），防止<strong>僵尸 Producer（Zombie Fencing）</strong>。生产中建议绑定业务实例 ID，如 <code>order-service-${instanceId}</code>。</p>
+</div>
+
+
+<div class="sec" id="txn-flow">事务执行全流程</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">事务五阶段流程</div>
+  <div class="diag-body">
+    <svg width="760" height="220" viewBox="0 0 760 220">
+      <rect x="10"  y="60" width="120" height="60" rx="7" class="dg-box-y"/>
+      <text x="70"  y="87" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">initTransactions</text>
+      <text x="70"  y="105" text-anchor="middle" font-size="10" class="dg-t2">TC 注册 txn.id</text>
+      <text x="70"  y="118" text-anchor="middle" font-size="10" class="dg-yellow">获取 PID+epoch</text>
+
+      <line x1="130" y1="90" x2="158" y2="90" class="dg-ln"/>
+      <polygon points="158,86 168,90 158,94" style="fill:var(--tx2);"/>
+
+      <rect x="168" y="60" width="120" height="60" rx="7" class="dg-box-b"/>
+      <text x="228" y="87" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">beginTransaction</text>
+      <text x="228" y="105" text-anchor="middle" font-size="10" class="dg-t2">本地标记</text>
+      <text x="228" y="118" text-anchor="middle" font-size="10" class="dg-blue">无网络请求</text>
+
+      <line x1="288" y1="90" x2="316" y2="90" class="dg-ln"/>
+      <polygon points="316,86 326,90 316,94" style="fill:var(--tx2);"/>
+
+      <rect x="326" y="60" width="120" height="60" rx="7" class="dg-box-o"/>
+      <text x="386" y="87" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">send 数据</text>
+      <text x="386" y="105" text-anchor="middle" font-size="10" class="dg-t2">写各 Partition</text>
+      <text x="386" y="118" text-anchor="middle" font-size="10" class="dg-orange">注册参与 Partition</text>
+
+      <line x1="446" y1="90" x2="474" y2="90" class="dg-ln"/>
+      <polygon points="474,86 484,90 474,94" style="fill:var(--tx2);"/>
+
+      <rect x="484" y="40" width="120" height="60" rx="7" class="dg-box-g"/>
+      <text x="544" y="67" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">commitTransaction</text>
+      <text x="544" y="85" text-anchor="middle" font-size="10" class="dg-t2">TC 写 Commit Marker</text>
+      <text x="544" y="98" text-anchor="middle" font-size="10" class="dg-green">Consumer 可见</text>
+
+      <rect x="484" y="120" width="120" height="60" rx="7" class="dg-box-r" stroke-dasharray="5 3"/>
+      <text x="544" y="147" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">abortTransaction</text>
+      <text x="544" y="165" text-anchor="middle" font-size="10" class="dg-t2">TC 写 Abort Marker</text>
+      <text x="544" y="178" text-anchor="middle" font-size="10" class="dg-red">消息永不可见</text>
+
+      <line x1="446" y1="95"  x2="474" y2="115" class="dg-ln-d"/>
+      <polygon points="470,114 484,120 477,108" style="fill:var(--tx2);"/>
+
+      <rect x="624" y="60" width="120" height="60" rx="7" class="dg-box-p"/>
+      <text x="684" y="83" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">TC 清理状态</text>
+      <text x="684" y="101" text-anchor="middle" font-size="10" class="dg-t2">__transaction_state</text>
+      <text x="684" y="114" text-anchor="middle" font-size="10" class="dg-purple">记录清除</text>
+
+      <line x1="604" y1="70" x2="624" y2="70" class="dg-ln"/>
+      <polygon points="624,66 634,70 624,74" style="fill:var(--tx2);"/>
+      <line x1="604" y1="150" x2="614" y2="150" x2="614" y2="90" class="dg-ln-d"/>
+      <line x1="614" y1="150" x2="614" y2="90" class="dg-ln-d"/>
+      <line x1="614" y1="90" x2="624" y2="80" class="dg-ln-d"/>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh">
+    <span class="fwb">PHASE</span>
+    <span class="fwt">五阶段详细说明</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">initTransactions()</div>
+        <div class="sd">Producer 向 <strong>Transaction Coordinator（TC）</strong> 发送 InitProducerIdRequest，携带 transactional.id。TC 查询 <code>__transaction_state</code>，若是新 ID 则分配 PID+epoch=0；若已存在则 <strong>epoch+1</strong>（Zombie Fencing 旧 Producer）。将 PID+epoch 返回给 Producer。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">beginTransaction()</div>
+        <div class="sd">仅在 Producer 本地设置一个 <code>transactionState = IN_TRANSACTION</code> 标志，<strong>不发网络请求</strong>。轻量操作。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">send()（写数据）</div>
+        <div class="sd">Producer 发送消息到各 Partition（消息带 PID+epoch+sequence），同时通过 <strong>AddPartitionsToTxnRequest</strong> 通知 TC 记录本次事务涉及的 Partition 列表（存入 <code>__transaction_state</code>）。此时消息已写入 Partition Log，但 Consumer 在 <code>read_committed</code> 模式下<strong>不可见</strong>（LSO 未推进）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">commitTransaction()</div>
+        <div class="sd">Producer 向 TC 发送 EndTxnRequest（COMMIT）→ TC 在 <code>__transaction_state</code> 写入 COMMIT 标记 → TC 向每个参与的 Partition 发送 <strong>WriteTxnMarkersRequest</strong>，写入 Transaction Marker（Control Batch，<code>isTransactionCommit=true</code>）→ Consumer 的 <strong>LSO 推进</strong>，消息变为可见 → TC 清理 <code>__transaction_state</code> 中的事务记录。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">abortTransaction()</div>
+        <div class="sd">流程同 commit，但写入 <strong>ABORT Marker</strong>（<code>isTransactionCommit=false</code>）。Consumer 遇到 Abort Marker 后跳过该事务的所有消息，消息物理上仍然存储在 Log 中，只是 Consumer 层面过滤。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="sec" id="2pc">两阶段提交实现</div>
+
+<div class="fw c-p">
+  <div class="fwh">
+    <span class="fwb">2PC</span>
+    <span class="fwt">Kafka 两阶段提交过程</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">P1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Prepare（准备阶段）</div>
+        <div class="sd">Producer 向 TC 发送 EndTxnRequest（COMMIT）。TC 将事务状态从 ONGOING 写为 <strong>PREPARE_COMMIT</strong>（持久化到 <code>__transaction_state</code>）。此时即使 TC 宕机，<strong>重启后也能继续完成提交</strong>（幂等性保证）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">P2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Commit（提交阶段）</div>
+        <div class="sd">TC 向各参与 Partition 的 Leader 发送 WriteTxnMarkersRequest。每个 Partition Leader 写入 <strong>Transaction Marker</strong> 到本地 Log。所有 Partition 确认后，TC 将事务状态改为 <code>COMPLETE_COMMIT</code>，清理记录。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-r">
+    <div class="ovh">
+      <span class="ovtag">传统 2PC</span>
+      <div class="ovname">经典分布式事务</div>
+      <div class="ovsub">协调者 + 参与者模型，prepare 后持锁等待</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li><strong>协调者单点</strong>故障可能导致事务悬挂</li>
+        <li>Participant 在 prepare 后<strong>持有锁</strong>等待协调者</li>
+        <li>任一 Participant 宕机可能阻塞整个事务</li>
+        <li><strong>同步阻塞</strong>严重影响系统吞吐</li>
+        <li>网络分区时可能出现数据不一致</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <span class="ovtag">Kafka 2PC</span>
+      <div class="ovname">改进的两阶段提交</div>
+      <div class="ovsub">TC 通过 __transaction_state 持久化，无锁设计</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>TC 持久化状态，宕机<strong>自愈</strong>，无单点阻塞</li>
+        <li>Participant（Partition Leader）<strong>不持有锁</strong></li>
+        <li>消息已写入 Log，commit 只写 Control Batch</li>
+        <li>Marker 写入<strong>异步</strong>，不阻塞正常写入</li>
+        <li>宕机重启后 TC 继续完成剩余 Marker 写入</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="note good">
+  <span class="nlbl">KEY</span>
+  <p>Kafka 的 2PC 相比传统 2PC 的关键改进：<strong>无锁设计</strong>。消息在 prepare 阶段已经写入了 Partition（只是 Consumer 看不到），commit 阶段只是写一个 Control Batch 的 Marker，不需要锁，也不阻塞写入。</p>
+</div>
+
+
+<div class="sec" id="eos">端到端 Exactly-Once（EOS）</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">Consume-Transform-Produce 模式 — EOS 事务边界</div>
+  <div class="diag-body">
+    <svg width="760" height="200" viewBox="0 0 760 200">
+      <rect x="10" y="10" width="740" height="180" rx="10" class="dg-cluster"/>
+      <text x="380" y="26" text-anchor="middle" font-size="10" font-weight="600" class="dg-t3">一个事务边界</text>
+
+      <rect x="30" y="50" width="130" height="80" rx="7" class="dg-box-o"/>
+      <text x="95" y="85" text-anchor="middle" font-size="12" font-weight="700" class="dg-t">Source Topic</text>
+      <text x="95" y="103" text-anchor="middle" font-size="10" class="dg-t2">Consumer Group</text>
+      <text x="95" y="118" text-anchor="middle" font-size="10" class="dg-orange">read_committed</text>
+
+      <line x1="160" y1="90" x2="248" y2="90" class="dg-ln"/>
+      <polygon points="248,86 258,90 248,94" style="fill:var(--tx2);"/>
+      <text x="204" y="82" text-anchor="middle" font-size="10" class="dg-t3">消费</text>
+
+      <rect x="258" y="50" width="150" height="80" rx="7" class="dg-box-b"/>
+      <text x="333" y="83" text-anchor="middle" font-size="12" font-weight="700" class="dg-t">Transform</text>
+      <text x="333" y="100" text-anchor="middle" font-size="11" class="dg-blue">/ Aggregate</text>
+      <text x="333" y="118" text-anchor="middle" font-size="10" class="dg-t2">业务逻辑处理</text>
+
+      <line x1="408" y1="90" x2="496" y2="90" class="dg-ln"/>
+      <polygon points="496,86 506,90 496,94" style="fill:var(--tx2);"/>
+      <text x="452" y="82" text-anchor="middle" font-size="10" class="dg-t3">生产</text>
+
+      <rect x="506" y="50" width="130" height="80" rx="7" class="dg-box-g"/>
+      <text x="571" y="85" text-anchor="middle" font-size="12" font-weight="700" class="dg-t">Sink Topic</text>
+      <text x="571" y="103" text-anchor="middle" font-size="10" class="dg-t2">Producer 写入</text>
+      <text x="571" y="118" text-anchor="middle" font-size="10" class="dg-green">原子可见</text>
+
+      <rect x="258" y="148" width="150" height="38" rx="6" class="dg-box-y"/>
+      <text x="333" y="167" text-anchor="middle" font-size="11" font-weight="700" class="dg-t">Transaction Coordinator</text>
+      <text x="333" y="181" text-anchor="middle" font-size="10" class="dg-yellow">管理事务状态</text>
+
+      <line x1="333" y1="130" x2="333" y2="148" class="dg-ln-d"/>
+      <polygon points="329,148 333,158 337,148" style="fill:var(--tx2);"/>
+
+      <line x1="95" y1="130" x2="95" y2="165" class="dg-ln-d"/>
+      <line x1="95" y1="165" x2="258" y2="167" class="dg-ln-d"/>
+      <text x="176" y="160" text-anchor="middle" font-size="9" class="dg-t3">sendOffsetsToTransaction</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-g">
+  <div class="fwh">
+    <span class="fwb">STEPS</span>
+    <span class="fwt">Consume-Transform-Produce EOS 实现步骤</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Consumer 消费</div>
+        <div class="sd">Consumer 以 <strong><code>isolation.level=read_committed</code></strong> 消费 Source Topic，只读已提交的事务消息，避免处理中间状态。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">开启事务</div>
+        <div class="sd">处理前 <code>producer.beginTransaction()</code>，标记事务开始。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">处理 + 生产</div>
+        <div class="sd">业务逻辑处理消费到的消息，将结果写入 Sink Topic（<code>producer.send()</code>）。同时将 Consumer 的 Offset 提交到 <code>__consumer_offsets</code>，<strong>作为事务的一部分</strong>（通过 <code>producer.sendOffsetsToTransaction(offsets, consumerGroupMetadata)</code>）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">原子提交</div>
+        <div class="sd"><code>producer.commitTransaction()</code> 原子提交：<strong>Sink 消息 + Offset 提交同时对外可见</strong>（或同时回滚）。若事务 abort，消费的 offset 不会提交，Consumer 重启后会重新消费，实现精确一次。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">KEY</span>
+  <p><code>sendOffsetsToTransaction</code> 是 EOS 的关键：将 Consumer Offset 的提交纳入 Producer 事务，使消费进度和写出结果<strong>强一致</strong>。没有这步，即使 Producer 事务成功，Offset 已经提交的情况下重启仍然会重复消费。</p>
+</div>
+
+
+<div class="sec" id="isolation">Consumer 事务隔离级别</div>
+
+<div class="g2">
+  <div class="ovc c-o">
+    <div class="ovh">
+      <span class="ovtag">read_uncommitted</span>
+      <div class="ovname">读未提交（默认）</div>
+      <div class="ovsub">读取所有消息，包括进行中的事务消息和已 abort 的消息</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>性能最高，<strong>没有额外过滤开销</strong></li>
+        <li>可能读到后来被 abort 的"<strong>脏数据</strong>"</li>
+        <li>消费边界基于 <strong>HW</strong>（High Watermark）</li>
+        <li>适合：不涉及事务的普通场景</li>
+        <li>适合：日志消费、监控数据采集</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <span class="ovtag">read_committed</span>
+      <div class="ovname">读已提交</div>
+      <div class="ovsub">只读已提交事务的消息，基于 LSO 推进消费边界</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>等到 <strong>Commit Marker</strong> 到达后消息才可见</li>
+        <li>自动<strong>过滤 Abort 事务</strong>的所有消息</li>
+        <li>消费边界基于 <strong>LSO</strong>（Last Stable Offset）</li>
+        <li>适合：参与 EOS 的下游消费者</li>
+        <li>适合：财务对账、订单状态同步</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>维度</th>
+        <th>read_uncommitted</th>
+        <th>read_committed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>可见消息范围</td>
+        <td>所有消息，含进行中事务、已 abort 事务</td>
+        <td>仅已提交事务消息，abort 消息被过滤</td>
+      </tr>
+      <tr>
+        <td>性能开销</td>
+        <td>无额外开销</td>
+        <td>需要缓冲未完成事务消息，略有开销</td>
+      </tr>
+      <tr>
+        <td>Lag 计算基准</td>
+        <td>基于 HW（High Watermark）</td>
+        <td>基于 LSO（Last Stable Offset）</td>
+      </tr>
+      <tr>
+        <td>适用场景</td>
+        <td>普通消费、日志采集、监控</td>
+        <td>EOS 下游、财务、订单、对账</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">WARN</span>
+  <p>使用 <code>read_committed</code> 时，Consumer Lag 监控需要基于 <strong>LSO</strong> 而非 HW 计算，否则会虚报 Lag。进行中的长事务会让 LSO 远低于 HW，看起来 Lag 很大，实际上是正常的事务等待。</p>
+</div>
+
+
+<div class="sec" id="interview">面试速答</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">Q&amp;A</span>
+    <span class="fwt">高频面试题 · 事务与 Exactly-Once</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">Q1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka 幂等和事务的区别？</div>
+        <div class="sd"><strong>幂等</strong>（enable.idempotence=true）：单 Producer + 单 Session + 单 Partition 级别去重，通过 PID+Sequence Number 实现，性能开销约 5%。<strong>事务</strong>（transactional.id）：跨 Partition 原子写入，跨 Session 保证（同 transactional.id 的新实例可接续），支持 Consume-Transform-Produce 的端到端 EOS，性能开销约 20%。事务包含幂等，是超集。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka 事务是如何实现原子性的？</div>
+        <div class="sd">通过两阶段提交（2PC）：① Producer 向 TC 发 commit 请求，TC 持久化 <strong>PREPARE_COMMIT</strong> 状态；② TC 向所有参与 Partition 发 WriteTxnMarkers 请求，写入 Commit Marker；③ Consumer 在 <code>read_committed</code> 模式下遇到 Commit Marker 后才对外暴露该事务的所有消息。关键：消息在 Phase 1 已经写入 Partition（无锁），Phase 2 只写一个 Control Batch，极轻量。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">什么是 Zombie Fencing？为什么需要？</div>
+        <div class="sd">Zombie Producer 是指：某个 Producer 因网络分区等原因以为自己挂了，重启后以相同 transactional.id 起了一个新实例，此时旧实例可能还在运行，两个 Producer 同时写同一个 Topic 会导致数据混乱。<strong>Zombie Fencing 机制</strong>：TC 为每个 transactional.id 维护 epoch，新 Producer 启动时 epoch+1，旧 Producer 收到任何请求时 TC 校验 epoch，epoch 过低则返回 <code>ProducerFencedException</code>，旧 Producer 必须关闭。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Consume-Transform-Produce（CTP）模式如何实现 EOS？</div>
+        <div class="sd">关键是将 Consumer Offset 的提交纳入 Producer 事务（<code>sendOffsetsToTransaction</code>）：① Consumer 消费 Source Topic（read_committed）；② 开启 Producer 事务；③ 业务处理，结果写入 Sink Topic；④ 将 Consumer Offset <strong>作为事务一部分</strong>提交（而非单独 commitSync）；⑤ commitTransaction：Sink 消息和 Offset 同时提交或同时回滚。若事务 abort，Offset 回滚，Consumer 重启后重新消费并重新处理，保证精确一次。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">开启 Kafka 事务对性能有多大影响？应该怎么评估？</div>
+        <div class="sd">事务开销来源：① initTransactions 额外网络请求（启动时一次）；② AddPartitionsToTxn 请求（每次 beginTransaction 后第一次写新 Partition 时）；③ Transaction Marker 写入（commit/abort 时写 Control Batch）；④ Consumer 过滤 abort 消息（read_committed 有额外开销）。整体吞吐下降约 <strong>20%</strong>。评估方式：在 staging 环境用与生产相同的消息大小和 QPS 压测，对比事务开启前后的 <strong>P99 延迟和吞吐</strong>，结合业务的一致性要求决定是否值得。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

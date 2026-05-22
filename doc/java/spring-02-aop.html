@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 02 · AOP 面向切面编程</title>
+<style>
+header::before{content:'AOP'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<header>
+  <div class="htag">SPRING · 02 · AOP</div>
+  <h1>AOP 面向切面编程</h1>
+  <p class="subtitle">概念体系 · 动态代理 · 切点表达式 · 通知类型 · 自调用失效 · 实现原理</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#concepts"><span class="s-link-num">01</span>AOP 概念体系</a>
+    <a class="s-link" href="#proxy"><span class="s-link-num">02</span>动态代理</a>
+    <a class="s-link" href="#pointcut"><span class="s-link-num">03</span>切点表达式</a>
+    <a class="s-link" href="#advice"><span class="s-link-num">04</span>通知类型与顺序</a>
+    <a class="s-link" href="#self-invoke"><span class="s-link-num">05</span>自调用失效</a>
+    <a class="s-link" href="#order"><span class="s-link-num">06</span>切面顺序</a>
+    <a class="s-link" href="#impl"><span class="s-link-num">07</span>实现原理</a>
+    <a class="s-link" href="#vs-aspectj"><span class="s-link-num">08</span>vs AspectJ</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="spring-06-interview.html#aop">→ 面试题 AOP 章节</a>
+    <a class="s-link" href="spring-03-tx.html">→ 下一章：事务</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 AOP 概念体系 ═══ -->
+    <div class="sec" id="concepts"><span class="sec-num">01</span>AOP 核心概念</div>
+
+    <div class="card">
+      <div class="card-title">5 个核心术语</div>
+      <table class="tbl">
+        <tr><th>术语</th><th>英文</th><th>说明</th></tr>
+        <tr><td>切面</td><td>Aspect</td><td>横切关注点的模块化封装（如日志、权限类），包含切点 + 通知</td></tr>
+        <tr><td>连接点</td><td>JoinPoint</td><td>程序执行过程中的特定点；Spring AOP 中仅支持<strong>方法执行</strong>连接点</td></tr>
+        <tr><td>切点</td><td>Pointcut</td><td>定义在哪些连接点上织入（通过表达式匹配）</td></tr>
+        <tr><td>通知</td><td>Advice</td><td>在连接点处执行的具体动作（before/after/around 等）</td></tr>
+        <tr><td>织入</td><td>Weaving</td><td>将切面应用到目标对象的过程；Spring AOP 在<strong>运行期</strong>通过动态代理织入</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 02 动态代理 ═══ -->
+    <div class="sec" id="proxy"><span class="sec-num">02</span>动态代理</div>
+
+    <div class="card">
+      <div class="card-title">JDK 动态代理 vs CGLIB</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>JDK 动态代理</th><th>CGLIB</th></tr>
+        <tr><td>代理方式</td><td>实现目标接口，基于接口代理</td><td>继承目标类，生成子类字节码</td></tr>
+        <tr><td>要求</td><td>目标类必须实现接口</td><td>目标类不能是 final，方法不能是 final</td></tr>
+        <tr><td>核心类</td><td>java.lang.reflect.Proxy + InvocationHandler</td><td>net.sf.cglib.proxy.Enhancer + MethodInterceptor</td></tr>
+        <tr><td>性能</td><td>创建快，invoke 通过反射较慢</td><td>创建略慢（生成字节码），invoke 直接调用较快</td></tr>
+        <tr><td>Spring Boot 默认</td><td>2.x 前默认（有接口时）</td><td>Spring Boot 2.x 起默认</td></tr>
+      </table>
+      <div class="note info"><strong>Spring Boot 2.x 为何改为默认 CGLIB？</strong> JDK 代理要求注入时必须用接口类型接收代理对象，用实现类类型接收会注入失败；CGLIB 无此限制，更符合开发者直觉，减少因类型不匹配导致的启动报错。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">CGLIB 代理示例</div>
+      <pre>// 目标类（无需实现接口）
+public class OrderService {
+    public void createOrder() { System.out.println("创建订单"); }
+}
+
+// CGLIB 生成的子类（伪代码）
+public class OrderService$$EnhancerBySpringCGLIB extends OrderService {
+    @Override
+    public void createOrder() {
+        // 执行 Before 通知
+        interceptor.before();
+        // 调用父类方法
+        super.createOrder();
+        // 执行 After 通知
+        interceptor.after();
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 03 切点表达式 ═══ -->
+    <div class="sec" id="pointcut"><span class="sec-num">03</span>切点表达式</div>
+
+    <div class="card">
+      <div class="card-title">常用切点表达式</div>
+      <table class="tbl">
+        <tr><th>表达式</th><th>含义</th></tr>
+        <tr><td><code>execution(* com.service.*.*(..))</code></td><td>service 包下所有类的所有方法</td></tr>
+        <tr><td><code>execution(* com.service..*.*(..))</code></td><td>service 包及子包下所有类所有方法（.. 表示任意子包）</td></tr>
+        <tr><td><code>execution(public * *(..))</code></td><td>所有 public 方法</td></tr>
+        <tr><td><code>@annotation(com.anno.Log)</code></td><td>方法上有 @Log 注解</td></tr>
+        <tr><td><code>@within(org.springframework.web.bind.annotation.RestController)</code></td><td>类上有 @RestController 注解的所有方法</td></tr>
+        <tr><td><code>bean(orderService)</code></td><td>名为 orderService 的 Bean 的所有方法</td></tr>
+        <tr><td><code>args(java.lang.String,..)</code></td><td>第一个参数为 String 类型的方法</td></tr>
+      </table>
+      <pre>// 复合表达式
+@Pointcut("execution(* com.service..*.*(..)) &amp;&amp; @annotation(com.anno.Log)")
+public void logPointcut() {}
+
+// 复用切点
+@Before("logPointcut()")
+public void before(JoinPoint jp) { ... }</pre>
+    </div>
+
+    <!-- ═══ 04 通知类型与顺序 ═══ -->
+    <div class="sec" id="advice"><span class="sec-num">04</span>通知类型与执行顺序</div>
+
+    <div class="card">
+      <div class="card-title">5 种通知类型执行顺序（正常情况）</div>
+      <div class="advice-flow">
+        <div class="advice-item"><span class="advice-name">@Around (前半段)</span><span class="advice-desc">proceed() 之前的代码，最先执行</span></div>
+        <div class="advice-item"><span class="advice-name">@Before</span><span class="advice-desc">目标方法执行前</span></div>
+        <div class="advice-item target"><span class="advice-name">[ 目标方法 ]</span><span class="advice-desc">实际业务逻辑执行</span></div>
+        <div class="advice-item"><span class="advice-name">@AfterReturning</span><span class="advice-desc">目标方法正常返回后（异常时不执行）</span></div>
+        <div class="advice-item"><span class="advice-name">@After</span><span class="advice-desc">相当于 finally，无论是否异常都执行</span></div>
+        <div class="advice-item"><span class="advice-name">@Around (后半段)</span><span class="advice-desc">proceed() 之后的代码，最后执行</span></div>
+      </div>
+      <p>异常情况：<code>@AfterReturning</code> 不执行，改为执行 <code>@AfterThrowing</code>，之后执行 <code>@After</code>；<code>@Around</code> 中 proceed() 之后的代码不执行（异常会向上抛出）。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">@Around 通知模板</div>
+      <pre>@Around("execution(* com.service..*.*(..))")
+public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    // 前置处理
+    long start = System.currentTimeMillis();
+    String methodName = pjp.getSignature().getName();
+    Object[] args = pjp.getArgs();
+
+    try {
+        // 调用目标方法
+        Object result = pjp.proceed();
+        // 后置处理（正常返回）
+        log.info("{} 执行成功，耗时 {}ms", methodName, System.currentTimeMillis() - start);
+        return result;
+    } catch (Throwable e) {
+        // 异常处理
+        log.error("{} 执行异常: {}", methodName, e.getMessage());
+        throw e;
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 05 自调用失效 ═══ -->
+    <div class="sec" id="self-invoke"><span class="sec-num">05</span>AOP 自调用失效</div>
+
+    <div class="card">
+      <div class="card-title">失效原因与解决方案</div>
+      <p><strong>失效原因</strong>：Spring AOP 基于代理对象拦截。容器中存放的是代理对象，当类内部通过 <code>this</code> 调用方法时，<code>this</code> 指向原始对象，不经过代理，切面逻辑不执行。</p>
+      <pre>// ❌ 自调用失效：this 是原始对象
+@Service
+public class OrderService {
+    @Transactional
+    public void createOrder() {
+        this.sendEmail(); // @Async 不生效
+    }
+    @Async
+    public void sendEmail() { ... }
+}
+
+// ✅ 方案1：注入自身代理（推荐）
+@Service
+public class OrderService {
+    @Autowired
+    private OrderService self; // 注入的是代理
+
+    public void createOrder() {
+        self.sendEmail(); // 经过代理，@Async 生效
+    }
+}
+
+// ✅ 方案2：AopContext 获取代理
+// 需开启 @EnableAspectJAutoProxy(exposeProxy=true)
+((OrderService) AopContext.currentProxy()).sendEmail();</pre>
+    </div>
+
+    <!-- ═══ 06 切面顺序 ═══ -->
+    <div class="sec" id="order"><span class="sec-num">06</span>多切面执行顺序</div>
+
+    <div class="card">
+      <div class="card-title">@Order 控制顺序</div>
+      <p>多个切面作用于同一方法时，通过 <code>@Order(n)</code> 控制，数值越小优先级越高，先入后出（类似栈）：</p>
+      <pre>@Aspect @Order(1) // 优先级高
+public class LogAspect {
+    @Around("...") public Object log(...) { /* wrap */ }
+}
+
+@Aspect @Order(2) // 优先级低
+public class AuthAspect {
+    @Around("...") public Object auth(...) { /* wrap */ }
+}
+
+// 执行顺序：
+// LogAspect.Around前 → AuthAspect.Around前 → [目标方法]
+//   → AuthAspect.Around后 → LogAspect.Around后</pre>
+    </div>
+
+    <!-- ═══ 07 实现原理 ═══ -->
+    <div class="sec" id="impl"><span class="sec-num">07</span>Spring AOP 实现原理</div>
+
+    <div class="card">
+      <div class="card-title">AnnotationAwareAspectJAutoProxyCreator 核心流程</div>
+      <p><code>@EnableAspectJAutoProxy</code> 通过 <code>@Import(AspectJAutoProxyRegistrar.class)</code> 向容器注册 <code>AnnotationAwareAspectJAutoProxyCreator</code>（继承自 <code>AbstractAutoProxyCreator</code>，是一个 <code>BeanPostProcessor</code>）。</p>
+      <ul class="detail">
+        <li><span class="bullet">①</span><span>在 refresh() 第 6 步 <code>registerBeanPostProcessors</code> 阶段被注册</span></li>
+        <li><span class="bullet">②</span><span>每个 Bean 初始化完成后，调用 <code>postProcessAfterInitialization()</code></span></li>
+        <li><span class="bullet">③</span><span>检查容器中所有 @Aspect 切面，找出能匹配该 Bean 方法的 Advisor</span></li>
+        <li><span class="bullet">④</span><span>若有匹配，用 JDK 代理或 CGLIB 创建代理对象，将 Advisor 链织入</span></li>
+        <li><span class="bullet">⑤</span><span>容器中注册代理对象，后续注入给其他 Bean 的都是代理</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 08 vs AspectJ ═══ -->
+    <div class="sec" id="vs-aspectj"><span class="sec-num">08</span>Spring AOP vs AspectJ</div>
+
+    <div class="card">
+      <div class="card-title">核心区别</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Spring AOP</th><th>AspectJ</th></tr>
+        <tr><td>实现方式</td><td>运行时动态代理（JDK/CGLIB）</td><td>编译时 / 类加载时字节码织入</td></tr>
+        <tr><td>织入时机</td><td>运行期</td><td>编译期（ajc 编译器）或类加载期（Load-time Weaving）</td></tr>
+        <tr><td>切点范围</td><td>仅 Spring 管理的 Bean 的方法执行</td><td>任意 Java 代码（字段 / 构造器 / 静态方法等）</td></tr>
+        <tr><td>性能</td><td>有代理调用开销</td><td>编译时织入，几乎无运行时开销</td></tr>
+        <tr><td>配置复杂度</td><td>简单，开箱即用</td><td>需 AspectJ 编译器或 Java Agent</td></tr>
+        <tr><td>Spring 集成</td><td>原生支持</td><td>通过 spring-aspects 模块集成</td></tr>
+      </table>
+      <div class="note info"><strong>注意</strong>：Spring AOP 使用 AspectJ 的<strong>注解语法</strong>（@Aspect、@Pointcut、@Before 等），但底层实现是动态代理，不是 AspectJ 的字节码织入。两者注解相同但机制不同。</div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

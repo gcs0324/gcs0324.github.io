@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>设计模式 & 系统设计 05 · 高频面试题</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'DESIGN'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-design.js"></script>
+<header>
+  <div class="htag">DESIGN · 05 · INTERVIEW</div>
+  <h1>设计模式 &amp; 系统设计高频面试题</h1>
+  <p class="sub">面试官视角 · 口语化回答 · 知识点跳转 — 32 道真题</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">题目分类</span>
+    <div class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">全展开</button>
+      <button class="s-btn" onclick="toggleAll(false)">全收起</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/32</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">01</span>
+      <span class="scat-label">创建型模式</span>
+      <span class="scat-count">6题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">单例 5 种实现</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">DCL 为何要 volatile</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">工厂 vs 抽象工厂</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">建造者模式</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">浅拷贝 vs 深拷贝</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">Spring 创建型模式</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">02</span>
+      <span class="scat-label">结构型模式</span>
+      <span class="scat-count">5题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">代理 vs 装饰器</span></a>
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">适配器模式</span></a>
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">门面 vs 中介者</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">享元模式</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">桥接模式</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">03</span>
+      <span class="scat-label">行为型模式</span>
+      <span class="scat-count">7题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">策略 + Spring Map 注入</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">责任链 / Security Filter</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">观察者 vs 发布订阅</span></a>
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">模板方法 vs 策略</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">命令模式</span></a>
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">状态机实现</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">消除 if-else</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">04</span>
+      <span class="scat-label">设计原则</span>
+      <span class="scat-count">5题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">SOLID 五大原则</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">开闭原则落地</span></a>
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">DIP / IoC / DI 关系</span></a>
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">里氏替换 LSP</span></a>
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">继承 vs 组合</span></a>
+    </div>
+  </div>
+
+  <div class="scat open">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">05</span>
+      <span class="scat-label">系统设计</span>
+      <span class="scat-count">9题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">CAP 定理</span></a>
+      <a class="scat-item" href="#q25"><span class="scat-item-num">Q25</span><span class="scat-item-txt">限流算法</span></a>
+      <a class="scat-item" href="#q26"><span class="scat-item-num">Q26</span><span class="scat-item-txt">缓存穿透/击穿/雪崩</span></a>
+      <a class="scat-item" href="#q27"><span class="scat-item-num">Q27</span><span class="scat-item-txt">分库分表</span></a>
+      <a class="scat-item" href="#q28"><span class="scat-item-num">Q28</span><span class="scat-item-txt">分布式 ID / 雪花算法</span></a>
+      <a class="scat-item" href="#q29"><span class="scat-item-num">Q29</span><span class="scat-item-txt">短链系统设计</span></a>
+      <a class="scat-item" href="#q30"><span class="scat-item-num">Q30</span><span class="scat-item-txt">秒杀系统设计</span></a>
+      <a class="scat-item" href="#q31"><span class="scat-item-num">Q31</span><span class="scat-item-txt">消息队列不丢失</span></a>
+      <a class="scat-item" href="#q32"><span class="scat-item-num">Q32</span><span class="scat-item-txt">高可用设计</span></a>
+    </div>
+  </div>
+</aside>
+
+<div class="mc">
+
+<!-- ── 01 创建型 ── -->
+<div class="sec" id="cat1"><span class="sn">01</span> 创建型模式 <span class="q-count">Q1–Q6</span></div>
+
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">单例模式有哪几种实现方式？各自的优缺点？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>单例是最高频的设计模式题，重点考查 DCL 和静态内部类实现，能说清线程安全原理加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>实现方式</th><th>线程安全</th><th>懒加载</th><th>推荐度</th></tr>
+        <tr><td>饿汉式（static final）</td><td>✅ JVM 类加载</td><td>❌</td><td>✅ 简单首选</td></tr>
+        <tr><td>静态内部类</td><td>✅ JVM 类加载</td><td>✅</td><td>⭐ 最推荐</td></tr>
+        <tr><td>DCL 双重检查</td><td>✅（必须加 volatile）</td><td>✅</td><td>✅ 复杂场景</td></tr>
+        <tr><td>枚举</td><td>✅</td><td>❌</td><td>✅ 防反射/序列化破坏</td></tr>
+        <tr><td>懒汉式（synchronized）</td><td>✅</td><td>✅</td><td>❌ 每次加锁性能差</td></tr>
+      </table>
+      <pre>// ⭐ 静态内部类：JVM 类加载保证线程安全 + 懒加载，推荐
+public class Singleton {
+    private Singleton() {}
+    private static class Holder {
+        static final Singleton INSTANCE = new Singleton();
+    }
+    public static Singleton getInstance() { return Holder.INSTANCE; }
+}</pre>
+      <p>Holder 类只有在第一次调用 <code>getInstance()</code> 时才被加载，JVM 保证类加载的线程安全性，无需额外同步。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-01-creational.html#singleton">单例实现详解</a>
+      <a class="qa-link" href="design-01-creational.html#spring">Spring Bean 单例</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">DCL 单例为什么需要 volatile？不加会有什么问题？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>并发 + 设计模式综合题，考查指令重排序和 happens-before 的深层理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><code>new Singleton()</code> 非原子操作，JIT 编译后分三步：① 分配内存 → ② 初始化对象 → ③ 将引用指向内存。CPU/JIT 可能重排序为 ①③②。</p>
+      <pre>// 问题场景（不加 volatile）
+instance = new Singleton(); // 可能重排序为 ①③②
+
+Thread A: ①分配内存 → ③引用指向内存（instance != null）→ ②初始化...
+Thread B: 第一次 check: instance != null → 直接返回半初始化对象 → NPE!</pre>
+      <p><code>volatile</code> 在写操作后插入 <strong>StoreLoad 内存屏障</strong>，禁止 ② 和 ③ 的重排序，保证对象完全初始化后引用才对其他线程可见。</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">volatile 写</span> happens-before <span class="kw">volatile 读</span></li>
+        <li><span class="b">▸</span> 保证可见性（写后其他线程立即看到新值），但不保证原子性</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="../java/concurrent-01-jmm.html">JMM 与 volatile</a>
+      <a class="qa-link" href="design-01-creational.html#dcl">DCL 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">工厂方法模式和抽象工厂模式的区别？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>两种模式经常混淆，核心区分是"一种产品"vs"产品族"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>// 工厂方法：一种产品，子类决定实例化哪个类
+interface AnimalFactory { Animal create(); }
+class DogFactory implements AnimalFactory { Animal create() { return new Dog(); } }
+
+// 抽象工厂：一族相关产品
+interface UIFactory {
+    Button createButton();   // 产品1
+    Checkbox createCheckbox(); // 产品2
+}
+class LightUIFactory implements UIFactory { /* 浅色系全套 */ }
+class DarkUIFactory  implements UIFactory { /* 深色系全套 */ }</pre>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">工厂方法</span>：解决"如何创建一个对象"，通过继承扩展，Spring BeanFactory 是典型</li>
+        <li><span class="b">▸</span> <span class="kw">抽象工厂</span>：解决"如何创建一族相关对象"，切换工厂可整体替换产品族</li>
+        <li><span class="b">▸</span> 抽象工厂增加新产品类型（如 TextField）需修改所有工厂接口，违背开闭原则；但增加新产品族（如新主题）无需修改</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-01-creational.html#factory">工厂模式详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">建造者模式解决了什么问题？和构造器有什么区别？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>实践型问题，Lombok @Builder 到处在用，考查背后设计思想的理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>解决问题：构造参数 &gt; 4 个时，重叠构造器难以维护；JavaBean 的 setter 方式无法创建不可变对象，且对象可能处于不一致中间状态。</p>
+      <pre>// ❌ 重叠构造器（参数多就噩梦）
+new User("Alice", 25, "a@b.com", "Beijing", "13800138000");
+
+// ✅ Builder 模式（参数名即方法名，不可变，可选参数清晰）
+User user = User.builder()
+    .name("Alice").age(25).email("a@b.com")
+    .build(); // 一次性构建，对象不可变</pre>
+      <p>适用场景：参数多且有可选项、需要不可变对象、同一构建过程需要生成不同表示（HTML/PDF 报告）。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">浅拷贝和深拷贝的区别？如何实现深拷贝？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>基础题，常结合 BeanUtils.copyProperties 一起考，需说明各方案的副作用。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>// 浅拷贝：新对象与原对象共享引用类型字段（同一内存地址）
+A orig = new A(new B()); A copy = orig.clone();
+copy.b.value = 99; // orig.b.value 也变成 99！
+
+// 深拷贝方案1：序列化（最简单，对象需 Serializable）
+A deep = SerializationUtils.clone(orig);
+
+// 深拷贝方案2：JSON 转换（transient 字段丢失）
+A deep = JSON.parseObject(JSON.toJSONString(orig), A.class);
+
+// 深拷贝方案3：手写 clone()（繁琐但准确）</pre>
+      <p><span class="kw">BeanUtils.copyProperties()</span>：浅拷贝，只复制基本类型值和引用，引用类型字段仍然共享。生产中使用需注意。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">Spring 中用到了哪些创建型设计模式？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考查将设计模式与框架知识结合的能力，结合代码例子说明更佳。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">单例</span>：Bean 默认 singleton scope，IoC 容器是单例注册表</li>
+        <li><span class="b">▸</span> <span class="kw">工厂方法</span>：BeanFactory、FactoryBean（自定义 Bean 创建逻辑）、@Bean 方法</li>
+        <li><span class="b">▸</span> <span class="kw">抽象工厂</span>：ApplicationContext 接口（ClassPathXml/AnnotationConfig 等不同实现）</li>
+        <li><span class="b">▸</span> <span class="kw">建造者</span>：BeanDefinitionBuilder、RestTemplateBuilder、MockMvcBuilders</li>
+        <li><span class="b">▸</span> <span class="kw">原型</span>：Bean scope=prototype，每次 getBean() 返回新实例</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="../java/spring-01-ioc.html">Spring IoC 容器</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 02 结构型 ── -->
+<div class="sec" id="cat2"><span class="sn">02</span> 结构型模式 <span class="q-count">Q7–Q11</span></div>
+
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">代理模式和装饰器模式有什么区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>最常混淆的两个结构型模式，核心在于语义差异：控制访问 vs 增强功能。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>代理模式</th><th>装饰器模式</th></tr>
+        <tr><td>目的</td><td>控制访问（权限/懒加载/日志）</td><td>增强功能（叠加职责）</td></tr>
+        <tr><td>对象关系</td><td>代理隐藏/控制真实对象</td><td>客户端显式叠加装饰</td></tr>
+        <tr><td>创建时机</td><td>代理内部创建或注入</td><td>客户端手动叠加</td></tr>
+        <tr><td>典型应用</td><td>Spring AOP、Dubbo Stub</td><td>Java IO（BufferedInputStream）</td></tr>
+      </table>
+      <p>本质：代理强调<span class="kw">控制</span>被代理者的访问；装饰器强调<span class="kw">增强</span>被装饰者的功能，可任意叠加。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-02-structural.html#proxy">代理模式详解</a>
+      <a class="qa-link" href="../java/spring-02-aop.html">Spring AOP</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">适配器模式的应用场景？Spring 中哪里用到了？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考查对适配器实际应用的理解，Spring MVC HandlerAdapter 是经典案例。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>适配器解决接口不兼容问题，将"不可修改的类"转换为"需要的接口"。</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">HandlerAdapter</span>：DispatcherServlet 统一调用 <code>ha.handle()</code>，适配不同类型的 Handler（@RequestMapping 方法、HttpRequestHandler、老式 Controller）</li>
+        <li><span class="b">▸</span> <span class="kw">InputStreamReader</span>：将字节流 InputStream 适配为字符流 Reader</li>
+        <li><span class="b">▸</span> <span class="kw">SLF4J</span>：统一日志门面，适配 Logback/Log4j2/JUL 等不同实现</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">门面模式和中介者模式的区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>两种"简化交互"的模式，需要明确区分单向简化 vs 多对多协调。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">门面（Facade）</span>：为复杂子系统提供简单入口，单向（外部→子系统），子系统不知道门面存在。如 JdbcTemplate 封装 JDBC，SLF4J 封装日志框架。</li>
+        <li><span class="b">▸</span> <span class="kw">中介者（Mediator）</span>：集中管理对象间的<strong>多对多通信</strong>，各对象只与中介者通信。如 Spring MVC DispatcherServlet（Handler 们不直接通信）、MQ 消息代理、聊天室服务器。</li>
+      </ul>
+      <p>核心区别：门面是<span class="kw">单向的简化层</span>；中介者是<span class="kw">协调双向复杂交互</span>的中心节点。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">享元模式的原理？Java 中哪些地方用到了？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>常通过 Integer 缓存考查，体现对内存优化和对象复用的理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>享元模式：共享细粒度对象，区分<span class="kw">内部状态</span>（共享，不变）和<span class="kw">外部状态</span>（不共享，按需传入）。</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">Integer 缓存</span>：-128~127 范围内的 Integer 对象由 IntegerCache 缓存复用，<code>Integer.valueOf(100) == Integer.valueOf(100)</code> 为 true</li>
+        <li><span class="b">▸</span> <span class="kw">字符串常量池</span>：相同字面量共享同一 String 对象</li>
+        <li><span class="b">▸</span> <span class="kw">数据库连接池/线程池</span>：复用 Connection/Thread 对象，最重要的享元实践</li>
+        <li><span class="b">▸</span> <span class="kw">Spring 单例 Bean</span>：IoC 容器作为享元工厂</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">桥接模式解决了什么问题？举例说明</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>相对较难的模式，考查对多维度变化导致类爆炸问题的设计处理。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>桥接模式解决多维度变化的<span class="kw">类爆炸</span>问题：用组合替代继承，将抽象与实现分离，使两个维度可独立扩展。</p>
+      <pre>// 形状 + 颜色两个维度，不用桥接需要 RedCircle/BlueCircle/RedSquare/BlueSquare...
+abstract class Shape {
+    protected Color color;  // 桥接点（组合而非继承）
+    abstract void draw();
+}
+// 扩展形状：只需新增 Shape 子类
+// 扩展颜色：只需新增 Color 实现，互不影响</pre>
+      <p><span class="kw">JDBC 是最佳实例</span>：DriverManager（抽象）+ Driver 接口，MySQLDriver/OracleDriver（实现）独立变化，应用代码面向 JDBC API 无需修改。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 03 行为型 ── -->
+<div class="sec" id="cat3"><span class="sn">03</span> 行为型模式 <span class="q-count">Q12–Q18</span></div>
+
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">策略模式如何消除大量 if-else？结合 Spring 说明</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>最实用的设计模式题，Spring Map 注入是最优雅的落地方案，能写出完整代码加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>// ❌ 传统 if-else（每次新增支付方式都要改）
+if ("alipay".equals(type)) { ... }
+else if ("wechat".equals(type)) { ... }
+
+// ✅ 策略 + Spring Map 注入（零 if-else，开闭原则）
+interface PayStrategy { PayResult pay(PayRequest req); }
+
+@Component("alipay")  class AliPayStrategy  implements PayStrategy { ... }
+@Component("wechat")  class WechatPayStrategy implements PayStrategy { ... }
+
+@Service
+public class PayService {
+    @Autowired
+    private Map&lt;String, PayStrategy&gt; strategies; // Spring 自动注入，key=BeanName
+
+    public PayResult pay(String type, PayRequest req) {
+        return Optional.ofNullable(strategies.get(type))
+            .orElseThrow(() -> new UnsupportedPayTypeException(type))
+            .pay(req);
+    }
+    // 新增支付方式：只需新增 @Component，不改 PayService
+}</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-03-behavioral.html#strategy">策略模式详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">责任链模式的应用？Spring Security 的 Filter 链如何工作？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>责任链是框架底层高频模式，能结合 Spring Security/Dubbo 具体说明更加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>责任链：请求沿处理者链传递，每个处理者决定处理或向下传递，解耦请求发送者与接收者。</p>
+      <pre>// Spring Security Filter 链
+SecurityFilterChain:
+  UsernamePasswordAuthenticationFilter
+    → BasicAuthenticationFilter
+    → AuthorizationFilter
+    → ExceptionTranslationFilter
+    → ...
+
+// 每个 Filter 通过 chain.doFilter() 向下传递
+public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) {
+    // 前置处理（认证/鉴权）
+    chain.doFilter(req, resp); // 传递给下一个 Filter
+    // 后置处理
+}</pre>
+      <ul>
+        <li><span class="b">▸</span> 新增功能只需插入新 Filter，不修改已有 Filter（开闭原则）</li>
+        <li><span class="b">▸</span> 同类应用：Dubbo Filter 链、Netty ChannelPipeline、MyBatis Interceptor</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">观察者模式和发布-订阅模式有什么区别？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>经常混淆的两个概念，核心在于耦合度和是否有中间层。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>观察者模式</th><th>发布-订阅模式</th></tr>
+        <tr><td>耦合度</td><td>Subject 直接持有 Observer 引用</td><td>通过事件总线/MQ，发布者不知道订阅者</td></tr>
+        <tr><td>通信方式</td><td>同步（直接方法调用）</td><td>异步（通过中间件）</td></tr>
+        <tr><td>典型实现</td><td>Spring ApplicationEvent、ListenableFuture</td><td>Kafka、RabbitMQ、Redis Pub/Sub</td></tr>
+      </table>
+      <p>Spring <code>ApplicationEvent</code> 是观察者模式；加 <code>@Async</code> 后近似发布-订阅（异步解耦）。Kafka 是严格的发布-订阅，消息持久化支持重放。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">模板方法模式和策略模式如何选择？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>两种消除代码重复的模式，考查对选型的判断：继承 vs 组合。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">模板方法</span>：继承，父类定义算法骨架（不变），子类覆盖特定步骤（可变）。扩展点固定，编译时确定。JdbcTemplate、RestTemplate 是典型。</li>
+        <li><span class="b">▸</span> <span class="kw">策略</span>：组合，整个算法可互换。运行时动态选择，更灵活。</li>
+      </ul>
+      <p>选择原则：算法整体不变、只有某几步不同 → 模板方法；整个算法都可能不同 → 策略。</p>
+      <div class="note info"><strong>记忆口诀：</strong>模板方法 = 骨架固定，步骤可变（继承）；策略 = 整体可换（组合）</div>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">命令模式的应用场景？</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考查对行为封装思想的理解，撤销/重做是关键特性。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>命令模式将请求封装为对象，支持撤销/重做（undo stack）、队列执行、延迟执行、日志记录。</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">Runnable/Callable</span>：Java 线程池的任务就是命令模式，线程池是 Invoker</li>
+        <li><span class="b">▸</span> <span class="kw">文本编辑器</span>：每个操作（Insert/Delete）是 Command，Ctrl+Z 调用 undo()</li>
+        <li><span class="b">▸</span> <span class="kw">MQ 消息</span>：消息本身是命令对象，Consumer 解耦执行</li>
+        <li><span class="b">▸</span> <span class="kw">数据库 Redo Log</span>：每个操作记录为命令，支持崩溃恢复</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext">状态模式和策略模式的区别？订单状态机如何实现？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>工程实践题，订单状态流转是常见业务场景，能设计状态机说明有实践经验。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">策略</span>：算法族可互换，客户端选择策略，对象自身不切换</li>
+        <li><span class="b">▸</span> <span class="kw">状态</span>：对象根据内部状态变化改变行为，状态对象自动切换到下一状态，对客户端透明</li>
+      </ul>
+      <pre>// 订单状态机：每个状态封装转换逻辑
+class PendingState implements OrderState {
+    void pay(Order o)    { o.setState(new PaidState());      } // 允许
+    void cancel(Order o) { o.setState(new CancelledState()); } // 允许
+    void ship(Order o)   { throw new InvalidStateException(); } // 禁止
+}
+// 状态转换图：待付款 → 已付款 → 已发货 → 已完成
+//                  ↘ 已取消</pre>
+      <p>生产中推荐使用 <code>spring-statemachine</code> 框架，支持持久化、事件驱动和复杂状态转换配置。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext">项目中如何消除大量 if-else？有哪些方案？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>综合型实践题，考查工程设计能力，能结合项目经验举例最佳。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">策略 + Spring Map</span>：多种算法/行为互换（支付、通知渠道）</li>
+        <li><span class="b">▸</span> <span class="kw">状态模式</span>：基于对象状态分支（订单/工单流转）</li>
+        <li><span class="b">▸</span> <span class="kw">责任链</span>：多条件顺序判断，找到匹配的处理者（审批流、规则引擎）</li>
+        <li><span class="b">▸</span> <span class="kw">枚举 + 抽象方法</span>：简单分支场景，每个枚举值实现不同行为</li>
+        <li><span class="b">▸</span> <span class="kw">工厂/注册表</span>：根据类型 key 获取对应处理器</li>
+      </ul>
+      <pre>// 枚举替代简单 if-else
+enum OrderType {
+    NORMAL { @Override BigDecimal discount(BigDecimal p) { return p; } },
+    VIP    { @Override BigDecimal discount(BigDecimal p) { return p.multiply(new BigDecimal("0.9")); } };
+    public abstract BigDecimal discount(BigDecimal price);
+}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ── 04 设计原则 ── -->
+<div class="sec" id="cat4"><span class="sn">04</span> 设计原则 <span class="q-count">Q19–Q23</span></div>
+
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext">SOLID 原则分别是什么？结合 Spring 举例</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>设计能力的核心题，能结合实际框架举例的候选人远比背定义的优秀。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">S</span> <span class="kw">单一职责</span>：一个类只有一个改变的原因。Controller 处理 HTTP、Service 处理业务、DAO 访问数据。</li>
+        <li><span class="b">O</span> <span class="kw">开闭原则</span>：对扩展开放，对修改关闭。Spring AOP 用代理扩展功能不修改业务代码；策略模式新增策略不改 Context。</li>
+        <li><span class="b">L</span> <span class="kw">里氏替换</span>：子类可替换父类。重写方法不应缩窄父类的语义（不能抛更多异常）。</li>
+        <li><span class="b">I</span> <span class="kw">接口隔离</span>：接口细分，不强迫实现用不到的方法。Spring BeanFactory vs ApplicationContext（后者扩展前者）。</li>
+        <li><span class="b">D</span> <span class="kw">依赖倒置</span>：高层不依赖低层，都依赖抽象。<code>@Autowired UserService</code> 注入接口而非实现，IoC 容器的核心。</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#solid">SOLID 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">开闭原则在实际开发中如何落地？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考查将理论转化为实践的能力，需要结合具体技术方案说明。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">面向接口编程</span>：新业务 = 新实现类，不修改接口</li>
+        <li><span class="b">▸</span> <span class="kw">策略模式</span>：新规则 = 新策略类，不修改 Context</li>
+        <li><span class="b">▸</span> <span class="kw">Dubbo/Java SPI</span>：通过配置文件扩展，框架代码不变</li>
+        <li><span class="b">▸</span> <span class="kw">Spring @Conditional</span>：按条件启用功能，无需修改代码</li>
+        <li><span class="b">▸</span> <span class="kw">事件驱动</span>：Spring ApplicationEvent 让业务解耦，新功能订阅事件即可</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">依赖倒置原则（DIP）、IoC、DI 三者的关系？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>IoC/DI 基础题，三个概念层次不同，考查清晰区分的能力。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">DIP（原则）</span>：高层不依赖低层，都依赖抽象——"依赖接口，而非实现"</li>
+        <li><span class="b">▸</span> <span class="kw">IoC（思想）</span>：将对象创建的控制权从调用方反转给容器/框架</li>
+        <li><span class="b">▸</span> <span class="kw">DI（实现）</span>：IoC 的具体方式，容器将依赖"注入"给使用者（构造器/setter/@Autowired）</li>
+      </ul>
+      <p>关系链：DIP 是<span class="kw">设计原则</span> → IoC 是实现 DIP 的<span class="kw">思想</span> → DI 是 IoC 的<span class="kw">实现手段</span>。Spring 通过 DI 实现 IoC，从而满足 DIP。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="../java/spring-01-ioc.html">Spring IoC 原理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">里氏替换原则（LSP）如何避免违反？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>LSP 最容易被忽视，正方形继承长方形是经典反例，考查对继承语义的深刻理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>经典违反案例：正方形（Square）继承长方形（Rectangle），设置宽度时同时改高度，导致 Rectangle 的行为在子类中不一致，使用 Rectangle 的代码会产生意外结果。</p>
+      <ul>
+        <li><span class="b">▸</span> 子类重写方法不应抛出比父类<strong>更宽泛</strong>的异常</li>
+        <li><span class="b">▸</span> 子类方法的前置条件（输入约束）不应比父类<strong>更严</strong></li>
+        <li><span class="b">▸</span> 子类方法的后置条件（输出约束）不应比父类<strong>更宽</strong></li>
+        <li><span class="b">▸</span> is-a 要从<strong>行为语义</strong>判断，不能只看结构（正方形几何上是长方形，但行为不满足 LSP）</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">继承 vs 组合，什么时候优先使用组合？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>"优先组合而非继承"是 GoF 核心原则，考查对继承滥用问题的认识。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">继承的问题</span>：破坏封装（子类依赖父类实现细节）、继承体系脆弱（父类修改影响所有子类）、Java 单继承限制</li>
+        <li><span class="b">▸</span> <span class="kw">组合的优势</span>：运行时动态替换实现、不依赖父类内部、更灵活的复用</li>
+      </ul>
+      <p><span class="kw">选择规则</span>：只有满足严格 is-a 关系且子类需要重用父类实现时才用继承；否则优先组合（has-a）。策略模式、装饰器模式都是以组合代替继承的典型。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 05 系统设计 ── -->
+<div class="sec" id="cat5"><span class="sn">05</span> 系统设计 <span class="q-count">Q24–Q32</span></div>
+
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">CAP 定理是什么？ZooKeeper 和 Eureka 各选了什么？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>分布式系统基础，注册中心选型的理论依据，能画出三角图并说出各组件取舍最佳。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>         Consistency（一致性）
+               △
+              /|\
+             / | \
+        CP  /  |  \ （CA 在分布式中不存在）
+           /   |   \
+          /    |    \
+         /─────────── \
+Partition Tolerance ── Availability（可用性）
+（分区容忍性，必须保证）
+
+CP：ZooKeeper、etcd         → 一致性 > 可用性，分区期间拒绝服务
+AP：Eureka、Cassandra       → 可用性 > 一致性，节点间数据可能短暂不一致
+CP/AP可切换：Nacos          → 临时实例 AP，持久实例 CP</pre>
+      <p>现实中网络分区（P）不可避免，所以实际是 <span class="kw">CP vs AP</span> 的权衡。<span class="kw">BASE 理论</span>（最终一致性）是 AP 系统的理论支撑。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#cap">CAP 详解</a>
+      <a class="qa-link" href="../java/dubbo-03-registry.html">ZK vs Nacos</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q25">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q25</span>
+    <span class="qa-qtext">常见限流算法有哪些？令牌桶和漏桶的区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>高并发必备知识，面试官常追问"为什么选令牌桶"，需要说清各算法特性与适用场景。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>算法</th><th>原理</th><th>优点</th><th>缺点</th><th>适用</th></tr>
+        <tr><td>固定窗口</td><td>时间窗口内计数，超过则拒绝</td><td>实现简单</td><td>边界突刺（窗口切换瞬间2倍流量）</td><td>简单粗粒度限流</td></tr>
+        <tr><td>滑动窗口</td><td>细粒度时间格滑动计数</td><td>解决边界问题</td><td>内存略大</td><td>精确限流</td></tr>
+        <tr><td>漏桶</td><td>固定速率"漏水"，满则溢出</td><td>流量绝对平滑</td><td>无法应对合理突发</td><td>消息推送、平滑输出</td></tr>
+        <tr><td>令牌桶 ⭐</td><td>固定速率补充令牌，取到令牌才处理</td><td>允许合理突发</td><td>实现稍复杂</td><td>API 接口限流（推荐）</td></tr>
+      </table>
+      <p><span class="kw">漏桶 vs 令牌桶</span>：漏桶强制固定速率，突发流量也被平滑；令牌桶允许桶满时的突发（用户短时间发多个请求），更适合实际 API 场景。Guava <code>RateLimiter</code> 是令牌桶实现。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#ratelimit">限流算法详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q26">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q26</span>
+    <span class="qa-qtext">缓存穿透、击穿、雪崩的区别？如何解决？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Redis 缓存必考三连，每道都要说清"问题是什么、为什么发生、怎么解决"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>问题</th><th>原因</th><th>解决方案</th></tr>
+        <tr><td>缓存穿透</td><td>查询不存在的 key，每次都打到 DB</td><td>缓存空值（短 TTL） + 布隆过滤器（前置拦截非法 key）</td></tr>
+        <tr><td>缓存击穿</td><td>热点 key 过期，瞬间大量并发打 DB</td><td>互斥锁（只一个线程回源重建）/ 逻辑过期（不设 TTL，异步更新）</td></tr>
+        <tr><td>缓存雪崩</td><td>大量 key 同时过期或 Redis 宕机</td><td>TTL 加随机抖动 / 多级缓存 / 限流熔断 / Redis 集群高可用</td></tr>
+      </table>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#cache">缓存策略详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q27">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q27</span>
+    <span class="qa-qtext">分库分表的策略？如何选择分片键？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>大数据量经典解决方案，分片键选择是关键，能说出跨库查询问题加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">垂直分库</span>：按业务模块拆（用户库/订单库/商品库），降低耦合</li>
+        <li><span class="b">▸</span> <span class="kw">水平分表</span>：同库多表，如 order_0~order_31，按 <code>user_id % 32</code> 路由</li>
+        <li><span class="b">▸</span> <span class="kw">水平分库</span>：数据拆到不同实例，解决连接数/IO 瓶颈</li>
+      </ul>
+      <p><span class="kw">分片键原则</span>：① 分布均匀（避免热点），② 与业务主要查询维度一致（按 user_id 分就要携带 user_id 查），③ 尽量不跨库 JOIN。推荐 user_id 或订单 ID，避免 status 等低基数字段。</p>
+      <div class="note warn"><strong>跨库问题</strong>：分库后 JOIN、事务、分页都需要在应用层处理，评估改造成本再决定是否分库。</div>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q28">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q28</span>
+    <span class="qa-qtext">分布式 ID 的常见方案？雪花算法的原理和缺陷？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>分布式基础题，雪花算法 64bit 结构必须能讲清楚，时钟回拨问题是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>Snowflake 64-bit 结构：
+┌─────┬──────────────────────────┬───────────────┬──────────────┐
+│ 1bit│        41bit             │    10bit      │    12bit     │
+│符号位│  时间戳（毫秒，相对纪元）  │  机器ID(5+5)  │  序列号      │
+└─────┴──────────────────────────┴───────────────┴──────────────┘
+可用 69 年，每毫秒每机器生成 4096 个，趋势递增（B+Tree 友好）</pre>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">UUID</span>：无序，不适合 B+Tree 索引，128bit 太长</li>
+        <li><span class="b">▸</span> <span class="kw">DB 自增</span>：单点，性能瓶颈</li>
+        <li><span class="b">▸</span> <span class="kw">Redis INCR</span>：高性能，但需持久化，多机器分 step</li>
+        <li><span class="b">▸</span> <span class="kw">雪花算法</span>：趋势递增，高性能，<strong>缺陷</strong>：时钟回拨导致 ID 重复</li>
+        <li><span class="b">▸</span> <span class="kw">美团 Leaf</span>：号段模式 + 雪花双模，解决时钟回拨（用 NTP 对时 + 等待/报警策略）</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#snowflake">分布式ID详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q29">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q29</span>
+    <span class="qa-qtext">如何设计一个短链系统？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>系统设计经典题，考查从需求→存储→生成算法→缓存→统计的完整思路。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">短码生成</span>：自增 ID → Base62 编码（0-9A-Za-z），6 位可支持 568 亿条</li>
+        <li><span class="b">▸</span> <span class="kw">存储</span>：MySQL 存映射（短码-长URL-用户-过期时间），Redis 缓存热门短链（LRU）</li>
+        <li><span class="b">▸</span> <span class="kw">302 重定向</span>（非 301，浏览器不缓存，利于点击统计）</li>
+        <li><span class="b">▸</span> <span class="kw">自增 ID</span>：号段模式或 Redis INCR 避免单点</li>
+        <li><span class="b">▸</span> <span class="kw">缓存穿透</span>：短码不存在时缓存空值</li>
+        <li><span class="b">▸</span> <span class="kw">点击统计</span>：异步写入 Kafka，批量落库，避免同步写影响响应时间</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#shorturl">短链设计详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q30">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q30</span>
+    <span class="qa-qtext">如何设计秒杀系统？重点在哪里？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>高并发系统设计标准题，考查分层削峰、库存防超卖、幂等设计三个核心点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>请求链路（逐层削峰）：
+Browser → CDN（静态页面）
+  → 网关（用户/接口限流，答题/验证码）
+    → Redis 预减库存（DECRBY，原子操作，负值直接拒绝）
+      → MQ 异步创建订单（削峰）
+        → DB 乐观锁防超卖（where stock > 0）</pre>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">前端</span>：答题/验证码过滤机器人；页面 CDN 静态化；按钮置灰防重复提交</li>
+        <li><span class="b">▸</span> <span class="kw">网关</span>：令牌桶限流 + Redis 去重（requestId 幂等）</li>
+        <li><span class="b">▸</span> <span class="kw">库存</span>：Redis 原子 DECRBY 预扣，返回负值则拒绝</li>
+        <li><span class="b">▸</span> <span class="kw">异步</span>：扣减成功后发 MQ，Consumer 异步落库</li>
+        <li><span class="b">▸</span> <span class="kw">DB 兜底</span>：乐观锁 <code>where stock &gt; 0</code> 防超卖</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q31">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q31</span>
+    <span class="qa-qtext">消息队列解决了哪些问题？如何保证消息不丢失？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>MQ 是微服务核心中间件，使用场景和三段可靠性是必考点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">MQ 解决的问题</span>：解耦（发布者不关心消费者）、异步（提高响应速度）、削峰（缓冲流量洪峰）</p>
+      <p>消息不丢失三个环节：</p>
+      <ul>
+        <li><span class="b">Producer</span> 同步发送 + ACK 确认，失败重试（消息幂等）；RocketMQ 事务消息</li>
+        <li><span class="b">Broker</span> 消息持久化（刷盘 sync/async），主从复制（最小 ISR &gt; 1）</li>
+        <li><span class="b">Consumer</span> 手动 ACK，业务处理完后再 commit offset；失败重试 + 死信队列兜底</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q32">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q32</span>
+    <span class="qa-qtext">高可用系统设计有哪些核心手段？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>综合系统设计能力的收尾题，考查整体架构视野，能串联多个技术点加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>高可用 = 减少故障时间（MTTR↓）+ 降低故障概率（MTBF↑）</p>
+      <ul>
+        <li><span class="b">▸</span> <span class="kw">冗余</span>：主从/集群，无单点故障（SPOF），自动 Failover</li>
+        <li><span class="b">▸</span> <span class="kw">限流</span>：保护下游，拒绝超额请求而非让系统雪崩</li>
+        <li><span class="b">▸</span> <span class="kw">熔断</span>：错误率超阈值自动熔断，半开探测恢复（Resilience4j/Sentinel）</li>
+        <li><span class="b">▸</span> <span class="kw">降级</span>：核心链路保障，非核心功能返回兜底数据</li>
+        <li><span class="b">▸</span> <span class="kw">超时 + 重试</span>：快速失败，幂等重试，避免线程积压</li>
+        <li><span class="b">▸</span> <span class="kw">异步解耦</span>：MQ 削峰，断开强依赖链路</li>
+        <li><span class="b">▸</span> <span class="kw">多机房/异地多活</span>：单机房容灾，就近访问</li>
+        <li><span class="b">▸</span> <span class="kw">可观测性</span>：Metrics（Prometheus）+ Logging（ELK）+ Tracing（SkyWalking）快速定位故障</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="design-04-system.html#ha">高可用设计详解</a>
+    </div></div>
+  </div>
+</div>
+
+</div><!-- end .mc -->
+</div><!-- end .layout -->
+
+<script>
+function toggleQA(el){const c=el.closest('.qa-card');c.classList.toggle('open',!c.classList.contains('open'));updateProgress()}
+function toggleScat(el){const s=el.closest('.scat');s.classList.toggle('open')}
+function toggleAll(open){document.querySelectorAll('.qa-card').forEach(c=>c.classList.toggle('open',open));updateProgress()}
+function filterByBadge(type){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===type));
+  document.querySelectorAll('.qa-card').forEach(card=>{if(!type){card.style.display='';return}card.style.display=card.querySelector('.qa-badge.'+type)?'':'none'});
+  updateProgress();
+}
+function updateProgress(){
+  const visible=[...document.querySelectorAll('.qa-card')].filter(c=>c.style.display!=='none');
+  const open=visible.filter(c=>c.classList.contains('open'));
+  document.getElementById('pfill').style.width=(visible.length?open.length/visible.length*100:0)+'%';
+  document.getElementById('ptxt').textContent=open.length+'/'+visible.length;
+}
+// scroll spy
+const items=document.querySelectorAll('.scat-item');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  document.querySelectorAll('.qa-card[id]').forEach(c=>{if(c.getBoundingClientRect().top<=80)cur=c.id});
+  items.forEach(i=>i.classList.toggle('active',i.getAttribute('href')==='#'+cur));
+});
+updateProgress();
+</script>
+</body>
+</html>

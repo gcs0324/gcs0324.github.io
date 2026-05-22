@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>结构型设计模式</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'STRUCTURAL'}
+.pb{display:inline-block;background:var(--green-bg);color:var(--green);font-size:.72rem;padding:2px 8px;border-radius:4px;font-weight:600;margin-left:8px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-design.js"></script>
+<header>
+  <div class="htag">DESIGN · 02 · 结构型</div>
+  <h1>结构型设计模式</h1>
+  <p class="sub">适配器 · 装饰器 · 代理 · 门面 · 桥接</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#adapter">1. 适配器</a>
+  <a class="sb-link" href="#decorator">2. 装饰器</a>
+  <a class="sb-link" href="#proxy">3. 代理</a>
+  <a class="sb-link" href="#facade">4. 门面</a>
+  <a class="sb-link" href="#bridge">5. 桥接</a>
+  <a class="sb-link" href="#composite">6. 组合</a>
+  <a class="sb-link" href="#flyweight">7. 享元</a>
+</aside>
+<main>
+  <h2 class="sec" id="adapter">1. 适配器模式 <span class="pb">Adapter</span></h2>
+  <p><strong>意图</strong>：将不兼容的接口转换为客户期望的接口，让原本不能合作的类可以一起工作。</p>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>类适配器</th><th>对象适配器（推荐）</th></tr>
+    <tr><td>实现方式</td><td>继承被适配者</td><td>组合被适配者</td></tr>
+    <tr><td>灵活性</td><td>低（单继承限制）</td><td>高（可适配子类）</td></tr>
+  </table></div>
+  <pre>// 场景：旧系统 OldLogger，新系统用 Logger 接口
+interface Logger { void log(String msg, Level level); }
+class OldLogger { void writeLog(String msg) { ... } }
+
+// 对象适配器（推荐）
+class OldLoggerAdapter implements Logger {
+    private OldLogger old = new OldLogger();
+    public void log(String msg, Level level) {
+        old.writeLog("[" + level + "] " + msg);  // 转换调用
+    }
+}
+// Spring 体现：HandlerAdapter（适配不同 Controller 类型到统一 handle 方法）</pre>
+
+  <h2 class="sec" id="decorator">2. 装饰器模式 <span class="pb">Decorator</span></h2>
+  <p><strong>意图</strong>：动态地给对象添加额外职责，比继承更灵活（运行时叠加，继承是编译时）。</p>
+  <pre>// Java IO 的经典装饰器
+InputStream in = new FileInputStream("file.txt");
+in = new BufferedInputStream(in);    // 添加缓冲功能
+in = new GZIPInputStream(in);        // 添加解压功能
+// 可以任意叠加，顺序有意义
+
+// 自定义：为 Service 添加日志和事务
+interface OrderService { Order create(OrderDTO dto); }
+class OrderServiceImpl implements OrderService { ... }  // 核心实现
+
+class LogDecorator implements OrderService {
+    private OrderService delegate;
+    LogDecorator(OrderService s) { this.delegate = s; }
+    public Order create(OrderDTO dto) {
+        log.info("create order: {}", dto);
+        Order o = delegate.create(dto);
+        log.info("order created: {}", o.getId());
+        return o;
+    }
+}</pre>
+  <div class="tip">💡 装饰器 vs 代理：装饰器增强功能（对客户端透明，知道被装饰的对象）；代理控制访问（对客户端隐藏实际对象）。Spring AOP 本质是动态代理，而非装饰器。</div>
+
+  <h2 class="sec" id="proxy">3. 代理模式 <span class="pb">Proxy</span></h2>
+  <p><strong>意图</strong>：为对象提供代理以控制访问。三种代理：保护代理（权限）、虚拟代理（懒加载）、远程代理（RPC）。</p>
+  <pre>// 静态代理（编译时确定）
+class UserServiceProxy implements UserService {
+    private UserService real;
+    UserServiceProxy(UserService s) { this.real = s; }
+    public User getUser(Long id) {
+        if (!hasPermission()) throw new AccessDeniedException();
+        return real.getUser(id);
+    }
+}
+
+// JDK 动态代理（见泛型反射章节）
+// CGLIB 代理（见 Spring AOP 章节）
+
+// Spring @Transactional 就是代理模式的应用：
+// TransactionInterceptor 代理目标方法，开/提交/回滚事务</pre>
+  <div class="table-wrap"><table>
+    <tr><th>代理类型</th><th>应用场景</th><th>Spring 体现</th></tr>
+    <tr><td>保护代理</td><td>权限控制</td><td>Spring Security 方法级安全</td></tr>
+    <tr><td>虚拟代理</td><td>懒加载，按需创建</td><td>Hibernate 延迟加载</td></tr>
+    <tr><td>远程代理</td><td>RPC 调用</td><td>Dubbo Consumer Stub</td></tr>
+    <tr><td>缓存代理</td><td>缓存结果</td><td>@Cacheable（Spring Cache）</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="facade">4. 门面模式 <span class="pb">Facade</span></h2>
+  <p><strong>意图</strong>：为子系统提供统一入口，简化客户端与复杂子系统的交互。降低耦合，不限制对子系统的直接访问。</p>
+  <pre>// 下单场景（调用多个子系统）
+class OrderFacade {
+    private InventoryService inventory;
+    private PaymentService payment;
+    private NotificationService notification;
+    private LogisticsService logistics;
+
+    // 统一入口
+    public OrderResult placeOrder(OrderRequest req) {
+        inventory.reserve(req.getItems());  // 库存预留
+        PayResult pay = payment.pay(req.getPayInfo()); // 支付
+        logistics.createShipment(pay.getOrderId());    // 创建物流
+        notification.send(req.getUserId(), "下单成功"); // 通知
+        return OrderResult.success(pay.getOrderId());
+    }
+}
+// 客户端只需调用 OrderFacade.placeOrder()，不需要了解子系统细节</pre>
+  <p><strong>Spring 体现</strong>：<code>JdbcTemplate</code>（JDBC 门面），<code>RestTemplate</code>（HTTP 门面），SLF4J（日志门面）</p>
+
+  <h2 class="sec" id="bridge">5. 桥接模式 <span class="pb">Bridge</span></h2>
+  <p><strong>意图</strong>：将抽象与实现解耦，使两者可以独立变化。用组合代替多层继承。</p>
+  <pre>// 问题：Shape + Color 两个维度变化，继承会爆炸
+// 不好：RedCircle, BlueCircle, RedSquare, BlueSquare...
+
+// 桥接：抽象层持有实现层引用
+interface Color { String fill(); }
+class Red implements Color { public String fill() { return "红色"; } }
+class Blue implements Color { public String fill() { return "蓝色"; } }
+
+abstract class Shape {
+    protected Color color;  // 桥接点
+    Shape(Color c) { this.color = c; }
+    abstract String draw();
+}
+class Circle extends Shape {
+    Circle(Color c) { super(c); }
+    public String draw() { return color.fill() + "圆形"; }
+}
+// 扩展 Shape 或 Color 互不影响
+Circle c = new Circle(new Red());  // "红色圆形"</pre>
+
+  <h2 class="sec" id="composite">6. 组合模式 <span class="pb">Composite</span></h2>
+  <p><strong>意图</strong>：将对象组织成树形结构，使单个对象和组合对象的使用一致（统一接口）。</p>
+  <pre>// 文件系统（文件 + 目录统一处理）
+interface FileComponent {
+    void display(String indent);
+    long getSize();
+}
+class File implements FileComponent {
+    private String name; private long size;
+    public void display(String i) { System.out.println(i + name); }
+    public long getSize() { return size; }
+}
+class Directory implements FileComponent {
+    private String name;
+    private List&lt;FileComponent&gt; children = new ArrayList&lt;&gt;();
+    public void add(FileComponent c) { children.add(c); }
+    public void display(String i) {
+        System.out.println(i + name + "/");
+        children.forEach(c -> c.display(i + "  "));
+    }
+    public long getSize() { return children.stream().mapToLong(FileComponent::getSize).sum(); }
+}
+// Spring 体现：CompositePropertySource、CompositeMessageSource</pre>
+
+  <h2 class="sec" id="flyweight">7. 享元模式 <span class="pb">Flyweight</span></h2>
+  <p><strong>意图</strong>：共享大量细粒度对象，减少内存开销。区分内部状态（共享）和外部状态（不共享）。</p>
+  <pre>// Integer 缓存（JDK 内置享元）
+Integer a = 127; Integer b = 127;
+System.out.println(a == b);  // true（-128~127 缓存）
+Integer c = 128; Integer d = 128;
+System.out.println(c == d);  // false（超出缓存范围，新建对象）
+
+// 字符串常量池也是享元
+String s1 = "hello"; String s2 = "hello";
+System.out.println(s1 == s2);  // true
+
+// 数据库连接池（享元）：复用 Connection 对象
+// 线程池：复用 Thread 对象
+// Spring 中：单例 Bean 就是享元模式</pre>
+  <div class="table-wrap"><table>
+    <tr><th>模式</th><th>关键特征</th><th>Java/Spring 典型应用</th></tr>
+    <tr><td>适配器</td><td>接口转换</td><td>HandlerAdapter, InputStreamReader</td></tr>
+    <tr><td>装饰器</td><td>功能叠加（同接口包装）</td><td>BufferedInputStream, FilterWriter</td></tr>
+    <tr><td>代理</td><td>访问控制（相同接口）</td><td>Spring AOP, Dubbo Consumer Stub</td></tr>
+    <tr><td>门面</td><td>简化接口</td><td>JdbcTemplate, RestTemplate, SLF4J</td></tr>
+    <tr><td>桥接</td><td>解耦抽象与实现</td><td>JDBC Driver（DriverManager+Driver）</td></tr>
+    <tr><td>组合</td><td>树形结构统一处理</td><td>文件系统, UI组件树, XML DOM</td></tr>
+    <tr><td>享元</td><td>共享细粒度对象</td><td>Integer缓存, 字符串池, 连接池</td></tr>
+  </table></div>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

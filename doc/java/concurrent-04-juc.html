@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 并发 04 · JUC 工具类</title>
+<style>
+header::before{content:'JUC'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-concurrent.js"></script>
+<header>
+  <div class="htag">CONCURRENT · 04 · JUC</div>
+  <h1>JUC 并发工具类</h1>
+  <p class="sub">同步辅助 · 原子类 · 并发容器 · ConcurrentHashMap · CompletableFuture</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#helper"><span class="s-num">01</span>同步辅助工具</a>
+    <a class="s-link" href="#atomic"><span class="s-num">02</span>原子类 & CAS</a>
+    <a class="s-link" href="#chm"><span class="s-num">03</span>ConcurrentHashMap</a>
+    <a class="s-link" href="#queue"><span class="s-num">04</span>BlockingQueue</a>
+    <a class="s-link" href="#copy"><span class="s-num">05</span>CopyOnWriteArrayList</a>
+    <a class="s-link" href="#cf"><span class="s-num">06</span>CompletableFuture</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="concurrent-06-interview.html#juc">→ 面试题 JUC</a>
+    <a class="s-link" href="concurrent-05-pool.html">→ 下一章：线程池</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 同步辅助 -->
+    <div class="sec" id="helper"><span class="sn">01</span>同步辅助工具</div>
+    <div class="card">
+      <div class="ct">CountDownLatch vs CyclicBarrier vs Semaphore</div>
+      <table class="tbl">
+        <tr><th>工具</th><th>核心语义</th><th>可重用</th><th>典型场景</th></tr>
+        <tr><td>CountDownLatch</td><td>等待 N 个操作完成（count→0 唤醒等待者）</td><td>❌ 一次性</td><td>等待所有子任务完成后汇总；服务启动完成信号</td></tr>
+        <tr><td>CyclicBarrier</td><td>N 个线程互相等待，全部到达栅栏后一起继续</td><td>✅ 自动重置</td><td>多线程分批计算，每批结束同步；并行模拟</td></tr>
+        <tr><td>Semaphore</td><td>控制同时访问资源的线程数（许可证机制）</td><td>✅</td><td>连接池/限流（最多 N 个并发）</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">使用示例</div>
+      <pre>// CountDownLatch：等待 3 个子任务都完成
+CountDownLatch latch = new CountDownLatch(3);
+for (int i = 0; i &lt; 3; i++) {
+    executor.submit(() -&gt; {
+        try { doWork(); }
+        finally { latch.countDown(); } // 每完成一个 -1
+    });
+}
+latch.await(); // 阻塞直到 count=0
+
+// CyclicBarrier：3 个线程同步到达再继续
+CyclicBarrier barrier = new CyclicBarrier(3, () -&gt;
+    System.out.println("所有线程到达，开始下一阶段"));
+// 各线程调用 barrier.await() 等待
+
+// Semaphore：最多 5 个线程同时访问数据库
+Semaphore sem = new Semaphore(5);
+sem.acquire();  // 获取许可，无则阻塞
+try { dbOperation(); }
+finally { sem.release(); } // 释放许可</pre>
+    </div>
+
+    <!-- 02 原子类 -->
+    <div class="sec" id="atomic"><span class="sn">02</span>原子类与 CAS</div>
+    <div class="card">
+      <div class="ct">CAS（Compare And Swap）原理</div>
+      <p>CAS 是一条 CPU 原子指令（x86 的 <code>cmpxchg</code>），包含三个操作数：<span class="kw">内存地址 V</span>、<span class="kw">期望值 A</span>、<span class="kw">新值 B</span>。只有当 V 的值等于 A 时，才将 V 更新为 B，整个过程原子不可中断。</p>
+      <pre>// AtomicInteger 的 compareAndSet 底层
+// 通过 Unsafe.compareAndSwapInt() 调用硬件 CAS 指令
+atomicInt.compareAndSet(expected, newValue);</pre>
+      <p><strong>CAS 的三个问题：</strong></p>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">ABA 问题</strong>：值从 A→B→A，CAS 无法感知。解决：<code>AtomicStampedReference</code>（带版本号）或 <code>AtomicMarkableReference</code></span></li>
+        <li><span class="b">②</span><span><strong class="kw">循环开销</strong>：竞争激烈时 CAS 一直失败，CPU 空转。解决：退避策略，或换用 <code>LongAdder</code></span></li>
+        <li><span class="b">③</span><span><strong class="kw">只能保证单变量</strong>：无法同时保证多个变量的原子性。解决：<code>AtomicReference</code> 封装对象，或 synchronized</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">LongAdder vs AtomicLong</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>AtomicLong</th><th>LongAdder（JDK 8+）</th></tr>
+        <tr><td>实现</td><td>单 volatile long + CAS</td><td>Cell 数组分散热点 + base 值</td></tr>
+        <tr><td>高并发性能</td><td>CAS 竞争激烈，性能下降</td><td>分段累加，性能显著更好</td></tr>
+        <tr><td>读取精度</td><td>任意时刻精确</td><td>sum() 时才汇总，瞬时值不精确</td></tr>
+        <tr><td>内存占用</td><td>小</td><td>略大（Cell 数组）</td></tr>
+        <tr><td>适用</td><td>低并发、需精确读取</td><td>高并发计数（如统计 QPS）</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">原子类速查</div>
+      <table class="tbl">
+        <tr><th>类型</th><th>原子类</th></tr>
+        <tr><td>基础类型</td><td>AtomicInteger / AtomicLong / AtomicBoolean</td></tr>
+        <tr><td>数组</td><td>AtomicIntegerArray / AtomicLongArray / AtomicReferenceArray</td></tr>
+        <tr><td>引用</td><td>AtomicReference / AtomicStampedReference / AtomicMarkableReference</td></tr>
+        <tr><td>字段更新</td><td>AtomicIntegerFieldUpdater / AtomicLongFieldUpdater / AtomicReferenceFieldUpdater</td></tr>
+        <tr><td>高性能累加</td><td>LongAdder / LongAccumulator / DoubleAdder / DoubleAccumulator</td></tr>
+      </table>
+    </div>
+
+    <!-- 03 ConcurrentHashMap -->
+    <div class="sec" id="chm"><span class="sn">03</span>ConcurrentHashMap</div>
+    <div class="card">
+      <div class="ct">JDK 7 vs JDK 8 实现对比</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>JDK 7（分段锁）</th><th>JDK 8（CAS + synchronized）</th></tr>
+        <tr><td>数据结构</td><td>Segment 数组 + HashEntry 链表</td><td>Node 数组 + 链表/红黑树</td></tr>
+        <tr><td>锁粒度</td><td>Segment 级别（默认 16 个 Segment）</td><td>Node 级别（每个桶头结点一把锁）</td></tr>
+        <tr><td>并发度</td><td>固定 16（Segment 数量）</td><td>动态，最大等于数组长度</td></tr>
+        <tr><td>扩容</td><td>段内扩容</td><td>多线程协同扩容（transfer）</td></tr>
+        <tr><td>查询</td><td>全程无锁（volatile 保证可见性）</td><td>全程无锁（volatile Node）</td></tr>
+        <tr><td>put 流程</td><td>lock() 锁段，然后操作</td><td>CAS 插入空桶；桶非空时 synchronized 锁头结点</td></tr>
+        <tr><td>树化阈值</td><td>不支持</td><td>链表长度≥8 且数组≥64 时转红黑树</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">JDK 8 put() 流程</div>
+      <pre>1. key/value 不能为 null（否则抛 NPE）
+2. 计算 hash（spread 扰动函数）
+3. 循环 CAS 直到成功：
+   a. 数组未初始化 → initTable()
+   b. 目标桶为 null → CAS 直接插入 Node（无锁）
+   c. 桶头结点 hash=MOVED(-1) → 协助扩容（helpTransfer）
+   d. 桶非空 → synchronized(头结点) {
+      链表：遍历找相同key更新，或尾插
+      红黑树：调用 TreeBin.putTreeVal()
+   }
+4. 链表长度 >= 8 时尝试树化（treeifyBin）
+5. addCount() 更新 size，检查是否需要扩容</pre>
+    </div>
+
+    <!-- 04 BlockingQueue -->
+    <div class="sec" id="queue"><span class="sn">04</span>BlockingQueue 阻塞队列</div>
+    <div class="card">
+      <div class="ct">常用实现对比</div>
+      <table class="tbl">
+        <tr><th>实现</th><th>有界/无界</th><th>底层结构</th><th>特点</th></tr>
+        <tr><td>ArrayBlockingQueue</td><td>有界（需指定容量）</td><td>数组</td><td>单锁，公平可选，内存预分配</td></tr>
+        <tr><td>LinkedBlockingQueue</td><td>可选（默认 Integer.MAX_VALUE）</td><td>链表</td><td>读写双锁，吞吐量高</td></tr>
+        <tr><td>PriorityBlockingQueue</td><td>无界</td><td>堆（优先级）</td><td>按优先级出队，不保证 FIFO</td></tr>
+        <tr><td>SynchronousQueue</td><td>0容量</td><td>无存储</td><td>直接传递，put/take 必须配对</td></tr>
+        <tr><td>DelayQueue</td><td>无界</td><td>PriorityQueue</td><td>元素到期才能出队，延迟任务</td></tr>
+        <tr><td>LinkedTransferQueue</td><td>无界</td><td>链表</td><td>transfer() 直接传递给消费者</td></tr>
+      </table>
+      <div class="note info"><strong>CachedThreadPool 用 SynchronousQueue</strong>：每个任务必须被线程立即接收（无缓冲），若无空闲线程则创建新线程，解释了为何 CachedThreadPool 线程数量无限制。</div>
+    </div>
+    <div class="card">
+      <div class="ct">4 组操作方法</div>
+      <table class="tbl">
+        <tr><th>行为</th><th>抛异常</th><th>返回值</th><th>阻塞</th><th>超时</th></tr>
+        <tr><td>插入</td><td>add(e)</td><td>offer(e)</td><td>put(e)</td><td>offer(e,t,u)</td></tr>
+        <tr><td>移除</td><td>remove()</td><td>poll()</td><td>take()</td><td>poll(t,u)</td></tr>
+        <tr><td>检查</td><td>element()</td><td>peek()</td><td>—</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <!-- 05 CopyOnWriteArrayList -->
+    <div class="sec" id="copy"><span class="sn">05</span>CopyOnWriteArrayList</div>
+    <div class="card">
+      <div class="ct">写时复制原理</div>
+      <p>读操作无锁（直接读 volatile 数组）；写操作加 ReentrantLock，<span class="kw">复制一份新数组</span>，在新数组上修改，完成后将引用指向新数组：</p>
+      <pre>// 写操作（add 为例）
+public boolean add(E e) {
+    synchronized (lock) {
+        Object[] elements = getArray();
+        int len = elements.length;
+        Object[] newElements = Arrays.copyOf(elements, len + 1); // 复制
+        newElements[len] = e;
+        setArray(newElements); // volatile 写，对所有读线程立即可见
+        return true;
+    }
+}</pre>
+      <ul class="dl">
+        <li><span class="b">优点</span><span>读操作完全无锁，适合读多写少场景</span></li>
+        <li><span class="b">缺点①</span><span>写时复制内存开销大（数据量大时 GC 压力大）</span></li>
+        <li><span class="b">缺点②</span><span>弱一致性：读操作读到的是快照，写完成前无法看到新数据</span></li>
+        <li><span class="b">场景</span><span>配置列表、黑白名单、观察者列表（读多写极少）</span></li>
+      </ul>
+    </div>
+
+    <!-- 06 CompletableFuture -->
+    <div class="sec" id="cf"><span class="sn">06</span>CompletableFuture</div>
+    <div class="card">
+      <div class="ct">核心方法速查</div>
+      <table class="tbl">
+        <tr><th>方法</th><th>说明</th></tr>
+        <tr><td>supplyAsync(supplier, executor)</td><td>异步执行有返回值任务</td></tr>
+        <tr><td>runAsync(runnable, executor)</td><td>异步执行无返回值任务</td></tr>
+        <tr><td>thenApply(fn)</td><td>上一步结果 → 转换（同步）</td></tr>
+        <tr><td>thenApplyAsync(fn)</td><td>上一步结果 → 转换（异步）</td></tr>
+        <tr><td>thenCompose(fn)</td><td>扁平化嵌套 CF（flatMap）</td></tr>
+        <tr><td>thenCombine(cf, fn)</td><td>两个 CF 都完成后合并结果</td></tr>
+        <tr><td>thenAccept(consumer)</td><td>消费结果，无返回值</td></tr>
+        <tr><td>exceptionally(fn)</td><td>异常处理，返回默认值</td></tr>
+        <tr><td>handle(fn)</td><td>处理正常值和异常（二合一）</td></tr>
+        <tr><td>allOf(cfs...)</td><td>等待所有 CF 完成</td></tr>
+        <tr><td>anyOf(cfs...)</td><td>任意一个 CF 完成即返回</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">实战示例：并行查询聚合</div>
+      <pre>ExecutorService executor = Executors.newFixedThreadPool(3);
+
+// 并行发起 3 个查询
+CompletableFuture&lt;User&gt; userCF =
+    CompletableFuture.supplyAsync(() -&gt; userService.get(uid), executor);
+CompletableFuture&lt;Order&gt; orderCF =
+    CompletableFuture.supplyAsync(() -&gt; orderService.get(uid), executor);
+CompletableFuture&lt;Points&gt; pointsCF =
+    CompletableFuture.supplyAsync(() -&gt; pointsService.get(uid), executor);
+
+// 等待全部完成（allOf 返回 CF&lt;Void&gt;）
+CompletableFuture.allOf(userCF, orderCF, pointsCF).join();
+
+// 聚合结果
+UserVO vo = new UserVO(userCF.join(), orderCF.join(), pointsCF.join());
+
+// 异常处理
+CompletableFuture&lt;String&gt; safe = cf
+    .exceptionally(e -&gt; {
+        log.error("查询失败", e);
+        return "default";
+    })
+    .thenApply(result -&gt; "prefix_" + result);</pre>
+      <div class="note warn"><strong>默认线程池陷阱</strong>：不传 executor 时使用 <code>ForkJoinPool.commonPool()</code>，该线程池是全局共享的，可能被并行流、其他任务占用，生产环境应始终传入自定义线程池。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

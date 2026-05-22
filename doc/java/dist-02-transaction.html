@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分布式 02 · 分布式事务（2PC / TCC / Saga / Seata）</title>
+<style>
+:root{--accent-color:var(--purple);--accent-bg:var(--purple-bg);--accent-b:var(--purple-b)}
+header::before{content:'TX'}
+/* 方案对比卡片 */
+.sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.sol-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px 12px}
+.sol-h{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px}
+.sol-d{font-size:12.5px;color:var(--tx2);line-height:1.55}
+@media(max-width:700px){.sol-grid{grid-template-columns:1fr}}
+/* 三角色 */
+.rolebox{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.rolebox .r{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px 12px}
+.rolebox .r-n{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px}
+.rolebox .r-d{font-size:12.5px;color:var(--tx2);line-height:1.55}
+@media(max-width:700px){.rolebox{grid-template-columns:1fr}}
+/* SVG diagram */
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5}
+.dg-t{fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue{fill:var(--blue);font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-green{fill:var(--green);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-ln{stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-d{stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dist.js"></script>
+<header>
+  <div class="htag">DIST · 02 · TRANSACTION</div>
+  <h1>分布式事务</h1>
+  <p class="sub">2PC / 3PC / XA · TCC · Saga · 本地消息表 · MQ 事务消息 · Seata 四种模式 · 方案选型</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#why"><span class="s-num">01</span>从单机到分布式事务</a>
+    <a class="s-link" href="#2pc"><span class="s-num">02</span>2PC 两阶段提交</a>
+    <a class="s-link" href="#3pc"><span class="s-num">03</span>3PC 三阶段提交</a>
+    <a class="s-link" href="#xa"><span class="s-num">04</span>XA 协议 &amp; JTA</a>
+    <a class="s-link" href="#tcc"><span class="s-num">05</span>TCC 模式</a>
+    <a class="s-link" href="#saga"><span class="s-num">06</span>Saga 模式</a>
+    <a class="s-link" href="#localmq"><span class="s-num">07</span>本地消息表</a>
+    <a class="s-link" href="#mqtx"><span class="s-num">08</span>MQ 事务消息</a>
+    <a class="s-link" href="#seata"><span class="s-num">09</span>Seata 框架</a>
+    <a class="s-link" href="#choose"><span class="s-num">10</span>方案选型矩阵</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="dist-04-interview.html#cat2">→ 面试题 分布式事务</a>
+    <a class="s-link" href="dist-01-theory.html">← 上一章：理论基础</a>
+    <a class="s-link" href="dist-03-lock-id.html">→ 下一章：锁 &amp; ID</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 为什么 -->
+    <div class="sec" id="why"><span class="sn">01</span>从单机事务到分布式事务</div>
+    <div class="card">
+      <div class="ct">ACID 在分布式下为何失效</div>
+      <p>单库事务靠 MySQL 的 redo log + undo log + 锁，就能轻松做到 ACID。一旦跨库或跨服务，事情立刻变难 —— 因为参与方各有自己的事务日志，互相看不到，谁都不能单独决定"提交还是回滚"。</p>
+      <ul class="dl">
+        <li><span class="b">A</span><span><strong class="kw">原子性破裂</strong>：A 库提交成功、B 库网络超时不知道结果，事务无法整体回滚</span></li>
+        <li><span class="b">C</span><span><strong class="kw">一致性破裂</strong>：扣了用户余额、加库存失败，两库数据对不上</span></li>
+        <li><span class="b">I</span><span><strong class="kw">隔离性破裂</strong>：跨库事务的中间状态会被其他事务读到（看到扣款但未到账的诡异状态）</span></li>
+        <li><span class="b">D</span><span><strong class="kw">持久性还在</strong>：每个本地库的持久性仍然成立，但全局视图可能"持久化了一个错的状态"</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">两类典型场景</div>
+      <table class="tbl">
+        <tr><th>场景</th><th>表现</th><th>常用方案</th></tr>
+        <tr><td>跨库事务</td><td>分库分表后，订单表和订单明细表在不同分片；账户和流水在不同库</td><td>XA、Seata AT</td></tr>
+        <tr><td>跨服务事务</td><td>订单服务下单 → 库存服务扣减 → 支付服务记账，三个服务三个独立数据库</td><td>TCC、Saga、MQ 事务消息</td></tr>
+      </table>
+      <div class="note info">分布式事务从来不是"完美方案"，而是"在一致性、性能、复杂度之间做权衡"。下面每个方案都有它擅长和不擅长的场景，看到面试题时第一步永远是先问业务。</div>
+    </div>
+
+    <!-- 02 2PC -->
+    <div class="sec" id="2pc"><span class="sn">02</span>2PC 两阶段提交</div>
+    <div class="card">
+      <div class="ct">2PC 的两个角色</div>
+      <div class="rolebox">
+        <div class="r"><div class="r-n">Coordinator 协调者</div><div class="r-d">事务的指挥官，决定整体提交还是回滚</div></div>
+        <div class="r"><div class="r-n">Participant 参与者</div><div class="r-d">实际持有数据的节点（各分库），执行本地事务，向协调者汇报投票</div></div>
+        <div class="r"><div class="r-n">事务日志</div><div class="r-d">协调者和参与者都要把投票/决议持久化到日志，宕机重启后能恢复</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">两阶段流程</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">阶段 1：Prepare（准备阶段）</div>
+            <div class="step-desc">协调者向所有参与者发送 prepare 请求。参与者执行本地事务（写 undo / redo log），但<span class="kw">不提交</span>，持有锁；执行成功回 YES，失败回 NO</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">阶段 2：Commit / Rollback（提交阶段）</div>
+            <div class="step-desc">协调者收齐所有投票：① 全部 YES → 发 commit，参与者提交事务释放锁；② 任一 NO 或超时 → 发 rollback，参与者按 undo log 回滚</div>
+          </div>
+        </div>
+      </div>
+      <div class="diag-wrap">
+        <div class="diag-cap">2PC 两阶段时序 — Coordinator + 2 Participants</div>
+        <div class="diag-body">
+<svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block">
+  <defs>
+    <marker id="dist02-2pc-ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--orange)"/></marker>
+    <marker id="dist02-2pc-ah-g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--green)"/></marker>
+    <marker id="dist02-2pc-ah-b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--blue)"/></marker>
+  </defs>
+  <!-- role headers -->
+  <rect x="50" y="20" width="120" height="32" rx="6" class="dg-box-p"/>
+  <text x="110" y="40" text-anchor="middle" class="dg-purple" font-size="12" font-weight="700">Coordinator</text>
+  <rect x="290" y="20" width="120" height="32" rx="6" class="dg-box-b"/>
+  <text x="350" y="40" text-anchor="middle" class="dg-blue" font-size="12" font-weight="700">Participant 1</text>
+  <rect x="530" y="20" width="120" height="32" rx="6" class="dg-box-b"/>
+  <text x="590" y="40" text-anchor="middle" class="dg-blue" font-size="12" font-weight="700">Participant 2</text>
+  <!-- vertical lifelines -->
+  <line x1="110" y1="52" x2="110" y2="310" class="dg-ln-d"/>
+  <line x1="350" y1="52" x2="350" y2="310" class="dg-ln-d"/>
+  <line x1="590" y1="52" x2="590" y2="310" class="dg-ln-d"/>
+  <!-- phase labels -->
+  <text x="20" y="80" class="dg-orange" font-size="10" font-weight="700" transform="rotate(-90 20 80)">PHASE 1 · PREPARE</text>
+  <text x="20" y="220" class="dg-blue" font-size="10" font-weight="700" transform="rotate(-90 20 220)">PHASE 2 · COMMIT</text>
+  <!-- Phase 1: prepare messages -->
+  <line x1="110" y1="80" x2="350" y2="80" stroke="var(--orange)" stroke-width="1.6" marker-end="url(#dist02-2pc-ah)"/>
+  <text x="230" y="74" text-anchor="middle" class="dg-orange" font-size="10">prepare</text>
+  <line x1="110" y1="105" x2="590" y2="105" stroke="var(--orange)" stroke-width="1.6" marker-end="url(#dist02-2pc-ah)"/>
+  <text x="350" y="99" text-anchor="middle" class="dg-orange" font-size="10">prepare</text>
+  <!-- 写 undo/redo, 持锁等待 -->
+  <text x="350" y="125" text-anchor="middle" class="dg-t3" font-size="9">写 undo/redo · 持锁不提交</text>
+  <text x="590" y="125" text-anchor="middle" class="dg-t3" font-size="9">写 undo/redo · 持锁不提交</text>
+  <!-- YES replies -->
+  <line x1="350" y1="150" x2="110" y2="150" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#dist02-2pc-ah-g)"/>
+  <text x="230" y="144" text-anchor="middle" class="dg-green" font-size="10">YES vote</text>
+  <line x1="590" y1="175" x2="110" y2="175" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#dist02-2pc-ah-g)"/>
+  <text x="350" y="169" text-anchor="middle" class="dg-green" font-size="10">YES vote</text>
+  <!-- coord 收齐, 决议 commit -->
+  <text x="110" y="200" text-anchor="middle" class="dg-t3" font-size="9">收齐多数 → 决议 commit</text>
+  <!-- Phase 2: commit messages -->
+  <line x1="110" y1="225" x2="350" y2="225" stroke="var(--blue)" stroke-width="1.6" marker-end="url(#dist02-2pc-ah-b)"/>
+  <text x="230" y="219" text-anchor="middle" class="dg-blue" font-size="10">commit</text>
+  <line x1="110" y1="250" x2="590" y2="250" stroke="var(--blue)" stroke-width="1.6" marker-end="url(#dist02-2pc-ah-b)"/>
+  <text x="350" y="244" text-anchor="middle" class="dg-blue" font-size="10">commit</text>
+  <!-- ACK -->
+  <line x1="350" y1="280" x2="110" y2="280" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#dist02-2pc-ah-g)"/>
+  <text x="230" y="274" text-anchor="middle" class="dg-green" font-size="10">ACK · 释放锁</text>
+  <line x1="590" y1="305" x2="110" y2="305" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#dist02-2pc-ah-g)"/>
+  <text x="350" y="299" text-anchor="middle" class="dg-green" font-size="10">ACK · 释放锁</text>
+</svg>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">2PC 的三大缺陷</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">同步阻塞</strong>：阶段 1 结束后，所有参与者都在等协调者的指令，期间一直持有锁。如果协调者慢，整个事务持锁时间很长，吞吐被锁死</span></li>
+        <li><span class="b">②</span><span><strong class="kw">单点故障</strong>：协调者本身是单点。如果协调者在阶段 1 之后宕机，参与者只能死等，事务无法推进（除非引入额外的协调者选主机制）</span></li>
+        <li><span class="b">③</span><span><strong class="kw">数据不一致</strong>：阶段 2 协调者发送 commit 时，如果只有部分参与者收到（网络故障），就会出现"部分提交、部分未提交"的不一致状态</span></li>
+      </ul>
+      <div class="note warn"><strong>真实使用很少</strong>：原生 2PC 因为这三个缺陷，生产环境几乎不用。MySQL 内部的 binlog 与 redo log 协同其实就是 2PC，但那是单机内的"2PC"。跨库的 2PC 一般要配合改良协议（如 XA、Seata XA 模式）使用。</div>
+    </div>
+
+    <!-- 03 3PC -->
+    <div class="sec" id="3pc"><span class="sn">03</span>3PC 三阶段提交</div>
+    <div class="card">
+      <div class="ct">3PC 怎么改进 2PC</div>
+      <p>3PC 把 2PC 的"准备 + 提交"拆成三步，并引入<span class="kw">超时机制</span>，让参与者在协调者掉线时也能自己做决定。</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">CanCommit（询问阶段）</div>
+            <div class="step-desc">协调者问参与者"你能不能 commit"。参与者只做轻量检查（资源是否就绪），不真正执行事务，回 YES / NO。这一步本质是<span class="kw">提前试探</span>，避免后续白做工</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">PreCommit（预提交阶段）</div>
+            <div class="step-desc">收齐 YES 后，协调者发 PreCommit。参与者真正执行本地事务（写 undo/redo），持锁，但仍然不提交，回 ACK</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">DoCommit（提交阶段）</div>
+            <div class="step-desc">协调者发 DoCommit，参与者提交事务释放锁。如果参与者在 PreCommit 之后<span class="kw">超时没收到</span> DoCommit，默认<span class="kw">自动提交</span>（赌一把：能走到 PreCommit 说明大家都准备好了，协调者大概率发的是 commit）</div>
+          </div>
+        </div>
+      </div>
+      <div class="note warn"><strong>3PC 没解决根本问题</strong>：超时自动提交看似减少阻塞，但如果实际上协调者发的是 rollback、只是网络丢了，参与者就会自动错误地提交，依然产生不一致。3PC 在工程上几乎没人用 —— 复杂度上升一档，可靠性没本质提升。</div>
+    </div>
+
+    <!-- 04 XA -->
+    <div class="sec" id="xa"><span class="sn">04</span>XA 协议 &amp; JTA</div>
+    <div class="card">
+      <div class="ct">XA 是什么</div>
+      <p>XA 是 X/Open 组织在 1991 年定的<span class="kw">分布式事务接口规范</span>，本质就是 2PC 的标准化实现。它定义了"事务管理器（TM）"和"资源管理器（RM）"之间的接口，让不同数据库厂商的产品都能接入同一个全局事务。</p>
+      <table class="tbl">
+        <tr><th>名词</th><th>角色</th><th>对应实物</th></tr>
+        <tr><td>AP — Application Program</td><td>业务应用</td><td>你的 Java 服务</td></tr>
+        <tr><td>TM — Transaction Manager</td><td>事务管理器（协调者）</td><td>Atomikos、Narayana、Seata（XA 模式）</td></tr>
+        <tr><td>RM — Resource Manager</td><td>资源管理器（参与者）</td><td>MySQL、Oracle、PostgreSQL 等支持 XA 的数据库</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">JTA 与 XA 的关系</div>
+      <p>JTA（Java Transaction API）是 Java 给 XA 包了一层标准接口。Java 应用通过 JTA 调用，底层由 TM 实现具体的 XA 协议交互。</p>
+      <pre>// 典型 JTA 调用（Atomikos）
+UserTransaction tx = new UserTransactionImp();
+tx.begin();
+try {
+    // 操作 DB1（MySQL）和 DB2（Oracle）
+    jdbcTemplate1.update("UPDATE account SET balance=balance-100 WHERE id=1");
+    jdbcTemplate2.update("UPDATE inventory SET stock=stock-1 WHERE sku='A'");
+    tx.commit(); // TM 走 XA 两阶段
+} catch (Exception e) {
+    tx.rollback();
+}</pre>
+      <div class="note info"><strong>XA 在 MySQL 里怎么开启</strong>：MySQL InnoDB 默认支持 XA 接口。需要在<code>SET autocommit=0</code>后用<code>XA START / XA END / XA PREPARE / XA COMMIT</code>命令。生产中一般通过 Atomikos、Narayana 自动管理，应用层不直接写 XA 命令。</div>
+      <div class="note warn"><strong>性能差是硬伤</strong>：XA 全程持锁，多次网络往返。压测下吞吐通常只有本地事务的 1/5 ~ 1/10。互联网公司很少用 XA，传统金融行业还在用。</div>
+    </div>
+
+    <!-- 05 TCC -->
+    <div class="sec" id="tcc"><span class="sn">05</span>TCC 模式</div>
+    <div class="card">
+      <div class="ct">TCC 是什么</div>
+      <p>TCC = Try / Confirm / Cancel，是把"一个业务操作"拆成<span class="kw">三个方法</span>，由业务自己实现，而不是依赖数据库的事务能力。它<span class="kw">不用 XA、不用锁数据库行</span>，本质是用业务层的"预留资源 + 显式确认/取消"换取了高并发能力。</p>
+      <div class="rolebox">
+        <div class="r"><div class="r-n">Try</div><div class="r-d">预留业务资源（冻结余额、占用库存），写中间表，不真正扣减</div></div>
+        <div class="r"><div class="r-n">Confirm</div><div class="r-d">所有 Try 成功后调用：把冻结的资源真正扣掉。必须幂等</div></div>
+        <div class="r"><div class="r-n">Cancel</div><div class="r-d">任一 Try 失败时调用：释放预留的资源。必须幂等</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">TCC 代码示例</div>
+      <pre>// 扣余额服务
+public class AccountService {
+    // Try：把可用余额减 100，冻结余额加 100
+    public boolean tryDeduct(Long uid, BigDecimal amount, String txId) {
+        // 写一行冻结记录（txId 做幂等键）
+        return accountDao.freeze(uid, amount, txId);
+    }
+    // Confirm：删冻结记录，余额真正扣掉
+    public boolean confirm(String txId) {
+        return accountDao.confirmFrozen(txId);
+    }
+    // Cancel：把冻结的金额释放回可用余额
+    public boolean cancel(String txId) {
+        return accountDao.releaseFrozen(txId);
+    }
+}</pre>
+    </div>
+    <div class="card">
+      <div class="ct">TCC 三大经典坑</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">空回滚</strong>：Try 因为网络问题没执行，但事务协调器超时了，直接调 Cancel。此时 Cancel 收到的是一个"自己根本没 Try 过"的 txId，要能识别并什么都不做</span></li>
+        <li><span class="b">②</span><span><strong class="kw">幂等</strong>：Confirm 和 Cancel 可能因为重试被调多次，必须保证多次调用结果一致。一般用 txId 作为唯一键去重</span></li>
+        <li><span class="b">③</span><span><strong class="kw">悬挂</strong>：Cancel 先到（因为网络乱序），Try 后到。如果 Cancel 已经"假装回滚"了，Try 又来冻结资源，就再也没人 Cancel 这一笔了，资源永远悬挂。解决：Cancel 时记录"已被取消"标志，Try 看到标志直接拒绝</span></li>
+      </ul>
+      <div class="note warn"><strong>业务侵入大</strong>：TCC 要求每个服务都拆成三个方法，原本一行 SQL 现在变成三套表 + 三个接口。适合一致性要求高、性能要求高、且团队有能力维护的核心业务（支付、账务），不适合普通 CRUD。</div>
+    </div>
+
+    <!-- 06 Saga -->
+    <div class="sec" id="saga"><span class="sn">06</span>Saga 模式</div>
+    <div class="card">
+      <div class="ct">Saga 是什么</div>
+      <p>Saga 把一个长事务拆成一连串<span class="kw">本地事务 T1, T2, ..., Tn</span>，每个本地事务对应一个<span class="kw">补偿事务 C1, C2, ..., Cn</span>。任一步失败时，按逆序调用前面已成功步骤的补偿事务。和 TCC 的区别：Saga<span class="kw">直接执行业务</span>，没有 Try 阶段的"预留"。</p>
+      <pre>// 订单流程
+T1 创建订单 → T2 扣库存 → T3 扣余额 → T4 加积分
+
+// 假设 T3 扣余额失败，按逆序补偿
+C2 加回库存 → C1 取消订单
+（C3 因为 T3 没成功不需要补偿，C4 因为 T4 没执行也不需要）</pre>
+    </div>
+    <div class="card">
+      <div class="ct">两种实现风格</div>
+      <div class="sol-grid">
+        <div class="sol-item">
+          <div class="sol-h">Choreography 编排式</div>
+          <div class="sol-d">服务之间通过事件互相驱动，没有中央协调器。T1 完成发"订单已创建"事件，库存服务订阅这个事件触发 T2，依此类推。<strong>优点</strong>：去中心化、低耦合；<strong>缺点</strong>：链路看不见、调试难、循环依赖风险</div>
+        </div>
+        <div class="sol-item">
+          <div class="sol-h">Orchestration 协调式</div>
+          <div class="sol-d">有一个中央协调器（Saga Coordinator）按预定流程显式调用每个服务，决定何时进入下一步、何时触发补偿。<strong>优点</strong>：流程清晰、易追踪；<strong>缺点</strong>：协调器是中心化组件，要保证它本身的高可用</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">补偿事务的设计要点</div>
+      <ul class="dl">
+        <li><span class="b">▸</span><span><strong class="kw">幂等</strong>：补偿可能被重试多次，要能识别"已经补偿过"</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">允许"语义补偿"而非"数据回滚"</strong>：发出去的短信无法撤回，但可以发"上一条信息作废"的修正短信。补偿是业务概念，不是 undo log</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">隔离性差</strong>：Saga 的中间状态对外可见（订单已创建但还没扣款），需要在业务层加状态字段隔离</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">补偿可能失败</strong>：补偿本身也是个 RPC 调用，可能失败。需要重试 + 人工兜底</span></li>
+      </ul>
+      <div class="note good">Saga 比 TCC 业务侵入小（不需要预留阶段，原有业务方法稍加改造即可），适合<span class="kw">流程长、参与方多、一致性要求不极致</span>的场景，比如订单履约、机票出票。Seata 的 Saga 模式、Apache ServiceComb Pack 都是典型实现。</div>
+    </div>
+
+    <!-- 07 本地消息表 -->
+    <div class="sec" id="localmq"><span class="sn">07</span>本地消息表 / 最大努力通知</div>
+    <div class="card">
+      <div class="ct">核心思路</div>
+      <p>把"业务操作"和"要发的消息"放在<span class="kw">同一个本地事务</span>里。业务表 + 消息表同库同事务，要么都成功要么都失败，就把"分布式事务"问题降级为"本地事务 + 异步重试"。</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">业务库写入业务表 + 消息表（同事务）</div>
+            <div class="step-desc">订单服务在事务内：① 插入订单 ② 插入一条 status=待发送 的消息记录。两个写操作同生同死</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">异步发送消息</div>
+            <div class="step-desc">独立线程/定时任务扫消息表，把 status=待发送 的消息发到 MQ，发成功后更新为 status=已发送</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">消费者处理 + 回执</div>
+            <div class="step-desc">下游服务消费消息执行自己的业务，处理成功后通过另一个回执通道告知。失败则不断重试</div>
+          </div>
+        </div>
+      </div>
+      <div class="note info"><strong>最大努力通知</strong>是本地消息表的近亲：扫描表里"未确认成功"的消息，按递减频率不断重试（1s → 5s → 30s → 5min → 1h），直到收到下游回执或超过最大次数转人工。常用于跨公司接口（支付通知商户、银行通知客户）。</div>
+    </div>
+    <div class="card">
+      <div class="ct">优缺点</div>
+      <ul class="dl">
+        <li><span class="b">✅</span><span><strong>实现简单</strong>，不依赖任何分布式事务框架</span></li>
+        <li><span class="b">✅</span><span><strong>性能高</strong>，主流程只是本地事务 + 一行 insert</span></li>
+        <li><span class="b">✅</span><span><strong>可靠性好</strong>，消息表是兜底，不发完不停止</span></li>
+        <li><span class="b">❌</span><span><strong>只能最终一致</strong>，中间状态对外可见</span></li>
+        <li><span class="b">❌</span><span><strong>消息表与业务库耦合</strong>，分库分表时要每个分片都有消息表</span></li>
+      </ul>
+    </div>
+
+    <!-- 08 MQ 事务消息 -->
+    <div class="sec" id="mqtx"><span class="sn">08</span>MQ 事务消息（RocketMQ）</div>
+    <div class="card">
+      <div class="ct">为什么需要事务消息</div>
+      <p>本地消息表需要业务表 + 消息表同库。如果不想耦合一张消息表，就需要 MQ 本身提供"<span class="kw">消息发送和本地事务的原子性</span>"。RocketMQ 通过"半消息 + 二次确认 + 事务回查"做到了这一点。</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">发送 half message（半消息）</div>
+            <div class="step-desc">生产者先发一条"半消息"到 Broker。半消息已经被存储，但<span class="kw">对消费者不可见</span></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">执行本地事务</div>
+            <div class="step-desc">生产者收到 Broker 的半消息确认后，执行自己的本地事务（写订单库）。根据本地事务结果，向 Broker 发送二次确认：commit 或 rollback</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Broker 处理二次确认</div>
+            <div class="step-desc">收到 commit → 半消息转为正常消息，消费者可见。收到 rollback → 删除半消息</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">事务回查（兜底）</div>
+            <div class="step-desc">如果生产者执行本地事务后宕机，二次确认丢了。Broker 一段时间未收到确认，会主动<span class="kw">回查</span>生产者："这笔事务到底成没成？" 生产者根据本地状态告诉 Broker commit 还是 rollback</div>
+          </div>
+        </div>
+      </div>
+      <div class="note warn"><strong>事务回查的实现成本</strong>：生产者必须能根据"事务 ID"查询本地事务最终状态。这意味着业务需要把事务状态持久化、提供查询接口。Spring Cloud Stream / RocketMQ Spring Boot 都封装了模板代码，但业务逻辑还得自己写。</div>
+      <div class="diag-wrap">
+        <div class="diag-cap">RocketMQ 事务消息 — 半消息 + 二次确认 + 回查兜底</div>
+        <div class="diag-body">
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block">
+  <defs>
+    <marker id="dist02-mq-ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--orange)"/></marker>
+    <marker id="dist02-mq-ah-b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--blue)"/></marker>
+    <marker id="dist02-mq-ah-r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--purple)"/></marker>
+    <marker id="dist02-mq-ah-g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--green)"/></marker>
+  </defs>
+  <!-- producer -->
+  <rect x="30" y="20" width="120" height="50" rx="8" class="dg-box-o"/>
+  <text x="90" y="42" text-anchor="middle" class="dg-orange" font-size="12" font-weight="700">Producer</text>
+  <text x="90" y="58" text-anchor="middle" class="dg-t3" font-size="9">订单服务</text>
+  <!-- broker -->
+  <rect x="290" y="20" width="140" height="50" rx="8" class="dg-box-b"/>
+  <text x="360" y="42" text-anchor="middle" class="dg-blue" font-size="12" font-weight="700">RocketMQ Broker</text>
+  <text x="360" y="58" text-anchor="middle" class="dg-t3" font-size="9">half message · 对消费者不可见</text>
+  <!-- consumer -->
+  <rect x="570" y="20" width="120" height="50" rx="8" class="dg-box-g"/>
+  <text x="630" y="42" text-anchor="middle" class="dg-green" font-size="12" font-weight="700">Consumer</text>
+  <text x="630" y="58" text-anchor="middle" class="dg-t3" font-size="9">下游服务</text>
+  <!-- lifelines -->
+  <line x1="90" y1="70" x2="90" y2="280" class="dg-ln-d"/>
+  <line x1="360" y1="70" x2="360" y2="280" class="dg-ln-d"/>
+  <line x1="630" y1="70" x2="630" y2="280" class="dg-ln-d"/>
+  <!-- ① half message -->
+  <line x1="90" y1="100" x2="360" y2="100" stroke="var(--orange)" stroke-width="1.6" marker-end="url(#dist02-mq-ah)"/>
+  <text x="225" y="94" text-anchor="middle" class="dg-orange" font-size="10" font-weight="600">① half message</text>
+  <text x="225" y="115" text-anchor="middle" class="dg-t3" font-size="9">存储但暂不投递</text>
+  <!-- ② local tx -->
+  <rect x="30" y="135" width="120" height="44" rx="6" class="dg-box"/>
+  <text x="90" y="155" text-anchor="middle" class="dg-t" font-size="11" font-weight="600">② 执行本地事务</text>
+  <text x="90" y="170" text-anchor="middle" class="dg-t3" font-size="9">写订单库</text>
+  <!-- ③ commit / rollback -->
+  <line x1="90" y1="200" x2="360" y2="200" stroke="var(--blue)" stroke-width="1.6" marker-end="url(#dist02-mq-ah-b)"/>
+  <text x="225" y="194" text-anchor="middle" class="dg-blue" font-size="10" font-weight="600">③ commit / rollback</text>
+  <text x="225" y="215" text-anchor="middle" class="dg-t3" font-size="9">commit → 转正常消息 · rollback → 删除</text>
+  <!-- ④ deliver -->
+  <line x1="360" y1="235" x2="630" y2="235" stroke="var(--green)" stroke-width="1.6" marker-end="url(#dist02-mq-ah-g)"/>
+  <text x="495" y="229" text-anchor="middle" class="dg-green" font-size="10" font-weight="600">④ 投递消息</text>
+  <!-- ⑤ 回查 (兜底, dashed) -->
+  <path d="M 360 260 Q 230 280 90 260" fill="none" stroke="var(--purple)" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#dist02-mq-ah-r)"/>
+  <text x="225" y="275" text-anchor="middle" class="dg-purple" font-size="10" font-weight="600">⑤ 兜底 · 事务状态回查（若 ③ 丢失）</text>
+</svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 Seata -->
+    <div class="sec" id="seata"><span class="sn">09</span>Seata 框架</div>
+    <div class="card">
+      <div class="ct">Seata 的三个角色</div>
+      <p>Seata 是阿里开源的分布式事务框架，对外提供 AT / TCC / Saga / XA <span class="kw">四种模式</span>，全部基于同一套角色模型。</p>
+      <div class="rolebox">
+        <div class="r"><div class="r-n">TC — Transaction Coordinator</div><div class="r-d">事务协调器，独立部署的 Seata Server，负责维护全局事务状态、驱动分支事务的提交或回滚</div></div>
+        <div class="r"><div class="r-n">TM — Transaction Manager</div><div class="r-d">事务管理器，业务应用中的"事务发起方"。开启 / 提交 / 回滚全局事务</div></div>
+        <div class="r"><div class="r-n">RM — Resource Manager</div><div class="r-d">资源管理器，业务应用中的"事务参与方"。注册分支事务，向 TC 上报结果，接受 TC 指令做提交或回滚</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">AT 模式（无侵入）</div>
+      <p>AT = Automatic Transaction，是 Seata 的<span class="kw">默认且最易用</span>的模式。业务代码只需加一个<code>@GlobalTransactional</code>注解，框架自动接管。</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">一阶段：业务 SQL + 自动写 undo_log</div>
+            <div class="step-desc">Seata 拦截业务 SQL，在执行前后分别<span class="kw">查询数据快照</span>，把"修改前镜像 + 修改后镜像"写入 undo_log 表（与业务表同库）。本地事务直接提交，<span class="kw">立即释放行锁</span></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">二阶段：异步提交或回滚</div>
+            <div class="step-desc">全局事务成功 → TC 通知 RM 异步删除 undo_log；失败 → RM 读 undo_log 中的"修改前镜像"反向生成 SQL 回滚数据</div>
+          </div>
+        </div>
+      </div>
+      <div class="note warn"><strong>AT 模式的隔离性问题</strong>：一阶段就提交本地事务释放行锁，意味着其他事务<span class="kw">能立刻看到"未最终提交"的脏数据</span>。Seata 通过 <code>SELECT ... FOR UPDATE</code> 改写 + 全局锁来解决，但仍有性能折损。AT 适合 CRUD 中等并发场景，不适合高并发热点账户。</div>
+    </div>
+    <div class="card">
+      <div class="ct">四种模式选型</div>
+      <table class="tbl">
+        <tr><th>模式</th><th>业务侵入</th><th>性能</th><th>一致性</th><th>适用</th></tr>
+        <tr><td>AT</td><td>无（注解）</td><td>中</td><td>最终一致</td><td>简单 CRUD、跨库事务</td></tr>
+        <tr><td>TCC</td><td>大（三方法）</td><td>高</td><td>强一致</td><td>核心账务、高并发</td></tr>
+        <tr><td>Saga</td><td>中（补偿方法）</td><td>高</td><td>最终一致</td><td>长流程、跨组织</td></tr>
+        <tr><td>XA</td><td>无</td><td>低</td><td>强一致</td><td>传统行业、低并发</td></tr>
+      </table>
+    </div>
+
+    <!-- 10 选型 -->
+    <div class="sec" id="choose"><span class="sn">10</span>方案选型矩阵</div>
+    <div class="card">
+      <div class="ct">四维对比</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>一致性</th><th>性能</th><th>复杂度</th><th>业务侵入</th></tr>
+        <tr><td>2PC / XA</td><td>强一致</td><td>低</td><td>中</td><td>低（框架管）</td></tr>
+        <tr><td>TCC</td><td>强一致</td><td>高</td><td>高</td><td>高（拆三方法 + 防空回滚/悬挂）</td></tr>
+        <tr><td>Saga</td><td>最终一致</td><td>高</td><td>中</td><td>中（写补偿）</td></tr>
+        <tr><td>本地消息表</td><td>最终一致</td><td>高</td><td>低</td><td>低（加一张表）</td></tr>
+        <tr><td>MQ 事务消息</td><td>最终一致</td><td>高</td><td>中</td><td>中（实现回查）</td></tr>
+        <tr><td>Seata AT</td><td>最终一致</td><td>中</td><td>低</td><td>无（注解）</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">常见业务场景的推荐方案</div>
+      <ul class="dl">
+        <li><span class="b">▸</span><span><strong class="kw">支付扣款</strong>（强一致 + 高并发）：TCC。资源预冻结模型天然适合账务</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">下单扣库存</strong>（最终一致即可）：MQ 事务消息 / 本地消息表，性能好实现简单</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">订单履约</strong>（长流程、多服务）：Saga，每一步有明确补偿</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">配置中心、注册中心</strong>（CP 系统）：直接走 Raft/ZAB 共识，不需要传统分布式事务</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">异构数据源（MySQL + Oracle）的金融场景</strong>：XA / Seata XA，传统行业能接受性能损失</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">普通 CRUD 跨库</strong>（既不想写 TCC 又对性能不敏感）：Seata AT，业务无侵入</span></li>
+      </ul>
+      <div class="note good"><strong>选型口诀</strong>：先问<span class="kw">一致性要求</span>—— 能接受最终一致就别用强一致方案。再问<span class="kw">业务侵入承受度</span>—— 不想改业务就 Seata AT、本地消息表，能改就 TCC、Saga。最后看<span class="kw">团队能力</span>—— Seata 部署成本、TCC 三个坑、Saga 补偿设计，都是真实门槛。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

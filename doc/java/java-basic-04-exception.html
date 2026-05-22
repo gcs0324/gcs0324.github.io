@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 异常 / IO / NIO</title>
+<style>
+header::before{content:'EXCEPTION'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-java-basic.js"></script>
+<header>
+  <div class="htag">JAVA BASIC · 04 · IO</div>
+  <h1>Java 异常 / IO / NIO</h1>
+  <p class="sub">异常体系 · checked vs unchecked · BIO · NIO Channel/Selector · AIO</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#hierarchy">1. 异常体系</a>
+  <a class="sb-link" href="#checked">2. checked vs unchecked</a>
+  <a class="sb-link" href="#best">3. 异常最佳实践</a>
+  <a class="sb-link" href="#bio">4. BIO 模型</a>
+  <a class="sb-link" href="#nio">5. NIO 核心</a>
+  <a class="sb-link" href="#aio">6. AIO 模型</a>
+  <a class="sb-link" href="#compare">7. IO 模型对比</a>
+</aside>
+<main>
+  <h2 class="sec" id="hierarchy">1. 异常体系</h2>
+  <pre>Throwable
+├── Error（严重错误，JVM 层面，通常不处理）
+│   ├── OutOfMemoryError
+│   ├── StackOverflowError
+│   └── NoClassDefFoundError
+└── Exception
+    ├── RuntimeException（非受检异常）
+    │   ├── NullPointerException
+    │   ├── ArrayIndexOutOfBoundsException
+    │   ├── ClassCastException
+    │   ├── IllegalArgumentException
+    │   └── ConcurrentModificationException
+    └── 受检异常（Checked Exception）
+        ├── IOException
+        ├── SQLException
+        └── ClassNotFoundException</pre>
+
+  <h2 class="sec" id="checked">2. checked vs unchecked</h2>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>受检异常（Checked）</th><th>非受检异常（Unchecked）</th></tr>
+    <tr><td>继承</td><td>Exception（非 RuntimeException）</td><td>RuntimeException 或 Error</td></tr>
+    <tr><td>编译要求</td><td>必须 try-catch 或 throws 声明</td><td>无需声明</td></tr>
+    <tr><td>语义</td><td>可恢复的外部错误（IO、网络）</td><td>编程错误、不可恢复</td></tr>
+    <tr><td>典型例子</td><td>IOException, SQLException</td><td>NPE, ArrayIndexOutOfBounds</td></tr>
+    <tr><td>业界争议</td><td>Spring 推荐转为非受检抛出</td><td>更简洁</td></tr>
+  </table></div>
+  <div class="tip">💡 Spring 将大量受检异常（如 SQLException）包装为 DataAccessException（非受检），调用者无需强制处理，更简洁。</div>
+
+  <h2 class="sec" id="best">3. 异常最佳实践</h2>
+  <h3>try-with-resources（JDK 7）</h3>
+  <pre>// AutoCloseable 资源自动关闭
+try (InputStream in = new FileInputStream("f.txt");
+     BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+    String line;
+    while ((line = br.readLine()) != null) { ... }
+} catch (IOException e) {
+    log.error("read failed", e);
+}
+// 编译器自动生成 finally 中的 close()，抑制异常通过 addSuppressed 保留</pre>
+  <h3>常见反模式</h3>
+  <ul>
+    <li>❌ <code>catch(Exception e){}</code> 吞掉异常，排查极难</li>
+    <li>❌ <code>e.printStackTrace()</code> 生产用日志框架</li>
+    <li>❌ 用异常控制业务流程（性能差）</li>
+    <li>❌ 抛出过于宽泛的异常 <code>throws Exception</code></li>
+    <li>✅ 携带上下文信息：<code>new ServiceException("userId=" + id, e)</code></li>
+    <li>✅ 层间转换：DAO 层的 SQLException → Service 层业务异常</li>
+  </ul>
+  <pre>// 自定义业务异常（推荐）
+public class BizException extends RuntimeException {
+    private final int code;
+    public BizException(int code, String msg) {
+        super(msg);
+        this.code = code;
+    }
+    public BizException(int code, String msg, Throwable cause) {
+        super(msg, cause);
+        this.code = code;
+    }
+}</pre>
+
+  <h2 class="sec" id="bio">4. BIO 模型</h2>
+  <p>BIO（Blocking I/O）：每个连接一个线程，阻塞等待 IO 完成。简单但不适合高并发。</p>
+  <pre>// BIO 服务器：每连接创建一个线程
+ServerSocket server = new ServerSocket(8080);
+while (true) {
+    Socket socket = server.accept();  // 阻塞等待连接
+    new Thread(() -> handle(socket)).start(); // 一连接一线程
+}
+// 问题：C10K —— 1万连接需要1万线程，内存爆炸</pre>
+
+  <h2 class="sec" id="nio">5. NIO 核心</h2>
+  <p>NIO（Non-blocking I/O，JDK 1.4）：多路复用，单线程处理多个连接。三大核心：<strong>Buffer、Channel、Selector</strong>。</p>
+  <div class="table-wrap"><table>
+    <tr><th>组件</th><th>说明</th><th>关键方法</th></tr>
+    <tr><td>Buffer</td><td>数据容器（ByteBuffer等），有 position/limit/capacity</td><td>put/get/flip/clear/compact</td></tr>
+    <tr><td>Channel</td><td>双向数据通道（vs BIO 的单向 Stream）</td><td>read/write/register</td></tr>
+    <tr><td>Selector</td><td>IO 多路复用，监听多个 Channel 事件</td><td>select/selectedKeys/register</td></tr>
+  </table></div>
+  <pre>// NIO Selector 服务器模型（简化）
+Selector selector = Selector.open();
+ServerSocketChannel ssc = ServerSocketChannel.open();
+ssc.configureBlocking(false);   // 非阻塞模式
+ssc.register(selector, SelectionKey.OP_ACCEPT);
+
+while (true) {
+    selector.select();  // 阻塞直到有事件
+    Set&lt;SelectionKey&gt; keys = selector.selectedKeys();
+    for (SelectionKey key : keys) {
+        if (key.isAcceptable()) {
+            SocketChannel sc = ssc.accept();
+            sc.configureBlocking(false);
+            sc.register(selector, SelectionKey.OP_READ);
+        } else if (key.isReadable()) {
+            SocketChannel sc = (SocketChannel) key.channel();
+            ByteBuffer buf = ByteBuffer.allocate(1024);
+            sc.read(buf);
+            // 处理数据...
+        }
+    }
+    keys.clear();
+}</pre>
+  <div class="tip">💡 Netty 基于 NIO 实现，封装了 Selector 的复杂性，提供 EventLoop、Pipeline、Handler 抽象，是高性能网络框架的事实标准。</div>
+
+  <h2 class="sec" id="aio">6. AIO 模型</h2>
+  <p>AIO（Asynchronous I/O，JDK 7）：真正的异步，IO 操作完成后回调通知，适合长连接/大文件传输。Linux 下基于 epoll 模拟，Windows 下基于 IOCP 原生支持。</p>
+  <pre>AsynchronousSocketChannel asc = AsynchronousSocketChannel.open();
+asc.read(buffer, null, new CompletionHandler&lt;Integer,Void&gt;() {
+    @Override public void completed(Integer result, Void attachment) {
+        // IO 完成回调
+    }
+    @Override public void failed(Throwable e, Void attachment) {
+        // 异常处理
+    }
+});</pre>
+
+  <h2 class="sec" id="compare">7. IO 模型对比</h2>
+  <div class="table-wrap"><table>
+    <tr><th>模型</th><th>特点</th><th>线程数</th><th>适用场景</th></tr>
+    <tr><td>BIO</td><td>同步阻塞，简单直观</td><td>连接数量</td><td>连接数少，调试简单</td></tr>
+    <tr><td>NIO</td><td>同步非阻塞，多路复用</td><td>少量（EventLoop）</td><td>高并发短连接（HTTP）</td></tr>
+    <tr><td>AIO</td><td>异步非阻塞，回调通知</td><td>更少</td><td>高并发长连接、大文件</td></tr>
+    <tr><td>Netty</td><td>封装 NIO，Reactor 模式</td><td>Boss+Worker 分离</td><td>生产推荐，RPC/IM/游戏</td></tr>
+  </table></div>
+  <h3>Linux 底层 IO 多路复用对比</h3>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>select</th><th>poll</th><th>epoll</th></tr>
+    <tr><td>FD 上限</td><td>1024</td><td>无限制</td><td>无限制</td></tr>
+    <tr><td>遍历方式</td><td>线性扫描</td><td>线性扫描</td><td>事件通知（O(1)）</td></tr>
+    <tr><td>内存拷贝</td><td>每次 select 拷贝</td><td>每次拷贝</td><td>mmap 共享内存</td></tr>
+    <tr><td>适用</td><td>少量FD、跨平台</td><td>少量FD</td><td>Linux 高并发推荐</td></tr>
+  </table></div>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

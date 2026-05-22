@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 集合框架</title>
+<style>
+header::before{content:'COLLECTION'}
+.danger{background:var(--red-bg);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-java-basic.js"></script>
+<header>
+  <div class="htag">JAVA BASIC · 02 · 集合</div>
+  <h1>Java 集合框架</h1>
+  <p class="sub">List · HashMap 原理 · Set · Queue · 迭代器 · fail-fast</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#overview">1. 集合体系总览</a>
+  <a class="sb-link" href="#list">2. List 详解</a>
+  <a class="sb-link" href="#map">3. HashMap 原理</a>
+  <a class="sb-link" href="#set">4. Set 与 TreeMap</a>
+  <a class="sb-link" href="#queue">5. Queue / Deque</a>
+  <a class="sb-link" href="#iterator">6. 迭代器 & fail-fast</a>
+  <a class="sb-link" href="#choose">7. 如何选型</a>
+</aside>
+<main>
+  <h2 class="sec" id="overview">1. 集合体系总览</h2>
+  <pre>Collection
+├── List（有序、可重复）
+│   ├── ArrayList
+│   ├── LinkedList
+│   └── Vector（已过时，用 CopyOnWriteArrayList）
+├── Set（无序、不重复）
+│   ├── HashSet（基于 HashMap）
+│   ├── LinkedHashSet（插入有序）
+│   └── TreeSet（排序，基于 TreeMap）
+└── Queue（队列）
+    ├── PriorityQueue（堆）
+    ├── ArrayDeque（双端队列）
+    └── LinkedList（实现 Deque）
+
+Map（键值对，独立体系）
+├── HashMap
+├── LinkedHashMap（插入/访问顺序）
+├── TreeMap（键排序）
+├── Hashtable（已过时）
+└── ConcurrentHashMap（线程安全）</pre>
+
+  <h2 class="sec" id="list">2. List 详解</h2>
+  <h3>ArrayList vs LinkedList</h3>
+  <div class="table-wrap"><table>
+    <tr><th>对比</th><th>ArrayList</th><th>LinkedList</th></tr>
+    <tr><td>底层结构</td><td>动态数组（Object[]）</td><td>双向链表（Node）</td></tr>
+    <tr><td>随机访问</td><td>O(1)</td><td>O(n)</td></tr>
+    <tr><td>头/尾插入</td><td>O(n)（头部需移位）/ O(1) 尾</td><td>O(1)</td></tr>
+    <tr><td>中间插入/删除</td><td>O(n)（需移位）</td><td>O(n)（需遍历找位置）</td></tr>
+    <tr><td>内存</td><td>连续，缓存友好</td><td>每节点额外 prev/next 指针</td></tr>
+    <tr><td>扩容</td><td>1.5 倍扩容，Arrays.copyOf</td><td>无需扩容</td></tr>
+    <tr><td>适用</td><td>查多改少，随机访问</td><td>频繁头尾操作（队列/栈）</td></tr>
+  </table></div>
+  <h3>ArrayList 扩容机制</h3>
+  <pre>// 默认初始容量 10
+private static final int DEFAULT_CAPACITY = 10;
+
+// 扩容：新容量 = 旧容量 + 旧容量 >> 1（即 * 1.5）
+int newCapacity = oldCapacity + (oldCapacity >> 1);
+elementData = Arrays.copyOf(elementData, newCapacity);</pre>
+  <div class="tip">💡 预估容量时使用 <code>new ArrayList<>(capacity)</code> 避免多次扩容，提高性能。</div>
+
+  <h2 class="sec" id="map">3. HashMap 原理</h2>
+  <h3>JDK 8 结构</h3>
+  <p><strong>数组 + 链表 + 红黑树</strong>。初始容量 16，负载因子 0.75，链表长度 ≥ 8 且数组容量 ≥ 64 时转红黑树，红黑树节点 ≤ 6 退化为链表。</p>
+  <h3>put() 流程</h3>
+  <pre>1. 计算 key.hashCode()，扰动：hash = (h = key.hashCode()) ^ (h >>> 16)
+2. 若 table 为 null 或长度为 0 → resize() 初始化
+3. index = (n-1) & hash，若 table[index] 为 null → 直接插入
+4. 若 table[index] 不为 null：
+   a. key 相同（hash 相等 && equals） → 覆盖 value
+   b. 节点为 TreeNode → 红黑树插入
+   c. 否则链表尾插，插入后若链表长度 >= 8 → treeifyBin()
+5. size > threshold(capacity * loadFactor) → resize()（2 倍扩容）</pre>
+  <div class="table-wrap"><table>
+    <tr><th>版本</th><th>JDK 7</th><th>JDK 8</th></tr>
+    <tr><td>数据结构</td><td>数组 + 链表</td><td>数组 + 链表 + 红黑树</td></tr>
+    <tr><td>链表插入</td><td>头插法（多线程扩容可能死循环）</td><td>尾插法</td></tr>
+    <tr><td>hash 计算</td><td>4次扰动</td><td>1次扰动（h ^ h>>>16）</td></tr>
+    <tr><td>扩容</td><td>重新 hash 分配</td><td>高位为 0 不动，高位为 1 移到 oldCap+原位置</td></tr>
+  </table></div>
+  <div class="danger">⚠️ HashMap 非线程安全。多线程环境下使用 <code>ConcurrentHashMap</code>（JDK8 CAS + synchronized 对链表头/红黑树根节点加锁）。</div>
+  <h3>为什么容量必须是 2 的幂？</h3>
+  <p>索引计算用 <code>(n-1) & hash</code> 替代取模 <code>hash % n</code>，位运算更快；且 n 为 2 的幂时 n-1 全为 1，分布更均匀。</p>
+
+  <h2 class="sec" id="set">4. Set 与 TreeMap</h2>
+  <h3>HashSet</h3>
+  <p>底层是 HashMap，key 存元素，value 存 <code>PRESENT</code>（静态 Object 占位符）。添加元素时调用 HashMap.put()，若已存在则返回 false。</p>
+  <h3>LinkedHashMap / LinkedHashSet</h3>
+  <p>在 HashMap 基础上维护双向链表记录插入顺序（或访问顺序，accessOrder=true 时 get 会将节点移到尾部，用于实现 LRU 缓存）。</p>
+  <pre>// LRU 缓存（面试高频）
+Map&lt;K,V&gt; lru = new LinkedHashMap&lt;&gt;(16, 0.75f, true) {
+    protected boolean removeEldestEntry(Map.Entry&lt;K,V&gt; e) {
+        return size() > MAX_SIZE;
+    }
+};</pre>
+  <h3>TreeMap</h3>
+  <p>底层红黑树，按 key 自然顺序或 Comparator 排序。常用方法：<code>firstKey()</code>/<code>lastKey()</code>/<code>headMap()</code>/<code>tailMap()</code>/<code>subMap()</code>。</p>
+  <div class="tip">💡 TreeMap key 必须实现 Comparable 或提供 Comparator，否则 put 时 ClassCastException。</div>
+
+  <h2 class="sec" id="queue">5. Queue / Deque</h2>
+  <div class="table-wrap"><table>
+    <tr><th>实现类</th><th>结构</th><th>线程安全</th><th>特点</th></tr>
+    <tr><td>ArrayDeque</td><td>循环数组</td><td>❌</td><td>无容量限制，比 LinkedList 快，可作栈/队列</td></tr>
+    <tr><td>PriorityQueue</td><td>最小堆</td><td>❌</td><td>按优先级出队，O(log n) 插入/删除</td></tr>
+    <tr><td>LinkedBlockingQueue</td><td>链表</td><td>✅</td><td>可选界，put/take 阻塞，生产者-消费者</td></tr>
+    <tr><td>ArrayBlockingQueue</td><td>数组</td><td>✅</td><td>有界，一把锁，吞吐低于 LinkedBlocking</td></tr>
+    <tr><td>ConcurrentLinkedQueue</td><td>链表</td><td>✅</td><td>无界，CAS 无锁，高并发</td></tr>
+  </table></div>
+  <div class="table-wrap"><table>
+    <tr><th>操作</th><th>抛异常</th><th>返回特殊值</th><th>阻塞</th><th>超时</th></tr>
+    <tr><td>插入</td><td>add(e)</td><td>offer(e)</td><td>put(e)</td><td>offer(e,t,u)</td></tr>
+    <tr><td>删除</td><td>remove()</td><td>poll()</td><td>take()</td><td>poll(t,u)</td></tr>
+    <tr><td>检查</td><td>element()</td><td>peek()</td><td>-</td><td>-</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="iterator">6. 迭代器 & fail-fast</h2>
+  <h3>fail-fast 机制</h3>
+  <p>迭代器通过 <code>modCount</code>（结构修改次数）检测并发修改。每次迭代调用 <code>next()</code> 时检查 <code>modCount == expectedModCount</code>，不一致则抛出 <code>ConcurrentModificationException</code>。</p>
+  <pre>// 错误：迭代时 list.remove() 修改了 modCount
+for (String s : list) {
+    if ("del".equals(s)) list.remove(s); // ❌ ConcurrentModificationException
+}
+
+// 正确方式1：Iterator.remove()
+Iterator&lt;String&gt; it = list.iterator();
+while (it.hasNext()) {
+    if ("del".equals(it.next())) it.remove(); // ✅ 同步 expectedModCount
+}
+
+// 正确方式2：removeIf（JDK 8）
+list.removeIf(s -> "del".equals(s)); // ✅</pre>
+  <div class="tip">💡 <code>CopyOnWriteArrayList</code> 是 fail-safe，迭代快照数组，不抛异常，但读取的可能是旧数据。</div>
+
+  <h2 class="sec" id="choose">7. 如何选型</h2>
+  <div class="table-wrap"><table>
+    <tr><th>场景</th><th>推荐</th><th>原因</th></tr>
+    <tr><td>频繁随机访问</td><td>ArrayList</td><td>O(1) 随机访问</td></tr>
+    <tr><td>频繁头尾插删</td><td>ArrayDeque</td><td>比 LinkedList 快（无额外指针开销）</td></tr>
+    <tr><td>键值映射（无序）</td><td>HashMap</td><td>O(1) 读写</td></tr>
+    <tr><td>键值映射（有序）</td><td>TreeMap</td><td>红黑树，O(log n)</td></tr>
+    <tr><td>LRU 缓存</td><td>LinkedHashMap</td><td>访问顺序 + removeEldestEntry</td></tr>
+    <tr><td>去重集合</td><td>HashSet</td><td>O(1) 判断</td></tr>
+    <tr><td>多线程安全 Map</td><td>ConcurrentHashMap</td><td>分段锁/CAS，高并发</td></tr>
+    <tr><td>多线程安全 List</td><td>CopyOnWriteArrayList</td><td>读多写少场景</td></tr>
+    <tr><td>优先级排队</td><td>PriorityQueue</td><td>最小堆，O(log n)</td></tr>
+    <tr><td>阻塞队列（生产消费）</td><td>LinkedBlockingQueue</td><td>阻塞 put/take</td></tr>
+  </table></div>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

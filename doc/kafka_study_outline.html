@@ -1,0 +1,348 @@
+
+<style>
+  :root { --indent: 1.25rem; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .wrap { padding: 1.5rem 0; }
+  .chapter {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    background: var(--color-background-primary);
+  }
+  .ch-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    user-select: none;
+    background: var(--color-background-secondary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .ch-header:hover { background: var(--color-background-tertiary); }
+  .badge {
+    font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-blue { background: #E6F1FB; color: #0C447C; }
+  .badge-teal { background: #E1F5EE; color: #085041; }
+  .badge-amber { background: #FAEEDA; color: #633806; }
+  .badge-red { background: #FCEBEB; color: #791F1F; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-coral { background: #FAECE7; color: #712B13; }
+  .badge-green { background: #EAF3DE; color: #27500A; }
+  .badge-gray { background: #F1EFE8; color: #444441; }
+  .ch-num {
+    font-size: 12px; font-weight: 500;
+    min-width: 24px; height: 24px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ch-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+  .ch-meta { font-size: 12px; color: var(--color-text-secondary); }
+  .chevron { font-size: 14px; color: var(--color-text-secondary); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+  .ch-body { padding: 0.75rem 1.1rem 1rem; }
+  .section { margin-bottom: 0.6rem; }
+  .sec-title {
+    font-size: 13px; font-weight: 500; color: var(--color-text-primary);
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 0;
+  }
+  .sec-title i { font-size: 14px; color: var(--color-text-secondary); }
+  .items { padding-left: var(--indent); }
+  .item {
+    font-size: 13px; color: var(--color-text-secondary);
+    line-height: 1.7;
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .item::before { content: "·"; color: var(--color-text-secondary); flex-shrink: 0; }
+  .tag-hot { font-size: 10px; color: #993C1D; background: #FAECE7; border-radius: 4px; padding: 1px 5px; font-weight: 500; }
+  .tag-key { font-size: 10px; color: #185FA5; background: #E6F1FB; border-radius: 4px; padding: 1px 5px; font-weight: 500; }
+  .tag-new { font-size: 10px; color: #085041; background: #E1F5EE; border-radius: 4px; padding: 1px 5px; font-weight: 500; }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 0.5rem 0; }
+  .overview {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .ov-card {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 0.65rem 0.8rem;
+    text-align: center;
+  }
+  .ov-num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .ov-label { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  @media (prefers-color-scheme: dark) {
+    .badge-blue { background: #0C447C; color: #B5D4F4; }
+    .badge-teal { background: #085041; color: #9FE1CB; }
+    .badge-amber { background: #633806; color: #FAC775; }
+    .badge-red { background: #791F1F; color: #F7C1C1; }
+    .badge-purple { background: #3C3489; color: #CECBF6; }
+    .badge-coral { background: #712B13; color: #F5C4B3; }
+    .badge-green { background: #27500A; color: #C0DD97; }
+    .badge-gray { background: #444441; color: #D3D1C7; }
+    .tag-hot { background: #712B13; color: #F5C4B3; }
+    .tag-key { background: #0C447C; color: #B5D4F4; }
+    .tag-new { background: #085041; color: #9FE1CB; }
+  }
+</style>
+<div class="wrap">
+  <h2 style="font-size:11px;position:absolute;left:-9999px">Kafka 系统复习文档大纲 — Java 高级工程师视角</h2>
+
+  <div class="overview">
+    <div class="ov-card"><div class="ov-num">10</div><div class="ov-label">核心章节</div></div>
+    <div class="ov-card"><div class="ov-num">60+</div><div class="ov-label">知识点</div></div>
+    <div class="ov-card"><div class="ov-num">30+</div><div class="ov-label">高频面试题</div></div>
+    <div class="ov-card"><div class="ov-num">15+</div><div class="ov-label">生产实践</div></div>
+  </div>
+
+  <div id="chapters"></div>
+</div>
+
+<script>
+const data = [
+  {
+    num: "01", title: "Kafka 基础架构与核心概念",
+    badge: "基础必备", badgeClass: "badge-blue", icon: "ti-layout-distribute-horizontal", meta: "面试必考",
+    sections: [
+      { title: "整体架构", icon: "ti-hierarchy", items: [
+        ["Kafka 在消息系统中的定位（对比 RabbitMQ / RocketMQ）", "key"],
+        ["核心组件：Broker、Topic、Partition、Replica", "key"],
+        ["Producer / Consumer / Consumer Group 角色模型", "key"],
+        ["ZooKeeper 的职责与 KRaft 模式（去 ZK）", "hot"],
+      ]},
+      { title: "消息模型", icon: "ti-messages", items: [
+        ["点对点 vs 发布订阅模型", ""],
+        ["Offset 机制与消息定位", "key"],
+        ["Log Segment 文件结构（.log / .index / .timeindex）", "key"],
+        ["消息格式 RecordBatch 结构（V2）", ""],
+      ]},
+    ]
+  },
+  {
+    num: "02", title: "Producer 深度解析",
+    badge: "高频考点", badgeClass: "badge-coral", icon: "ti-send", meta: "5 道高频面试题",
+    sections: [
+      { title: "发送流程", icon: "ti-route", items: [
+        ["Producer 完整发送链路（拦截器 → 序列化 → 分区器 → RecordAccumulator）", "key"],
+        ["ProducerBatch 与 BufferPool 内存管理", "key"],
+        ["Sender 线程与 NetworkClient 交互模型", ""],
+      ]},
+      { title: "可靠性保障", icon: "ti-shield-check", items: [
+        ["acks = 0 / 1 / -1(all) 的区别与适用场景", "hot"],
+        ["幂等性 Producer（enable.idempotence）原理", "hot"],
+        ["事务 Producer 实现跨分区原子写入", "hot"],
+        ["消息重试与重复发送问题处理", "key"],
+      ]},
+      { title: "性能调优", icon: "ti-rocket", items: [
+        ["batch.size / linger.ms 批量发送调优", "key"],
+        ["compression.type 压缩对比（Snappy / LZ4 / ZSTD）", ""],
+        ["max.in.flight.requests.per.connection 与顺序保证", "hot"],
+      ]},
+    ]
+  },
+  {
+    num: "03", title: "Consumer 深度解析",
+    badge: "高频考点", badgeClass: "badge-coral", icon: "ti-device-desktop-down", meta: "6 道高频面试题",
+    sections: [
+      { title: "消费模型", icon: "ti-git-branch", items: [
+        ["Consumer Group 负载均衡机制", "key"],
+        ["Rebalance 触发条件与全流程（JoinGroup / SyncGroup）", "hot"],
+        ["静态成员（static membership）减少 Rebalance", "key"],
+        ["push vs pull 模式对比", ""],
+      ]},
+      { title: "Offset 管理", icon: "ti-bookmark", items: [
+        ["自动提交 vs 手动提交（commitSync / commitAsync）", "hot"],
+        ["__consumer_offsets 内部 Topic 存储原理", "key"],
+        ["消费位移重置（earliest / latest / 指定 offset）", "key"],
+      ]},
+      { title: "消费语义", icon: "ti-checks", items: [
+        ["At-most-once / At-least-once / Exactly-once 对比", "hot"],
+        ["消费端幂等设计实践（数据库唯一键 / Redis 去重）", "hot"],
+        ["ConsumerRecord 反序列化与异常处理", ""],
+      ]},
+    ]
+  },
+  {
+    num: "04", title: "Broker 存储机制",
+    badge: "原理深度", badgeClass: "badge-purple", icon: "ti-server", meta: "存储核心",
+    sections: [
+      { title: "日志存储", icon: "ti-file-text", items: [
+        ["日志分段（Log Segment）滚动策略", "key"],
+        ["稀疏索引（Offset Index / Time Index）结构", "key"],
+        ["顺序写与 Page Cache 利用（零拷贝基础）", "hot"],
+      ]},
+      { title: "零拷贝与高性能 I/O", icon: "ti-bolt", items: [
+        ["sendfile 系统调用实现零拷贝原理", "hot"],
+        ["mmap 在索引文件中的应用", "key"],
+        ["DMA 传输与 CPU 拷贝次数对比", ""],
+      ]},
+      { title: "日志清理", icon: "ti-trash", items: [
+        ["日志保留策略（时间 / 大小 / offset）", "key"],
+        ["日志压缩（Log Compaction）原理与适用场景", "key"],
+        ["cleaner 线程工作机制", ""],
+      ]},
+    ]
+  },
+  {
+    num: "05", title: "分区与副本机制",
+    badge: "高可用核心", badgeClass: "badge-teal", icon: "ti-copy", meta: "4 道高频面试题",
+    sections: [
+      { title: "副本模型", icon: "ti-layers-intersect", items: [
+        ["Leader / Follower 副本同步原理", "key"],
+        ["ISR（In-Sync Replicas）动态维护机制", "hot"],
+        ["LEO / HW / LSO 关键水位线含义", "hot"],
+        ["Follower 拉取数据 Fetch 流程", ""],
+      ]},
+      { title: "Leader 选举", icon: "ti-crown", items: [
+        ["Leader 选举触发时机与选举策略", "hot"],
+        ["Unclean Leader Election 与数据一致性权衡", "key"],
+        ["Controller 的职责与选举机制", "key"],
+      ]},
+      { title: "分区策略", icon: "ti-layout-columns", items: [
+        ["默认分区器（轮询 / 黏性分区）", "key"],
+        ["自定义分区器实践（按 key hash）", ""],
+        ["分区数量规划与扩容影响", "hot"],
+      ]},
+    ]
+  },
+  {
+    num: "06", title: "Kafka 事务与 Exactly-Once",
+    badge: "高级特性", badgeClass: "badge-amber", icon: "ti-lock-square", meta: "架构面试必考",
+    sections: [
+      { title: "事务机制", icon: "ti-transaction-bitcoin", items: [
+        ["事务 API 使用（initTransactions / beginTransaction / commitTransaction）", "key"],
+        ["Transaction Coordinator 与事务日志", "hot"],
+        ["两阶段提交（2PC）在 Kafka 中的实现", "hot"],
+        ["事务性 ID（transactional.id）与 epoch 机制", "key"],
+      ]},
+      { title: "Exactly-Once 语义", icon: "ti-check-circle", items: [
+        ["Producer 幂等 + 事务 实现端到端 EOS", "hot"],
+        ["Consumer 事务隔离级别（read_committed / read_uncommitted）", "key"],
+        ["与下游系统（DB / Flink）协同实现 EOS", "key"],
+      ]},
+    ]
+  },
+  {
+    num: "07", title: "集群运维与监控",
+    badge: "生产实践", badgeClass: "badge-green", icon: "ti-settings", meta: "实际工作必备",
+    sections: [
+      { title: "集群管理", icon: "ti-server-2", items: [
+        ["Broker 扩缩容流程与分区再均衡（kafka-reassign-partitions）", "key"],
+        ["KRaft 模式部署（Kafka 3.x 去 ZooKeeper）", "new"],
+        ["MirrorMaker 2 跨集群数据同步", "key"],
+      ]},
+      { title: "关键参数调优", icon: "ti-adjustments", items: [
+        ["Broker 端：num.io.threads / num.network.threads / log.flush 系列", "key"],
+        ["JVM GC 调优（G1GC 参数推荐）", "key"],
+        ["OS 层：文件描述符 / 网络缓冲区 / 页缓存预热", ""],
+      ]},
+      { title: "监控指标", icon: "ti-chart-line", items: [
+        ["关键 JMX 指标（UnderReplicatedPartitions / RequestHandlerAvgIdlePercent）", "hot"],
+        ["Consumer Lag 监控与告警策略", "hot"],
+        ["Kafka + Prometheus + Grafana 监控体系搭建", ""],
+      ]},
+    ]
+  },
+  {
+    num: "08", title: "高性能与高可用设计",
+    badge: "架构必知", badgeClass: "badge-purple", icon: "ti-rocket", meta: "系统设计面试",
+    sections: [
+      { title: "高性能设计要点", icon: "ti-bolt", items: [
+        ["顺序写 + PageCache + 零拷贝三驾马车原理串联", "hot"],
+        ["批量读写 + 消息压缩 对吞吐的影响量化", "key"],
+        ["Reactor 网络模型（Acceptor / Processor / Handler）", "key"],
+      ]},
+      { title: "高可用保障", icon: "ti-shield", items: [
+        ["多副本 + ISR 机制保障数据不丢失", "hot"],
+        ["min.insync.replicas 与 acks=-1 组合使用", "hot"],
+        ["Broker 宕机恢复流程与客户端重连", "key"],
+        ["跨机房双活 / 灾备方案", "key"],
+      ]},
+    ]
+  },
+  {
+    num: "09", title: "Kafka Streams 与生态集成",
+    badge: "生态扩展", badgeClass: "badge-teal", icon: "ti-circuit-bulb", meta: "大数据方向",
+    sections: [
+      { title: "Kafka Streams", icon: "ti-git-merge", items: [
+        ["KStream / KTable / GlobalKTable 区别", "key"],
+        ["有状态处理：聚合（aggregate）/ 窗口（windowing）", "key"],
+        ["状态存储（RocksDB）与容错恢复", ""],
+        ["Topology 构建与并发度控制", ""],
+      ]},
+      { title: "生态集成", icon: "ti-plug", items: [
+        ["Kafka Connect 框架与 Source / Sink Connector 开发", "key"],
+        ["Schema Registry + Avro / Protobuf 消息格式治理", "key"],
+        ["与 Flink / Spark Structured Streaming 集成最佳实践", "hot"],
+        ["Spring Kafka 核心注解与使用", "new"],
+      ]},
+    ]
+  },
+  {
+    num: "10", title: "高频面试题汇总 & 故障排查",
+    badge: "面试冲刺", badgeClass: "badge-red", icon: "ti-zoom-question", meta: "30+ 道真题",
+    sections: [
+      { title: "高频面试真题", icon: "ti-list-check", items: [
+        ["Kafka 为什么快？从 5 个维度回答", "hot"],
+        ["消息丢失的场景与防止方案（Producer / Broker / Consumer 三端）", "hot"],
+        ["消息重复消费的原因与幂等设计", "hot"],
+        ["Rebalance 问题排查与优化手段", "hot"],
+        ["如何保证消息顺序性？单分区 vs 多分区方案", "hot"],
+        ["Kafka 与 RocketMQ 深度对比", "hot"],
+      ]},
+      { title: "生产故障排查", icon: "ti-bug", items: [
+        ["Consumer Lag 持续增大的排查思路", "key"],
+        ["Broker OOM / Full GC 问题定位", "key"],
+        ["消息积压处理方案（扩分区 / 消费者扩容 / 限流）", "hot"],
+        ["__consumer_offsets 写满问题处理", ""],
+        ["网络分区导致脑裂问题分析", ""],
+      ]},
+    ]
+  },
+];
+
+function renderItem([text, tag]) {
+  const tagHtml = tag === 'hot' ? '<span class="tag-hot">高频</span>' :
+                  tag === 'key' ? '<span class="tag-key">重点</span>' :
+                  tag === 'new' ? '<span class="tag-new">新特性</span>' : '';
+  return `<div class="item"><span>${text} ${tagHtml}</span></div>`;
+}
+
+function renderChapter(ch, idx) {
+  const sections = ch.sections.map(s => `
+    <div class="section">
+      <div class="sec-title"><i class="ti ${s.icon}" aria-hidden="true"></i>${s.title}</div>
+      <div class="items">${s.items.map(renderItem).join('')}</div>
+    </div>
+  `).join('<div class="divider"></div>');
+
+  return `
+    <div class="chapter" id="ch${idx}">
+      <div class="ch-header" onclick="toggle(${idx})">
+        <span class="ch-num badge ${ch.badgeClass}">${ch.num}</span>
+        <span class="ch-title">${ch.title}</span>
+        <span class="badge ${ch.badgeClass}">${ch.badge}</span>
+        <span class="ch-meta">${ch.meta}</span>
+        <i class="ti ti-chevron-down chevron" id="chv${idx}" aria-hidden="true"></i>
+      </div>
+      <div class="ch-body" id="body${idx}" style="display:none">${sections}</div>
+    </div>
+  `;
+}
+
+document.getElementById('chapters').innerHTML = data.map(renderChapter).join('');
+
+function toggle(idx) {
+  const body = document.getElementById('body' + idx);
+  const chv = document.getElementById('chv' + idx);
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  chv.classList.toggle('open', !open);
+}
+
+toggle(0);
+</script>

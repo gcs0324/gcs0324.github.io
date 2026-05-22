@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 09 · Streams 与生态集成</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'STREAMS';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:88px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px;}.g2,.g3{grid-template-columns:1fr;}.phase-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · 09 · STREAMS &amp; ECOSYSTEM</div>
+  <h1>Kafka Streams 与生态集成</h1>
+  <p class="subtitle">KStream · KTable · 窗口聚合 · RocksDB · Connect · Schema Registry · Flink · Spring</p>
+</header>
+
+<nav>
+  <a href="#abstractions">KStream/KTable</a>
+  <a href="#stateful">有状态处理</a>
+  <a href="#rocksdb">RocksDB</a>
+  <a href="#topology">Topology</a>
+  <a href="#connect">Kafka Connect</a>
+  <a href="#schema">Schema Registry</a>
+  <a href="#flink-spark">Flink / Spark</a>
+  <a href="#spring">Spring Kafka</a>
+</nav>
+
+<main>
+
+<!-- ── abstractions ───────────────────────────────────── -->
+<div class="sec" id="abstractions">KStream / KTable / GlobalKTable 区别</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>类型</th>
+        <th>语义</th>
+        <th>存储</th>
+        <th>分区感知</th>
+        <th>适用场景</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>KStream</td>
+        <td>无限事件流，每条记录独立，不聚合</td>
+        <td>无本地状态（除非 groupBy 后）</td>
+        <td>按分区并行处理</td>
+        <td>日志流、点击流、事件序列</td>
+      </tr>
+      <tr>
+        <td>KTable</td>
+        <td>变更日志，相同 Key 的新值覆盖旧值，快照语义</td>
+        <td>本地 RocksDB 存储最新值</td>
+        <td>与输入 Topic 分区数一致</td>
+        <td>用户资料、配置、数据库变更同步</td>
+      </tr>
+      <tr>
+        <td>GlobalKTable</td>
+        <td>全局 KTable，每个实例加载全量数据</td>
+        <td>每个实例本地存储全量数据（内存/RocksDB）</td>
+        <td>不按分区，所有实例数据一致</td>
+        <td>小维度表广播（地区码、品类信息）</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="g3">
+  <div class="ovc c-o">
+    <div class="ovh">
+      <div class="ovtag">KSTREAM</div>
+      <div class="ovname">事件流</div>
+      <div class="ovsub">每条消息独立处理，无状态覆盖</div>
+    </div>
+    <div class="ovbody">
+      <div class="sc">StreamsBuilder builder = new StreamsBuilder();
+KStream&lt;String, Order&gt; orders =
+    builder.stream("order-topic");
+orders.filter((key, order) -&gt; order.getAmount() &gt; 100)
+      .to("big-order-topic");</div>
+    </div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">KTABLE</div>
+      <div class="ovname">变更日志表</div>
+      <div class="ovsub">相同 Key 新值覆盖旧值，RocksDB 存储</div>
+    </div>
+    <div class="ovbody">
+      <div class="sc">KTable&lt;String, UserProfile&gt; users =
+    builder.table("user-profile-topic",
+        Materialized.as("user-store"));</div>
+    </div>
+  </div>
+  <div class="ovc c-p">
+    <div class="ovh">
+      <div class="ovtag">GLOBALKTABLE</div>
+      <div class="ovname">全局广播表</div>
+      <div class="ovsub">每个实例持有全量数据，适合小维度表</div>
+    </div>
+    <div class="ovbody">
+      <div class="sc">GlobalKTable&lt;String, Region&gt; regions =
+    builder.globalTable("region-table");</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── stateful ───────────────────────────────────────── -->
+<div class="sec" id="stateful">有状态处理：聚合与窗口</div>
+
+<div class="fw c-o">
+  <div class="fwh">
+    <span class="fwb">STATEFUL</span>
+    <span class="fwt">聚合、窗口与流表 Join</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">分组聚合（aggregate）</div>
+        <div class="sd">结果存储在本地 RocksDB State Store，可通过 <strong>Interactive Queries</strong> 直接查询。</div>
+        <div class="sc">orders.groupByKey()
+      .aggregate(
+          () -&gt; 0L,
+          (key, order, total) -&gt; total + order.getAmount(),
+          Materialized.&lt;String, Long, KeyValueStore&lt;...&gt;&gt;
+              as("order-total-store")
+              .withValueSerde(Serdes.Long())
+      );</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">时间窗口（Tumbling Window）</div>
+        <div class="sd"><strong>Tumbling</strong>（固定不重叠）/ <strong>Hopping</strong>（固定重叠）/ <strong>Sliding</strong>（基于事件时间滑动）/ <strong>Session</strong>（基于活跃度的会话窗口）。</div>
+        <div class="sc">orders.groupByKey()
+      .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+      .count(Materialized.as("order-count-5min"));</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">流表 Join</div>
+        <div class="sd">支持：<strong>KStream-KStream Join</strong>（双流 Join，需窗口）/ <strong>KStream-KTable Join</strong>（流表 Join，无窗口）/ <strong>KStream-GlobalKTable Join</strong>（广播 Join，无需 co-partition）。</div>
+        <div class="sc">KStream&lt;String, EnrichedOrder&gt; enriched = orders.join(
+    users,
+    (order, user) -&gt; new EnrichedOrder(order, user.getName())
+);</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">时间语义</div>
+        <div class="sd"><strong>Event Time</strong>（消息中的业务时间戳，最准确，需处理乱序）/ <strong>Processing Time</strong>（Broker 处理时间，简单但可能不准）/ <strong>Ingestion Time</strong>（消息进入 Kafka 的时间）。Kafka Streams 默认 Event Time，通过 <code>TimestampExtractor</code> 自定义提取逻辑。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── rocksdb ─────────────────────────────────────────── -->
+<div class="sec" id="rocksdb">RocksDB 状态存储与容错</div>
+
+<div class="g2">
+  <div class="ovc c-p">
+    <div class="ovh">
+      <div class="ovtag">LOCAL STATE</div>
+      <div class="ovname">本地状态存储</div>
+      <div class="ovsub">LSM Tree 结构，写入高效，延迟极低</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>Kafka Streams 将有状态算子的中间结果存储在<strong>本地 RocksDB</strong>，避免每次都远程查询</li>
+        <li>RocksDB 采用 <strong>LSM Tree</strong> 结构，顺序写入效率极高，读取通过布隆过滤器加速</li>
+        <li>State Store 的数据同时写入内置的 <strong>Changelog Topic</strong>（Kafka Topic），作为持久化备份</li>
+        <li>支持通过 <strong>Interactive Queries</strong> API 直接对外暴露 State Store 查询接口</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">FAULT TOLERANCE</div>
+      <div class="ovname">容错恢复</div>
+      <div class="ovsub">Changelog Topic 重放，热备减少恢复时间</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>实例崩溃重启后，框架从 <strong>Changelog Topic 重放数据</strong>到本地 RocksDB，恢复 State Store</li>
+        <li>恢复时间取决于积压量，可能需要数分钟</li>
+        <li><strong>Standby Replicas</strong>（<code>num.standby.replicas</code>）：在其他实例上预热 State Store</li>
+        <li>故障时热备实例<strong>快速接管</strong>，无需从头重放 Changelog</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-p">
+  <div class="fwh">
+    <span class="fwb">CHANGELOG</span>
+    <span class="fwt">Changelog Topic 机制</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Changelog Topic 命名</div>
+        <div class="sd">自动创建，命名规则：<code>${application.id}-${store-name}-changelog</code>，由 Kafka Streams 框架管理生命周期。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">压缩策略</div>
+        <div class="sd">Changelog Topic 默认配置 <code>cleanup.policy=compact</code>，只保留每个 Key 的最新值，避免无限增长。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Standby Replicas</div>
+        <div class="sd">在其他实例上<strong>预热 State Store</strong>，持续消费 Changelog Topic 保持同步。故障时快速接管，无需从头重放，大幅减少恢复时间。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── topology ───────────────────────────────────────── -->
+<div class="sec" id="topology">Topology 构建与并发度</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">Topology 数据流示意</div>
+  <div class="diag-body">
+    <svg width="700" height="180" viewBox="0 0 700 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Source -->
+      <rect x="20" y="65" width="100" height="50" rx="8" class="dg-box-o"/>
+      <text x="70" y="85" text-anchor="middle" font-size="11" font-weight="700" class="dg-orange">Source</text>
+      <text x="70" y="101" text-anchor="middle" font-size="10" class="dg-t2">order-topic</text>
+      <!-- Arrow -->
+      <line x1="120" y1="90" x2="150" y2="90" class="dg-ln"/>
+      <polygon points="150,85 160,90 150,95" fill="var(--bd2)"/>
+      <!-- Filter -->
+      <rect x="160" y="65" width="100" height="50" rx="8" class="dg-box-b"/>
+      <text x="210" y="85" text-anchor="middle" font-size="11" font-weight="700" class="dg-blue">Filter</text>
+      <text x="210" y="101" text-anchor="middle" font-size="10" class="dg-t2">amount &gt; 100</text>
+      <!-- Arrow -->
+      <line x1="260" y1="90" x2="290" y2="90" class="dg-ln"/>
+      <polygon points="290,85 300,90 290,95" fill="var(--bd2)"/>
+      <!-- MapValues -->
+      <rect x="300" y="65" width="100" height="50" rx="8" class="dg-box-b"/>
+      <text x="350" y="85" text-anchor="middle" font-size="11" font-weight="700" class="dg-blue">MapValues</text>
+      <text x="350" y="101" text-anchor="middle" font-size="10" class="dg-t2">enrich data</text>
+      <!-- Arrow -->
+      <line x1="400" y1="90" x2="430" y2="90" class="dg-ln"/>
+      <polygon points="430,85 440,90 430,95" fill="var(--bd2)"/>
+      <!-- Aggregate -->
+      <rect x="440" y="55" width="120" height="70" rx="8" class="dg-box-p"/>
+      <text x="500" y="78" text-anchor="middle" font-size="11" font-weight="700" class="dg-red" style="fill:var(--purple)">GroupBy+Agg</text>
+      <text x="500" y="94" text-anchor="middle" font-size="10" class="dg-t2">StateStore</text>
+      <text x="500" y="110" text-anchor="middle" font-size="9" class="dg-t3">RocksDB</text>
+      <!-- Arrow -->
+      <line x1="560" y1="90" x2="590" y2="90" class="dg-ln"/>
+      <polygon points="590,85 600,90 590,95" fill="var(--bd2)"/>
+      <!-- Sink -->
+      <rect x="600" y="65" width="80" height="50" rx="8" class="dg-box-g"/>
+      <text x="640" y="85" text-anchor="middle" font-size="11" font-weight="700" class="dg-green">Sink</text>
+      <text x="640" y="101" text-anchor="middle" font-size="10" class="dg-t2">output-topic</text>
+      <!-- Labels -->
+      <text x="70" y="140" text-anchor="middle" font-size="9" class="dg-t3">SOURCE</text>
+      <text x="210" y="140" text-anchor="middle" font-size="9" class="dg-t3">PROCESSOR</text>
+      <text x="350" y="140" text-anchor="middle" font-size="9" class="dg-t3">PROCESSOR</text>
+      <text x="500" y="145" text-anchor="middle" font-size="9" class="dg-t3">STATEFUL</text>
+      <text x="640" y="140" text-anchor="middle" font-size="9" class="dg-t3">SINK</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh">
+    <span class="fwb">TOPOLOGY</span>
+    <span class="fwt">Sub-topology 与并发度控制</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Sub-topology</div>
+        <div class="sd">Kafka Streams 将 Topology 自动分割为多个 <strong>Sub-topology</strong>（以 Repartition Topic 为边界），每个 Sub-topology 独立并行执行，互不阻塞。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">并发度控制</div>
+        <div class="sd"><code>num.stream.threads</code>（默认 1）：单个实例内并行的流处理线程数。<strong>多个 Streams 实例</strong>（横向扩展）通过消费者组机制自动分配 Partition，最大并发度 = 输入 Topic 的 <strong>Partition 数</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">查看 Topology</div>
+        <div class="sd">调用 <code>topology.describe()</code> 可输出 Sub-topology 列表和处理器依赖关系，便于调试和优化。</div>
+        <div class="sc">Topology topology = builder.build();
+System.out.println(topology.describe());
+<span class="cm">// 输出 Sub-topology 列表和处理器依赖关系</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── connect ────────────────────────────────────────── -->
+<div class="sec" id="connect">Kafka Connect 框架</div>
+
+<div class="g2">
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">SOURCE CONNECTOR</div>
+      <div class="ovname">Source Connector</div>
+      <div class="ovsub">从外部系统拉取数据写入 Kafka Topic</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>从 <strong>DB、文件、API</strong> 拉取数据写入 Kafka Topic</li>
+        <li><strong>Debezium MySQL Source</strong>：CDC 变更捕获，实时同步数据库变更</li>
+        <li><strong>FileStream Source</strong>：读取文件内容写入 Topic</li>
+        <li><strong>JDBC Source</strong>：定期轮询数据库表，支持增量同步</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">SINK CONNECTOR</div>
+      <div class="ovname">Sink Connector</div>
+      <div class="ovsub">从 Kafka Topic 读取数据写入外部系统</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>从 Kafka Topic 读取数据写入 <strong>DB、ES、HDFS、S3</strong></li>
+        <li><strong>JDBC Sink</strong>：写入关系型数据库，支持 upsert</li>
+        <li><strong>Elasticsearch Sink</strong>：实时索引 Kafka 消息到 ES</li>
+        <li><strong>S3 Sink</strong>：按时间分区写入 S3，适合数据湖场景</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-t">
+  <div class="fwh">
+    <span class="fwb">CONNECT</span>
+    <span class="fwt">部署与运行机制</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">启动 Connect</div>
+        <div class="sd"><strong>Standalone 模式</strong>（单节点，开发用）或 <strong>Distributed 模式</strong>（多节点，生产用）。Distributed 模式下多个 Worker 组成集群，通过内置 Topic 协调任务分配与 Offset 存储。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">部署 Connector（REST API）</div>
+        <div class="sc">POST /connectors
+{
+  "name": "mysql-source",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "mysql",
+    "database.port": "3306",
+    "database.user": "debezium",
+    "database.password": "dbz",
+    "database.server.name": "mydb"
+  }
+}</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Task 并行</div>
+        <div class="sd">每个 Connector 分解为多个 <strong>Task</strong>（<code>tasks.max</code> 配置），Task 是实际执行的单元，由 Worker 线程运行，支持横向扩展提高吞吐。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">容错</div>
+        <div class="sd">Distributed 模式下 Worker 宕机后，Task 自动<strong>重新分配</strong>给存活 Worker；Offset 存储在 Kafka 内部 Topic，重启后从上次位置继续，保证 At-Least-Once 语义。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── schema ─────────────────────────────────────────── -->
+<div class="sec" id="schema">Schema Registry + Avro / Protobuf</div>
+
+<div class="fw c-y">
+  <div class="fwh">
+    <span class="fwb">SCHEMA</span>
+    <span class="fwt">Schema Registry 工作原理与兼容性策略</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">问题背景</div>
+        <div class="sd">Kafka 消息是 <code>byte[]</code>，无内置 Schema。当 Producer 和 Consumer 的消息格式不一致时（字段增减、类型变化），Consumer <strong>反序列化失败</strong>。Schema Registry 提供集中式 Schema 管理和兼容性校验。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">工作原理</div>
+        <div class="sd">
+          <strong>Producer</strong>：发送前向 Schema Registry 注册 Schema（返回 Schema ID），消息头写入 <code>Magic Byte(0x0) + Schema ID(4字节) + 序列化数据</code>。<br>
+          <strong>Consumer</strong>：解析消息头中的 Schema ID，从 Registry 拉取 Schema（带本地缓存），再反序列化数据。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Schema 兼容性策略</div>
+        <div class="tbl-wrap" style="margin-top:10px;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>策略</th>
+                <th>含义</th>
+                <th>适用场景</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BACKWARD</td>
+                <td>新 Schema 可读旧数据（可删字段，可加可选字段）</td>
+                <td>Consumer 先升级</td>
+              </tr>
+              <tr>
+                <td>FORWARD</td>
+                <td>旧 Schema 可读新数据（可加字段，可删可选字段）</td>
+                <td>Producer 先升级</td>
+              </tr>
+              <tr>
+                <td>FULL</td>
+                <td>双向兼容</td>
+                <td>严格场景，要求最高</td>
+              </tr>
+              <tr>
+                <td>NONE</td>
+                <td>不检查兼容性</td>
+                <td>开发阶段</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Avro vs Protobuf vs JSON Schema</div>
+        <div class="sd">
+          <strong>Avro</strong>：Schema 随数据存储，压缩好，Hadoop 生态友好。<br>
+          <strong>Protobuf</strong>：IDL 驱动，跨语言支持好，Google 生态。<br>
+          <strong>JSON Schema</strong>：可读性强，但序列化效率低。<br>
+          生产推荐 <strong>Avro</strong> 或 <strong>Protobuf</strong>。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── flink-spark ────────────────────────────────────── -->
+<div class="sec" id="flink-spark">与 Flink / Spark 集成</div>
+
+<div class="g2">
+  <div class="fw c-b">
+    <div class="fwh">
+      <span class="fwb">FLINK</span>
+      <span class="fwt">Flink + Kafka</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl">
+          <div class="sn">1</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">KafkaSource（新版 Source API）</div>
+          <div class="sd">自动管理 Offset，支持 <strong>Exactly-Once</strong>（通过 Flink Checkpoint 将 Offset 保存到 Flink State）。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">2</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">KafkaSink</div>
+          <div class="sd">支持 Exactly-Once（通过 Kafka 事务，<code>DeliveryGuarantee.EXACTLY_ONCE</code>），Checkpoint 时提交事务。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">3</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">代码示例</div>
+          <div class="sc">KafkaSource&lt;String&gt; source = KafkaSource.&lt;String&gt;builder()
+    .setBootstrapServers("localhost:9092")
+    .setTopics("input-topic")
+    .setGroupId("flink-group")
+    .setStartingOffsets(OffsetsInitializer.latest())
+    .setValueOnlyDeserializer(new SimpleStringSchema())
+    .build();
+
+env.fromSource(source,
+    WatermarkStrategy.noWatermarks(), "Kafka Source");</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fw c-p">
+    <div class="fwh">
+      <span class="fwb">SPARK</span>
+      <span class="fwt">Spark Structured Streaming + Kafka</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl">
+          <div class="sn">1</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">readStream 从 Kafka 读取</div>
+          <div class="sd">DataFrame API，每行包含 <code>key</code>、<code>value</code>、<code>topic</code>、<code>partition</code>、<code>offset</code>、<code>timestamp</code> 字段。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">2</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">写入 Kafka</div>
+          <div class="sd"><code>writeStream</code> + kafka sink，指定 topic 和 bootstrap.servers，配置 checkpointLocation 保证容错。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">3</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">代码示例（Scala）</div>
+          <div class="sc">val df = spark.readStream
+  .format("kafka")
+  .option("kafka.bootstrap.servers", "localhost:9092")
+  .option("subscribe", "input-topic")
+  .load()
+
+df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+  .writeStream.format("kafka")
+  .option("kafka.bootstrap.servers", "localhost:9092")
+  .option("topic", "output-topic")
+  .option("checkpointLocation", "/tmp/checkpoint")
+  .start()</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">INFO</span>
+  <p><strong>Kafka Streams vs Flink 选型：</strong>轻量流处理（无复杂 State，业务简单）→ <strong>Kafka Streams</strong>（无需额外集群）；复杂 CEP、多流 Join、大 State → <strong>Flink</strong>（更强的有状态计算能力）；批流统一、SQL 查询 → <strong>Spark Structured Streaming</strong>。</p>
+</div>
+
+<!-- ── spring ──────────────────────────────────────────── -->
+<div class="sec" id="spring">Spring Kafka 核心使用</div>
+
+<div class="fw c-g">
+  <div class="fwh">
+    <span class="fwb">SPRING</span>
+    <span class="fwt">Spring Kafka 核心用法</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">依赖（Maven）</div>
+        <div class="sc">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Producer（KafkaTemplate）</div>
+        <div class="sc">@Autowired
+private KafkaTemplate&lt;String, String&gt; kafkaTemplate;
+
+public void send(String topic, String message) {
+    kafkaTemplate.send(topic, message)
+        .whenComplete((result, ex) -&gt; {
+            if (ex != null) log.error("Send failed", ex);
+        });
+}</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Consumer（@KafkaListener）</div>
+        <div class="sc">@KafkaListener(topics = "order-topic", groupId = "order-group",
+               concurrency = "3")
+public void consume(ConsumerRecord&lt;String, String&gt; record,
+                    Acknowledgment ack) {
+    <span class="cm">// 处理消息</span>
+    processOrder(record.value());
+    <span class="cm">// 手动提交（需配置 ack-mode: manual）</span>
+    ack.acknowledge();
+}</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">关键配置（application.yaml）</div>
+        <div class="sc">spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: my-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual
+      concurrency: 3</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">WARN</span>
+  <p><code>concurrency</code> 不能超过 Topic 的 <strong>Partition 数</strong>，否则多余的线程会空闲（同 Consumer Group 规则）。生产建议关闭 <code>enable-auto-commit</code>，使用 <code>ack-mode: manual</code> 配合 <code>Acknowledgment.acknowledge()</code> 手动提交，避免消息未处理完就提交 Offset 导致丢失。</p>
+</div>
+
+</main>
+</body>
+</html>

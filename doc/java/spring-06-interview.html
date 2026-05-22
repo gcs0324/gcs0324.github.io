@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 06 · 高频面试题</title>
+<style>
+header::before{content:'SPRING'}
+/* .blt bullet alias */
+.qa-answer ul li .blt{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;flex-shrink:0;min-width:18px;margin-top:3px}
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.cmp-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:7px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.cmp-table td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2);font-size:13px}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+.step-flow{display:flex;flex-direction:column;gap:0;margin:10px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-title{font-weight:600;color:var(--tx);font-size:13.5px;margin-bottom:2px}
+.step-desc{font-size:12.5px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<!-- ── Header ── -->
+<header>
+  <div class="htag">SPRING · 06 · INTERVIEW</div>
+  <h1>Spring 高频面试题</h1>
+  <p class="subtitle">面试官视角 · 口语化回答 · 知识点跳转 — 30 道真题</p>
+</header>
+
+<!-- ── Layout ── -->
+<div class="layout">
+
+  <!-- ════════════════════════════════════════ -->
+  <!--  LEFT SIDEBAR — 面试分类导航栏             -->
+  <!-- ════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="s-header">
+      <span class="s-title">快速操作</span>
+      <span class="s-actions">
+        <button class="s-btn" onclick="toggleAll(true)">展开全部</button>
+        <button class="s-btn" onclick="toggleAll(false)">折叠全部</button>
+      </span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+      <div class="progress-txt" id="ptxt">0/30</div>
+    </div>
+    <div class="filter-row">
+      <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+      <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+      <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+    </div>
+    <div class="s-div"></div>
+    <div class="s-lbl">面试分类</div>
+
+    <!-- 分类 01: IoC/DI -->
+    <div class="scat open" id="scat-ioc">
+      <div class="scat-head" onclick="toggleScat('scat-ioc')">
+        <span class="scat-icon">01</span>
+        <span class="scat-label">IoC / DI</span>
+        <span class="scat-count">8题</span>
+        <span class="scat-arrow">›</span>
+      </div>
+      <div class="scat-items">
+        <a class="scat-item active" href="#q1">
+          <span class="scat-item-num">Q1</span>
+          <span class="scat-item-txt">Bean 生命周期全流程</span>
+        </a>
+        <a class="scat-item" href="#q2">
+          <span class="scat-item-num">Q2</span>
+          <span class="scat-item-txt">循环依赖三级缓存</span>
+        </a>
+        <a class="scat-item" href="#q3">
+          <span class="scat-item-num">Q3</span>
+          <span class="scat-item-txt">@Autowired vs @Resource</span>
+        </a>
+        <a class="scat-item" href="#q4">
+          <span class="scat-item-num">Q4</span>
+          <span class="scat-item-txt">BeanFactory vs FactoryBean</span>
+        </a>
+        <a class="scat-item" href="#q5">
+          <span class="scat-item-num">Q5</span>
+          <span class="scat-item-txt">Spring 容器启动流程</span>
+        </a>
+        <a class="scat-item" href="#q6">
+          <span class="scat-item-num">Q6</span>
+          <span class="scat-item-txt">Bean 作用域与线程安全</span>
+        </a>
+        <a class="scat-item" href="#q7">
+          <span class="scat-item-num">Q7</span>
+          <span class="scat-item-txt">@Configuration Full/Lite</span>
+        </a>
+        <a class="scat-item" href="#q8">
+          <span class="scat-item-num">Q8</span>
+          <span class="scat-item-txt">BeanPostProcessor 原理</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 分类 02: AOP -->
+    <div class="scat" id="scat-aop">
+      <div class="scat-head" onclick="toggleScat('scat-aop')">
+        <span class="scat-icon">02</span>
+        <span class="scat-label">AOP</span>
+        <span class="scat-count">6题</span>
+        <span class="scat-arrow">›</span>
+      </div>
+      <div class="scat-items">
+        <a class="scat-item" href="#q9">
+          <span class="scat-item-num">Q9</span>
+          <span class="scat-item-txt">JDK 代理 vs CGLIB</span>
+        </a>
+        <a class="scat-item" href="#q10">
+          <span class="scat-item-num">Q10</span>
+          <span class="scat-item-txt">AOP 自调用失效原理</span>
+        </a>
+        <a class="scat-item" href="#q11">
+          <span class="scat-item-num">Q11</span>
+          <span class="scat-item-txt">多切面执行顺序</span>
+        </a>
+        <a class="scat-item" href="#q12">
+          <span class="scat-item-num">Q12</span>
+          <span class="scat-item-txt">Spring AOP vs AspectJ</span>
+        </a>
+        <a class="scat-item" href="#q13">
+          <span class="scat-item-num">Q13</span>
+          <span class="scat-item-txt">5种 Advice 执行顺序</span>
+        </a>
+        <a class="scat-item" href="#q14">
+          <span class="scat-item-num">Q14</span>
+          <span class="scat-item-txt">AOP 实现原理</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 分类 03: 事务 -->
+    <div class="scat" id="scat-tx">
+      <div class="scat-head" onclick="toggleScat('scat-tx')">
+        <span class="scat-icon">03</span>
+        <span class="scat-label">事务</span>
+        <span class="scat-count">8题</span>
+        <span class="scat-arrow">›</span>
+      </div>
+      <div class="scat-items">
+        <a class="scat-item" href="#q15">
+          <span class="scat-item-num">Q15</span>
+          <span class="scat-item-txt">@Transactional 失效场景</span>
+        </a>
+        <a class="scat-item" href="#q16">
+          <span class="scat-item-num">Q16</span>
+          <span class="scat-item-txt">7种事务传播行为</span>
+        </a>
+        <a class="scat-item" href="#q17">
+          <span class="scat-item-num">Q17</span>
+          <span class="scat-item-txt">REQUIRES_NEW vs NESTED</span>
+        </a>
+        <a class="scat-item" href="#q18">
+          <span class="scat-item-num">Q18</span>
+          <span class="scat-item-txt">只读事务的作用</span>
+        </a>
+        <a class="scat-item" href="#q19">
+          <span class="scat-item-num">Q19</span>
+          <span class="scat-item-txt">事务隔离级别实战</span>
+        </a>
+        <a class="scat-item" href="#q20">
+          <span class="scat-item-num">Q20</span>
+          <span class="scat-item-txt">编程式 vs 声明式事务</span>
+        </a>
+        <a class="scat-item" href="#q21">
+          <span class="scat-item-num">Q21</span>
+          <span class="scat-item-txt">分布式事务方案</span>
+        </a>
+        <a class="scat-item" href="#q22">
+          <span class="scat-item-num">Q22</span>
+          <span class="scat-item-txt">事务同步管理器</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 分类 04: MVC -->
+    <div class="scat" id="scat-mvc">
+      <div class="scat-head" onclick="toggleScat('scat-mvc')">
+        <span class="scat-icon">04</span>
+        <span class="scat-label">MVC</span>
+        <span class="scat-count">4题</span>
+        <span class="scat-arrow">›</span>
+      </div>
+      <div class="scat-items">
+        <a class="scat-item" href="#q23">
+          <span class="scat-item-num">Q23</span>
+          <span class="scat-item-txt">请求处理完整流程</span>
+        </a>
+        <a class="scat-item" href="#q24">
+          <span class="scat-item-num">Q24</span>
+          <span class="scat-item-txt">Filter vs Interceptor</span>
+        </a>
+        <a class="scat-item" href="#q25">
+          <span class="scat-item-num">Q25</span>
+          <span class="scat-item-txt">全局异常处理机制</span>
+        </a>
+        <a class="scat-item" href="#q26">
+          <span class="scat-item-num">Q26</span>
+          <span class="scat-item-txt">参数绑定原理</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 分类 05: Boot -->
+    <div class="scat" id="scat-boot">
+      <div class="scat-head" onclick="toggleScat('scat-boot')">
+        <span class="scat-icon">05</span>
+        <span class="scat-label">Boot</span>
+        <span class="scat-count">4题</span>
+        <span class="scat-arrow">›</span>
+      </div>
+      <div class="scat-items">
+        <a class="scat-item" href="#q27">
+          <span class="scat-item-num">Q27</span>
+          <span class="scat-item-txt">自动装配完整流程</span>
+        </a>
+        <a class="scat-item" href="#q28">
+          <span class="scat-item-num">Q28</span>
+          <span class="scat-item-txt">自定义 Starter</span>
+        </a>
+        <a class="scat-item" href="#q29">
+          <span class="scat-item-num">Q29</span>
+          <span class="scat-item-txt">启动流程核心步骤</span>
+        </a>
+        <a class="scat-item" href="#q30">
+          <span class="scat-item-num">Q30</span>
+          <span class="scat-item-txt">Boot 3.x vs 2.x 变化</span>
+        </a>
+      </div>
+    </div>
+
+
+  </aside><!-- /sidebar -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!--  MAIN CONTENT — 面试题卡片               -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="mcontent">
+
+    <!-- ═══════════════ SECTION 01 IoC/DI ═══════════════ -->
+    <div class="sec" id="ioc"><span class="sec-num">01</span> IoC / DI 必背题 <span class="q-count">Q1 – Q8</span></div>
+
+    <!-- Q1 -->
+    <div class="qa-card" id="q1">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q1</span>
+        <span class="qa-qtext">Spring Bean 的完整生命周期是什么？每个阶段做了什么？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>Spring 面试必考第一题。考察你对 IoC 容器内部工作机制的理解深度。期望听到完整的 7 个阶段，加分点：区分 BeanPostProcessor 的 before/after 调用时机，说明 AOP 代理在哪个阶段生成。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>Spring Bean 生命周期分为 7 个阶段：</p>
+          <div class="step-flow">
+            <div class="step">
+              <div class="step-num">①</div>
+              <div><div class="step-title">实例化（Instantiation）</div><div class="step-desc">容器通过反射调用构造器创建 Bean 原始对象，此时属性均为默认值</div></div>
+            </div>
+            <div class="step">
+              <div class="step-num">②</div>
+              <div><div class="step-title">属性填充（Populate Properties）</div><div class="step-desc">依赖注入，填充 <code>@Autowired</code>、<code>@Value</code> 等注解标注的属性（三级缓存解循环依赖发生在此阶段）</div></div>
+            </div>
+            <div class="step">
+              <div class="step-num">③</div>
+              <div><div class="step-title">Aware 回调</div><div class="step-desc">若实现了 <code>BeanNameAware</code>、<code>BeanFactoryAware</code>、<code>ApplicationContextAware</code> 等接口，此时注入容器内置对象</div></div>
+            </div>
+            <div class="step">
+              <div class="step-num">④</div>
+              <div><div class="step-title">BeanPostProcessor#before</div><div class="step-desc"><code>postProcessBeforeInitialization()</code> — 初始化前处理，可在此修改 Bean</div></div>
+            </div>
+            <div class="step">
+              <div class="step-num">⑤</div>
+              <div><div class="step-title">初始化（Initialization）</div><div class="step-desc">先执行 <code>@PostConstruct</code>，再执行 <code>InitializingBean#afterPropertiesSet()</code>，最后执行 <code>init-method</code></div></div>
+            </div>
+            <div class="step">
+              <div class="step-num">⑥</div>
+              <div><div class="step-title">BeanPostProcessor#after ← AOP 代理在此生成</div><div class="step-desc"><code>postProcessAfterInitialization()</code> — <strong>AOP 代理对象</strong>在此阶段由 <code>AbstractAutoProxyCreator</code> 包装生成，放入容器的是代理对象而非原始对象</div></div>
+            </div>
+            <div class="step">
+              <div class="step-num">⑦</div>
+              <div><div class="step-title">销毁（Destruction）</div><div class="step-desc">容器关闭时：先执行 <code>@PreDestroy</code>，再执行 <code>DisposableBean#destroy()</code>，最后执行 <code>destroy-method</code></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="spring-01-ioc.html#lifecycle">IoC · Bean 生命周期详解</a>
+            <a class="qa-link" href="spring-02-aop.html#proxy">AOP · 代理生成时机</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-card" id="q2">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q2</span>
+        <span class="qa-qtext">Spring 如何解决循环依赖？三级缓存分别存什么？为什么需要三级而不是两级？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>高频难题，考察对容器内部数据结构的深度理解。很多人知道"三级缓存"，但说不清为什么需要第三级、它和 AOP 的关系。能说清楚第三级缓存（ObjectFactory）延迟代理生成的原因，可以拿高分。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>Spring 通过三个 Map 解决单例 Bean 之间的 setter 注入循环依赖（构造器注入的循环依赖无法解决）：</p>
+          <table class="cmp-table">
+            <tr><th>缓存层</th><th>Map 名称</th><th>存储内容</th><th>作用</th></tr>
+            <tr><td>一级缓存</td><td><code>singletonObjects</code></td><td>完整 Bean（含代理）</td><td>正常使用的单例池</td></tr>
+            <tr><td>二级缓存</td><td><code>earlySingletonObjects</code></td><td>早期暴露的 Bean（可能是代理）</td><td>防止同一 Bean 被重复代理</td></tr>
+            <tr><td>三级缓存</td><td><code>singletonFactories</code></td><td>ObjectFactory（Lambda）</td><td>按需生成代理的工厂，延迟代理时机</td></tr>
+          </table>
+          <p><strong>为什么需要三级而不是两级？</strong>核心原因是 AOP 代理：如果 A 和 B 循环依赖，且 A 需要被 AOP 代理，若只有二级缓存，注入给 B 的 A 必须立即是代理对象；但 Spring 的设计是代理在 <code>BeanPostProcessor#after</code> 阶段生成（生命周期末尾），用三级缓存存 <code>ObjectFactory</code>，B 需要 A 时才通过工厂按需生成早期代理，这样代理生成时机与正常流程保持一致。</p>
+          <div class="note info">⚠️ 注意：<strong>构造器注入的循环依赖无法解决</strong>，因为实例化阶段就需要依赖，此时三级缓存都还没有该 Bean。同理，<code>prototype</code> 作用域的循环依赖也不支持。</div>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="spring-01-ioc.html#circular">IoC · 循环依赖详解</a>
+            <a class="qa-link" href="#q1">Q1 · Bean 生命周期</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-card" id="q3">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q3</span>
+        <span class="qa-qtext">@Autowired 和 @Resource 的区别？注入时发现多个候选 Bean 怎么处理？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>基础但容易混淆。期望听到来源（Spring vs JSR-250）、注入策略（类型 vs 名称）、以及歧义处理方式。加分：说明 @Qualifier、@Primary 的协同机制。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>@Autowired</th><th>@Resource</th></tr>
+            <tr><td>来源</td><td>Spring 自带</td><td>JSR-250（Java 标准）</td></tr>
+            <tr><td>注入策略</td><td>先按<strong>类型</strong>，再按名称</td><td>先按<strong>名称</strong>，再按类型</td></tr>
+            <tr><td>required</td><td>可设 <code>required=false</code></td><td>无此属性</td></tr>
+            <tr><td>构造器注入</td><td>✅ 支持</td><td>❌ 不支持</td></tr>
+            <tr><td>与 Spring 耦合</td><td>高</td><td>低</td></tr>
+          </table>
+          <p>当按类型找到多个候选 Bean 时，<code>@Autowired</code> 的歧义处理顺序：</p>
+          <ul>
+            <li><span class="blt">①</span><span>优先匹配 <code>@Primary</code> 标注的 Bean</span></li>
+            <li><span class="blt">②</span><span>其次匹配 <code>@Qualifier("beanName")</code> 指定的 Bean</span></li>
+            <li><span class="blt">③</span><span>最后按字段/参数名称匹配 Bean 名称</span></li>
+            <li><span class="blt">④</span><span>以上都失败 → 抛出 <code>NoUniqueBeanDefinitionException</code></span></li>
+          </ul>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="spring-01-ioc.html#inject">IoC · 依赖注入方式对比</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-card" id="q4">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q4</span>
+        <span class="qa-qtext">BeanFactory 和 FactoryBean 的区别？FactoryBean 的使用场景？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>名字很像，容易混淆，是考察细心度的经典题。核心考点：BeanFactory 是容器接口，FactoryBean 是一种特殊 Bean，通过它可以控制 Bean 的创建逻辑。MyBatis 的 MapperFactoryBean 是典型应用。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <ul>
+            <li><span class="blt">▸</span><span><strong>BeanFactory</strong>：Spring IoC 容器的顶层接口，负责管理所有 Bean 的定义、创建、获取。<code>ApplicationContext</code> 是其子接口，扩展了 AOP、事件、国际化等功能。</span></li>
+            <li><span class="blt">▸</span><span><strong>FactoryBean</strong>：一种特殊的 Bean，实现该接口后容器调用 <code>getObject()</code> 方法获取真正要注册的对象，而不是 FactoryBean 本身。通过 <code>&beanName</code>（加 & 前缀）可以获取 FactoryBean 本身。</span></li>
+          </ul>
+          <p><strong>使用场景</strong>：当 Bean 的创建逻辑复杂（无法通过简单构造器完成）时使用，典型案例：</p>
+          <ul>
+            <li><span class="blt">①</span><span><strong>MyBatis</─<code>MapperFactoryBean</code></strong> — 通过动态代理生成 Mapper 接口实现</span></li>
+            <li><span class="blt">②</span><span><strong>Spring AOP 的 ProxyFactoryBean</strong> — 生成代理对象</span></li>
+            <li><span class="blt">③</span><span><strong>Dubbo / Feign 的服务代理</strong> — 远程调用代理</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q5 - Q8 骨架（TODO: 填充内容） -->
+    <div class="qa-card" id="q5">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q5</span>
+        <span class="qa-qtext">Spring 容器的 refresh() 方法做了哪些事？核心步骤是什么？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>进阶题，考察对容器启动机制的深度掌握。能说出 12 步 refresh() 流程，尤其是 invokeBeanFactoryPostProcessors、registerBeanPostProcessors、finishBeanFactoryInitialization 三个核心步骤，即为加分答案。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>AbstractApplicationContext#refresh()</code> 是 Spring 容器启动的核心方法，12 个关键步骤：</p>
+          <ul>
+            <li><span class="blt">1</span><span><code>prepareRefresh()</code> — 记录启动时间，校验必要属性</span></li>
+            <li><span class="blt">2</span><span><code>obtainFreshBeanFactory()</code> — 创建 DefaultListableBeanFactory，加载 BeanDefinition</span></li>
+            <li><span class="blt">3</span><span><code>prepareBeanFactory()</code> — 配置类加载器、注册内置 BeanPostProcessor</span></li>
+            <li><span class="blt">4</span><span><code>postProcessBeanFactory()</code> — 子类扩展钩子</span></li>
+            <li><span class="blt">5</span><span><code>invokeBeanFactoryPostProcessors()</code> ★ — 执行 <code>BeanFactoryPostProcessor</code>（配置类解析、<code>@ComponentScan</code> 在此执行）</span></li>
+            <li><span class="blt">6</span><span><code>registerBeanPostProcessors()</code> ★ — 注册所有 BeanPostProcessor（AOP 的 <code>AnnotationAwareAspectJAutoProxyCreator</code> 在此注册）</span></li>
+            <li><span class="blt">7-11</span><span>消息源、事件广播、子类扩展、监听器注册</span></li>
+            <li><span class="blt">12</span><span><code>finishBeanFactoryInitialization()</code> ★ — 实例化所有非懒加载单例 Bean（触发完整生命周期）</span></li>
+          </ul>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="spring-01-ioc.html#refresh">IoC · refresh() 12步详解</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q6">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q6</span>
+        <span class="qa-qtext">Spring Bean 的作用域有哪些？singleton Bean 是线程安全的吗？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>作用域是基础题，但线程安全是拓展点。很多人直接说"singleton 不安全"而没有分析场景，实际上无状态的 singleton Bean（如 Service、Dao）是安全的，有状态的才不安全。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>作用域</th><th>说明</th><th>适用场景</th></tr>
+            <tr><td>singleton</td><td>默认，容器内唯一实例</td><td>无状态的 Service/Dao</td></tr>
+            <tr><td>prototype</td><td>每次 getBean() 新建实例</td><td>有状态的工具类</td></tr>
+            <tr><td>request</td><td>每个 HTTP 请求新建</td><td>Web 层请求上下文</td></tr>
+            <tr><td>session</td><td>每个 HTTP Session 新建</td><td>用户会话数据</td></tr>
+            <tr><td>application</td><td>ServletContext 级别</td><td>全局共享数据</td></tr>
+          </table>
+          <p><strong>singleton 线程安全性</strong>：取决于 Bean 是否有可变状态字段。</p>
+          <ul>
+            <li><span class="blt">✅</span><span><strong>无状态 Bean 线程安全</strong>：如 <code>@Service</code>、<code>@Repository</code> 内只有不可变字段和方法局部变量</span></li>
+            <li><span class="blt">❌</span><span><strong>有状态 Bean 不安全</strong>：若有 <code>private int count</code> 等可变成员变量，多线程并发修改会出问题，应使用 prototype 或 ThreadLocal</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q7">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q7</span>
+        <span class="qa-qtext">@Configuration 的 Full 模式和 Lite 模式区别？为什么要加 @Configuration？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>进阶考点。很多人不清楚 @Configuration 和 @Component 的区别，实际上差别就在 CGLIB 代理，即 Full 模式保证 @Bean 方法间调用返回同一个单例对象。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <ul>
+            <li><span class="blt">▸</span><span><strong>Full 模式</strong>（加 <code>@Configuration</code>）：Spring 对配置类进行 CGLIB 代理，确保 <code>@Bean</code> 方法内部直接调用其他 <code>@Bean</code> 方法时返回容器中的单例，而不是新建对象。</span></li>
+            <li><span class="blt">▸</span><span><strong>Lite 模式</strong>（只加 <code>@Component</code> 或 <code>proxyBeanMethods=false</code>）：配置类不被代理，<code>@Bean</code> 方法被当作普通方法，互相调用时每次都会创建新对象，违反单例语义。但启动速度更快（跳过 CGLIB 代理生成）。</span></li>
+          </ul>
+          <pre>// Full 模式：b() 调用 a() 返回容器中同一个 Bean
+@Configuration
+public class Config {
+    @Bean public A a() { return new A(); }
+    @Bean public B b() { return new B(a()); // 返回单例 A
+    }
+}</pre>
+          <p>Spring Boot 的 AutoConfiguration 类通常加 <code>proxyBeanMethods=false</code> 使用 Lite 模式，因为自动配置类之间不需要方法间单例保证，换取更快启动速度。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q8">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q8</span>
+        <span class="qa-qtext">BeanPostProcessor 的作用是什么？常见实现有哪些？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>BeanPostProcessor 是 Spring 扩展性的核心机制。AOP 代理、@Autowired 处理、@Value 注入都通过它实现。能举出具体实现类并说明各自职责，可展示对 Spring 内部机制的掌握深度。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>BeanPostProcessor</code> 是 Bean 初始化前后的扩展接口，两个核心方法：</p>
+          <ul>
+            <li><span class="blt">▸</span><span><code>postProcessBeforeInitialization()</code> — 初始化前调用</span></li>
+            <li><span class="blt">▸</span><span><code>postProcessAfterInitialization()</code> — 初始化后调用（AOP 代理在此生成）</span></li>
+          </ul>
+          <p>常见内置实现：</p>
+          <table class="cmp-table">
+            <tr><th>实现类</th><th>职责</th></tr>
+            <tr><td>AutowiredAnnotationBeanPostProcessor</td><td>处理 @Autowired / @Value 注入</td></tr>
+            <tr><td>CommonAnnotationBeanPostProcessor</td><td>处理 @Resource / @PostConstruct / @PreDestroy</td></tr>
+            <tr><td>AbstractAutoProxyCreator</td><td>AOP 代理生成（AnnotationAwareAspectJAutoProxyCreator）</td></tr>
+            <tr><td>ApplicationContextAwareProcessor</td><td>注入 ApplicationContext 等 Aware 对象</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SECTION 02 AOP ═══════════════ -->
+    <div class="sec" id="aop"><span class="sec-num">02</span> AOP 重点题 <span class="q-count">Q9 – Q14</span></div>
+
+    <div class="qa-card" id="q9">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q9</span>
+        <span class="qa-qtext">JDK 动态代理和 CGLIB 代理的区别？Spring 什么时候用哪种？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>AOP 基础必问题。核心考点在选择策略（有接口 vs 无接口），以及 Spring Boot 2.x 默认改为 CGLIB 的原因。加分：说出两者的性能差异和局限性。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>JDK 动态代理</th><th>CGLIB</th></tr>
+            <tr><td>代理方式</td><td>基于接口，实现同一接口</td><td>基于继承，生成子类</td></tr>
+            <tr><td>要求</td><td>目标类必须实现接口</td><td>目标类不能是 final</td></tr>
+            <tr><td>性能</td><td>创建快，调用慢（反射）</td><td>创建慢，调用快（直接方法调用）</td></tr>
+            <tr><td>依赖</td><td>JDK 内置</td><td>需引入 cglib 依赖（Spring 已内置）</td></tr>
+          </table>
+          <p><strong>Spring 选择策略</strong>：</p>
+          <ul>
+            <li><span class="blt">▸</span><span>Spring 5.x（Boot 2.x）起：<strong>默认使用 CGLIB</strong>（即使有接口），可通过 <code>spring.aop.proxy-target-class=false</code> 切换为 JDK</span></li>
+            <li><span class="blt">▸</span><span>原因：JDK 代理要求注入时必须用接口类型接收，CGLIB 更灵活，减少因用实现类注入导致的启动失败</span></li>
+            <li><span class="blt">▸</span><span>强制 CGLIB 条件：目标类无接口，或注解 <code>@EnableAspectJAutoProxy(proxyTargetClass=true)</code></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q10">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q10</span>
+        <span class="qa-qtext">AOP 自调用（this.method()）为什么会失效？有哪些解决方案？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>高频陷阱题，结合 @Transactional 失效场景一起考。原理考察：理解代理对象是容器管理的，this 指向原始对象，所以绕过了代理。解决方案的好坏体现编码规范意识。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><strong>失效原因</strong>：Spring AOP 通过代理对象拦截方法调用。当类内部用 <code>this.method()</code> 调用时，<code>this</code> 指向的是原始对象（未被代理），所以切面逻辑不会执行。</p>
+          <p><strong>三种解决方案</strong>：</p>
+          <ul>
+            <li><span class="blt">①</span><span><strong>注入自身代理</strong>（推荐）：<code>@Autowired</code> 注入自身 Bean，通过代理 Bean 调用。Spring Boot 需开启 <code>spring.main.allow-circular-references=true</code></span></li>
+            <li><span class="blt">②</span><span><strong>AopContext 获取代理</strong>：<code>((MyService) AopContext.currentProxy()).method()</code>，需开启 <code>@EnableAspectJAutoProxy(exposeProxy=true)</code></span></li>
+            <li><span class="blt">③</span><span><strong>重构代码</strong>（最优）：将被调用方法抽取到另一个 Bean 中，从根本上避免自调用</span></li>
+          </ul>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="#q15">Q15 · @Transactional 失效场景</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q11-Q14 骨架 -->
+    <div class="qa-card" id="q11">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q11</span>
+        <span class="qa-qtext">多个切面作用于同一方法时，执行顺序如何控制？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>通过 <code>@Order(n)</code> 注解或实现 <code>Ordered</code> 接口控制，数值越小优先级越高（先进后出，类似栈结构）：</p>
+          <ul>
+            <li><span class="blt">▸</span><span>@Order(1) 的切面：先执行 Before，最后执行 After</span></li>
+            <li><span class="blt">▸</span><span>@Order(2) 的切面：后执行 Before，先执行 After</span></li>
+          </ul>
+          <pre>// 执行顺序示意（Order=1 优先级高）
+Order1.before → Order2.before → [目标方法] → Order2.after → Order1.after</pre>
+          <p>不指定 @Order 时，顺序不确定（取决于 Spring 扫描顺序）。同一切面内多个 @Around 方法按声明顺序执行。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q12">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q12</span>
+        <span class="qa-qtext">Spring AOP 和 AspectJ 的区别？各自适用场景？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>Spring AOP</th><th>AspectJ</th></tr>
+            <tr><td>实现方式</td><td>运行时动态代理</td><td>编译时/类加载时织入</td></tr>
+            <tr><td>织入时机</td><td>运行期</td><td>编译期 / 类加载期</td></tr>
+            <tr><td>切点范围</td><td>仅 Spring Bean 方法</td><td>任意 Java 代码（字段、构造器等）</td></tr>
+            <tr><td>性能</td><td>略低（代理开销）</td><td>高（静态织入）</td></tr>
+            <tr><td>复杂度</td><td>简单，开箱即用</td><td>需要 AspectJ 编译器或 agent</td></tr>
+          </table>
+          <p>Spring AOP 使用 AspectJ 的<strong>注解语法</strong>（如 <code>@Aspect</code>、<code>@Pointcut</code>），但底层实现是动态代理，并非 AspectJ 的字节码织入。绝大多数业务场景 Spring AOP 已够用，只有需要切入 non-Spring 对象、字段、构造器时才考虑 AspectJ。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q13">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q13</span>
+        <span class="qa-qtext">@Around、@Before、@After、@AfterReturning、@AfterThrowing 的执行顺序？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <pre>Around(before) → Before → [目标方法执行]
+  ↓ 正常返回
+  AfterReturning → After → Around(after)
+  ↓ 异常返回
+  AfterThrowing → After → (Around 不执行 proceed 后代码)</pre>
+          <p>关键点：<code>@Around</code> 包裹所有其他通知，<code>@After</code> 相当于 finally（无论是否异常都执行），<code>@AfterReturning</code> 和 <code>@AfterThrowing</code> 互斥只执行一个。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q14">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q14</span>
+        <span class="qa-qtext">Spring AOP 的底层实现原理？AnnotationAwareAspectJAutoProxyCreator 的作用？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>AnnotationAwareAspectJAutoProxyCreator</code> 是 Spring AOP 的核心，它是一个 <code>BeanPostProcessor</code>：</p>
+          <ul>
+            <li><span class="blt">①</span><span>在 <code>registerBeanPostProcessors</code> 阶段被注册到容器</span></li>
+            <li><span class="blt">②</span><span>在每个 Bean 初始化完成后（<code>postProcessAfterInitialization</code>），检查是否有切面匹配该 Bean</span></li>
+            <li><span class="blt">③</span><span>若匹配，使用 JDK 代理或 CGLIB 生成代理对象，将 Advice 编织进去</span></li>
+            <li><span class="blt">④</span><span>容器中注册的是代理对象，后续注入给其他 Bean 的也是代理对象</span></li>
+          </ul>
+          <p>通过 <code>@EnableAspectJAutoProxy</code> 注解（或 Spring Boot 自动装配）触发 <code>AspectJAutoProxyRegistrar</code> 向容器注册该 Creator。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SECTION 03 事务 ═══════════════ -->
+    <div class="sec" id="tx"><span class="sec-num">03</span> 事务高频题 <span class="q-count">Q15 – Q22</span></div>
+
+    <div class="qa-card" id="q15">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q15</span>
+        <span class="qa-qtext">@Transactional 失效的场景有哪些？如何排查？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>事务面试必考，能列举 5+ 种场景且说清楚原因的候选人都不多。建议分类记忆：代理问题、异常问题、传播问题、线程问题。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>共 7 类失效场景：</p>
+          <ul>
+            <li><span class="blt">①</span><span><strong>方法非 public</strong> — Spring AOP 无法代理非 public 方法（CGLIB 子类覆盖限制）</span></li>
+            <li><span class="blt">②</span><span><strong>同类自调用</strong> — <code>this.method()</code> 绕过代理，同 AOP 自调用失效原理</span></li>
+            <li><span class="blt">③</span><span><strong>异常被 catch 吞掉</strong> — 事务感知不到异常，正常提交</span></li>
+            <li><span class="blt">④</span><span><strong>异常类型不匹配</strong> — 默认只回滚 RuntimeException 和 Error，checked 异常需配置 <code>rollbackFor=Exception.class</code></span></li>
+            <li><span class="blt">⑤</span><span><strong>多线程操作</strong> — 事务绑定在 ThreadLocal 上，子线程无法继承父线程的事务</span></li>
+            <li><span class="blt">⑥</span><span><strong>数据库引擎不支持</strong> — MySQL MyISAM 不支持事务（InnoDB 支持）</span></li>
+            <li><span class="blt">⑦</span><span><strong>传播行为配置错误</strong> — 如配置了 <code>PROPAGATION_NOT_SUPPORTED</code> 挂起事务</span></li>
+          </ul>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="#q10">Q10 · AOP 自调用失效</a>
+            <a class="qa-link" href="spring-03-tx.html#fail">事务 · 失效场景详解</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q16">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q16</span>
+        <span class="qa-qtext">事务的 7 种传播行为分别是什么？用一句话描述各自语义？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>传播行为</th><th>口诀</th><th>使用场景</th></tr>
+            <tr><td>REQUIRED（默认）</td><td>有则加入，无则新建</td><td>绝大多数业务方法</td></tr>
+            <tr><td>REQUIRES_NEW</td><td>总是新建，挂起外层</td><td>操作日志、独立审计</td></tr>
+            <tr><td>NESTED</td><td>嵌套执行，保存点回滚</td><td>批量处理部分回滚</td></tr>
+            <tr><td>SUPPORTS</td><td>有则加入，无则非事务</td><td>查询方法可选事务</td></tr>
+            <tr><td>NOT_SUPPORTED</td><td>总是非事务，挂起外层</td><td>不需要事务的操作</td></tr>
+            <tr><td>MANDATORY</td><td>必须在事务中，否则报错</td><td>强制有事务的内部方法</td></tr>
+            <tr><td>NEVER</td><td>不能在事务中，否则报错</td><td>明确禁止事务的操作</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q17">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q17</span>
+        <span class="qa-qtext">REQUIRES_NEW 和 NESTED 的区别？什么场景用哪个？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>REQUIRES_NEW</th><th>NESTED</th></tr>
+            <tr><td>事务独立性</td><td>完全独立的新事务</td><td>嵌套在外层事务内（保存点）</td></tr>
+            <tr><td>内层回滚影响外层</td><td>不影响</td><td>不影响（回滚到保存点）</td></tr>
+            <tr><td>外层回滚影响内层</td><td>不影响（已提交）</td><td>影响（内层跟着回滚）</td></tr>
+            <tr><td>数据库连接</td><td>需要新连接</td><td>复用同一连接（Savepoint）</td></tr>
+          </table>
+          <p><strong>选择建议</strong>：操作日志（必须独立提交不随业务回滚）→ REQUIRES_NEW；批量操作单条失败不影响其他条目 → NESTED。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q18-Q22 骨架 -->
+    <div class="qa-card" id="q18">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q18</span>
+        <span class="qa-qtext">readOnly=true 只读事务有什么作用？一定不能写数据吗？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>@Transactional(readOnly=true)</code> 的作用：</p>
+          <ul>
+            <li><span class="blt">①</span><span><strong>数据库优化</strong>：MySQL InnoDB 跳过 undo log 生成，减少锁资源，优化读性能</span></li>
+            <li><span class="blt">②</span><span><strong>一致性读</strong>：在同一事务内多次查询看到一致的快照（防止不可重复读）</span></li>
+            <li><span class="blt">③</span><span><strong>不强制禁止写</strong>：readOnly 是<em>建议</em>性的，驱动层可能不检查，但 ORM 框架（如 Hibernate）可能抛异常</span></li>
+          </ul>
+          <p>适用场景：查询方法、报表生成、批量读取，可与 <code>PROPAGATION_SUPPORTS</code> 组合使用。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q19">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q19</span>
+        <span class="qa-qtext">Spring 事务隔离级别和数据库隔离级别的关系？DEFAULT 是什么？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>Spring 的 <code>Isolation</code> 枚举对应数据库标准隔离级别，多了一个 <code>DEFAULT</code>：</p>
+          <table class="cmp-table">
+            <tr><th>Spring 枚举</th><th>说明</th></tr>
+            <tr><td>DEFAULT</td><td>使用数据库默认隔离级别（MySQL 默认 REPEATABLE_READ）</td></tr>
+            <tr><td>READ_UNCOMMITTED</td><td>读未提交（脏读、不可重复读、幻读都可能发生）</td></tr>
+            <tr><td>READ_COMMITTED</td><td>读已提交（Oracle/PgSQL 默认，解决脏读）</td></tr>
+            <tr><td>REPEATABLE_READ</td><td>可重复读（MySQL 默认，解决脏读+不可重复读）</td></tr>
+            <tr><td>SERIALIZABLE</td><td>串行化（性能最差，完全隔离）</td></tr>
+          </table>
+          <p>推荐生产使用 DEFAULT，让数据库自行管理，避免代码和数据库配置不一致导致的问题。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q20">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q20</span>
+        <span class="qa-qtext">编程式事务和声明式事务各自的优缺点？什么场景适合编程式？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>声明式（@Transactional）</th><th>编程式（TransactionTemplate）</th></tr>
+            <tr><td>侵入性</td><td>低（注解）</td><td>高（代码级别）</td></tr>
+            <tr><td>粒度</td><td>方法级别（粗粒度）</td><td>代码块级别（细粒度）</td></tr>
+            <tr><td>灵活性</td><td>低</td><td>高，可动态决策是否开启</td></tr>
+            <tr><td>失效风险</td><td>有（自调用/非public等）</td><td>无，直接代码控制</td></tr>
+          </table>
+          <p>编程式事务适合：① 只有方法中某几行代码需要事务；② 循环体内需要控制单次事务粒度；③ 需要根据运行时条件动态决定是否开启事务。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q21">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q21</span>
+        <span class="qa-qtext">分布式事务有哪些解决方案？各自适用什么场景？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <ul>
+            <li><span class="blt">①</span><span><strong>2PC（两阶段提交）</strong>：强一致，性能差，阻塞风险。场景：XA 协议，多数据库操作</span></li>
+            <li><span class="blt">②</span><span><strong>TCC（Try-Confirm-Cancel）</strong>：业务侵入高，无锁，高性能。场景：资金扣减、库存占用等</span></li>
+            <li><span class="blt">③</span><span><strong>Saga</strong>：长事务，每步补偿。场景：订单流程等长链路</span></li>
+            <li><span class="blt">④</span><span><strong>消息最终一致性</strong>：通过本地消息表 + MQ 保证最终一致。场景：跨服务异步操作</span></li>
+            <li><span class="blt">⑤</span><span><strong>Seata</strong>：阿里开源，支持 AT/TCC/Saga/XA 模式。AT 模式通过 undo_log 实现自动回滚，对业务无侵入</span></li>
+          </ul>
+          <p>实际项目推荐：高性能场景 → TCC；普通微服务 → Seata AT 模式；异步场景 → 消息最终一致性。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q22">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q22</span>
+        <span class="qa-qtext">TransactionSynchronizationManager 是什么？如何在事务提交后执行操作？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>TransactionSynchronizationManager</code> 是 Spring 事务的 ThreadLocal 存储中心，维护当前线程的事务状态（Connection、事务名、是否只读等）。</p>
+          <p><strong>事务提交后执行操作</strong>的典型场景（如发送 MQ 消息，需确保数据库提交后才发）：</p>
+          <pre>TransactionSynchronizationManager.registerSynchronization(
+    new TransactionSynchronizationAdapter() {
+        @Override
+        public void afterCommit() {
+            // 事务成功提交后执行，如发 MQ 消息
+            mqProducer.send(message);
+        }
+    }
+);</pre>
+          <p>或使用 Spring 4.2+ 的 <code>@TransactionalEventListener(phase = AFTER_COMMIT)</code> 注解更优雅地监听事务提交事件。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SECTION 04 MVC ═══════════════ -->
+    <div class="sec" id="mvc"><span class="sec-num">04</span> Spring MVC 题 <span class="q-count">Q23 – Q26</span></div>
+
+    <div class="qa-card" id="q23">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q23</span>
+        <span class="qa-qtext">Spring MVC 处理一个 HTTP 请求的完整流程是什么？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <div class="step-flow">
+            <div class="step"><div class="step-num">①</div><div><div class="step-title">请求进入 DispatcherServlet</div><div class="step-desc">前端控制器接收所有请求（/ 或 /*）</div></div></div>
+            <div class="step"><div class="step-num">②</div><div><div class="step-title">HandlerMapping 路由匹配</div><div class="step-desc">根据 URL 找到对应的 Handler（Controller 方法）和拦截器链</div></div></div>
+            <div class="step"><div class="step-num">③</div><div><div class="step-title">HandlerAdapter 执行</div><div class="step-desc">适配器模式，调用 Handler 方法，处理参数绑定（@RequestBody 等）</div></div></div>
+            <div class="step"><div class="step-num">④</div><div><div class="step-title">拦截器 preHandle</div><div class="step-desc">在 Handler 执行前调用，返回 false 则终止请求</div></div></div>
+            <div class="step"><div class="step-num">⑤</div><div><div class="step-title">Handler 方法执行</div><div class="step-desc">Controller 方法执行，@ResponseBody 场景由 HttpMessageConverter 序列化返回值</div></div></div>
+            <div class="step"><div class="step-num">⑥</div><div><div class="step-title">拦截器 postHandle</div><div class="step-desc">Handler 执行后、视图渲染前</div></div></div>
+            <div class="step"><div class="step-num">⑦</div><div><div class="step-title">视图渲染 / 响应写出</div><div class="step-desc">REST 场景直接写响应体，传统 MVC 用 ViewResolver 解析模板</div></div></div>
+            <div class="step"><div class="step-num">⑧</div><div><div class="step-title">拦截器 afterCompletion</div><div class="step-desc">请求完成后（含异常场景），清理资源</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q24">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q24</span>
+        <span class="qa-qtext">Filter 和 HandlerInterceptor 的区别？什么时候用哪个？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>Filter（过滤器）</th><th>HandlerInterceptor（拦截器）</th></tr>
+            <tr><td>规范</td><td>Servlet 规范，与 Spring 无关</td><td>Spring MVC 特有</td></tr>
+            <tr><td>作用范围</td><td>所有请求（含静态资源）</td><td>仅 DispatcherServlet 管控的请求</td></tr>
+            <tr><td>执行位置</td><td>最外层，在 Servlet 之前</td><td>DispatcherServlet 内部</td></tr>
+            <tr><td>能否访问 Spring Bean</td><td>需手动获取</td><td>直接注入</td></tr>
+            <tr><td>方法粒度</td><td>doFilter（单方法）</td><td>preHandle / postHandle / afterCompletion</td></tr>
+          </table>
+          <p>选择建议：跨域处理、请求日志、认证鉴权（与框架无关）→ Filter；业务拦截（需访问 Handler 信息、ModelAndView）→ Interceptor。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q25">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q25</span>
+        <span class="qa-qtext">Spring MVC 全局异常处理有哪些方式？@ControllerAdvice 的原理？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>三种全局异常处理方式：</p>
+          <ul>
+            <li><span class="blt">①</span><span><strong>@ControllerAdvice + @ExceptionHandler</strong>（推荐）：统一处理所有 Controller 异常，可返回 JSON 或视图</span></li>
+            <li><span class="blt">②</span><span><strong>HandlerExceptionResolver</strong>：实现该接口，注册为 Bean，更底层的异常处理机制</span></li>
+            <li><span class="blt">③</span><span><strong>@ResponseStatus</strong>：在异常类上标注，简单场景的异常 → HTTP 状态码映射</span></li>
+          </ul>
+          <p><code>@ControllerAdvice</code> 原理：本质是一个特殊的 Component，被 <code>ExceptionHandlerExceptionResolver</code> 扫描并缓存 @ExceptionHandler 方法。当 Controller 抛出异常时，DispatcherServlet 调用 <code>HandlerExceptionResolver</code> 链依次处理，<code>ExceptionHandlerExceptionResolver</code> 找到最匹配的 @ExceptionHandler 方法执行。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q26">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q26</span>
+        <span class="qa-qtext">@RequestBody 是如何将 JSON 转为 Java 对象的？HttpMessageConverter 原理？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>@RequestBody</code> 由 <code>RequestResponseBodyMethodProcessor</code> 处理，流程：</p>
+          <ul>
+            <li><span class="blt">①</span><span>读取请求头 <code>Content-Type</code>（如 <code>application/json</code>）</span></li>
+            <li><span class="blt">②</span><span>遍历注册的 <code>HttpMessageConverter</code> 列表，找到支持该 Content-Type 和目标类型的转换器</span></li>
+            <li><span class="blt">③</span><span>默认使用 <code>MappingJackson2HttpMessageConverter</code>，调用 Jackson <code>ObjectMapper</code> 反序列化</span></li>
+            <li><span class="blt">④</span><span>返回值序列化同理：读取 <code>Accept</code> 头 → 内容协商 → 找到合适 Converter → 写入响应体</span></li>
+          </ul>
+          <p>自定义 Converter：实现 <code>HttpMessageConverter</code> 接口并注册到 <code>WebMvcConfigurer#configureMessageConverters</code> 即可。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SECTION 05 Boot ═══════════════ -->
+    <div class="sec" id="boot"><span class="sec-num">05</span> Spring Boot 题 <span class="q-count">Q27 – Q30</span></div>
+
+    <div class="qa-card" id="q27">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q27</span>
+        <span class="qa-qtext">Spring Boot 自动装配的原理是什么？从注解到加载全过程？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>Spring Boot 高频必考。期望听到：@SpringBootApplication → @EnableAutoConfiguration → AutoConfigurationImportSelector → SPI 加载 → @Conditional 过滤 这条完整链路。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <div class="step-flow">
+            <div class="step"><div class="step-num">①</div><div><div class="step-title">@SpringBootApplication</div><div class="step-desc">组合注解，包含 @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan</div></div></div>
+            <div class="step"><div class="step-num">②</div><div><div class="step-title">@EnableAutoConfiguration</div><div class="step-desc">通过 @Import(AutoConfigurationImportSelector.class) 导入自动配置选择器</div></div></div>
+            <div class="step"><div class="step-num">③</div><div><div class="step-title">SPI 机制加载候选配置类</div><div class="step-desc">Boot 2.x：读取所有 jar 的 META-INF/spring.factories 中 EnableAutoConfiguration 键对应的类列表；Boot 3.x：改为读取 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</div></div></div>
+            <div class="step"><div class="step-num">④</div><div><div class="step-title">@Conditional 条件过滤</div><div class="step-desc">对候选类逐个检查 @ConditionalOnClass（classpath 存在特定类）、@ConditionalOnMissingBean（容器无该 Bean）等条件，不满足的直接跳过</div></div></div>
+            <div class="step"><div class="step-num">⑤</div><div><div class="step-title">注册满足条件的 AutoConfiguration</div><div class="step-desc">将通过条件的配置类注册为 BeanDefinition，后续走正常 Bean 创建流程</div></div></div>
+          </div>
+        </div>
+        <div class="qa-links">
+          <div class="qa-links-lbl">相关知识点</div>
+          <div class="qa-links-row">
+            <a class="qa-link" href="spring-05-boot.html#autoconfig">Boot · 自动装配详解</a>
+            <a class="qa-link" href="#q28">Q28 · 自定义 Starter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q28">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q28</span>
+        <span class="qa-qtext">如何自定义一个 Spring Boot Starter？需要哪些步骤？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>自定义 Starter 分为两个模块（推荐分离）：<code>xxx-spring-boot-autoconfigure</code>（自动配置逻辑）+ <code>xxx-spring-boot-starter</code>（只有 pom，引入依赖）。</p>
+          <div class="step-flow">
+            <div class="step"><div class="step-num">①</div><div><div class="step-title">创建 AutoConfiguration 类</div><div class="step-desc">加 @AutoConfiguration 或 @Configuration，用 @ConditionalOn* 控制装配条件</div></div></div>
+            <div class="step"><div class="step-num">②</div><div><div class="step-title">创建 ConfigurationProperties 类</div><div class="step-desc">@ConfigurationProperties(prefix="xxx") 绑定配置项</div></div></div>
+            <div class="step"><div class="step-num">③</div><div><div class="step-title">注册 AutoConfiguration</div><div class="step-desc">Boot 2.x：在 META-INF/spring.factories 中注册；Boot 3.x：在 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports 中注册</div></div></div>
+            <div class="step"><div class="step-num">④</div><div><div class="step-title">添加 spring-boot-configuration-processor</div><div class="step-desc">生成 META-INF/spring-configuration-metadata.json，IDE 自动补全配置项</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q29">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q29</span>
+        <span class="qa-qtext">SpringApplication.run() 的核心启动流程是什么？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <div class="step-flow">
+            <div class="step"><div class="step-num">①</div><div><div class="step-title">创建 SpringApplication 对象</div><div class="step-desc">推断应用类型（Servlet/Reactive/None），加载 ApplicationContextInitializer 和 ApplicationListener（SPI 机制）</div></div></div>
+            <div class="step"><div class="step-num">②</div><div><div class="step-title">发布 ApplicationStartingEvent</div><div class="step-desc">通知监听器应用启动开始</div></div></div>
+            <div class="step"><div class="step-num">③</div><div><div class="step-title">准备环境（prepareEnvironment）</div><div class="step-desc">加载配置文件、环境变量、命令行参数，发布 ApplicationEnvironmentPreparedEvent</div></div></div>
+            <div class="step"><div class="step-num">④</div><div><div class="step-title">创建 ApplicationContext</div><div class="step-desc">根据应用类型创建对应的 Context（如 AnnotationConfigServletWebServerApplicationContext）</div></div></div>
+            <div class="step"><div class="step-num">⑤</div><div><div class="step-title">refresh() 容器刷新</div><div class="step-desc">执行完整的 Spring IoC 容器启动流程，包含自动装配、Bean 创建</div></div></div>
+            <div class="step"><div class="step-num">⑥</div><div><div class="step-title">启动内嵌 Web 服务器</div><div class="step-desc">在 refresh() 的 onRefresh 阶段创建并启动 Tomcat/Jetty</div></div></div>
+            <div class="step"><div class="step-num">⑦</div><div><div class="step-title">执行 Runner</div><div class="step-desc">调用所有 CommandLineRunner 和 ApplicationRunner，发布 ApplicationReadyEvent</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" id="q30">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q30</span>
+        <span class="qa-qtext">Spring Boot 3.x 相比 2.x 有哪些重要变化？</span>
+        <span class="qa-badge new">新题</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <ul>
+            <li><span class="blt">①</span><span><strong>最低 Java 版本</strong>：要求 Java 17+（Spring 6 / Boot 3 基线）</span></li>
+            <li><span class="blt">②</span><span><strong>Jakarta EE 9+</strong>：javax.* 包全面替换为 jakarta.*（javax.servlet → jakarta.servlet），迁移成本较高</span></li>
+            <li><span class="blt">③</span><span><strong>AutoConfiguration 加载方式</strong>：spring.factories 中的 EnableAutoConfiguration 配置废弃，改用 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</span></li>
+            <li><span class="blt">④</span><span><strong>原生镜像支持（GraalVM Native Image）</strong>：AOT 编译支持，大幅减少启动时间和内存占用</span></li>
+            <li><span class="blt">⑤</span><span><strong>Actuator 优化</strong>：新增 /actuator/sbom 等端点，Prometheus 指标改为 OpenTelemetry</span></li>
+            <li><span class="blt">⑥</span><span><strong>HTTP 接口声明</strong>：新增 @HttpExchange 替代 Feign，原生支持声明式 HTTP 客户端</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mcontent -->
+
+</div><!-- /layout -->
+
+<script>
+// ── Q&A toggle ──
+function toggleQA(el) {
+  const card = el.closest('.qa-card');
+  const wasOpen = card.classList.contains('open');
+  card.classList.toggle('open', !wasOpen);
+  updateProgress();
+  // 更新 sidebar active
+  updateSidebarActive();
+}
+
+// ── Sidebar category toggle ──
+function toggleScat(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ── Toggle all Q&A ──
+function toggleAll(open) {
+  document.querySelectorAll('.qa-card').forEach(c => c.classList.toggle('open', open));
+  updateProgress();
+}
+
+// ── Filter by badge ──
+function filterByBadge(type) {
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===type));
+  document.querySelectorAll('.qa-card').forEach(card => {
+    if (!type) { card.style.display = ''; return; }
+    card.style.display = card.querySelector('.qa-badge.'+type) ? '' : 'none';
+  });
+}
+
+// ── Progress ──
+function updateProgress() {
+  const total = document.querySelectorAll('.qa-card').length;
+  const opened = document.querySelectorAll('.qa-card.open').length;
+  document.getElementById('pfill').style.width = (opened / total * 100) + '%';
+  document.getElementById('ptxt').textContent = opened + '/' + total;
+}
+
+// ── Sidebar active on scroll ──
+function updateSidebarActive() {
+  const items = document.querySelectorAll('.scat-item');
+  items.forEach(item => {
+    const href = item.getAttribute('href');
+    const target = document.querySelector(href);
+    item.classList.toggle('active', target && target.classList.contains('open'));
+  });
+}
+
+// Scroll spy
+window.addEventListener('scroll', () => {
+  const cards = document.querySelectorAll('.qa-card');
+  let current = null;
+  cards.forEach(card => {
+    const rect = card.getBoundingClientRect();
+    if (rect.top <= 80) current = card.id;
+  });
+  document.querySelectorAll('.scat-item').forEach(item => {
+    const id = item.getAttribute('href').replace('#', '');
+    item.classList.toggle('active', id === current);
+  });
+});
+
+// Init
+updateProgress();
+</script>
+</body>
+</html>

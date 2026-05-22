@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 03 · Consumer 深度解析</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'CONSUMER';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-zk  {fill:var(--bg3);stroke:var(--bd);stroke-width:1;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace;}
+.dg-yellow{fill:var(--yellow);font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px;}.g2,.g3{grid-template-columns:1fr;}.phase-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · 03 · CONSUMER</div>
+  <h1>Consumer 深度解析</h1>
+  <p class="subtitle">Consumer Group · Rebalance · Offset 管理 · 消费语义 · 幂等设计</p>
+</header>
+
+<nav>
+  <a href="#group-model">Group 模型</a>
+  <a href="#rebalance">Rebalance</a>
+  <a href="#static-member">静态成员</a>
+  <a href="#pull-model">Pull 模式</a>
+  <a href="#offset-commit">Offset 提交</a>
+  <a href="#offset-storage">Offset 存储</a>
+  <a href="#semantics">消费语义</a>
+  <a href="#interview">面试速答</a>
+</nav>
+
+<main>
+
+<div class="sec" id="group-model">Consumer Group 负载均衡</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">Topic · 4 Partitions — Consumer Group A · 3 Consumers</div>
+  <div class="diag-body">
+    <svg width="760" height="200" viewBox="0 0 760 200">
+      <rect class="dg-cluster" x="10" y="20" width="280" height="160" rx="8"/>
+      <text class="dg-t3" x="150" y="14" text-anchor="middle" font-size="10">Topic: orders</text>
+
+      <rect class="dg-box-o" x="30" y="40" width="70" height="36" rx="5"/>
+      <text class="dg-orange" x="65" y="54" text-anchor="middle" font-size="11" font-weight="700">P0</text>
+      <text class="dg-t3" x="65" y="68" text-anchor="middle" font-size="9">Partition 0</text>
+
+      <rect class="dg-box-o" x="120" y="40" width="70" height="36" rx="5"/>
+      <text class="dg-orange" x="155" y="54" text-anchor="middle" font-size="11" font-weight="700">P1</text>
+      <text class="dg-t3" x="155" y="68" text-anchor="middle" font-size="9">Partition 1</text>
+
+      <rect class="dg-box-o" x="30" y="110" width="70" height="36" rx="5"/>
+      <text class="dg-orange" x="65" y="124" text-anchor="middle" font-size="11" font-weight="700">P2</text>
+      <text class="dg-t3" x="65" y="138" text-anchor="middle" font-size="9">Partition 2</text>
+
+      <rect class="dg-box-o" x="120" y="110" width="70" height="36" rx="5"/>
+      <text class="dg-orange" x="155" y="124" text-anchor="middle" font-size="11" font-weight="700">P3</text>
+      <text class="dg-t3" x="155" y="138" text-anchor="middle" font-size="9">Partition 3</text>
+
+      <rect class="dg-cluster" x="460" y="10" width="280" height="178" rx="8"/>
+      <text class="dg-t3" x="600" y="6" text-anchor="middle" font-size="10">Consumer Group A</text>
+
+      <rect class="dg-box-g" x="480" y="26" width="110" height="40" rx="5"/>
+      <text class="dg-green" x="535" y="43" text-anchor="middle" font-size="11" font-weight="700">Consumer-1</text>
+      <text class="dg-t3" x="535" y="57" text-anchor="middle" font-size="9">P0 + P1</text>
+
+      <rect class="dg-box-g" x="480" y="82" width="110" height="40" rx="5"/>
+      <text class="dg-green" x="535" y="99" text-anchor="middle" font-size="11" font-weight="700">Consumer-2</text>
+      <text class="dg-t3" x="535" y="113" text-anchor="middle" font-size="9">P2</text>
+
+      <rect class="dg-box-g" x="480" y="138" width="110" height="40" rx="5"/>
+      <text class="dg-green" x="535" y="155" text-anchor="middle" font-size="11" font-weight="700">Consumer-3</text>
+      <text class="dg-t3" x="535" y="169" text-anchor="middle" font-size="9">P3</text>
+
+      <line class="dg-ln" x1="220" y1="54" x2="310" y2="100" marker-end="url(#arr)"/>
+      <line class="dg-ln" x1="220" y1="70" x2="310" y2="110" marker-end="url(#arr)"/>
+      <line class="dg-ln" x1="220" y1="124" x2="310" y2="130" marker-end="url(#arr)"/>
+      <line class="dg-ln" x1="220" y1="140" x2="310" y2="160" marker-end="url(#arr)"/>
+
+      <line class="dg-ln" x1="310" y1="95" x2="480" y2="46" marker-end="url(#arr)"/>
+      <line class="dg-ln" x1="310" y1="105" x2="480" y2="58" marker-end="url(#arr)"/>
+      <line class="dg-ln" x1="310" y1="128" x2="480" y2="102" marker-end="url(#arr)"/>
+      <line class="dg-ln" x1="310" y1="162" x2="480" y2="158" marker-end="url(#arr)"/>
+
+      <defs>
+        <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 Z" class="dg-box" style="stroke:none;fill:var(--bd2);"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">核心规则</div>
+      <div class="ovname">Partition 分配约束</div>
+      <div class="ovsub">同 Group 内消费互不重叠</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>同 Group 内每个 Partition <strong>只被一个 Consumer</strong> 消费</li>
+        <li><strong>Consumer 数 &gt; Partition 数</strong>：多余的 Consumer 空闲，浪费资源</li>
+        <li><strong>Consumer 数 &lt; Partition 数</strong>：部分 Consumer 负责多个 Partition</li>
+        <li>不同 Group 之间相互独立，同一 Partition 可被多 Group 各自消费</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">分配策略</div>
+      <div class="ovname">Partition Assignor</div>
+      <div class="ovsub">通过 <code>partition.assignment.strategy</code> 配置</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li><strong>RangeAssignor</strong>（默认）：按 Topic+Partition 范围切分，可能不均匀</li>
+        <li><strong>RoundRobinAssignor</strong>：轮询分配，均匀但 Rebalance 后变动大</li>
+        <li><strong>StickyAssignor</strong>：尽量保持上次分配，减少 Rebalance 迁移</li>
+        <li><strong>CooperativeStickyAssignor</strong>：增量式 Rebalance，Kafka 2.4+ 推荐</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="rebalance">Rebalance 全流程</div>
+
+<div class="note warn">
+  <span class="nlbl">WARN</span>
+  <p><strong>Stop-the-World 代价</strong>：Rebalance 期间所有 Consumer 停止消费，直到新分配方案下发完毕。大规模集群（数百个 Consumer）可能持续数十秒，期间消费完全中断，消息积压快速增长。</p>
+</div>
+
+<div class="fw c-r" style="margin-top:12px;">
+  <div class="fwh">
+    <span class="fwb">FLOW</span>
+    <span class="fwt">Rebalance 完整流程（6 步）</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">触发事件发生</div>
+        <div class="sd">任意一个条件触发：Consumer 加入或退出 Group；心跳超时（<strong>session.timeout.ms</strong>，默认 45s）；处理时间过长（<strong>max.poll.interval.ms</strong>，默认 5min）；Topic 分区数变化；Consumer 调用 <code>subscribe()</code> 更改订阅。GroupCoordinator 感知到成员变化。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">GroupCoordinator 发起 Rebalance</div>
+        <div class="sd">向所有 Consumer 发送 <strong>RebalanceInProgress</strong> 错误。所有 Consumer 收到后停止消费，<strong>提交当前 Offset</strong>，准备重新加入。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">JoinGroup 阶段</div>
+        <div class="sd">所有 Consumer 向 GroupCoordinator 发送 <code>JoinGroup</code> 请求，携带自己支持的分配策略列表。GroupCoordinator 选出 <strong>Leader Consumer</strong>（第一个加入的），并将所有成员列表返回给 Leader。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">SyncGroup 阶段</div>
+        <div class="sd">Leader Consumer 根据分配策略计算每个 Consumer 负责的 Partition，通过 <code>SyncGroup</code> 请求上报给 GroupCoordinator。GroupCoordinator 将分配结果<strong>下发给所有 Consumer</strong>。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Consumer 开始消费</div>
+        <div class="sd">每个 Consumer 按分配结果，从<strong>上次提交的 Offset</strong> 开始消费（或 <code>auto.offset.reset</code> 配置的位置）。消费恢复，积压开始消化。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">6</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">心跳维持</div>
+        <div class="sd">Consumer 定期发送 Heartbeat（<strong>heartbeat.interval.ms</strong>，建议为 <code>session.timeout.ms</code> 的 1/3）告知存活，GroupCoordinator 据此判断成员是否需要踢出。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note info">
+  <span class="nlbl">INFO</span>
+  <p><strong>CooperativeStickyAssignor</strong> 实现增量式 Rebalance：只暂停需要重新分配的 Partition，其余 Partition 继续消费不中断，大幅降低 Rebalance 对业务的影响。Kafka 2.4+ 强烈推荐切换。</p>
+</div>
+
+<div class="sec" id="static-member">静态成员减少 Rebalance</div>
+
+<div class="g2">
+  <div class="ovc c-r">
+    <div class="ovh">
+      <div class="ovtag">动态成员（默认）</div>
+      <div class="ovname">每次重启都触发 Rebalance</div>
+      <div class="ovsub">Consumer 重启被视为新成员加入</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>Consumer 重启 → 触发第 1 次 Rebalance（成员退出）</li>
+        <li>Consumer 恢复上线 → 触发第 2 次 Rebalance（成员加入）</li>
+        <li>滚动部署 N 个实例 → 触发 <strong>2N 次 Rebalance</strong></li>
+        <li>每次 Rebalance 可能导致数秒消费中断，代价极高</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">静态成员（group.instance.id）</div>
+      <div class="ovname">重启不触发 Rebalance</div>
+      <div class="ovsub">Consumer 配置唯一固定 ID</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>Consumer 配置唯一的 <strong>group.instance.id</strong></li>
+        <li>重启后在 <code>session.timeout.ms</code> 内重连，Coordinator 直接恢复之前分配，<strong>不触发 Rebalance</strong></li>
+        <li>超过超时时间才真正触发 Rebalance</li>
+        <li>适合：<strong>滚动重启、短暂网络抖动</strong>等场景</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="note good">
+  <span class="nlbl">BEST</span>
+  <p>生产环境建议为每个 Consumer 实例配置稳定的 <strong>group.instance.id</strong>（如 <code>${hostname}-${partition}</code>），配合适当的 <code>session.timeout.ms</code>，可将 Rebalance 频率降低 <strong>80% 以上</strong>。</p>
+</div>
+
+<div class="sec" id="pull-model">Pull 模式详解</div>
+
+<div class="g2">
+  <div class="ovc c-r">
+    <div class="ovh">
+      <div class="ovtag">PUSH 推模式</div>
+      <div class="ovname">Broker 主动推消息</div>
+      <div class="ovsub">代表：RabbitMQ</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>速率由 <strong>Broker 控制</strong>，Consumer 被动接收</li>
+        <li>Consumer 处理慢时消息在 Consumer 侧快速积压，甚至 <strong>OOM</strong></li>
+        <li>不同 Consumer 消费能力不同，统一推送速率难以兼顾</li>
+        <li>需要 Broker 维护每个 Consumer 的状态，复杂度高</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">PULL 拉模式</div>
+      <div class="ovname">Consumer 主动拉取</div>
+      <div class="ovsub">代表：Kafka、RocketMQ</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li>Consumer <strong>自控速率</strong>，按自身能力拉取，不会被推爆</li>
+        <li>可批量拉取（<code>max.poll.records</code>），提高吞吐</li>
+        <li>可按需控制 Fetch 大小，灵活适配不同场景</li>
+        <li>劣势：无消息时需轮询，通过 <strong>fetch.max.wait.ms 长轮询</strong>缓解</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh">
+    <span class="fwb">CONFIG</span>
+    <span class="fwt">Kafka Poll 循环关键参数</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">max.poll.records（默认 500）</div>
+        <div class="sd">单次 <code>poll()</code> 最多返回的消息条数。调小可减少单批处理时间（降低 <code>max.poll.interval.ms</code> 超时风险），调大可提高吞吐。<strong>处理逻辑重时建议调小到 50~100。</strong></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">fetch.min.bytes（默认 1 字节）</div>
+        <div class="sd">Broker 至少积累多少字节才返回响应，减少空响应次数。调大（如 64KB）可减少网络往返，<strong>适合高吞吐低延迟要求不高的场景。</strong></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">fetch.max.wait.ms（默认 500ms）</div>
+        <div class="sd">Broker 等待数据满足 <code>fetch.min.bytes</code> 的最长时间（长轮询）。超时后无论数据量多少都返回。<strong>控制消费延迟的关键参数。</strong></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">max.partition.fetch.bytes（默认 1MB）</div>
+        <div class="sd">每个 Partition 单次返回的最大字节数。总 Fetch 大小约为 <strong>Partition 数 × max.partition.fetch.bytes</strong>，需根据内存合理配置。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="offset-commit">Offset 提交方式</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>提交方式</th>
+        <th>API</th>
+        <th>触发时机</th>
+        <th>风险</th>
+        <th>适用场景</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>自动提交</td>
+        <td><code>enable.auto.commit=true</code></td>
+        <td>每隔 <code>auto.commit.interval.ms</code>（5s），在 <code>poll()</code> 时触发</td>
+        <td>可能<strong>重复消费</strong>（消费成功但提交前崩溃）或<strong>漏消费</strong>（提交后处理失败）</td>
+        <td>日志采集等允许少量重复的场景</td>
+      </tr>
+      <tr>
+        <td>手动同步提交</td>
+        <td><code>commitSync()</code></td>
+        <td>处理完消息后手动调用，阻塞直到 Broker 确认</td>
+        <td>提交失败会抛异常，吞吐略低于异步提交</td>
+        <td>需要精确控制、不允许丢失的业务场景</td>
+      </tr>
+      <tr>
+        <td>手动异步提交</td>
+        <td><code>commitAsync(callback)</code></td>
+        <td>非阻塞提交，结果通过 callback 异步通知</td>
+        <td>重试可能导致旧 Offset 覆盖新 Offset，需自行处理重试逻辑</td>
+        <td>高吞吐场景，配合关闭时 commitSync 兜底</td>
+      </tr>
+      <tr>
+        <td>精确提交指定 Offset</td>
+        <td><code>commitSync(Map&lt;TopicPartition, OffsetAndMetadata&gt;)</code></td>
+        <td>手动指定每个 Partition 的精确 Offset</td>
+        <td>实现复杂，需自行维护 Offset Map</td>
+        <td>精确一次语义、批次内部分成功场景</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">WARN</span>
+  <p><strong>最佳实践</strong>：先处理消息，再提交 Offset（At-least-once）。如果先提交再处理（At-most-once），Consumer 崩溃后该消息的 Offset 已提交，<strong>重启后不会再消费，消息永久丢失。</strong></p>
+</div>
+
+<div class="sec" id="offset-storage">__consumer_offsets 存储原理</div>
+
+<div class="fw c-p">
+  <div class="fwh">
+    <span class="fwb">STORAGE</span>
+    <span class="fwt">__consumer_offsets 内部机制</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Topic 结构</div>
+        <div class="sd"><code>__consumer_offsets</code> 是 Kafka 内置 Topic，默认 <strong>50 个 Partition</strong>，<code>replication.factor=3</code>。每个 Consumer Group 的 Offset 被路由到固定的 Partition：</div>
+        <div class="sc">Math.abs(groupId.hashCode()) % 50</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消息格式</div>
+        <div class="sd"><strong>Key</strong>：<code>&lt;GroupId, Topic, Partition&gt;</code> 三元组唯一标识一个消费位点。<strong>Value</strong>：<code>OffsetAndMetadata</code>，包含 offset 值、提交时间戳、可选自定义 metadata 字符串。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">GroupCoordinator 负责</div>
+        <div class="sd">每个 Consumer Group 对应一个 <strong>GroupCoordinator</strong>（管理该 Group Offset 所在 Partition Leader 的 Broker）。Consumer 提交 Offset 直接发给 GroupCoordinator，<strong>不经过 ZooKeeper</strong>（Kafka 0.9+ 后迁移至内部 Topic）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Log Compaction 清理</div>
+        <div class="sd"><code>__consumer_offsets</code> 使用 <strong>Log Compaction</strong> 策略，只保留每个 Key 的最新 Offset 记录。过期 Group 数据（<code>offsets.retention.minutes</code>，默认 <strong>7 天</strong>）会被自动删除。</div>
+        <div class="sc"><span class="cm"># 查看 Consumer Group 消费情况</span>
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --describe</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="semantics">消费语义与幂等设计</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--red);">AT-MOST-ONCE</div>
+    <div class="phase-title" style="color:var(--red);">最多一次</div>
+    <ul class="phase-items">
+      <li><strong>先提交 Offset，再处理消息</strong></li>
+      <li>处理失败后不重试，消息可能<strong>丢失</strong></li>
+      <li>实现最简单，无需幂等</li>
+      <li>适合：日志统计、监控打点等允许丢失的场景</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--orange);">AT-LEAST-ONCE</div>
+    <div class="phase-title" style="color:var(--orange);">至少一次</div>
+    <ul class="phase-items">
+      <li><strong>先处理消息，再提交 Offset</strong></li>
+      <li>提交失败重启后重新消费，消息可能<strong>重复</strong></li>
+      <li><strong>Kafka 默认语义</strong>，需要下游做幂等</li>
+      <li>适合：大多数业务场景配合幂等处理</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--green);">EXACTLY-ONCE</div>
+    <div class="phase-title" style="color:var(--green);">精确一次</div>
+    <ul class="phase-items">
+      <li>事务 Producer + Consumer <code>read_committed</code></li>
+      <li>或下游系统幂等写入保证</li>
+      <li>复杂度高，有性能开销</li>
+      <li>适合：<strong>金融支付、库存扣减</strong>等核心场景</li>
+    </ul>
+  </div>
+</div>
+
+<div class="fw c-g">
+  <div class="fwh">
+    <span class="fwb">PATTERN</span>
+    <span class="fwt">4 种幂等设计实践</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">方案1 — 数据库唯一键</div>
+        <div class="sd">消息中携带唯一业务 ID（如订单号），使用数据库唯一索引 INSERT。重复消息触发 <strong>duplicate key error</strong>，catch 后直接返回成功。简单可靠，适合写入量不大的场景。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">方案2 — Redis 去重</div>
+        <div class="sd">消费前用 <code>SET key NX EX 86400</code> 尝试占位，<strong>成功才处理</strong>，失败说明已处理直接跳过。注意：Redis 重启可能导致去重失效，适合处理时间短、允许极低概率重复的场景。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">方案3 — 状态机去重</div>
+        <div class="sd">通过业务状态机保证同一操作不会被重复执行（如订单状态 <code>PENDING → PAID</code>，重复支付请求检查状态后直接返回成功）。<strong>最符合业务语义</strong>，需要完善的状态设计。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">方案4 — Kafka 事务 + 原子写</div>
+        <div class="sd">Producer 事务保证 Consume-Transform-Produce 的原子性。Consumer 配置 <code>isolation.level=read_committed</code> 只读已提交事务的消息。<strong>适合流处理管道（Kafka to Kafka）场景。</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="interview">面试速答</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">Q&amp;A</span>
+    <span class="fwt">Consumer 核心面试题（6 道）</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl"><div class="sn">Q1</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Rebalance 的触发条件和完整流程？</div>
+        <div class="sd"><strong>触发</strong>：成员变化（加入/退出/心跳超时）、订阅变化、分区数变化。<strong>流程</strong>：所有 Consumer 停止消费 → 提交 Offset → JoinGroup（GroupCoordinator 选出 Leader Consumer，下发成员列表）→ SyncGroup（Leader 计算分配方案，通过 Coordinator 下发给所有 Consumer）→ Consumer 按新分配继续消费 → 维持心跳。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q2</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">如何减少 Rebalance？</div>
+        <div class="sd">① 配置 <strong>group.instance.id</strong> 启用静态成员；② 合理调大 <code>session.timeout.ms</code> 减少误判；③ 合理设置 <code>max.poll.interval.ms</code> 避免处理超时；④ 使用 <strong>CooperativeStickyAssignor</strong> 实现增量式 Rebalance；⑤ 减少 Consumer 实例的频繁重启。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q3</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">自动提交和手动提交的区别？什么时候用哪个？</div>
+        <div class="sd">自动提交简单但有重复/丢失风险；手动提交精确但实现复杂。<strong>生产建议</strong>：先处理再 <code>commitSync()</code>，或 <code>commitAsync()</code> + 关闭时 <code>commitSync()</code> 兜底。日志采集可用自动提交，<strong>订单支付必须手动提交。</strong></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q4</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">消费了消息但没提交 Offset，重启后会怎样？</div>
+        <div class="sd">重启后从<strong>最近一次提交的 Offset</strong> 开始消费，即重新消费那些处理过但未提交的消息（At-least-once 语义）。如果下游处理没有幂等设计，会导致<strong>重复处理</strong>，产生脏数据。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q5</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">Kafka Pull 模式相比 Push 模式有什么优势？</div>
+        <div class="sd">① 消费者<strong>自控速率</strong>，不会被 Broker 推爆；② 可批量拉取，提高吞吐；③ 灵活控制 Fetch 大小和等待时间；④ <strong>Offset 由 Consumer 维护</strong>，支持任意位置重置消费。劣势：无消息时需轮询，通过 <code>fetch.max.wait.ms</code> 长轮询优化。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl"><div class="sn">Q6</div><div class="sline"></div></div>
+      <div class="sb">
+        <div class="st">__consumer_offsets 是什么？提交失败怎么办？</div>
+        <div class="sd"><code>__consumer_offsets</code> 是 Kafka 内置 Topic，存储所有 Consumer Group 的提交 Offset，默认 50 个 Partition，使用 Log Compaction 策略。<strong>commitSync() 失败</strong>会抛异常，必须捕获后重试或报警，不能忽略。<strong>commitAsync() 失败</strong>通过 callback 处理，注意避免重试导致旧 Offset 覆盖新 Offset（可在回调中只记录日志，由下次提交自然覆盖）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

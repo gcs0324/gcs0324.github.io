@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 并发 05 · 线程池</title>
+<style>
+header::before{content:'POOL'}
+/* 任务流程图 */
+.flow{display:flex;flex-wrap:wrap;gap:0;align-items:stretch;margin:14px 0}
+.flow-box{padding:12px 14px;border:1px solid var(--bd);border-radius:6px;font-size:12.5px;color:var(--tx2);background:var(--bg2);flex:1;min-width:120px}
+.flow-box strong{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);margin-bottom:4px}
+.flow-arrow{display:flex;align-items:center;padding:0 6px;color:var(--tx3);font-size:16px}
+/* 参数卡片 */
+.param-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.param-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 14px}
+.param-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.param-desc{font-size:12px;color:var(--tx2)}
+@media(max-width:600px){.flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-concurrent.js"></script>
+<header>
+  <div class="htag">CONCURRENT · 05 · POOL</div>
+  <h1>线程池</h1>
+  <p class="sub">7个核心参数 · 任务执行流程 · 拒绝策略 · 配置公式 · ForkJoinPool</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#params"><span class="s-num">01</span>7 个核心参数</a>
+    <a class="s-link" href="#flow"><span class="s-num">02</span>任务执行流程</a>
+    <a class="s-link" href="#reject"><span class="s-num">03</span>4 种拒绝策略</a>
+    <a class="s-link" href="#config"><span class="s-num">04</span>线程数配置</a>
+    <a class="s-link" href="#builtin"><span class="s-num">05</span>4 种内置线程池</a>
+    <a class="s-link" href="#monitor"><span class="s-num">06</span>监控与动态调参</a>
+    <a class="s-link" href="#lifecycle"><span class="s-num">07</span>线程池状态</a>
+    <a class="s-link" href="#forkjoin"><span class="s-num">08</span>ForkJoinPool</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="concurrent-06-interview.html#pool">→ 面试题 线程池</a>
+    <a class="s-link" href="concurrent-06-interview.html">→ 下一章：面试题</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 7个核心参数 -->
+    <div class="sec" id="params"><span class="sn">01</span>ThreadPoolExecutor — 7 个核心参数</div>
+    <div class="card">
+      <div class="ct">构造函数参数</div>
+      <pre>new ThreadPoolExecutor(
+    int corePoolSize,        // ① 核心线程数（常驻线程）
+    int maximumPoolSize,     // ② 最大线程数
+    long keepAliveTime,      // ③ 非核心线程空闲存活时间
+    TimeUnit unit,           // ④ 时间单位
+    BlockingQueue workQueue, // ⑤ 任务等待队列
+    ThreadFactory factory,   // ⑥ 线程创建工厂（命名、异常处理）
+    RejectedExecutionHandler // ⑦ 拒绝策略
+);</pre>
+      <div class="param-grid">
+        <div class="param-item"><div class="param-name">① corePoolSize</div><div class="param-desc">核心线程数，创建后不会销毁（即使空闲），除非 allowCoreThreadTimeOut=true</div></div>
+        <div class="param-item"><div class="param-name">② maximumPoolSize</div><div class="param-desc">线程池最大线程数。队列满后，若当前线程数 < max，创建非核心线程</div></div>
+        <div class="param-item"><div class="param-name">③④ keepAlive</div><div class="param-desc">非核心线程空闲超过此时间则销毁，直到线程数等于 corePoolSize</div></div>
+        <div class="param-item"><div class="param-name">⑤ workQueue</div><div class="param-desc">任务等待队列：有界队列（ArrayBQ）/ 无界队列（LinkedBQ）/ 直接传递（SynchronousQ）</div></div>
+        <div class="param-item"><div class="param-name">⑥ threadFactory</div><div class="param-desc">创建线程的工厂，可自定义线程名称、优先级、未捕获异常处理器（强烈建议自定义命名）</div></div>
+        <div class="param-item"><div class="param-name">⑦ handler</div><div class="param-desc">队列满且线程数达 max 时的拒绝策略（4种内置 + 自定义）</div></div>
+      </div>
+    </div>
+
+    <!-- 02 任务执行流程 -->
+    <div class="sec" id="flow"><span class="sn">02</span>任务执行流程</div>
+    <div class="card">
+      <div class="ct">提交任务的判断优先级</div>
+      <div class="flow">
+        <div class="flow-box"><strong>线程数 &lt; core</strong>创建新核心线程执行</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box"><strong>线程数 ≥ core</strong>放入工作队列等待</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box"><strong>队列已满</strong>线程数 &lt; max则创建非核心线程</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box"><strong>线程数 = max</strong>且队列满，执行拒绝策略</div>
+      </div>
+      <div class="note warn"><strong>关键细节</strong>：线程数先达到 core 就入队，不是先扩到 max 再入队。这是很多人的误区！只有队列满了才会创建非核心线程。</div>
+      <pre>// execute() vs submit()
+executor.execute(runnable);           // 无返回值，异常直接抛出
+Future&lt;T&gt; f = executor.submit(callable); // 有返回值，异常封装在 Future 中</pre>
+    </div>
+
+    <!-- 03 拒绝策略 -->
+    <div class="sec" id="reject"><span class="sn">03</span>4 种拒绝策略</div>
+    <div class="card">
+      <div class="ct">内置拒绝策略对比</div>
+      <table class="tbl">
+        <tr><th>策略</th><th>行为</th><th>适用场景</th></tr>
+        <tr><td>AbortPolicy（默认）</td><td>抛出 RejectedExecutionException</td><td>需要明确感知任务被拒绝</td></tr>
+        <tr><td>CallerRunsPolicy</td><td>由调用 execute() 的线程直接执行</td><td>不丢任务，通过降低提交速度形成反压</td></tr>
+        <tr><td>DiscardOldestPolicy</td><td>丢弃队列最老的任务，尝试重新提交</td><td>优先保留最新任务</td></tr>
+        <tr><td>DiscardPolicy</td><td>静默丢弃，不抛异常</td><td>允许丢失任务（如非关键日志）</td></tr>
+      </table>
+      <div class="note info"><strong>生产建议</strong>：绝大多数场景用 <code>CallerRunsPolicy</code>（不丢任务 + 自动限流）；关键业务用自定义策略（记录日志、写入 DB 或 MQ 补偿）。</div>
+    </div>
+
+    <!-- 04 线程数配置 -->
+    <div class="sec" id="config"><span class="sn">04</span>线程数配置公式</div>
+    <div class="card">
+      <div class="ct">CPU 密集 vs IO 密集</div>
+      <table class="tbl">
+        <tr><th>任务类型</th><th>推荐线程数</th><th>说明</th></tr>
+        <tr><td>CPU 密集型</td><td>N + 1</td><td>N = CPU 核数。+1 防止偶发中断导致 CPU 空闲，多了反而增加上下文切换</td></tr>
+        <tr><td>IO 密集型</td><td>2N 或更多</td><td>线程等待 IO 时 CPU 空闲，可利用更多线程充分利用 CPU</td></tr>
+        <tr><td>混合型</td><td>N / (1 - 阻塞系数)</td><td>阻塞系数 = IO 时间 / (IO + CPU 时间)，例如 80% 时间等IO，系数=0.8，则 N/0.2 = 5N</td></tr>
+      </table>
+      <div class="note warn"><strong>公式仅是起点</strong>：实际需要通过压测观察 CPU 利用率、响应时间、队列积压情况动态调整。美团有"动态线程池"实践可参考。</div>
+    </div>
+    <div class="card">
+      <div class="ct">自定义线程池最佳实践</div>
+      <pre>// 推荐写法：有界队列 + 明确命名 + CallerRunsPolicy
+ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    10,                          // core：根据压测设定
+    20,                          // max
+    60L, TimeUnit.SECONDS,
+    new ArrayBlockingQueue&lt;&gt;(1000),  // 有界队列！
+    new ThreadFactoryBuilder()
+        .setNameFormat("order-pool-%d")  // 命名便于排查
+        .setUncaughtExceptionHandler((t, e) -&gt; log.error("线程异常", e))
+        .build(),
+    new ThreadPoolExecutor.CallerRunsPolicy() // 反压
+);
+
+// 优雅关闭
+executor.shutdown();           // 不接受新任务，等已有任务完成
+executor.awaitTermination(30, TimeUnit.SECONDS);
+// 若超时还没完成
+executor.shutdownNow();        // 发送 interrupt() 信号给所有线程</pre>
+    </div>
+
+    <!-- 05 内置线程池 -->
+    <div class="sec" id="builtin"><span class="sn">05</span>4 种内置线程池（Executors 工厂）</div>
+    <div class="card">
+      <div class="ct">内置线程池对比</div>
+      <table class="tbl">
+        <tr><th>名称</th><th>core/max</th><th>队列</th><th>风险</th></tr>
+        <tr><td>FixedThreadPool(n)</td><td>n/n</td><td>LinkedBlockingQueue（无界）</td><td>队列无界，OOM</td></tr>
+        <tr><td>CachedThreadPool</td><td>0/Integer.MAX</td><td>SynchronousQueue</td><td>线程数无限，OOM</td></tr>
+        <tr><td>SingleThreadExecutor</td><td>1/1</td><td>LinkedBlockingQueue（无界）</td><td>队列无界，OOM</td></tr>
+        <tr><td>ScheduledThreadPool(n)</td><td>n/Integer.MAX</td><td>DelayedWorkQueue</td><td>线程数无限，OOM</td></tr>
+      </table>
+      <div class="note danger"><strong>阿里 Java 规范：禁止使用 Executors 工厂方法创建线程池</strong>。原因：FixedThreadPool/SingleThreadExecutor 使用无界队列，可能堆积大量请求导致 OOM；CachedThreadPool 可创建 Integer.MAX_VALUE 个线程，同样 OOM 风险。应使用 ThreadPoolExecutor 构造函数明确指定所有参数。</div>
+    </div>
+
+    <!-- 06 监控 -->
+    <div class="sec" id="monitor"><span class="sn">06</span>线程池监控</div>
+    <div class="card">
+      <div class="ct">关键监控指标</div>
+      <pre>// 核心监控方法
+executor.getPoolSize()          // 当前线程数
+executor.getCorePoolSize()      // 核心线程数
+executor.getMaximumPoolSize()   // 最大线程数
+executor.getActiveCount()       // 活跃（执行中）线程数
+executor.getCompletedTaskCount()// 已完成任务数
+executor.getTaskCount()         // 总提交任务数
+executor.getQueue().size()      // 队列中等待的任务数
+executor.getQueue().remainingCapacity() // 队列剩余容量
+
+// 动态调参（运行时修改）
+executor.setCorePoolSize(newCore);
+executor.setMaximumPoolSize(newMax);
+executor.setKeepAliveTime(newTime, TimeUnit.SECONDS);</pre>
+      <div class="note info">推荐实践：通过 Spring Boot Actuator 或自定义 MeterRegistry 将以上指标暴露为 Prometheus 指标，实现实时监控和告警（队列积压率 > 80% 告警）。</div>
+    </div>
+
+    <!-- 07 线程池状态 -->
+    <div class="sec" id="lifecycle"><span class="sn">07</span>线程池生命周期状态</div>
+    <div class="card">
+      <div class="ct">5 种状态转换</div>
+      <table class="tbl">
+        <tr><th>状态</th><th>说明</th><th>转换触发</th></tr>
+        <tr><td>RUNNING</td><td>正常运行，接受新任务，处理队列任务</td><td>初始状态</td></tr>
+        <tr><td>SHUTDOWN</td><td>不接受新任务，继续处理队列中的任务</td><td>shutdown()</td></tr>
+        <tr><td>STOP</td><td>不接受新任务，不处理队列任务，中断执行中的任务</td><td>shutdownNow()</td></tr>
+        <tr><td>TIDYING</td><td>所有任务终止，workerCount=0，将执行 terminated()</td><td>自动过渡</td></tr>
+        <tr><td>TERMINATED</td><td>terminated() 执行完毕</td><td>terminated() 返回</td></tr>
+      </table>
+      <p>状态值存储在 AtomicInteger 的高 3 位（与 workerCount 共用一个变量，RUNNING=-1<<29 为负数）。</p>
+    </div>
+
+    <!-- 08 ForkJoinPool -->
+    <div class="sec" id="forkjoin"><span class="sn">08</span>ForkJoinPool</div>
+    <div class="card">
+      <div class="ct">工作窃取算法</div>
+      <p>ForkJoinPool 每个线程有自己的双端任务队列（Deque），线程从队列头取任务，若自己的队列空了，则从其他线程队列<span class="kw">尾部</span>窃取任务，减少竞争：</p>
+      <pre>// RecursiveTask（有返回值）示例：并行求和
+class SumTask extends RecursiveTask&lt;Long&gt; {
+    private final long[] arr;
+    private final int from, to;
+    static final int THRESHOLD = 1000;
+
+    @Override
+    protected Long compute() {
+        if (to - from &lt;= THRESHOLD) {
+            // 任务足够小，直接计算
+            long sum = 0;
+            for (int i = from; i &lt; to; i++) sum += arr[i];
+            return sum;
+        }
+        // 任务太大，分裂
+        int mid = (from + to) / 2;
+        SumTask left  = new SumTask(arr, from, mid);
+        SumTask right = new SumTask(arr, mid, to);
+        left.fork();               // 异步提交左半部分
+        return right.compute()     // 当前线程计算右半部分
+             + left.join();        // 等待左半部分结果
+    }
+}
+
+ForkJoinPool pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+long result = pool.invoke(new SumTask(arr, 0, arr.length));</pre>
+      <div class="note info"><strong>并行流与 ForkJoinPool</strong>：<code>list.parallelStream()</code> 底层使用 <code>ForkJoinPool.commonPool()</code>（全局共享，默认 CPU 核数-1）。若需要控制并行度或隔离，应显式提交到自定义 ForkJoinPool。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 复习大纲 · 10 章知识体系</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'OUTLINE';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+/* overview stats */
+.ov-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;}
+.ov-card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;text-align:center;}
+.ov-num{font-size:22px;font-weight:700;color:var(--tx);font-family:'IBM Plex Mono',monospace;}
+.ov-label{font-size:11px;color:var(--tx3);margin-top:2px;}
+
+/* learning path */
+.path-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.path-head{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.path-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.path-title{font-size:14px;font-weight:600;color:var(--tx);}
+.path-body{padding:18px 20px;}
+
+/* phase 1 chain */
+.chain{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:14px;}
+.chain-node{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:7px 12px;}
+.chain-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue);}
+.chain-name{font-size:12px;color:var(--tx2);}
+.chain-arrow{font-size:14px;color:var(--tx3);padding:0 4px;flex-shrink:0;}
+.chain-note{font-size:12px;color:var(--tx3);margin-bottom:14px;padding-left:2px;}
+
+/* direction cards */
+.dir-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.dir-card{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;}
+.dir-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;border-radius:3px;border:1px solid;padding:2px 6px;display:inline-block;margin-bottom:7px;}
+.dir-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px;}
+.dir-desc{font-size:12px;color:var(--tx2);line-height:1.6;}
+
+/* tag legend */
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+.leg-tag{font-size:10px;border-radius:4px;padding:2px 6px;font-weight:600;}
+
+/* chapter list */
+.chapter{border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--bg2);}
+.ch-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none;background:var(--bg2);border-bottom:1px solid transparent;transition:background .15s;}
+.ch-header:hover{background:var(--bg3);}
+.chapter.open .ch-header{border-bottom-color:var(--bd);}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid;}
+.ch-title{font-size:14px;font-weight:600;color:var(--tx);flex:1;}
+.ch-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.ch-meta{font-size:11px;color:var(--tx3);flex-shrink:0;}
+.chevron{font-size:12px;color:var(--tx3);transition:transform .2s;flex-shrink:0;}
+.chapter.open .chevron{transform:rotate(180deg);}
+.ch-body{display:none;padding:14px 18px 16px;}
+.chapter.open .ch-body{display:block;}
+
+/* sections inside chapter */
+.csec{margin-bottom:10px;}
+.csec-title{font-size:12px;font-weight:600;color:var(--tx2);display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--bd);}
+.csec-title i{font-size:13px;color:var(--tx3);}
+.items{padding-left:4px;display:flex;flex-direction:column;gap:3px;}
+.item{font-size:13px;color:var(--tx2);line-height:1.65;display:flex;align-items:baseline;gap:7px;}
+.item::before{content:"·";color:var(--tx3);flex-shrink:0;}
+.divider{height:1px;background:var(--bd);margin:10px 0;}
+
+/* item tags */
+.tag-hot{font-size:10px;color:#993C1D;background:#FAECE7;border-radius:4px;padding:1px 5px;font-weight:600;flex-shrink:0;}
+.tag-key{font-size:10px;color:#185FA5;background:#E6F1FB;border-radius:4px;padding:1px 5px;font-weight:600;flex-shrink:0;}
+.tag-new{font-size:10px;color:#085041;background:#E1F5EE;border-radius:4px;padding:1px 5px;font-weight:600;flex-shrink:0;}
+[data-theme="dark"] .tag-hot{background:#712B13;color:#F5C4B3;}
+[data-theme="dark"] .tag-key{background:#0C447C;color:#B5D4F4;}
+[data-theme="dark"] .tag-new{background:#085041;color:#9FE1CB;}
+
+/* chapter color themes */
+.c-b .ch-num{background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);}
+.c-b .ch-badge{background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);}
+.c-r .ch-num{background:var(--red-bg);color:var(--red);border-color:var(--red-b);}
+.c-r .ch-badge{background:var(--red-bg);color:var(--red);border-color:var(--red-b);}
+.c-o .ch-num{background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);}
+.c-o .ch-badge{background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);}
+.c-p .ch-num{background:var(--pur-bg);color:var(--purple);border-color:var(--pur-b);}
+.c-p .ch-badge{background:var(--pur-bg);color:var(--purple);border-color:var(--pur-b);}
+.c-t .ch-num{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-b);}
+.c-t .ch-badge{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-b);}
+.c-y .ch-num{background:var(--yel-bg);color:var(--yellow);border-color:var(--yel-b);}
+.c-y .ch-badge{background:var(--yel-bg);color:var(--yellow);border-color:var(--yel-b);}
+.c-g .ch-num{background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);}
+.c-g .ch-badge{background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);}
+
+/* direction card colors */
+.dir-card.c-b .dir-label{background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);}
+.dir-card.c-r .dir-label{background:var(--red-bg);color:var(--red);border-color:var(--red-b);}
+.dir-card.c-o .dir-label{background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);}
+.dir-card.c-g .dir-label{background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);}
+.dir-card.c-t .dir-label{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-b);}
+.dir-card.c-p .dir-label{background:var(--pur-bg);color:var(--purple);border-color:var(--pur-b);}
+
+@media(max-width:768px){
+  header,nav,main{padding-left:20px;padding-right:20px;}
+  .ov-grid{grid-template-columns:repeat(2,1fr);}
+  .dir-grid{grid-template-columns:1fr;}
+  .chain{gap:4px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · STUDY OUTLINE</div>
+  <h1>Kafka 复习大纲</h1>
+  <p class="subtitle">10 章知识体系 · 60+ 知识点 · 30+ 高频面试题 · Java 高级工程师视角</p>
+</header>
+
+<nav>
+  <a href="#overview">概览</a>
+  <a href="#path">学习顺序</a>
+  <a href="#outline">章节大纲</a>
+  <a href="#ch0">01 基础架构</a>
+  <a href="#ch1">02 Producer</a>
+  <a href="#ch2">03 Consumer</a>
+  <a href="#ch3">04 存储机制</a>
+  <a href="#ch4">05 副本机制</a>
+  <a href="#ch5">06 事务 EOS</a>
+  <a href="#ch6">07 运维监控</a>
+  <a href="#ch7">08 高性能高可用</a>
+  <a href="#ch8">09 Streams 生态</a>
+  <a href="#ch9">10 面试题汇总</a>
+</nav>
+
+<main>
+
+  <!-- 概览 -->
+  <div class="sec" id="overview">OVERVIEW · 全局概览</div>
+  <div class="ov-grid">
+    <div class="ov-card"><div class="ov-num">10</div><div class="ov-label">核心章节</div></div>
+    <div class="ov-card"><div class="ov-num">60+</div><div class="ov-label">知识点</div></div>
+    <div class="ov-card"><div class="ov-num">30+</div><div class="ov-label">高频面试题</div></div>
+    <div class="ov-card"><div class="ov-num">15+</div><div class="ov-label">生产实践</div></div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><span class="leg-tag tag-hot">高频</span>面试出现概率 90%+，必须能手撕</div>
+    <div class="leg-item"><span class="leg-tag tag-key">重点</span>日常工作和面试都会涉及</div>
+    <div class="leg-item"><span class="leg-tag tag-new">新特性</span>Kafka 3.x 新增，加分项</div>
+  </div>
+
+  <!-- 学习顺序 -->
+  <div class="sec" id="path">LEARNING PATH · 学习顺序推荐</div>
+
+  <div class="path-wrap" style="margin-bottom:10px;">
+    <div class="path-head">
+      <span class="path-badge" style="background:var(--blu-bg);color:var(--blue);border-color:var(--blu-b);">PHASE 1</span>
+      <span class="path-title">先打通核心原理链路（所有面试题的基础）</span>
+    </div>
+    <div class="path-body">
+      <div class="chain">
+        <div class="chain-node"><span class="chain-num">01</span><span class="chain-name">基础架构</span></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node"><span class="chain-num">02</span><span class="chain-name">Producer</span></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node"><span class="chain-num">03</span><span class="chain-name">Consumer</span></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node"><span class="chain-num">04</span><span class="chain-name">存储机制</span></div>
+        <span class="chain-arrow">→</span>
+        <div class="chain-node"><span class="chain-num">05</span><span class="chain-name">副本机制</span></div>
+      </div>
+      <p class="chain-note">这 5 章是所有面试题的基础，建议按序完整过一遍再选方向深入。</p>
+    </div>
+  </div>
+
+  <div class="path-wrap">
+    <div class="path-head">
+      <span class="path-badge" style="background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);">PHASE 2</span>
+      <span class="path-title">根据目标方向选择深入</span>
+    </div>
+    <div class="path-body">
+      <div class="dir-grid">
+        <div class="dir-card c-r">
+          <div class="dir-label">保证可靠性方向</div>
+          <div class="dir-title">重点攻 <code>06</code></div>
+          <div class="dir-desc">事务与 Exactly-Once Semantics，Producer 幂等 + 事务的端到端实现。</div>
+        </div>
+        <div class="dir-card c-o">
+          <div class="dir-label">大规模系统方向</div>
+          <div class="dir-title">重点攻 <code>07</code> + <code>08</code></div>
+          <div class="dir-desc">集群运维监控 + 高性能高可用设计，系统设计面试核心考点。</div>
+        </div>
+        <div class="dir-card c-t">
+          <div class="dir-label">大数据 / 流处理方向</div>
+          <div class="dir-title">补充 <code>09</code></div>
+          <div class="dir-desc">Kafka Streams、Connect、Schema Registry，以及与 Flink / Spark 的集成实践。</div>
+        </div>
+        <div class="dir-card c-p">
+          <div class="dir-label">面试冲刺</div>
+          <div class="dir-title">精读 <code>10</code></div>
+          <div class="dir-desc">30+ 道高频真题全部过一遍，故障排查思路与消息积压处理方案。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 章节大纲 -->
+  <div class="sec" id="outline">CHAPTERS · 章节大纲</div>
+  <div id="chapters"></div>
+
+</main>
+
+<script>
+const chapters = [
+  {
+    color:"c-b", num:"01", title:"Kafka 基础架构与核心概念",
+    badge:"基础必备", meta:"面试必考", link:"kafka-01-architecture.html",
+    sections:[
+      {title:"整体架构", icon:"ti-hierarchy", items:[
+        ["Kafka 在消息系统中的定位（对比 RabbitMQ / RocketMQ）","key"],
+        ["核心组件：Broker、Topic、Partition、Replica","key"],
+        ["Producer / Consumer / Consumer Group 角色模型","key"],
+        ["ZooKeeper 的职责与 KRaft 模式（去 ZK）","hot"],
+      ]},
+      {title:"消息模型", icon:"ti-messages", items:[
+        ["点对点 vs 发布订阅模型",""],
+        ["Offset 机制与消息定位","key"],
+        ["Log Segment 文件结构（.log / .index / .timeindex）","key"],
+        ["消息格式 RecordBatch 结构（V2）",""],
+      ]},
+    ]
+  },
+  {
+    color:"c-o", num:"02", title:"Producer 深度解析",
+    badge:"高频考点", meta:"5 道高频面试题", link:"kafka-02-producer.html",
+    sections:[
+      {title:"发送流程", icon:"ti-route", items:[
+        ["Producer 完整发送链路（拦截器 → 序列化 → 分区器 → RecordAccumulator）","key"],
+        ["ProducerBatch 与 BufferPool 内存管理","key"],
+        ["Sender 线程与 NetworkClient 交互模型",""],
+      ]},
+      {title:"可靠性保障", icon:"ti-shield-check", items:[
+        ["acks = 0 / 1 / -1(all) 的区别与适用场景","hot"],
+        ["幂等性 Producer（enable.idempotence）原理","hot"],
+        ["事务 Producer 实现跨分区原子写入","hot"],
+        ["消息重试与重复发送问题处理","key"],
+      ]},
+      {title:"性能调优", icon:"ti-rocket", items:[
+        ["batch.size / linger.ms 批量发送调优","key"],
+        ["compression.type 压缩对比（Snappy / LZ4 / ZSTD）",""],
+        ["max.in.flight.requests.per.connection 与顺序保证","hot"],
+      ]},
+    ]
+  },
+  {
+    color:"c-o", num:"03", title:"Consumer 深度解析",
+    badge:"高频考点", meta:"6 道高频面试题", link:"kafka-03-consumer.html",
+    sections:[
+      {title:"消费模型", icon:"ti-git-branch", items:[
+        ["Consumer Group 负载均衡机制","key"],
+        ["Rebalance 触发条件与全流程（JoinGroup / SyncGroup）","hot"],
+        ["静态成员（static membership）减少 Rebalance","key"],
+        ["push vs pull 模式对比",""],
+      ]},
+      {title:"Offset 管理", icon:"ti-bookmark", items:[
+        ["自动提交 vs 手动提交（commitSync / commitAsync）","hot"],
+        ["__consumer_offsets 内部 Topic 存储原理","key"],
+        ["消费位移重置（earliest / latest / 指定 offset）","key"],
+      ]},
+      {title:"消费语义", icon:"ti-checks", items:[
+        ["At-most-once / At-least-once / Exactly-once 对比","hot"],
+        ["消费端幂等设计实践（数据库唯一键 / Redis 去重）","hot"],
+        ["ConsumerRecord 反序列化与异常处理",""],
+      ]},
+    ]
+  },
+  {
+    color:"c-p", num:"04", title:"Broker 存储机制",
+    badge:"原理深度", meta:"存储核心", link:"kafka-04-storage.html",
+    sections:[
+      {title:"日志存储", icon:"ti-file-text", items:[
+        ["日志分段（Log Segment）滚动策略","key"],
+        ["稀疏索引（Offset Index / Time Index）结构","key"],
+        ["顺序写与 Page Cache 利用（零拷贝基础）","hot"],
+      ]},
+      {title:"零拷贝与高性能 I/O", icon:"ti-bolt", items:[
+        ["sendfile 系统调用实现零拷贝原理","hot"],
+        ["mmap 在索引文件中的应用","key"],
+        ["DMA 传输与 CPU 拷贝次数对比",""],
+      ]},
+      {title:"日志清理", icon:"ti-trash", items:[
+        ["日志保留策略（时间 / 大小 / offset）","key"],
+        ["日志压缩（Log Compaction）原理与适用场景","key"],
+        ["cleaner 线程工作机制",""],
+      ]},
+    ]
+  },
+  {
+    color:"c-t", num:"05", title:"分区与副本机制",
+    badge:"高可用核心", meta:"4 道高频面试题", link:"kafka-05-replication.html",
+    sections:[
+      {title:"副本模型", icon:"ti-layers-intersect", items:[
+        ["Leader / Follower 副本同步原理","key"],
+        ["ISR（In-Sync Replicas）动态维护机制","hot"],
+        ["LEO / HW / LSO 关键水位线含义","hot"],
+        ["Follower 拉取数据 Fetch 流程",""],
+      ]},
+      {title:"Leader 选举", icon:"ti-crown", items:[
+        ["Leader 选举触发时机与选举策略","hot"],
+        ["Unclean Leader Election 与数据一致性权衡","key"],
+        ["Controller 的职责与选举机制","key"],
+      ]},
+      {title:"分区策略", icon:"ti-layout-columns", items:[
+        ["默认分区器（轮询 / 黏性分区）","key"],
+        ["自定义分区器实践（按 key hash）",""],
+        ["分区数量规划与扩容影响","hot"],
+      ]},
+    ]
+  },
+  {
+    color:"c-y", num:"06", title:"Kafka 事务与 Exactly-Once",
+    badge:"高级特性", meta:"架构面试必考", link:"kafka-06-transaction.html",
+    sections:[
+      {title:"事务机制", icon:"ti-lock-square", items:[
+        ["事务 API 使用（initTransactions / beginTransaction / commitTransaction）","key"],
+        ["Transaction Coordinator 与事务日志","hot"],
+        ["两阶段提交（2PC）在 Kafka 中的实现","hot"],
+        ["事务性 ID（transactional.id）与 epoch 机制","key"],
+      ]},
+      {title:"Exactly-Once 语义", icon:"ti-check-circle", items:[
+        ["Producer 幂等 + 事务 实现端到端 EOS","hot"],
+        ["Consumer 事务隔离级别（read_committed / read_uncommitted）","key"],
+        ["与下游系统（DB / Flink）协同实现 EOS","key"],
+      ]},
+    ]
+  },
+  {
+    color:"c-g", num:"07", title:"集群运维与监控",
+    badge:"生产实践", meta:"实际工作必备", link:"kafka-07-ops.html",
+    sections:[
+      {title:"集群管理", icon:"ti-server-2", items:[
+        ["Broker 扩缩容流程与分区再均衡（kafka-reassign-partitions）","key"],
+        ["KRaft 模式部署（Kafka 3.x 去 ZooKeeper）","new"],
+        ["MirrorMaker 2 跨集群数据同步","key"],
+      ]},
+      {title:"关键参数调优", icon:"ti-adjustments", items:[
+        ["Broker 端：num.io.threads / num.network.threads / log.flush 系列","key"],
+        ["JVM GC 调优（G1GC 参数推荐）","key"],
+        ["OS 层：文件描述符 / 网络缓冲区 / 页缓存预热",""],
+      ]},
+      {title:"监控指标", icon:"ti-chart-line", items:[
+        ["关键 JMX 指标（UnderReplicatedPartitions / RequestHandlerAvgIdlePercent）","hot"],
+        ["Consumer Lag 监控与告警策略","hot"],
+        ["Kafka + Prometheus + Grafana 监控体系搭建",""],
+      ]},
+    ]
+  },
+  {
+    color:"c-p", num:"08", title:"高性能与高可用设计",
+    badge:"架构必知", meta:"系统设计面试", link:"kafka-08-ha.html",
+    sections:[
+      {title:"高性能设计要点", icon:"ti-bolt", items:[
+        ["顺序写 + PageCache + 零拷贝三驾马车原理串联","hot"],
+        ["批量读写 + 消息压缩 对吞吐的影响量化","key"],
+        ["Reactor 网络模型（Acceptor / Processor / Handler）","key"],
+      ]},
+      {title:"高可用保障", icon:"ti-shield", items:[
+        ["多副本 + ISR 机制保障数据不丢失","hot"],
+        ["min.insync.replicas 与 acks=-1 组合使用","hot"],
+        ["Broker 宕机恢复流程与客户端重连","key"],
+        ["跨机房双活 / 灾备方案","key"],
+      ]},
+    ]
+  },
+  {
+    color:"c-t", num:"09", title:"Kafka Streams 与生态集成",
+    badge:"生态扩展", meta:"大数据方向", link:"kafka-09-streams.html",
+    sections:[
+      {title:"Kafka Streams", icon:"ti-git-merge", items:[
+        ["KStream / KTable / GlobalKTable 区别","key"],
+        ["有状态处理：聚合（aggregate）/ 窗口（windowing）","key"],
+        ["状态存储（RocksDB）与容错恢复",""],
+        ["Topology 构建与并发度控制",""],
+      ]},
+      {title:"生态集成", icon:"ti-plug", items:[
+        ["Kafka Connect 框架与 Source / Sink Connector 开发","key"],
+        ["Schema Registry + Avro / Protobuf 消息格式治理","key"],
+        ["与 Flink / Spark Structured Streaming 集成最佳实践","hot"],
+        ["Spring Kafka 核心注解与使用","new"],
+      ]},
+    ]
+  },
+  {
+    color:"c-r", num:"10", title:"高频面试题汇总 & 故障排查",
+    badge:"面试冲刺", meta:"35 道真题", link:"kafka-10-interview.html",
+    sections:[
+      {title:"必背高频题", icon:"ti-list-check", items:[
+        ["Kafka 为什么快？从顺序写、Page Cache、零拷贝、批量、压缩 5 个维度回答","hot"],
+        ["消息丢失的场景与防止方案（Producer / Broker / Consumer 三端分析）","hot"],
+        ["消息重复消费的根本原因是什么？如何做幂等设计？","hot"],
+        ["如何保证消息顺序性？单分区方案 vs 多分区 + 路由方案","hot"],
+        ["Rebalance 的触发条件有哪些？怎么减少 Rebalance？","hot"],
+        ["Kafka 与 RocketMQ 深度对比（吞吐、延迟、顺序、事务、运维）","hot"],
+        ["ISR 是什么？副本什么时候会被踢出 ISR？","hot"],
+        ["LEO、HW、LSO 分别是什么含义？HW 截断会导致什么问题？","hot"],
+        ["min.insync.replicas 与 acks=-1 如何组合才能做到消息不丢？","hot"],
+        ["Kafka 的幂等 Producer 原理是什么？sequence number 如何工作？","hot"],
+      ]},
+      {title:"原理深挖类", icon:"ti-microscope", items:[
+        ["Zero-Copy 零拷贝原理，sendfile 系统调用的完整数据路径","hot"],
+        ["Log Segment 滚动策略，稀疏索引（Offset Index）如何加速查找？","key"],
+        ["Consumer Rebalance 协议详解：JoinGroup → SyncGroup → Heartbeat 全流程","hot"],
+        ["__consumer_offsets 的存储结构，Offset 提交到提交成功的完整链路","key"],
+        ["Controller 的职责是什么？Controller 宕机后如何重新选举？","key"],
+        ["Unclean Leader Election 开启与关闭的数据一致性权衡","key"],
+        ["Kafka 事务两阶段提交（2PC）的实现细节，Transaction Marker 是什么？","key"],
+        ["KRaft 模式如何替代 ZooKeeper？元数据日志（@metadata topic）如何工作？","new"],
+      ]},
+      {title:"参数配置类", icon:"ti-settings", items:[
+        ["enable.idempotence=true 背后 Kafka 做了什么？与 acks、retries 的联动关系","hot"],
+        ["auto.offset.reset = earliest / latest 的区别，什么场景用哪个？","key"],
+        ["max.poll.interval.ms 设置过小会导致什么？如何合理配置？","hot"],
+        ["batch.size 与 linger.ms 的权衡：高吞吐 vs 低延迟如何取舍？","key"],
+        ["fetch.min.bytes / fetch.max.wait.ms 如何影响消费延迟与吞吐？","key"],
+        ["max.in.flight.requests.per.connection=1 与消息顺序的关系","hot"],
+        ["session.timeout.ms 与 heartbeat.interval.ms 如何配合避免误判离线？","key"],
+      ]},
+      {title:"生产故障排查", icon:"ti-bug", items:[
+        ["Consumer Lag 持续增大，从消费者、网络、Broker 三个层次排查","key"],
+        ["消息积压处理方案（临时扩分区 / 消费者扩容 / 降级限流 / 补偿任务）","hot"],
+        ["消费者频繁 Rebalance，如何通过日志和监控定位根因？","hot"],
+        ["Topic 某个分区 Leader 一直为 -1（offline），如何恢复？","key"],
+        ["Broker OOM / Full GC 问题定位：堆外内存 vs 消息缓存分析","key"],
+        ["集群磁盘使用率告警，快速清理与扩容的操作步骤","key"],
+        ["__consumer_offsets 写满问题：原因分析与清理方案",""],
+        ["网络分区导致脑裂问题分析，Controller 双主如何规避？",""],
+      ]},
+      {title:"系统设计类", icon:"ti-bulb", items:[
+        ["用 Kafka 设计一个日志收集系统，如何保证不丢不重、峰值可扛？","hot"],
+        ["Kafka 如何实现延迟消息？与 RocketMQ 延迟队列方案对比","key"],
+        ["Kafka + 数据库如何保证事务一致性？Outbox Pattern 原理","key"],
+        ["多消费者组消费同一 Topic 的隔离性和独立 Offset 是如何保证的？","key"],
+        ["大规模 Kafka 集群分区数量规划原则（吞吐、延迟、文件句柄的权衡）","key"],
+      ]},
+    ]
+  },
+];
+
+function tag(t) {
+  if (t === 'hot') return '<span class="tag-hot">高频</span>';
+  if (t === 'key') return '<span class="tag-key">重点</span>';
+  if (t === 'new') return '<span class="tag-new">新特性</span>';
+  return '';
+}
+
+function renderChapter(ch, i) {
+  const sections = ch.sections.map((s, si) => `
+    ${si > 0 ? '<div class="divider"></div>' : ''}
+    <div class="csec">
+      <div class="csec-title"><i class="ti ${s.icon}" aria-hidden="true"></i>${s.title}</div>
+      <div class="items">${s.items.map(([text, t]) =>
+        `<div class="item"><span>${text} ${tag(t)}</span></div>`
+      ).join('')}</div>
+    </div>
+  `).join('');
+
+  const linkBtn = ch.link
+    ? `<a href="${ch.link}" target="_blank" onclick="event.stopPropagation()" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;text-decoration:none;flex-shrink:0;white-space:nowrap;">详细文档 ↗</a>`
+    : '';
+
+  return `
+    <div class="chapter ${ch.color}" id="ch${i}">
+      <div class="ch-header" onclick="toggle(${i})">
+        <span class="ch-num">${ch.num}</span>
+        <span class="ch-title">${ch.title}</span>
+        <span class="ch-badge">${ch.badge}</span>
+        <span class="ch-meta">${ch.meta}</span>
+        ${linkBtn}
+        <span class="chevron">▼</span>
+      </div>
+      <div class="ch-body">${sections}</div>
+    </div>
+  `;
+}
+
+document.getElementById('chapters').innerHTML = chapters.map(renderChapter).join('');
+
+function toggle(i) {
+  document.getElementById('ch' + i).classList.toggle('open');
+}
+
+// open first chapter by default
+toggle(0);
+</script>
+</body>
+</html>

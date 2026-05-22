@@ -48,7 +48,7 @@
       margin: 0 auto;
       padding: 48px 32px 80px;
       display: grid;
-      grid-template-rows: auto auto auto 1fr;
+      grid-template-rows: auto auto auto 1fr auto;
       gap: 48px;
     }
 
@@ -244,6 +244,66 @@
       background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
       z-index: 100;
     }
+
+    /* ── plan section ── */
+    .plan-section { animation: fadeUp .4s .26s ease both; }
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .plan-group {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px 12px;
+    }
+    .plan-group-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .plan-group-title .pg-num {
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .plan-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .plan-list li a,
+    .plan-list li span {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      line-height: 1.4;
+      text-decoration: none;
+      transition: color .15s, background .15s;
+    }
+    .plan-list li a { color: var(--muted); }
+    .plan-list li a:hover { color: var(--accent); background: rgba(240,165,0,0.06); }
+    .plan-list li a::before { content: '→'; font-size: 9px; color: var(--border); flex-shrink:0; transition: color .15s; }
+    .plan-list li a:hover::before { color: var(--accent); }
+    .plan-list li span { color: rgba(107,110,128,0.45); }
+    .plan-list li span::before { content: '·'; font-size: 9px; color: rgba(107,110,128,0.3); flex-shrink:0; }
+    .badge-todo {
+      margin-left: auto;
+      font-size: 9px;
+      letter-spacing: .06em;
+      color: rgba(107,110,128,0.4);
+      border: 1px solid rgba(107,110,128,0.2);
+      border-radius: 3px;
+      padding: 1px 5px;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -372,6 +432,179 @@
           <li><a href="https://chat.openai.com" target="_blank">ChatGPT</a></li>
           <li><a href="https://www.perplexity.ai" target="_blank">Perplexity</a></li>
           <li><a href="https://gamma.app" target="_blank">Gamma（AI 幻灯片）</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Java 高级开发面试题库 -->
+  <div class="plan-section">
+    <div class="section-label">Java 高级开发面试题库 · 规划中</div>
+    <div class="plan-grid">
+
+      <!-- 01 Java 基础 -->
+      <div class="plan-group">
+        <div class="plan-group-title">01 · Java 基础 <span class="pg-num">7 files</span></div>
+        <ul class="plan-list">
+          <li><a href="java/java-basic-outline.html">java-basic-outline.html ✅</a></li>
+          <li><a href="java/java-basic-01-oop.html">java-basic-01-oop.html ✅</a></li>
+          <li><a href="java/java-basic-02-collection.html">java-basic-02-collection.html ✅</a></li>
+          <li><a href="java/java-basic-03-generic.html">java-basic-03-generic.html ✅</a></li>
+          <li><a href="java/java-basic-04-exception.html">java-basic-04-exception.html ✅</a></li>
+          <li><a href="java/java-basic-05-jdk8.html">java-basic-05-jdk8.html ✅</a></li>
+          <li><a href="java/java-basic-06-interview.html">java-basic-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 02 JVM -->
+      <div class="plan-group">
+        <div class="plan-group-title">02 · JVM <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>jvm-01-memory.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>jvm-02-gc.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>jvm-03-classload.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>jvm-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 03 Java 并发 -->
+      <div class="plan-group">
+        <div class="plan-group-title">03 · Java 并发 <span class="pg-num">7 files</span></div>
+        <ul class="plan-list">
+          <li><a href="java/concurrent-outline.html">concurrent-outline.html ✅</a></li>
+          <li><a href="java/concurrent-01-jmm.html">concurrent-01-jmm.html ✅</a></li>
+          <li><a href="java/concurrent-02-thread.html">concurrent-02-thread.html ✅</a></li>
+          <li><a href="java/concurrent-03-lock.html">concurrent-03-lock.html ✅</a></li>
+          <li><a href="java/concurrent-04-juc.html">concurrent-04-juc.html ✅</a></li>
+          <li><a href="java/concurrent-05-pool.html">concurrent-05-pool.html ✅</a></li>
+          <li><a href="java/concurrent-06-interview.html">concurrent-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 04 MySQL -->
+      <div class="plan-group">
+        <div class="plan-group-title">04 · MySQL <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>mysql-01-index.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>mysql-02-transaction.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>mysql-03-optimize.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>mysql-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 05 Redis -->
+      <div class="plan-group">
+        <div class="plan-group-title">05 · Redis <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>redis-01-datatype.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>redis-02-persistence.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>redis-03-cluster.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>redis-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 06 ORM -->
+      <div class="plan-group">
+        <div class="plan-group-title">06 · ORM <span class="pg-num">3 files</span></div>
+        <ul class="plan-list">
+          <li><span>orm-01-mybatis.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>orm-02-mybatisplus.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>orm-03-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 07 Spring -->
+      <div class="plan-group">
+        <div class="plan-group-title">07 · Spring 全家桶 <span class="pg-num">6 files</span></div>
+        <ul class="plan-list">
+          <li><a href="java/spring-outline.html">spring-outline.html ✅</a></li>
+          <li><a href="java/spring-01-ioc.html">spring-01-ioc.html ✅</a></li>
+          <li><a href="java/spring-02-aop.html">spring-02-aop.html ✅</a></li>
+          <li><a href="java/spring-03-tx.html">spring-03-tx.html ✅</a></li>
+          <li><a href="java/spring-04-mvc.html">spring-04-mvc.html ✅</a></li>
+          <li><a href="java/spring-05-boot.html">spring-05-boot.html ✅</a></li>
+          <li><a href="java/spring-06-interview.html">spring-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 08 RocketMQ -->
+      <div class="plan-group">
+        <div class="plan-group-title">08 · RocketMQ <span class="pg-num">3 files</span></div>
+        <ul class="plan-list">
+          <li><span>rocketmq-01-arch.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>rocketmq-02-features.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>rocketmq-03-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 09 RPC & Dubbo -->
+      <div class="plan-group">
+        <div class="plan-group-title">09 · RPC &amp; Dubbo <span class="pg-num">5 files</span></div>
+        <ul class="plan-list">
+          <li><a href="java/dubbo-outline.html">dubbo-outline.html ✅</a></li>
+          <li><a href="java/dubbo-01-rpc.html">dubbo-01-rpc.html ✅</a></li>
+          <li><a href="java/dubbo-02-arch.html">dubbo-02-arch.html ✅</a></li>
+          <li><a href="java/dubbo-03-registry.html">dubbo-03-registry.html ✅</a></li>
+          <li><a href="java/dubbo-04-cluster.html">dubbo-04-cluster.html ✅</a></li>
+          <li><a href="java/dubbo-05-interview.html">dubbo-05-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 10 分布式系统 -->
+      <div class="plan-group">
+        <div class="plan-group-title">10 · 分布式系统 <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>dist-01-theory.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>dist-02-transaction.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>dist-03-lock-id.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>dist-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 11 Elasticsearch -->
+      <div class="plan-group">
+        <div class="plan-group-title">11 · Elasticsearch <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>es-01-index.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>es-02-query.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>es-03-cluster.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>es-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 12 高性能高并发 -->
+      <div class="plan-group">
+        <div class="plan-group-title">12 · 高性能高并发 <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>perf-01-local-cache.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>perf-02-sharding.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>perf-03-ratelimit.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>perf-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 13 系统设计 -->
+      <div class="plan-group">
+        <div class="plan-group-title">13 · 系统设计 &amp; 设计模式 <span class="pg-num">5 files</span></div>
+        <ul class="plan-list">
+          <li><a href="java/design-outline.html">design-outline.html ✅</a></li>
+          <li><a href="java/design-01-creational.html">design-01-creational.html ✅</a></li>
+          <li><a href="java/design-02-structural.html">design-02-structural.html ✅</a></li>
+          <li><a href="java/design-03-behavioral.html">design-03-behavioral.html ✅</a></li>
+          <li><a href="java/design-04-system.html">design-04-system.html ✅</a></li>
+          <li><a href="java/design-05-interview.html">design-05-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 14 网络与 IO -->
+      <div class="plan-group">
+        <div class="plan-group-title">14 · 网络与 IO <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>network-01-tcp.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>network-02-http.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>network-03-nio.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>network-04-interview.html <span class="badge-todo">TODO</span></span></li>
         </ul>
       </div>
 

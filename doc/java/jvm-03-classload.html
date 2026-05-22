@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JVM 03 · 类加载机制与双亲委派</title>
+<style>
+header::before{content:'CLASSLOAD'}
+.dtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.dtable th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:6px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.dtable td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2);font-size:13px}
+.dtable tr:last-child td{border-bottom:none}
+.dtable td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+.phase-row{display:flex;gap:0;margin-top:12px;flex-wrap:nowrap;overflow-x:auto}
+.phase-box{flex:1;min-width:100px;background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:6px;padding:10px 12px;text-align:center;position:relative}
+.phase-box+.phase-box{margin-left:6px}
+.phase-box .pname{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue)}
+.phase-box .psub{font-size:11px;color:var(--tx2);margin-top:3px}
+.phase-box.passive{background:var(--bg2);border-color:var(--bd)}
+.phase-box.passive .pname{color:var(--tx3)}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.tag-break{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.tag-normal{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.cl-tree{display:flex;flex-direction:column;align-items:center;gap:0;margin:14px 0}
+.cl-node{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;padding:8px 24px;border-radius:6px;text-align:center}
+.cl-arrow{width:2px;height:20px;background:var(--bd2);margin:0 auto}
+.cl-node.bootstrap{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.cl-node.ext{background:var(--yellow-bg,#fffbe6);border:1px solid var(--yellow-b,#f0d060);color:var(--tx)}
+.cl-node.app{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+.cl-node.custom{background:var(--bg2);border:1px solid var(--bd2);color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-jvm.js"></script>
+<header>
+  <div class="htag">JVM · 03 · CLASSLOAD</div>
+  <h1>类加载机制与双亲委派</h1>
+  <p class="subtitle">类生命周期 · 五个加载阶段 · 类加载器体系 · 双亲委派 · 热部署</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#lifecycle"><span class="s-num">01</span>类的生命周期</a>
+    <a class="s-link" href="#loading-phases"><span class="s-num">02</span>五个加载阶段</a>
+    <a class="s-link" href="#classloaders"><span class="s-num">03</span>类加载器体系</a>
+    <a class="s-link" href="#parents-delegation"><span class="s-num">04</span>双亲委派模型</a>
+    <a class="s-link" href="#hotdeploy"><span class="s-num">05</span>热部署原理</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="jvm-04-interview.html">→ 面试题</a>
+    <a class="s-link" href="jvm-02-gc.html">← 上一章：GC</a>
+  </aside>
+  <div class="mc">
+  <!-- ── 01 类的生命周期 ─────────────────────────────────────── -->
+  <div class="sec" id="lifecycle"><span class="sec-num">01</span> 类的生命周期</div>
+
+  <div class="card">
+    <div class="card-title">完整七阶段流程</div>
+    <div class="phase-row">
+      <div class="phase-box"><div class="pname">加载</div><div class="psub">Loading</div></div>
+      <div class="phase-box"><div class="pname">验证</div><div class="psub">Verification</div></div>
+      <div class="phase-box"><div class="pname">准备</div><div class="psub">Preparation</div></div>
+      <div class="phase-box"><div class="pname">解析</div><div class="psub">Resolution</div></div>
+      <div class="phase-box"><div class="pname">初始化</div><div class="psub">Initialization</div></div>
+      <div class="phase-box passive"><div class="pname">使用</div><div class="psub">Using</div></div>
+      <div class="phase-box passive"><div class="pname">卸载</div><div class="psub">Unloading</div></div>
+    </div>
+    <p style="margin-top:12px">前五阶段合称<span class="kw">类连接</span>过程（验证+准备+解析），解析阶段可以在初始化后才进行（支持动态绑定）。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">主动使用（触发初始化的 6 种场景）</div>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span>new 实例化对象、读取或设置类的静态字段（非 final 常量）、调用类的静态方法</span></li>
+      <li><span class="bullet">②</span><span>使用反射（<code>Class.forName()</code>、<code>Method.invoke()</code>）</span></li>
+      <li><span class="bullet">③</span><span>初始化一个类时，如果其父类还未初始化，先触发父类初始化</span></li>
+      <li><span class="bullet">④</span><span>JVM 启动时的主类（包含 <code>main()</code> 的类）</span></li>
+      <li><span class="bullet">⑤</span><span>JDK7+ 动态语言支持：<code>MethodHandle</code> 解析的方法所属类</span></li>
+      <li><span class="bullet">⑥</span><span>接口定义了 default 方法，实现类初始化时触发接口初始化</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">被动使用（不触发初始化的 3 种典型）</div>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span><span class="kw">子类引用父类的静态字段</span>— 只触发父类初始化，子类不初始化<br><code>System.out.println(Sub.staticFieldFromParent)</code></span></li>
+      <li><span class="bullet">②</span><span><span class="kw">定义数组类型引用</span>— <code>MyClass[] arr = new MyClass[10]</code>，不触发 MyClass 初始化</span></li>
+      <li><span class="bullet">③</span><span><span class="kw">引用编译期常量</span>— <code>static final int X = 100</code> 在编译时直接内联，不触发类加载</span></li>
+    </ul>
+    <div class="note"><strong>面试高频：</strong>子类引用父类 static 字段，子类会被加载（字节码验证需要）但不会初始化；JVM 参数 <code>-XX:+TraceClassLoading</code> 可验证。</div>
+  </div>
+
+  <!-- ── 02 五个加载阶段 ─────────────────────────────────────── -->
+  <div class="sec" id="loading-phases"><span class="sec-num">02</span> 五个加载阶段详解</div>
+
+  <div class="card">
+    <div class="card-title">加载（Loading）</div>
+    <p>通过类的全限定名，找到 <code>.class</code> 文件的字节流，完成三件事：</p>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span>获取定义此类的<span class="kw">二进制字节流</span>（可来自文件、网络、动态生成、加密解密等）</span></li>
+      <li><span class="bullet">②</span><span>将字节流代表的静态存储结构转化为<span class="kw">方法区运行时数据结构</span>（类元数据）</span></li>
+      <li><span class="bullet">③</span><span>在堆中生成一个代表此类的 <span class="kw"><code>java.lang.Class</code> 对象</span>（作为方法区数据的入口）</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">验证（Verification）</div>
+    <p>确保字节码符合 JVM 规范，防止恶意代码破坏 JVM。四重验证：</p>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span><span class="kw">文件格式验证</span>— 魔数 <code>0xCAFEBABE</code>、版本号范围、常量池合法性</span></li>
+      <li><span class="bullet">②</span><span><span class="kw">元数据验证</span>— 语义合法性：类是否继承了 final 类、是否缺少父类等</span></li>
+      <li><span class="bullet">③</span><span><span class="kw">字节码验证</span>— 数据流和控制流分析，确保方法体不会产生危害 JVM 的行为</span></li>
+      <li><span class="bullet">④</span><span><span class="kw">符号引用验证</span>— 在解析阶段发生，检查符号引用能否定位到具体目标（类/方法/字段存在且可访问）</span></li>
+    </ul>
+    <div class="note"><strong>优化：</strong>若代码可信（自己编译的代码），可用 <code>-Xverify:none</code> 关闭验证加快启动（不推荐生产使用）。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">准备（Preparation）</div>
+    <p>为类的<span class="kw">静态变量分配内存并设置初始零值</span>（在方法区/元空间），注意两个重要细节：</p>
+    <ul class="detail">
+      <li><span class="bullet">•</span><span><code>public static int value = 123;</code> → 准备阶段 value = <strong>0</strong>，不是 123（123 在初始化阶段的 <code>&lt;clinit&gt;</code> 中赋值）</span></li>
+      <li><span class="bullet">•</span><span><code>public static final int VALUE = 123;</code> → 因有 ConstantValue 属性，准备阶段直接赋值 <strong>123</strong></span></li>
+    </ul>
+    <div class="note"><strong>面试考点：</strong>准备 vs 初始化的区别。static 变量在准备阶段赋零值，static final 基本类型/字符串常量在准备阶段赋真实值，其余赋值均在初始化阶段。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">解析（Resolution）</div>
+    <p>将常量池中的<span class="kw">符号引用替换为直接引用</span>（内存地址）。包括：</p>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span><span class="kw">类/接口的解析</span>— 符号引用指向的类名 → 类的直接引用</span></li>
+      <li><span class="bullet">②</span><span><span class="kw">字段解析</span>— 类名.字段名 → 字段的内存偏移量</span></li>
+      <li><span class="bullet">③</span><span><span class="kw">类方法 / 接口方法解析</span>— 方法的符号引用 → 方法表中的指针</span></li>
+    </ul>
+    <p>解析可以在<strong>初始化之后</strong>进行（invokedynamic 指令），支持 Java 的动态语言特性。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">初始化（Initialization）</div>
+    <p>执行类构造器 <span class="kw"><code>&lt;clinit&gt;()</code></span> 方法：编译器自动收集所有<strong>静态变量赋值动作</strong>和<strong>static 代码块</strong>，按源文件顺序合并生成。</p>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span>JVM 保证父类的 <code>&lt;clinit&gt;</code> 先于子类执行</span></li>
+      <li><span class="bullet">②</span><span>若类没有静态变量赋值和 static 块，则不生成 <code>&lt;clinit&gt;</code></span></li>
+      <li><span class="bullet">③</span><span><code>&lt;clinit&gt;</code> 由 JVM 加锁，<strong>线程安全</strong>，多线程并发时只有一个线程执行，其余阻塞等待 —— 单例模式静态内部类利用了这一特性</span></li>
+      <li><span class="bullet">④</span><span>与实例构造器 <code>&lt;init&gt;</code> 区分：<code>&lt;clinit&gt;</code> 是类级别（static），<code>&lt;init&gt;</code> 是实例级别（new 时调用）</span></li>
+    </ul>
+  </div>
+
+  <!-- ── 03 类加载器体系 ─────────────────────────────────────── -->
+  <div class="sec" id="classloaders"><span class="sec-num">03</span> 类加载器体系</div>
+
+  <div class="card">
+    <div class="card-title">四层类加载器</div>
+    <!-- 层次结构 SVG -->
+    <div class="cl-tree">
+      <div class="cl-node bootstrap">Bootstrap ClassLoader<br><span style="font-size:10px;font-weight:400">C++ 实现 / JRE lib/rt.jar / jdk.internal.*</span></div>
+      <div class="cl-arrow"></div>
+      <div class="cl-node ext">Extension / Platform ClassLoader（JDK9+）<br><span style="font-size:10px;font-weight:400">Java 实现 / lib/ext 目录 / javax.* 等扩展包</span></div>
+      <div class="cl-arrow"></div>
+      <div class="cl-node app">Application ClassLoader（系统类加载器）<br><span style="font-size:10px;font-weight:400">加载用户 Classpath / ClassLoader.getSystemClassLoader()</span></div>
+      <div class="cl-arrow"></div>
+      <div class="cl-node custom">自定义 ClassLoader<br><span style="font-size:10px;font-weight:400">继承 ClassLoader，重写 findClass()</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">各加载器详解</div>
+    <table class="dtable">
+      <thead>
+        <tr><th>加载器</th><th>实现</th><th>负责加载</th><th>父加载器</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bootstrap</td>
+          <td>C++（JVM内部）</td>
+          <td><code>$JAVA_HOME/lib/rt.jar</code>（java.lang, java.util 等核心类）</td>
+          <td>null（无父）</td>
+        </tr>
+        <tr>
+          <td>Extension / Platform</td>
+          <td>Java（<code>sun.misc.Launcher$ExtClassLoader</code>）</td>
+          <td><code>$JAVA_HOME/lib/ext/</code> 目录所有 jar</td>
+          <td>Bootstrap</td>
+        </tr>
+        <tr>
+          <td>Application</td>
+          <td>Java（<code>sun.misc.Launcher$AppClassLoader</code>）</td>
+          <td>用户 <code>-classpath</code> 指定的 jar 和目录</td>
+          <td>Extension</td>
+        </tr>
+        <tr>
+          <td>自定义</td>
+          <td>Java（继承 <code>ClassLoader</code>）</td>
+          <td>自定义来源（网络/加密jar/数据库）</td>
+          <td>默认 Application</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:12px">
+      <strong>类的唯一性：</strong>在 JVM 中，两个类相等的条件是：<strong>类本身相同</strong> AND <strong>加载它的 ClassLoader 相同</strong>。同一字节码被不同 ClassLoader 加载，是两个不同的类（<code>instanceof</code> 返回 false，<code>equals()</code> 返回 false）。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">自定义 ClassLoader 核心代码</div>
+    <pre>
+public class MyClassLoader extends ClassLoader {
+    private String classPath;
+
+    public MyClassLoader(String classPath) {
+        this.classPath = classPath;
+    }
+
+    // ★ 重写 findClass，不要重写 loadClass（否则破坏双亲委派）
+    @Override
+    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+        byte[] classData = loadClassData(name);
+        if (classData == null) {
+            throw new ClassNotFoundException();
+        }
+        // 将字节数组转为 Class 对象
+        return defineClass(name, classData, 0, classData.length);
+    }
+
+    private byte[] loadClassData(String className) {
+        // 将类名转为路径，从文件/网络/加密jar读取字节码
+        String fileName = classPath + File.separator
+                + className.replace('.', File.separatorChar) + ".class";
+        try (InputStream in = new FileInputStream(fileName);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) != -1) out.write(buf, 0, len);
+            return out.toByteArray();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+}</pre>
+  </div>
+
+  <!-- ── 04 双亲委派 ─────────────────────────────────────── -->
+  <div class="sec" id="parents-delegation"><span class="sec-num">04</span> 双亲委派模型</div>
+
+  <div class="card">
+    <div class="card-title">工作原理</div>
+    <p>当一个类加载器收到类加载请求时，先把请求<span class="kw">委派给父加载器</span>，只有父加载器无法完成（在搜索范围内找不到该类），才由子加载器自己尝试加载。</p>
+
+    <!-- 双亲委派流程 SVG -->
+    <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px;display:block;margin:14px auto 0;font-family:'IBM Plex Mono',monospace">
+      <defs>
+        <marker id="darr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--blue-b)"/></marker>
+        <marker id="rarr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--green-b,#9ed4b0)"/></marker>
+      </defs>
+      <!-- 左侧：请求向上委派 -->
+      <text x="80" y="14" text-anchor="middle" font-size="9.5" fill="var(--tx3)">① 委派（向上）</text>
+      <rect x="10" y="20" width="140" height="36" rx="5" fill="var(--bg2)" stroke="var(--bd2)" stroke-width="1.5"/>
+      <text x="80" y="44" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tx2)">Custom ClassLoader</text>
+      <line x1="80" y1="56" x2="80" y2="78" stroke="var(--blue-b)" stroke-width="1.5" marker-end="url(#darr)"/>
+      <rect x="10" y="80" width="140" height="36" rx="5" fill="var(--blue-bg)" stroke="var(--blue-b)" stroke-width="1.5"/>
+      <text x="80" y="104" text-anchor="middle" font-size="11" font-weight="700" fill="var(--blue)">Application CL</text>
+      <line x1="80" y1="116" x2="80" y2="138" stroke="var(--blue-b)" stroke-width="1.5" marker-end="url(#darr)"/>
+      <rect x="10" y="140" width="140" height="36" rx="5" fill="var(--blue-bg)" stroke="var(--blue-b)" stroke-width="1.5"/>
+      <text x="80" y="164" text-anchor="middle" font-size="11" font-weight="700" fill="var(--blue)">Extension CL</text>
+      <line x1="80" y1="176" x2="80" y2="198" stroke="var(--blue-b)" stroke-width="1.5" marker-end="url(#darr)"/>
+      <rect x="10" y="200" width="140" height="18" rx="5" fill="var(--red-bg)" stroke="var(--red-b)" stroke-width="1.5"/>
+      <text x="80" y="213" text-anchor="middle" font-size="10" font-weight="700" fill="var(--red)">Bootstrap CL</text>
+
+      <!-- 分隔线 -->
+      <line x1="200" y1="10" x2="200" y2="218" stroke="var(--bd)" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <!-- 右侧：结果向下返回 -->
+      <text x="430" y="14" text-anchor="middle" font-size="9.5" fill="var(--tx3)">② 尝试加载 → 结果向下返回</text>
+
+      <text x="440" y="50" text-anchor="middle" font-size="10" fill="var(--red)">尝试加载 → 找到？返回 Class</text>
+      <rect x="340" y="56" width="180" height="30" rx="5" fill="var(--red-bg)" stroke="var(--red-b)" stroke-width="1.5"/>
+      <text x="430" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="var(--red)">Bootstrap：优先尝试</text>
+      <line x1="430" y1="86" x2="430" y2="106" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="460" y="102" font-size="9.5" fill="var(--tx3)">找不到↓</text>
+      <rect x="340" y="108" width="180" height="30" rx="5" fill="var(--blue-bg)" stroke="var(--blue-b)" stroke-width="1.5"/>
+      <text x="430" y="128" text-anchor="middle" font-size="10" font-weight="700" fill="var(--blue)">Extension：尝试</text>
+      <line x1="430" y1="138" x2="430" y2="158" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="460" y="154" font-size="9.5" fill="var(--tx3)">找不到↓</text>
+      <rect x="340" y="160" width="180" height="30" rx="5" fill="var(--blue-bg)" stroke="var(--blue-b)" stroke-width="1.5"/>
+      <text x="430" y="180" text-anchor="middle" font-size="10" font-weight="700" fill="var(--blue)">Application：尝试</text>
+      <line x1="430" y1="190" x2="430" y2="210" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="460" y="206" font-size="9.5" fill="var(--tx3)">找不到↓ → 抛 ClassNotFoundException</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <div class="card-title">loadClass() 源码分析（核心逻辑）</div>
+    <pre>
+protected Class&lt;?&gt; loadClass(String name, boolean resolve)
+        throws ClassNotFoundException {
+    synchronized (getClassLoadingLock(name)) {
+        // 1. 检查是否已加载（缓存）
+        Class&lt;?&gt; c = findLoadedClass(name);
+        if (c == null) {
+            try {
+                // 2. 委派父加载器（递归）
+                if (parent != null) {
+                    c = parent.loadClass(name, false);
+                } else {
+                    // 父为 null 说明父是 Bootstrap
+                    c = findBootstrapClassOrNull(name);
+                }
+            } catch (ClassNotFoundException e) {
+                // 父加载器找不到，捕获异常继续
+            }
+
+            if (c == null) {
+                // 3. 父加载器失败，自己尝试加载
+                c = findClass(name);  // ← 子类应重写此方法
+            }
+        }
+        if (resolve) resolveClass(c);
+        return c;
+    }
+}</pre>
+    <div class="note"><strong>关键：</strong>双亲委派逻辑在 <code>loadClass()</code> 中实现。子类应<strong>重写 <code>findClass()</code></strong>，而不是 <code>loadClass()</code>，否则会破坏双亲委派。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">双亲委派的核心作用</div>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span><span class="kw">防止核心类被篡改</span>— 自己写的 <code>java.lang.String</code> 类永远不会被加载（Bootstrap 已先加载了官方 String），保证了 JVM 安全性</span></li>
+      <li><span class="bullet">②</span><span><span class="kw">避免类重复加载</span>— 同一个类被父加载器加载后缓存，子加载器直接复用，不会出现多份 Class 对象</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">破坏双亲委派的场景</div>
+
+    <div style="margin-bottom:14px">
+      <p><span class="tag tag-break">破坏①</span> <span class="kw">SPI 机制（JDBC / JNDI）</span></p>
+      <p>JDBC 的 <code>java.sql.Driver</code> 接口定义在 Bootstrap 加载的 rt.jar 中，但具体实现（<code>com.mysql.jdbc.Driver</code>）在用户 classpath。Bootstrap 无法加载用户代码。</p>
+      <p><strong>解决：</strong>引入<span class="kw">线程上下文类加载器</span>（Thread Context ClassLoader）。父加载器通过 <code>Thread.currentThread().getContextClassLoader()</code> 获取 Application ClassLoader，委托其加载 SPI 实现，实现了"子加载器加载，父加载器调用"的逆向委派。</p>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <p><span class="tag tag-break">破坏②</span> <span class="kw">Tomcat — 类隔离</span></p>
+      <p>多个 WebApp 可能依赖同一库的不同版本（如 Spring 4.x 和 Spring 5.x）。Tomcat 为每个 Web 应用创建独立的 <code>WebAppClassLoader</code>，<strong>优先自己加载</strong>（先 findClass，再委派父），实现应用间类隔离。</p>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <p><span class="tag tag-break">破坏③</span> <span class="kw">OSGi — 网状委派</span></p>
+      <p>OSGi 实现热插拔模块化，每个 Bundle 有独立 ClassLoader，ClassLoader 间形成<strong>网状</strong>（非树状）委派结构，类查找走模块导入/导出规则。</p>
+    </div>
+
+    <div>
+      <p><span class="tag tag-normal">JDK9+</span> <span class="kw">模块化（Module）</span></p>
+      <p>JDK9 引入 JPMS（Java Platform Module System），类加载首先按<strong>模块</strong>查找，Bootstrap/Platform/Application 三层加载器职责重新划分为 Bootstrap → Platform → System（Application），不再纯靠类路径委派。</p>
+    </div>
+  </div>
+
+  <!-- ── 05 热部署原理 ─────────────────────────────────────── -->
+  <div class="sec" id="hotdeploy"><span class="sec-num">05</span> 热部署原理</div>
+
+  <div class="card">
+    <div class="card-title">类的卸载条件</div>
+    <p>JVM 中类可以被卸载，但需同时满足三个苛刻条件：</p>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span>该类的所有<span class="kw">实例对象均已被 GC</span></span></li>
+      <li><span class="bullet">②</span><span>加载该类的 <span class="kw">ClassLoader 实例已被 GC</span></span></li>
+      <li><span class="bullet">③</span><span>该类对应的 <span class="kw"><code>java.lang.Class</code> 对象没有任何地方引用</span></span></li>
+    </ul>
+    <div class="note"><strong>注意：</strong>由 Bootstrap / Extension / Application 三个内置加载器加载的类<strong>永远不会被卸载</strong>（这三个 ClassLoader 实例不会被回收），只有自定义 ClassLoader 加载的类才可能卸载。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">热部署的实现方式</div>
+    <ul class="detail">
+      <li><span class="bullet">①</span><span><span class="kw">新 ClassLoader 加载新版本</span>— 创建新的自定义 ClassLoader 加载新版本字节码；旧 ClassLoader 与其加载的所有类等待满足卸载条件后被 GC。这是实现热部署的通用方式。</span></li>
+      <li><span class="bullet">②</span><span><span class="kw">Arthas <code>redefine</code></span>— 基于 Java Instrumentation API（<code>Instrumentation.redefineClasses()</code>）。<strong>限制：</strong>不允许修改类结构（不能增删字段、方法、改继承关系），只能替换方法体。</span></li>
+      <li><span class="bullet">③</span><span><span class="kw">Arthas <code>retransform</code></span>— 与 redefine 类似，但支持后续<strong>恢复原始字节码</strong>（<code>retransform --classPattern</code>）。</span></li>
+      <li><span class="bullet">④</span><span><span class="kw">Spring DevTools</span>— 双 ClassLoader 机制：base ClassLoader 加载不变的依赖（第三方 jar），restart ClassLoader 加载用户代码。代码修改后，只重建 restart ClassLoader，比完整重启快 10 倍以上。</span></li>
+      <li><span class="bullet">⑤</span><span><span class="kw">JRebel（商业）</span>— 通过 Java Agent 进行字节码增强，支持修改类结构（增删字段/方法），无需重启即可生效，是最完整的热部署方案。</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Arthas 热修复示例</div>
+    <pre>
+# 1. 修改 Java 文件，编译得到新 .class 文件
+javac -cp . com/example/OrderService.class
+
+# 2. 连接 Arthas
+java -jar arthas-boot.jar
+
+# 3. 用 redefine 替换线上类（不改变方法签名）
+redefine /tmp/com/example/OrderService.class
+
+# 4. 验证类是否生效（反编译）
+jad com.example.OrderService
+
+# 5. 若要恢复原始字节码
+retransform --deleteAll
+retransform -c &lt;classLoaderHash&gt; --classPattern com.example.OrderService</pre>
+  </div>
+
+  </div>
+</div>
+</body>
+</html>

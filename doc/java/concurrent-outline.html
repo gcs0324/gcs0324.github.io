@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 并发 · 学习大纲</title>
+<style>
+main{max-width:960px;margin:0 auto;padding:28px 20px 0}
+h1{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.subtitle{font-size:13px;color:var(--tx2);margin-bottom:32px}
+
+.ch-card{border:1px solid var(--bd);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.ch-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;flex-shrink:0}
+.ch-title{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--tx);flex:1}
+.ch-file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+.ch-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 10px;text-decoration:none;flex-shrink:0;transition:opacity .15s}
+.ch-link:hover{opacity:.75}
+.ch-link.todo{color:var(--tx3);background:var(--bg);border-color:var(--bd);cursor:default;pointer-events:none}
+.ch-body{padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+.sec-group{}
+.sec-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--tx3);text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bd)}
+.sec-list{list-style:none;display:flex;flex-direction:column;gap:3px}
+.sec-list li{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--tx2);line-height:1.5;padding:2px 0}
+.sec-list li::before{content:'·';color:var(--bd2);font-size:14px;flex-shrink:0;margin-top:1px}
+.sec-list li strong{color:var(--tx);font-weight:600}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 4px}
+
+.stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:var(--tx)}
+.stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.05em}
+
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.progress-bar{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;border:1px solid var(--bd)}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px}
+.progress-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+
+.badge-done{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border:1px solid var(--green-b,#9ed4b0)}
+.badge-todo{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--bg2);color:var(--tx3);border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-concurrent.js"></script>
+<main>
+  <h1>Java 并发 · 学习大纲</h1>
+  <p class="subtitle">6 个文件 · 覆盖 JMM / 线程 / 锁 / JUC / 线程池 / 高频面试题</p>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-val">6</span><span class="stat-lbl">FILES</span></div>
+    <div class="stat"><span class="stat-val">32</span><span class="stat-lbl">SECTIONS</span></div>
+    <div class="stat"><span class="stat-val">0 / 6</span><span class="stat-lbl">COMPLETED</span></div>
+    <div class="stat"><span class="stat-val">~200</span><span class="stat-lbl">MIN READ</span></div>
+  </div>
+
+  <div class="progress-row">
+    <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    <span class="progress-txt">0% 完成</span>
+  </div>
+
+  <!-- CH01 -->
+  <div class="ch-card" id="ch01">
+    <div class="ch-head">
+      <span class="ch-num">CH 01</span>
+      <span class="ch-title">Java 内存模型（JMM）</span>
+      <span class="ch-file">concurrent-01-jmm.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="concurrent-01-jmm.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">01 · JMM 核心概念</div>
+        <ul class="sec-list">
+          <li><strong>主内存 vs 工作内存</strong> — 变量读写模型</li>
+          <li><strong>8 种原子操作</strong> — lock/unlock/read/load/use/assign/store/write</li>
+          <li><strong>happens-before 原则</strong> — 8条规则，可见性保证</li>
+          <li><strong>内存屏障</strong> — LoadLoad / StoreStore / LoadStore / StoreLoad</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 三大特性</div>
+        <ul class="sec-list">
+          <li><strong>原子性</strong> — synchronized / Atomic 类</li>
+          <li><strong>可见性</strong> — volatile / synchronized / final</li>
+          <li><strong>有序性</strong> — volatile 禁止重排 / happens-before</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">03 · volatile 关键字</div>
+        <ul class="sec-list">
+          <li>可见性保证 — 写后刷主内存，读前从主内存取</li>
+          <li>禁止指令重排 — 双检锁（DCL）单例</li>
+          <li><strong>不保证原子性</strong> — i++ 的反例</li>
+          <li>实现原理 — <code>lock</code> 前缀指令 + MESI 协议</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 指令重排序</div>
+        <ul class="sec-list">
+          <li>编译器重排 / 处理器重排 / 内存系统重排</li>
+          <li>as-if-serial 语义</li>
+          <li>DCL 双重检查锁定的正确写法</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CH02 -->
+  <div class="ch-card" id="ch02">
+    <div class="ch-head">
+      <span class="ch-num">CH 02</span>
+      <span class="ch-title">线程基础与生命周期</span>
+      <span class="ch-file">concurrent-02-thread.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="concurrent-02-thread.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 线程创建</div>
+        <ul class="sec-list">
+          <li>继承 Thread / 实现 Runnable / 实现 Callable</li>
+          <li>线程池方式（推荐）</li>
+          <li><strong>Callable vs Runnable</strong> — 返回值 / 异常</li>
+          <li><strong>Future / FutureTask</strong> — 异步结果获取</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 线程状态（6种）</div>
+        <ul class="sec-list">
+          <li>NEW → RUNNABLE → BLOCKED / WAITING / TIMED_WAITING → TERMINATED</li>
+          <li>sleep() vs wait() 的区别</li>
+          <li>join() / yield() / interrupt()</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">03 · ThreadLocal</div>
+        <ul class="sec-list">
+          <li>实现原理 — Thread → ThreadLocalMap → Entry</li>
+          <li><strong>内存泄漏</strong> — 弱引用 key / 需手动 remove()</li>
+          <li>InheritableThreadLocal — 父子线程传递</li>
+          <li>业务场景 — 用户上下文 / 数据库连接</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 线程协作</div>
+        <ul class="sec-list">
+          <li><code>wait() / notify() / notifyAll()</code></li>
+          <li>虚假唤醒 — 必须用 while 而非 if</li>
+          <li>生产者-消费者模型</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CH03 -->
+  <div class="ch-card" id="ch03">
+    <div class="ch-head">
+      <span class="ch-num">CH 03</span>
+      <span class="ch-title">锁机制</span>
+      <span class="ch-file">concurrent-03-lock.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="concurrent-03-lock.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">01 · synchronized</div>
+        <ul class="sec-list">
+          <li>对象锁 / 类锁 / 方法锁</li>
+          <li><strong>锁升级</strong> — 无锁 → 偏向锁 → 轻量级锁 → 重量级锁</li>
+          <li>Monitor 对象 / Mark Word 结构</li>
+          <li>JDK 6+ 优化 — 锁消除 / 锁粗化 / 自旋</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">02 · ReentrantLock</div>
+        <ul class="sec-list">
+          <li>公平锁 vs 非公平锁</li>
+          <li>可中断锁 / 超时锁 / 条件变量 Condition</li>
+          <li>与 synchronized 的区别对比</li>
+          <li><strong>AQS 实现原理</strong> — CLH 队列 / state 变量</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">03 · AQS 深度</div>
+        <ul class="sec-list">
+          <li>独占模式 vs 共享模式</li>
+          <li>acquire / release 核心流程</li>
+          <li>Node 结点结构与等待队列</li>
+          <li>基于 AQS 的实现：ReentrantLock / Semaphore / CountDownLatch</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 读写锁 / 其他锁</div>
+        <ul class="sec-list">
+          <li><strong>ReentrantReadWriteLock</strong> — 读读不互斥</li>
+          <li><strong>StampedLock</strong> — 乐观读，JDK 8+</li>
+          <li>死锁 — 条件 / 检测 / 预防</li>
+          <li>乐观锁 vs 悲观锁</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CH04 -->
+  <div class="ch-card" id="ch04">
+    <div class="ch-head">
+      <span class="ch-num">CH 04</span>
+      <span class="ch-title">JUC 并发工具类</span>
+      <span class="ch-file">concurrent-04-juc.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="concurrent-04-juc.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 同步辅助</div>
+        <ul class="sec-list">
+          <li><strong>CountDownLatch</strong> — 倒计时门闩，一次性</li>
+          <li><strong>CyclicBarrier</strong> — 循环屏障，可重用</li>
+          <li><strong>Semaphore</strong> — 信号量，限流</li>
+          <li><strong>Phaser</strong> — 多阶段同步，JDK 7+</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 原子类</div>
+        <ul class="sec-list">
+          <li>基础原子类：AtomicInteger / AtomicLong / AtomicBoolean</li>
+          <li>引用类型：AtomicReference / AtomicStampedReference（解决ABA）</li>
+          <li><strong>LongAdder</strong> — 分段累加，高并发优于 AtomicLong</li>
+          <li>CAS 原理 — compareAndSwap / Unsafe 类</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 并发容器</div>
+        <ul class="sec-list">
+          <li><strong>ConcurrentHashMap</strong> — JDK 7 分段锁 vs JDK 8 CAS+synchronized</li>
+          <li><strong>CopyOnWriteArrayList</strong> — 写时复制，读多写少</li>
+          <li><strong>BlockingQueue</strong> — ArrayBQ / LinkedBQ / PriorityBQ / SynchronousQueue</li>
+          <li>ConcurrentLinkedQueue — 无锁 CAS 链表</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">04 · CompletableFuture</div>
+        <ul class="sec-list">
+          <li>异步编排 — thenApply / thenCompose / thenCombine</li>
+          <li>异常处理 — exceptionally / handle</li>
+          <li>allOf / anyOf — 多任务聚合</li>
+          <li>与线程池配合使用</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CH05 -->
+  <div class="ch-card" id="ch05">
+    <div class="ch-head">
+      <span class="ch-num">CH 05</span>
+      <span class="ch-title">线程池</span>
+      <span class="ch-file">concurrent-05-pool.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="concurrent-05-pool.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">01 · ThreadPoolExecutor</div>
+        <ul class="sec-list">
+          <li><strong>7个核心参数</strong> — coreSize / maxSize / keepAlive / unit / queue / factory / handler</li>
+          <li>任务提交流程 — 核心池 → 队列 → 最大池 → 拒绝策略</li>
+          <li><strong>4种拒绝策略</strong> — AbortPolicy / CallerRuns / DiscardOldest / Discard</li>
+          <li>线程池状态 — RUNNING / SHUTDOWN / STOP / TIDYING / TERMINATED</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 线程池配置</div>
+        <ul class="sec-list">
+          <li>CPU 密集型 — N+1 线程</li>
+          <li>IO 密集型 — 2N 或 N/(1-阻塞系数)</li>
+          <li>动态线程池 — 运行时调参</li>
+          <li>线程池监控 — getPoolSize / getActiveCount</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 四种内置线程池</div>
+        <ul class="sec-list">
+          <li><strong>FixedThreadPool</strong> — 固定大小，LinkedBQ</li>
+          <li><strong>CachedThreadPool</strong> — 可扩展，SynchronousQueue</li>
+          <li><strong>SingleThreadExecutor</strong> — 单线程顺序执行</li>
+          <li><strong>ScheduledThreadPool</strong> — 延迟/周期任务</li>
+          <li>阿里规范：为何禁止使用 Executors 工厂</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">04 · ForkJoinPool</div>
+        <ul class="sec-list">
+          <li>分治算法 + 工作窃取（work-stealing）</li>
+          <li>RecursiveTask / RecursiveAction</li>
+          <li>并行流底层使用 ForkJoinPool.commonPool()</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CH06 -->
+  <div class="ch-card" id="ch06">
+    <div class="ch-head">
+      <span class="ch-num">CH 06</span>
+      <span class="ch-title">高频面试题（35道）</span>
+      <span class="ch-file">concurrent-06-interview.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="concurrent-06-interview.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">01 · JMM / volatile</div>
+        <ul class="sec-list">
+          <li>volatile 的两个特性及原理</li>
+          <li>happens-before 8条规则</li>
+          <li>DCL 单例为何需要 volatile</li>
+          <li>i++ 为何不是原子操作</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">02 · synchronized / 锁</div>
+        <ul class="sec-list">
+          <li>锁升级完整流程（必考）</li>
+          <li>synchronized vs ReentrantLock</li>
+          <li>AQS 实现原理</li>
+          <li>死锁的条件与解决</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 线程池</div>
+        <ul class="sec-list">
+          <li>7个参数详解（必考）</li>
+          <li>任务执行流程</li>
+          <li>线程池大小如何设置</li>
+          <li>为何禁用 Executors</li>
+        </ul>
+      </div>
+      <div class="sec-group">
+        <div class="sec-lbl">04 · JUC 工具</div>
+        <ul class="sec-list">
+          <li>ConcurrentHashMap 1.7 vs 1.8</li>
+          <li>CountDownLatch vs CyclicBarrier</li>
+          <li>ThreadLocal 内存泄漏</li>
+          <li>CAS ABA 问题及解决</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

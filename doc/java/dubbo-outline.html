@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RPC & Dubbo — 专题导航</title>
+<style>
+:root{--accent-color:var(--red);--accent-bg:var(--red-bg);--accent-b:var(--red-b)}
+.hero{background:linear-gradient(135deg,var(--red-bg) 0%,var(--bg) 60%);border-bottom:1px solid var(--bd);padding:48px 28px 36px}
+.hero-inner{max-width:900px;margin:0 auto}
+.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+.hero p{color:var(--tx2);font-size:1rem;max-width:580px}
+.stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;text-align:center}
+.stat-num{font-size:1.4rem;font-weight:700;color:var(--red)}
+.stat-label{font-size:.75rem;color:var(--tx2)}
+main{max-width:900px;margin:36px auto;padding:0 28px 60px}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--tx)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:40px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:20px;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.card:hover{border-color:var(--red);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.card-num{font-size:.72rem;font-weight:700;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:8px}
+.card-desc{font-size:.82rem;color:var(--tx2);margin-bottom:14px;line-height:1.5}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.72rem;background:var(--red-bg);color:var(--red);border-radius:4px;padding:2px 8px}
+.card-link{display:inline-block;margin-top:14px;font-size:.82rem;font-weight:600;color:var(--red)}
+.interview-card{grid-column:1/-1;background:linear-gradient(135deg,var(--yellow-bg),var(--bg2));border-color:var(--yellow)}
+.interview-card .card-num{color:var(--yellow)}
+.interview-card .card-link{color:var(--yellow)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dubbo.js"></script>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>RPC &amp; Dubbo 专题</h1>
+    <p>从 RPC 原理到 Dubbo 架构，深入注册中心、负载均衡、集群容错，掌握分布式服务调用的核心知识体系。</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">文件</div></div>
+      <div class="stat"><div class="stat-num">26</div><div class="stat-label">小节</div></div>
+      <div class="stat"><div class="stat-num">~150</div><div class="stat-label">分钟</div></div>
+      <div class="stat"><div class="stat-num">29</div><div class="stat-label">面试题</div></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="section-title">📚 章节目录</div>
+  <div class="cards">
+    <div class="card" onclick="location.href='dubbo-01-rpc.html'">
+      <div class="card-num">Chapter 01</div>
+      <div class="card-title">RPC 原理</div>
+      <div class="card-desc">RPC vs HTTP，序列化协议，网络传输，动态代理，服务寻址，调用流程全解析</div>
+      <div class="card-tags"><span class="tag">序列化</span><span class="tag">动态代理</span><span class="tag">网络传输</span></div>
+      <a class="card-link" href="dubbo-01-rpc.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='dubbo-02-arch.html'">
+      <div class="card-num">Chapter 02</div>
+      <div class="card-title">Dubbo 架构</div>
+      <div class="card-desc">四大角色，十层架构，SPI 扩展机制，核心 API，Filter 链，服务导出与引入</div>
+      <div class="card-tags"><span class="tag">SPI</span><span class="tag">架构分层</span><span class="tag">Filter</span></div>
+      <a class="card-link" href="dubbo-02-arch.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='dubbo-03-registry.html'">
+      <div class="card-num">Chapter 03</div>
+      <div class="card-title">注册中心 &amp; 负载均衡</div>
+      <div class="card-desc">ZooKeeper vs Nacos，服务注册发现，5 种负载均衡策略，路由规则，服务目录</div>
+      <div class="card-tags"><span class="tag">ZooKeeper</span><span class="tag">Nacos</span><span class="tag">负载均衡</span></div>
+      <a class="card-link" href="dubbo-03-registry.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='dubbo-04-cluster.html'">
+      <div class="card-num">Chapter 04</div>
+      <div class="card-title">集群容错 &amp; 高级特性</div>
+      <div class="card-desc">6 种容错策略，超时重试，服务降级，限流熔断，异步调用，泛化调用，本地存根</div>
+      <div class="card-tags"><span class="tag">容错</span><span class="tag">降级</span><span class="tag">限流</span><span class="tag">异步</span></div>
+      <a class="card-link" href="dubbo-04-cluster.html">开始学习 →</a>
+    </div>
+    <div class="card interview-card" onclick="location.href='dubbo-05-interview.html'">
+      <div class="card-num">🎯 Interview</div>
+      <div class="card-title">RPC/Dubbo 面试题 — 左侧分类导航</div>
+      <div class="card-desc">29 道高频面试题，覆盖 RPC 原理、Dubbo 架构、注册中心、集群容错、高级特性五大分类</div>
+      <div class="card-tags"><span class="tag">29题</span><span class="tag">5分类</span><span class="tag">高频</span></div>
+      <a class="card-link" href="dubbo-05-interview.html">进入面试题 →</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

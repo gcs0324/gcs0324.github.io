@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>系统设计 & 设计模式 — 专题导航</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+.hero{background:linear-gradient(135deg,var(--green-bg) 0%,var(--bg) 60%);border-bottom:1px solid var(--bd);padding:48px 28px 36px}
+.hero-inner{max-width:960px;margin:0 auto}
+.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+.hero p{color:var(--tx2);font-size:1rem;max-width:600px}
+.stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;text-align:center}
+.stat-num{font-size:1.4rem;font-weight:700;color:var(--green)}
+.stat-label{font-size:.75rem;color:var(--tx2)}
+main{max-width:960px;margin:36px auto;padding:0 28px 60px}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--tx)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:40px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:20px;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.card:hover{border-color:var(--green);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.card-num{font-size:.72rem;font-weight:700;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:8px}
+.card-desc{font-size:.82rem;color:var(--tx2);margin-bottom:14px;line-height:1.5}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.72rem;background:var(--green-bg);color:var(--green);border-radius:4px;padding:2px 8px}
+.card-link{display:inline-block;margin-top:14px;font-size:.82rem;font-weight:600;color:var(--green)}
+.interview-card{grid-column:1/-1;background:linear-gradient(135deg,var(--yellow-bg),var(--bg2));border-color:var(--yellow)}
+.interview-card .card-num{color:var(--yellow)}
+.interview-card .card-link{color:var(--yellow)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-design.js"></script>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>系统设计 &amp; 设计模式专题</h1>
+    <p>从 23 种 GoF 设计模式到大规模系统设计，掌握 SOLID 原则、高并发架构、分布式设计方法论，提升工程设计思维。</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">文件</div></div>
+      <div class="stat"><div class="stat-num">28</div><div class="stat-label">小节</div></div>
+      <div class="stat"><div class="stat-num">~160</div><div class="stat-label">分钟</div></div>
+      <div class="stat"><div class="stat-num">32</div><div class="stat-label">面试题</div></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="section-title">📚 章节目录</div>
+  <div class="cards">
+    <div class="card" onclick="location.href='design-01-creational.html'">
+      <div class="card-num">Chapter 01</div>
+      <div class="card-title">创建型模式</div>
+      <div class="card-desc">单例（5种实现）、工厂方法、抽象工厂、建造者、原型，及 Spring 中的应用实例</div>
+      <div class="card-tags"><span class="tag">单例</span><span class="tag">工厂</span><span class="tag">建造者</span><span class="tag">原型</span></div>
+      <a class="card-link" href="design-01-creational.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='design-02-structural.html'">
+      <div class="card-num">Chapter 02</div>
+      <div class="card-title">结构型模式</div>
+      <div class="card-desc">适配器、装饰器、代理、门面、桥接、组合、享元，理解对象结构与组合关系</div>
+      <div class="card-tags"><span class="tag">适配器</span><span class="tag">装饰器</span><span class="tag">代理</span><span class="tag">门面</span></div>
+      <a class="card-link" href="design-02-structural.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='design-03-behavioral.html'">
+      <div class="card-num">Chapter 03</div>
+      <div class="card-title">行为型模式</div>
+      <div class="card-desc">观察者、策略、命令、模板方法、责任链、迭代器、状态、访问者等，消除 if-else 利器</div>
+      <div class="card-tags"><span class="tag">观察者</span><span class="tag">策略</span><span class="tag">责任链</span><span class="tag">模板方法</span></div>
+      <a class="card-link" href="design-03-behavioral.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='design-04-system.html'">
+      <div class="card-num">Chapter 04</div>
+      <div class="card-title">系统设计方法论</div>
+      <div class="card-desc">CAP/BASE，限流算法，缓存策略，消息队列，分库分表，高可用设计，典型场景（短链/秒杀/IM）</div>
+      <div class="card-tags"><span class="tag">CAP</span><span class="tag">限流</span><span class="tag">分库分表</span><span class="tag">高可用</span></div>
+      <a class="card-link" href="design-04-system.html">开始学习 →</a>
+    </div>
+    <div class="card interview-card" onclick="location.href='design-05-interview.html'">
+      <div class="card-num">🎯 Interview</div>
+      <div class="card-title">设计模式 &amp; 系统设计面试题 — 左侧分类导航</div>
+      <div class="card-desc">32 道高频面试题，覆盖创建型、结构型、行为型、设计原则、系统设计五大分类，含代码示例</div>
+      <div class="card-tags"><span class="tag">32题</span><span class="tag">5分类</span><span class="tag">高频</span></div>
+      <a class="card-link" href="design-05-interview.html">进入面试题 →</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

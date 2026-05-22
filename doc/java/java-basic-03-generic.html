@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 泛型 / 反射 / 注解</title>
+<style>
+header::before{content:'GENERIC'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-java-basic.js"></script>
+<header>
+  <div class="htag">JAVA BASIC · 03 · 泛型</div>
+  <h1>Java 泛型 / 反射 / 注解</h1>
+  <p class="sub">类型擦除 · 通配符 · 反射 API · 动态代理 · 注解处理</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#generic">1. 泛型基础</a>
+  <a class="sb-link" href="#erasure">2. 类型擦除</a>
+  <a class="sb-link" href="#wildcard">3. 通配符</a>
+  <a class="sb-link" href="#reflect">4. 反射 API</a>
+  <a class="sb-link" href="#proxy">5. 动态代理</a>
+  <a class="sb-link" href="#annotation">6. 注解</a>
+</aside>
+<main>
+  <h2 class="sec" id="generic">1. 泛型基础</h2>
+  <p>泛型（Generics）在编译期检查类型，避免运行时 ClassCastException，提高代码复用性。</p>
+  <pre>// 泛型类
+class Box&lt;T&gt; {
+    private T value;
+    public T get() { return value; }
+    public void set(T v) { this.value = v; }
+}
+
+// 泛型方法
+public &lt;T&gt; List&lt;T&gt; asList(T... items) {
+    return Arrays.asList(items);
+}
+
+// 有界类型参数
+&lt;T extends Comparable&lt;T&gt;&gt;  // 上界，T 必须实现 Comparable
+&lt;T extends Number & Serializable&gt;  // 多边界（类在前，接口在后）</pre>
+
+  <h2 class="sec" id="erasure">2. 类型擦除</h2>
+  <p>Java 泛型是"伪泛型"：编译后类型信息被擦除，运行时只有原始类型（Raw Type）。编译器插入强制类型转换保证类型安全。</p>
+  <pre>// 编译前
+List&lt;String&gt; list = new ArrayList&lt;&gt;();
+String s = list.get(0);
+
+// 编译后（字节码）
+List list = new ArrayList();
+String s = (String) list.get(0);  // 编译器自动插入强转</pre>
+  <h3>类型擦除的限制</h3>
+  <ul>
+    <li>不能 <code>new T()</code>（运行时不知道 T 的具体类型）</li>
+    <li>不能 <code>new T[]</code>（泛型数组创建禁止）</li>
+    <li>不能 <code>instanceof List&lt;String&gt;</code>（只能 instanceof List）</li>
+    <li>静态成员不能使用类泛型参数</li>
+    <li>泛型类不能 extends Exception（不能作为异常类型）</li>
+  </ul>
+  <h3>如何在运行时获取泛型类型？</h3>
+  <pre>// 通过匿名子类保留泛型信息（TypeToken 原理）
+TypeReference&lt;List&lt;String&gt;&gt; ref = new TypeReference&lt;List&lt;String&gt;&gt;(){};
+// 父类 getGenericSuperclass() 获取参数化类型
+Type type = ref.getClass().getGenericSuperclass(); // ParameterizedType</pre>
+
+  <h2 class="sec" id="wildcard">3. 通配符</h2>
+  <div class="table-wrap"><table>
+    <tr><th>通配符</th><th>语法</th><th>读取</th><th>写入</th><th>适用</th></tr>
+    <tr><td>无界通配符</td><td><code>List&lt;?&gt;</code></td><td>Object</td><td>❌ 只能 null</td><td>不关心类型时</td></tr>
+    <tr><td>上界通配符</td><td><code>List&lt;? extends T&gt;</code></td><td>T 或子类</td><td>❌</td><td>生产者（读取数据）</td></tr>
+    <tr><td>下界通配符</td><td><code>List&lt;? super T&gt;</code></td><td>Object</td><td>✅ T 或子类</td><td>消费者（写入数据）</td></tr>
+  </table></div>
+  <div class="tip">💡 PECS 原则：<strong>P</strong>roducer <strong>E</strong>xtends，<strong>C</strong>onsumer <strong>S</strong>uper。Collections.copy(dest, src) 中 src 用 extends（生产），dest 用 super（消费）。</div>
+  <pre>// PECS 示例
+public static &lt;T&gt; void copy(List&lt;? super T&gt; dest, List&lt;? extends T&gt; src) {
+    for (T e : src) dest.add(e);
+}</pre>
+
+  <h2 class="sec" id="reflect">4. 反射 API</h2>
+  <p>反射允许在运行时检查和操作类的结构（字段、方法、构造器），是框架的核心机制。</p>
+  <pre>// 获取 Class 对象的三种方式
+Class&lt;?&gt; c1 = String.class;           // 类字面量（编译时）
+Class&lt;?&gt; c2 = "hello".getClass();     // 实例方法
+Class&lt;?&gt; c3 = Class.forName("java.lang.String"); // 动态（类名字符串）
+
+// 反射创建实例
+Constructor&lt;?&gt; ctor = c3.getDeclaredConstructor(String.class);
+ctor.setAccessible(true);  // 突破私有访问
+Object obj = ctor.newInstance("hello");
+
+// 反射调用方法
+Method m = c3.getDeclaredMethod("substring", int.class, int.class);
+m.setAccessible(true);
+String result = (String) m.invoke(obj, 0, 3);
+
+// 反射访问字段
+Field f = c3.getDeclaredField("value");
+f.setAccessible(true);
+byte[] bytes = (byte[]) f.get(obj);</pre>
+  <div class="table-wrap"><table>
+    <tr><th>方法</th><th>说明</th></tr>
+    <tr><td>getDeclaredMethods()</td><td>本类声明的所有方法（含 private），不含继承</td></tr>
+    <tr><td>getMethods()</td><td>public 方法，含继承的</td></tr>
+    <tr><td>getDeclaredFields()</td><td>本类所有字段（含 private）</td></tr>
+    <tr><td>getFields()</td><td>public 字段，含继承</td></tr>
+  </table></div>
+  <div class="warn">⚠️ 反射性能较低（约慢 1-2 个数量级），需频繁调用时缓存 Method/Field 对象。JDK 9+ 模块系统对 setAccessible 有限制。</div>
+
+  <h2 class="sec" id="proxy">5. 动态代理</h2>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>JDK 动态代理</th><th>CGLIB 代理</th></tr>
+    <tr><td>原理</td><td>实现目标接口，生成 $Proxy 类</td><td>继承目标类，生成子类</td></tr>
+    <tr><td>要求</td><td>目标必须实现接口</td><td>目标类不能是 final</td></tr>
+    <tr><td>核心 API</td><td>Proxy.newProxyInstance + InvocationHandler</td><td>Enhancer + MethodInterceptor</td></tr>
+    <tr><td>性能</td><td>JDK 8 后优化，接近 CGLIB</td><td>通常略快（直接字节码）</td></tr>
+    <tr><td>Spring 选择</td><td>有接口时默认使用</td><td>无接口 或 proxyTargetClass=true</td></tr>
+  </table></div>
+  <pre>// JDK 动态代理
+UserService proxy = (UserService) Proxy.newProxyInstance(
+    target.getClass().getClassLoader(),
+    target.getClass().getInterfaces(),
+    (proxyObj, method, args) -> {
+        System.out.println("before: " + method.getName());
+        Object result = method.invoke(target, args);
+        System.out.println("after");
+        return result;
+    }
+);</pre>
+
+  <h2 class="sec" id="annotation">6. 注解</h2>
+  <h3>元注解</h3>
+  <div class="table-wrap"><table>
+    <tr><th>元注解</th><th>说明</th><th>常用值</th></tr>
+    <tr><td>@Target</td><td>注解可应用的位置</td><td>TYPE, METHOD, FIELD, PARAMETER...</td></tr>
+    <tr><td>@Retention</td><td>注解保留阶段</td><td>SOURCE（编译期）/ CLASS（字节码）/ RUNTIME（运行时）</td></tr>
+    <tr><td>@Documented</td><td>生成到 JavaDoc</td><td>-</td></tr>
+    <tr><td>@Inherited</td><td>子类继承父类注解</td><td>仅对类注解有效</td></tr>
+    <tr><td>@Repeatable</td><td>允许同一元素多次使用</td><td>JDK 8 新增</td></tr>
+  </table></div>
+  <pre>// 自定义注解
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Log {
+    String value() default "";  // 注解属性
+    LogLevel level() default LogLevel.INFO;
+}
+
+// 运行时读取注解
+Method m = obj.getClass().getMethod("doSomething");
+if (m.isAnnotationPresent(Log.class)) {
+    Log log = m.getAnnotation(Log.class);
+    System.out.println("log value: " + log.value());
+}</pre>
+  <h3>注解处理器（APT）</h3>
+  <p>编译期处理 <code>SOURCE/CLASS</code> 级别注解，生成额外代码（如 Lombok、MapStruct）。实现 <code>AbstractProcessor</code>，在 <code>process()</code> 中生成源文件。</p>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

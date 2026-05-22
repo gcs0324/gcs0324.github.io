@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JVM 04 · 高频面试题</title>
+<style>
+header::before{content:'INTERVIEW'}
+/* .blt is an alias for .b used in this page's list items */
+.qa-answer ul li .blt{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;flex-shrink:0;min-width:18px;margin-top:3px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-jvm.js"></script>
+<header>
+  <div class="htag">JVM · 04 · INTERVIEW</div>
+  <h1>JVM 高频面试题</h1>
+  <p class="subtitle">面试官视角 · 口语化回答 · 知识点跳转 — 25 道真题</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">快速操作</span>
+    <span class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">展开全部</button>
+      <button class="s-btn" onclick="toggleAll(false)">折叠全部</button>
+    </span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/25</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+  <div class="s-lbl">题目分类</div>
+
+  <div class="scat open" id="scat-must">
+    <div class="scat-head" onclick="toggleScat('scat-must')">
+      <span class="scat-icon">01</span><span class="scat-label">必背高频题</span>
+      <span class="scat-count">8题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item active" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">运行时数据区</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">堆 vs 栈</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">三类 GC 对比</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">CMS vs G1</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">Stop-The-World</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">CPU 飙高排查</span></a>
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">内存泄漏排查</span></a>
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">双亲委派模型</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-deep">
+    <div class="scat-head" onclick="toggleScat('scat-deep')">
+      <span class="scat-icon">02</span><span class="scat-label">原理深挖题</span>
+      <span class="scat-count">8题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">逃逸分析/标量替换</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">G1 Region/Mixed GC</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">ZGC 着色指针</span></a>
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">类加载阶段区别</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">static 变量存储</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">Metaspace vs PermGen</span></a>
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">内存屏障与 volatile</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">自定义类加载器</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-params">
+    <div class="scat-head" onclick="toggleScat('scat-params')">
+      <span class="scat-icon">03</span><span class="scat-label">参数配置题</span>
+      <span class="scat-count">5题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">-Xms/-Xmx 相同值</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">NewRatio/-Xmn</span></a>
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">MaxGCPauseMillis 风险</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">Metaspace 溢出配置</span></a>
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">生产 GC 组合推荐</span></a>
+    </div>
+  </div>
+
+  <div class="scat" id="scat-ts">
+    <div class="scat-head" onclick="toggleScat('scat-ts')">
+      <span class="scat-icon">04</span><span class="scat-label">故障排查题</span>
+      <span class="scat-count">4题</span><span class="scat-arrow">›</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">OOM 现场处理</span></a>
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">频繁 Full GC 排查</span></a>
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">Promotion Failed</span></a>
+      <a class="scat-item" href="#q25"><span class="scat-item-num">Q25</span><span class="scat-item-txt">Arthas 实战</span></a>
+    </div>
+  </div>
+
+
+</aside>
+<div class="mc">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="must-know"><span class="sec-num">01</span> 必背高频题 <span class="q-count">Q1 – Q8</span></div>
+
+<!-- Q1 -->
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">JVM 运行时数据区有哪些？线程共享 vs 线程私有的区别？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>JVM 所有问题的基础。考察你对内存模型的系统性理解。期望听到线程私有/共享的分类、各区域的职责和 OOM 类型。加分点：提到直接内存、JDK8 用 Metaspace 替换 PermGen 的原因。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>JVM 运行时内存划分为 5 个区域：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>线程私有（3个）：程序计数器</strong>（唯一不会 OOM 的区域，记录当前线程字节码行号）、<strong>JVM 虚拟机栈</strong>（每个方法对应一个栈帧，含局部变量表/操作数栈/动态链接/返回地址，可 StackOverflow）、<strong>本地方法栈</strong>（服务 Native 方法，HotSpot 将两者合并）</span></li>
+        <li><span class="blt">②</span><span><strong>线程共享（2个）：堆</strong>（几乎所有对象实例，分新生代+老年代，OOM: Java heap space）、<strong>方法区/元空间</strong>（类元数据/运行时常量池/静态变量，JDK8 起用本地内存的 Metaspace 替代 PermGen，OOM: Metaspace）</span></li>
+      </ul>
+      <p>另外还有<strong>直接内存</strong>，不属于 JVM 规范，NIO 的 DirectByteBuffer 分配于此，不受 <code>-Xmx</code> 限制，可 OOM: Direct buffer memory。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#runtime-areas">01 · 运行时数据区详解</a>
+        <a class="qa-link" href="jvm-01-memory.html#oom">01 · OOM 类型与排查</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">堆和栈的区别是什么？什么情况下对象会在栈上分配？（逃逸分析）</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>很多人只会说"堆存对象，栈存基本类型"，这只能得基础分。考察点在于逃逸分析和标量替换——能说出这两个点，说明你了解 JIT 优化，是高级 Java 工程师应有的知识。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>堆和栈的核心区别：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>存储内容</strong>：栈存基本类型变量和对象引用，堆存对象实例本身</span></li>
+        <li><span class="blt">②</span><span><strong>生命周期</strong>：栈随方法调用/返回自动分配/释放；堆中对象靠 GC 回收</span></li>
+        <li><span class="blt">③</span><span><strong>线程归属</strong>：栈是线程私有，堆是线程共享</span></li>
+        <li><span class="blt">④</span><span><strong>大小</strong>：栈空间小（默认 512k~1m），堆由 <code>-Xmx</code> 指定</span></li>
+      </ul>
+      <p>关于栈上分配，JVM 通过<strong>逃逸分析</strong>（JDK7+ 默认开启）判断对象作用域，若对象未逃逸出方法（不被外部引用/返回/传参），JVM 会做三种优化：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>栈上分配</strong>：直接在栈帧分配，方法返回后随栈帧销毁，不需 GC</span></li>
+        <li><span class="blt">②</span><span><strong>标量替换</strong>（<code>-XX:+EliminateAllocations</code>）：把对象拆散成基本类型存局部变量表，彻底消除对象分配</span></li>
+        <li><span class="blt">③</span><span><strong>同步消除</strong>：锁对象不逃逸则直接消除 synchronized 块</span></li>
+      </ul>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#object-creation">01 · 对象创建 — TLAB</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">Minor GC / Major GC / Full GC 的区别和触发条件？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>GC 类型是必考题。重点在触发条件是否清晰，以及是否能区分 Major GC 和 Full GC（很多人混用）。加分点：说出 Full GC 的多种触发原因，以及 Full GC 为什么要尽量避免。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <ul>
+        <li><span class="blt">①</span><span><strong>Minor GC（Young GC）</strong>：只回收新生代（Eden + Survivor）。触发：Eden 区满。速度快（几ms~几十ms），因为新生代存活对象少，标记-复制算法效率高。</span></li>
+        <li><span class="blt">②</span><span><strong>Major GC</strong>：回收老年代。往往伴随至少一次 Minor GC（非绝对）。速度比 Minor GC 慢 10 倍以上。CMS 的并发清除阶段就是 Major GC。</span></li>
+        <li><span class="blt">③</span><span><strong>Full GC</strong>：回收整个堆 + 元空间。触发条件：老年代空间不足 / 元空间不足 / 调用 System.gc() / CMS 并发模式失败 / Minor GC 晋升失败（Promotion Failed）。停顿时间最长，生产要尽力避免。</span></li>
+      </ul>
+      <div class="note warn"><strong>注意：</strong>Major GC 和 Full GC 有时混用。严格来说 Major GC 仅老年代，Full GC 包含全堆+元空间。不同收集器对这两个术语的界定略有差异。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#collectors">02 · 经典垃圾收集器</a>
+        <a class="qa-link" href="jvm-02-gc.html#g1">02 · G1 四种 GC 模式</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">CMS 和 G1 的核心区别？生产上如何选择？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>生产选型题，是对 GC 原理掌握深度的综合考察。期望听到 Region 设计、SATB、停顿预测模型等关键词，而不只是"G1 更好"。最后能给出版本差异化的选择建议更佳。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>核心区别有五点：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>内存模型</strong>：CMS 是传统新生代/老年代分区；G1 把堆切成等大小 Region（1~32MB），Region 可动态扮演 E/S/O/H 角色</span></li>
+        <li><span class="blt">②</span><span><strong>内存碎片</strong>：CMS 用标记-清除，长期运行产生碎片；G1 基于 Region 复制，基本无碎片</span></li>
+        <li><span class="blt">③</span><span><strong>可预测停顿</strong>：G1 有停顿预测模型，在 <code>-XX:MaxGCPauseMillis</code> 约束内优先回收垃圾最多的 Region；CMS 停顿不可控</span></li>
+        <li><span class="blt">④</span><span><strong>并发漏标处理</strong>：CMS 用增量更新；G1 用 SATB，重新标记阶段更短</span></li>
+        <li><span class="blt">⑤</span><span><strong>失败退化</strong>：CMS 退化为 Serial Old（极慢）；G1 退化为 Full GC</span></li>
+      </ul>
+      <p><strong>选择建议：</strong>JDK8 堆 &lt;6GB → Parallel GC（吞吐优先）；堆 ≥6GB 或延迟敏感 → G1。JDK9+ 默认 G1 直接用。JDK15+ 毫秒级停顿要求 → ZGC。不建议新项目用 CMS（JDK14 已删除）。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#collectors">02 · CMS 四阶段</a>
+        <a class="qa-link" href="jvm-02-gc.html#g1">02 · G1 收集器</a>
+        <a class="qa-link" href="jvm-02-gc.html#tuning">02 · GC 调优实战</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">什么是 Stop-The-World？哪些 GC 阶段会触发 STW？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>考察对 GC 停顿的底层理解。大多数人知道 STW 是暂停，但不知道是通过 Safepoint 实现的。能说出各收集器 STW 的具体阶段和 ZGC 如何缩短 STW，是加分答案。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>Stop-The-World（STW）</strong>：JVM 暂停所有用户线程，只有 GC 线程工作的状态。STW 期间应用完全停止响应。</p>
+      <p>各收集器 STW 阶段：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>初始标记</strong>（Initial Mark）：所有并发 GC 都需要，标记 GC Roots 直接关联对象，时间极短但必须 STW</span></li>
+        <li><span class="blt">②</span><span><strong>重新标记 / 最终标记</strong>（Remark / Final Mark）：修正并发标记期间的变化，较短但需 STW</span></li>
+        <li><span class="blt">③</span><span><strong>G1 的转移阶段</strong>（Evacuation Pause）：复制存活对象到新 Region，全程 STW</span></li>
+        <li><span class="blt">④</span><span><strong>Full GC</strong>：全程 STW，停顿最长</span></li>
+      </ul>
+      <p><strong>ZGC</strong> 把对象转移也并发化，STW 只剩初始标记和最终标记，通常 &lt;10ms。</p>
+      <div class="note info"><strong>实现原理：</strong>STW 通过 Safepoint 机制实现。JVM 在字节码特定位置插入安全点检查，GC 触发时所有线程需在下一个安全点暂停，全部暂停后 STW 才正式开始。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#collectors">02 · CMS 阶段</a>
+        <a class="qa-link" href="jvm-02-gc.html#zgc">02 · ZGC 原理</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">如何排查 CPU 飙高问题？（top -Hp + jstack 线程 dump）</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>经典生产实战题，几乎每场面试必考。不仅要说出标准 5 步流程，还要能说出常见根因（死循环/频繁 GC/正则回溯）。加分：提到 Arthas 的 <code>thread -n</code> 命令一键搞定。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>CPU 飙高排查标准 5 步：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>找进程</strong>：<code>top</code> 找到 CPU 最高的 Java 进程 PID</span></li>
+        <li><span class="blt">②</span><span><strong>找线程</strong>：<code>top -Hp &lt;PID&gt;</code> 查看进程内各线程 CPU 占用，找到最高线程 TID（十进制）</span></li>
+        <li><span class="blt">③</span><span><strong>转十六进制</strong>：<code>printf "%x\n" &lt;TID&gt;</code> 得到 nid</span></li>
+        <li><span class="blt">④</span><span><strong>抓线程栈</strong>：<code>jstack &lt;PID&gt; | grep -A 30 "&lt;nid&gt;"</code></span></li>
+        <li><span class="blt">⑤</span><span><strong>分析根因</strong>：看调用栈定位具体代码</span></li>
+      </ul>
+      <pre>
+top                        # 找到 Java 进程 PID=12345
+top -Hp 12345              # 找到 CPU 最高线程 TID=12399
+printf "%x\n" 12399        # 输出 305f（十六进制 nid）
+jstack 12345 | grep -A 30 "305f"
+
+# 或用 Arthas 一步搞定（推荐）
+thread -n 5                # 直接列出 CPU 最高的 5 个线程及调用栈</pre>
+      <p><strong>常见根因：</strong>① 死循环（while true / 递归溢出）② GC 线程占用高（频繁 Full GC）③ 正则表达式回溯 ④ 大量锁竞争自旋 ⑤ 序列化/反序列化大对象。若是 GC 线程 CPU 高（线程名含 <code>GC task thread</code>），转向 GC 排查。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="#q25">Q25 · Arthas 实战命令</a>
+        <a class="qa-link" href="#q23">Q23 · 频繁 Full GC 排查</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">如何排查内存泄漏？（jmap -histo + MAT dump 分析）</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>实战排查题，考察工具熟练度。能说出 MAT 的 Leak Suspects 和 Dominator Tree，以及 ThreadLocal 未 remove 是高频泄漏场景，是加分答案。预防措施（HeapDumpOnOutOfMemoryError）也要提。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>内存泄漏特征：堆持续增长，Full GC 后无法回落。排查 5 步：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>确认泄漏</strong>：<code>jstat -gcutil &lt;pid&gt; 5000</code> 观察 Old 区（OU/OC）是否持续增长、GC 后不下降</span></li>
+        <li><span class="blt">②</span><span><strong>快速看对象分布</strong>：<code>jmap -histo:live &lt;pid&gt; | head -30</code>，看哪些类实例数量异常多</span></li>
+        <li><span class="blt">③</span><span><strong>导出 heap dump</strong>：<code>jmap -dump:format=b,live,file=/tmp/heap.hprof &lt;pid&gt;</code></span></li>
+        <li><span class="blt">④</span><span><strong>MAT 分析</strong>：看 <strong>Leak Suspects</strong>（自动分析疑似泄漏）和 <strong>Dominator Tree</strong>（哪个对象持有内存最多）</span></li>
+        <li><span class="blt">⑤</span><span><strong>找引用链</strong>：对大对象执行 "Path to GC Roots"，找到哪个根引用阻止了 GC</span></li>
+      </ul>
+      <p><strong>常见泄漏场景：</strong>① ThreadLocal 未 remove（key 弱引用，value 强引用）② static 集合无限增长 ③ 监听器/回调未注销 ④ 数据库连接/流未关闭 ⑤ 缓存未设过期</p>
+      <div class="note warn"><strong>生产建议：</strong>提前配置 <code>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/</code>，OOM 时自动 dump，不错过现场。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#oom">01 · OOM 类型与排查</a>
+        <a class="qa-link" href="#q22">Q22 · OOM 第一时间处理</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">双亲委派模型是什么？Tomcat 为什么要破坏它？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>类加载必考题，分两层：基础层（双亲委派规则和作用）+ 进阶层（为什么 Tomcat 要破坏，实现方式）。只会背规则拿基础分，能解释 Tomcat 多 WebApp 类隔离需求才得满分。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>双亲委派</strong>：收到类加载请求时，先委派父加载器，只有父加载器找不到才自己加载。层次：Bootstrap → Extension → Application → 自定义。</p>
+      <p><strong>核心作用：</strong>① 防止用户自定义 <code>java.lang.String</code> 等核心类替换官方实现 ② 避免同一类被重复加载。</p>
+      <p><strong>Tomcat 为什么要破坏：</strong>多个 Web 应用可能依赖同一个库的不同版本（如应用 A 用 Spring 4.x，应用 B 用 Spring 5.x）。若遵循双亲委派，同名类只能加载一次，无法隔离。Tomcat 为每个 WebApp 创建独立的 <code>WebAppClassLoader</code>，<strong>优先自己加载</strong>（先 findClass 再委派父），打破委派顺序实现隔离。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-03-classload.html#parents-delegation">03 · 双亲委派 + 破坏场景</a>
+        <a class="qa-link" href="jvm-03-classload.html#classloaders">03 · 类加载器体系</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="deep-dive"><span class="sec-num">02</span> 原理深挖题 <span class="q-count">Q9 – Q16</span></div>
+
+<!-- Q9 -->
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">对象一定在堆上分配吗？逃逸分析和标量替换原理？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>进阶题，区分"背了面试题"和"真正理解 JVM 优化"的分水岭。能解释逃逸分析的判断标准，以及标量替换为何比栈上分配更彻底，说明有 JIT 实践经验。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>不一定。JVM 通过<strong>逃逸分析</strong>（JDK7+ 默认开启 <code>-XX:+DoEscapeAnalysis</code>）判断对象作用域，若对象没有逃逸出方法，JVM 可做三种优化：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>栈上分配</strong>：对象直接在栈帧分配，方法返回后销毁，不需 GC</span></li>
+        <li><span class="blt">②</span><span><strong>标量替换</strong>（<code>-XX:+EliminateAllocations</code>，默认开启）：把对象拆散成多个基本类型字段存入局部变量表，根本不创建对象。这是最彻底的优化。</span></li>
+        <li><span class="blt">③</span><span><strong>同步消除</strong>：锁对象不逃逸则去掉 synchronized</span></li>
+      </ul>
+      <p>实践中标量替换效果最显著，可大量减少短命对象的堆分配，降低 Minor GC 频率。用 <code>-XX:-DoEscapeAnalysis</code> 关闭后 GC 日志中 Minor GC 频率会明显升高。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#object-creation">01 · 对象创建流程</a>
+        <a class="qa-link" href="#q2">Q2 · 堆栈区别</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">G1 的 Region 如何工作？Mixed GC 的触发条件？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>G1 是生产主流 GC，深度考察。能说清 Region 动态角色、Mixed GC 与并发标记周期的关系、RSet 解决跨 Region 引用，是标准水平。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>G1 把堆切成等大小的 <strong>Region</strong>（1~32MB，2 的幂），每个 Region 可动态扮演 E（Eden）/ S（Survivor）/ O（Old）/ H（Humongous 大对象）角色，没有固定的新老代边界。</p>
+      <p><strong>Mixed GC 触发条件：</strong></p>
+      <ul>
+        <li><span class="blt">①</span><span>老年代占堆比例超 <code>-XX:InitiatingHeapOccupancyPercent</code>（默认 45%），触发一轮<strong>并发标记周期</strong></span></li>
+        <li><span class="blt">②</span><span>并发标记完成后，G1 知道哪些 Old Region 垃圾最多，接下来若干次 GC 进入 <strong>Mixed GC</strong> 模式：回收所有 Young Region + 部分垃圾最多的 Old Region</span></li>
+        <li><span class="blt">③</span><span>持续到老年代占比降到安全水位（<code>-XX:G1HeapWastePercent</code>，默认 5%）为止</span></li>
+      </ul>
+      <p><strong>关键技术：</strong>每个 Region 维护 RSet（Remembered Set）记录外部引用，Card Table 精确定位修改位置，SATB 写屏障防止并发漏标。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#g1">02 · G1 收集器详解</a>
+        <a class="qa-link" href="#q4">Q4 · CMS vs G1</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q11 -->
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">ZGC 的着色指针是什么？为什么停顿时间极短？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>ZGC 在 JDK11 以后越来越被生产采用。能说出着色指针和读屏障的原理，以及"停顿时间不随堆大小增长"的核心原因，是加分答案。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>着色指针（Colored Pointers）</strong>：在 64 位指针的高 4 位（bit 40~43）存储 GC 状态元数据（Finalizable / Remapped / Marked1 / Marked0），把对象状态信息嵌入指针本身。</p>
+      <p>ZGC 停顿极短的原因：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>并发转移</strong>：对象移动不再需要 STW。通过<strong>读屏障</strong>（Load Barrier）在用户线程读取指针时检查颜色位，若对象已转移自动修正，实现"边使用边整理"</span></li>
+        <li><span class="blt">②</span><span><strong>STW 极短</strong>：只有初始标记（标记 GC Roots）和最终标记需要 STW，其余全部并发</span></li>
+        <li><span class="blt">③</span><span><strong>停顿不随堆大小增长</strong>：STW 阶段工作量只与 GC Roots 数量有关，与堆大小无关，TB 级堆也能保持毫秒级停顿</span></li>
+      </ul>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#zgc">02 · ZGC / Shenandoah</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q12 -->
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">类的准备阶段和初始化阶段有什么区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>高频陷阱题，很多候选人会把两个阶段混淆。考察对 static 变量赋值时机的精确理解，以及 <code>static final</code> 常量的特殊处理。能举出具体例子说明区别更好。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <ul>
+        <li><span class="blt">①</span><span><strong>准备阶段</strong>：为 static 变量分配内存，赋<strong>零值</strong>（int=0, boolean=false, reference=null）。程序里的赋值语句还没执行。例外：<code>static final int X = 100</code>（编译时常量）因有 ConstantValue 属性，直接赋真实值 100。</span></li>
+        <li><span class="blt">②</span><span><strong>初始化阶段</strong>：执行 <code>&lt;clinit&gt;</code> 方法（编译器自动生成），按源码顺序执行 static 变量赋值语句和 static{} 代码块，赋为程序员写的初始值。</span></li>
+      </ul>
+      <div class="note warn">
+        <strong>面试陷阱：</strong><br>
+        <code>public static int x = 10;</code> → 准备 x=0，初始化 x=10<br>
+        <code>public static final int X = 10;</code> → 准备 X=10（直接赋真值）<br>
+        <code>public static final Object OBJ = new Object();</code> → 准备 OBJ=null，初始化才 new
+      </div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-03-classload.html#loading-phases">03 · 五个加载阶段</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q13 -->
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">static 变量和实例变量分别存储在哪里？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>考察对 JDK7/8 内存区域变化的了解。很多人只知道"static 在方法区"，但 JDK7 起 static 变量和字符串常量池已移到堆中。能说出这个变迁点是加分项。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <ul>
+        <li><span class="blt">①</span><span><strong>static 变量（类变量）</strong>：JDK7 之前在方法区（PermGen）；<strong>JDK7 起</strong>随字符串常量池一起移到<strong>堆</strong>中（附着在 Class 对象上）；JDK8 类元数据移到 Metaspace，但 static 变量仍在堆</span></li>
+        <li><span class="blt">②</span><span><strong>实例变量（成员变量）</strong>：随对象实例一起存在<strong>堆</strong>中，是对象内存布局的"实例数据"部分</span></li>
+        <li><span class="blt">③</span><span><strong>局部变量</strong>：在<strong>栈帧的局部变量表</strong>中，随方法结束自动销毁</span></li>
+      </ul>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#runtime-areas">01 · 运行时数据区</a>
+        <a class="qa-link" href="#q14">Q14 · 方法区变化</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q14 -->
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">方法区在 JDK8 前后有何变化？为什么用 Metaspace 替换 PermGen？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>考察对 JVM 内存演进历史的了解。能说清"PermGen OOM 是痛点 → JDK8 用本地内存 Metaspace 替代"这条主线，以及内容迁移方式，是加分答案。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>JDK7 及之前</strong>：方法区的实现是 <strong>PermGen（永久代）</strong>，位于 JVM 托管内存，由 <code>-XX:MaxPermSize</code> 限制（默认 64~128MB）。</p>
+      <p><strong>JDK8</strong>：用 <strong>Metaspace（元空间）</strong>替代，主要变化：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>存储位置</strong>：Metaspace 使用本地内存（Native Memory），不占用 JVM 堆空间</span></li>
+        <li><span class="blt">②</span><span><strong>大小限制</strong>：默认无上限，需用 <code>-XX:MaxMetaspaceSize</code> 主动限制</span></li>
+        <li><span class="blt">③</span><span><strong>内容迁移</strong>：类元数据移到 Metaspace；运行时常量池和 static 变量移到<strong>堆</strong>（JDK7 已迁移一部分）</span></li>
+      </ul>
+      <p><strong>为什么替换：</strong>PermGen 大小固定，CGLIB/动态代理大量生成类时频繁 OOM（PermGen space）；用本地内存更灵活，消除 PermGen OOM 问题。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#oom">01 · Metaspace OOM</a>
+        <a class="qa-link" href="#q20">Q20 · MaxMetaspaceSize 配置</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q15 -->
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">JVM 内存屏障是什么？与 volatile 有什么关系？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>并发编程底层原理题。很多人知道 volatile 保证可见性和有序性，但不知道底层是靠内存屏障指令实现的。能说清四种屏障类型 + volatile 读写各插入哪些屏障，是高分答案。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>内存屏障（Memory Barrier）</strong>是 CPU 指令，用于禁止指令重排序和强制内存可见性，分四类：LoadLoad / StoreStore / LoadStore / <strong>StoreLoad</strong>（最重量级，全能屏障）。</p>
+      <p><strong>volatile 的实现：</strong></p>
+      <ul>
+        <li><span class="blt">写</span><span>volatile 写之前插入 <strong>StoreStore</strong>（前面的写不重排到 volatile 写后）；写之后插入 <strong>StoreLoad</strong>（保证写立即对其他线程可见）</span></li>
+        <li><span class="blt">读</span><span>volatile 读之后插入 <strong>LoadLoad + LoadStore</strong>（后面的读写不重排到 volatile 读前）</span></li>
+      </ul>
+      <p>效果：① <strong>可见性</strong>：volatile 写刷新到主内存，volatile 读使本地缓存失效 ② <strong>有序性</strong>：禁止 volatile 读写与前后指令重排序。但 volatile <strong>不保证原子性</strong>（i++ 等复合操作仍不安全）。</p>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#reachability">02 · 三色标记 — 写屏障</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q16 -->
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">如何自定义类加载器实现类隔离？核心代码是什么？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>实操能力考察题。考察点在于：为什么重写 findClass 而不是 loadClass，以及如何用两个不同 ClassLoader 加载同名类实现隔离。这是框架开发、中间件开发的基础能力。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>类隔离核心：<strong>为每个隔离域创建独立的 ClassLoader</strong>。同一字节码被不同 ClassLoader 加载，产生两个 Class 对象，JVM 视为两个不同的类。</p>
+      <pre>
+public class IsolatedClassLoader extends ClassLoader {
+    private final String baseDir;
+
+    public IsolatedClassLoader(String baseDir) {
+        super(ClassLoader.getSystemClassLoader());
+        this.baseDir = baseDir;
+    }
+
+    @Override
+    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+        byte[] bytes = loadClassBytes(name);
+        if (bytes == null) throw new ClassNotFoundException(name);
+        return defineClass(name, bytes, 0, bytes.length);
+    }
+
+    private byte[] loadClassBytes(String name) {
+        String path = baseDir + "/" + name.replace('.', '/') + ".class";
+        try { return Files.readAllBytes(Paths.get(path)); }
+        catch (IOException e) { return null; }
+    }
+}
+
+// 使用：两个 ClassLoader 加载同名类，互相隔离
+IsolatedClassLoader clA = new IsolatedClassLoader("/deploy/app-v1/classes");
+IsolatedClassLoader clB = new IsolatedClassLoader("/deploy/app-v2/classes");
+Class&lt;?&gt; sa = clA.loadClass("com.example.OrderService");
+Class&lt;?&gt; sb = clB.loadClass("com.example.OrderService");
+System.out.println(sa == sb); // false！两个不同的 Class 对象</pre>
+      <div class="note info"><strong>关键：</strong>重写 <code>findClass()</code> 不要重写 <code>loadClass()</code>，否则破坏双亲委派，导致 JDK 核心类也被自定义加载器尝试加载。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-03-classload.html#classloaders">03 · 自定义 ClassLoader</a>
+        <a class="qa-link" href="#q8">Q8 · 双亲委派</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="params"><span class="sec-num">03</span> 参数配置题 <span class="q-count">Q17 – Q21</span></div>
+
+<!-- Q17 -->
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext"><code>-Xms</code> 和 <code>-Xmx</code> 为什么建议设成相同值？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>JVM 基础配置题，考察对堆动态扩缩容副作用的理解。不仅要说"避免扩展触发 GC"，还要能解释收缩时也会触发 GC，以及生产环境内存可预测的重要性。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><code>-Xms</code> 是堆初始大小，<code>-Xmx</code> 是堆最大大小。建议设为相同值，原因：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>避免堆扩展触发 GC</strong>：若 Xms &lt; Xmx，堆不足时 JVM 动态扩展，扩展本身会触发 Full GC</span></li>
+        <li><span class="blt">②</span><span><strong>避免堆收缩触发 GC</strong>：GC 后内存充裕时 JVM 可能收缩堆，收缩时也触发 GC</span></li>
+        <li><span class="blt">③</span><span><strong>内存可预测</strong>：生产环境内存固定，避免 JVM 意外占用额外内存影响其他进程</span></li>
+      </ul>
+      <pre>-Xms4g -Xmx4g   # 推荐：Xms = Xmx
+# 通常建议堆 = 物理内存 × 60%~70%（给 OS 和堆外内存留空间）</pre>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#tuning">02 · 核心 JVM 参数速查</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q18 -->
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext"><code>-XX:NewRatio</code> 和 <code>-Xmn</code> 如何配合设置？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>GC 调优参数题，考察是否实际操作过 JVM 调优。关键点：两个参数的区别、G1 场景下不需要手动设置新生代大小，以及 SurvivorRatio 的配合。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <ul>
+        <li><span class="blt">①</span><span><code>-XX:NewRatio=2</code>：Old:New = 2:1，新生代占堆 1/3。动态，跟随堆大小变化。</span></li>
+        <li><span class="blt">②</span><span><code>-Xmn1g</code>：直接指定新生代绝对大小。固定值，<strong>优先级高于 NewRatio</strong>，两者不建议同时使用。</span></li>
+      </ul>
+      <p><strong>实践：</strong>G1 场景不需要手动设置，G1 根据 <code>-XX:MaxGCPauseMillis</code> 自动调整 Region 数量。CMS/Parallel 场景新生代一般设为堆的 1/4~1/3，<code>-XX:SurvivorRatio=8</code>（Eden:S0:S1=8:1:1）。</p>
+      <pre>
+-Xms4g -Xmx4g -Xmn1g -XX:SurvivorRatio=8   # Parallel/CMS 场景
+-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200  # G1 场景（让 G1 自动调）</pre>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#tuning">02 · GC 调优实战</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q19 -->
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext"><code>-XX:MaxGCPauseMillis</code> 设太小会有什么副作用？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>G1 调优反直觉考点。很多人以为把停顿目标设越小越好，但实际上会适得其反。考察是否理解 G1 停顿目标的本质是"尽力而为"，以及 GC 频率和停顿时间之间的权衡。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><code>-XX:MaxGCPauseMillis</code> 是 G1 的<strong>停顿时间目标</strong>（不是硬性保证），设太小会带来副作用：</p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>GC 频率增加</strong>：G1 每次只回收少量 Region 来缩短停顿，导致 GC 轮次增多，总体 GC 开销变大</span></li>
+        <li><span class="blt">②</span><span><strong>吞吐量下降</strong>：更多 CPU 时间花在 GC 上，业务线程时间减少</span></li>
+        <li><span class="blt">③</span><span><strong>Mixed GC 推迟</strong>：老年代回收不及时，反而可能触发 Full GC（停顿更长）</span></li>
+        <li><span class="blt">④</span><span><strong>新生代被强制缩小</strong>：G1 为缩短 Young GC 时间会减少 Eden Region，导致 Minor GC 更频繁</span></li>
+      </ul>
+      <div class="note warn"><strong>实践：</strong>普通 Web 服务 200ms（默认）通常足够；需要更低可设 100ms；追求毫秒级应考虑 ZGC。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#g1">02 · G1 停顿预测模型</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q20 -->
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">元空间溢出如何配置上限？<code>-XX:MaxMetaspaceSize</code> 设多少合适？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>考察对 Metaspace 的理解。Metaspace 默认无上限这点很多人不知道，这是生产隐患。关键：先排查根因（ClassLoader 泄漏/动态类过多），再设合理上限。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p>Metaspace 默认无上限（使用本地内存），动态类生成过多时可能耗尽系统内存，生产环境必须设上限：</p>
+      <pre>
+-XX:MetaspaceSize=128m       # 初始大小（首次触发 GC 的阈值，默认约 20MB）
+-XX:MaxMetaspaceSize=256m    # 上限（超过则 OOM: Metaspace）</pre>
+      <p>合适的值：普通 Spring Boot 应用 128~256m；大量 AOP 代理 256~512m。<strong>最佳实践：</strong>先不设上限，用 <code>jcmd &lt;pid&gt; VM.metaspace</code> 观察预生产峰值，设为峰值 1.5~2 倍。</p>
+      <div class="note warn"><strong>注意：</strong>仅靠调大上限是掩盖问题。若 Metaspace 持续增长，先排查是否存在 ClassLoader 内存泄漏（ClassLoader 不断创建但未释放）。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#oom">01 · Metaspace OOM</a>
+        <a class="qa-link" href="#q14">Q14 · 方法区变化</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q21 -->
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">生产环境推荐哪种 GC 组合？JDK 版本不同选择有何差异？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>综合选型题，考察是否有实际 GC 调优经验。能按 JDK 版本和场景给出差异化建议，并说出"不要过早优化，先用默认 GC"的原则，体现了工程成熟度。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <ul>
+        <li><span class="blt">JDK8</span><span>低延迟在线服务 → ParNew + CMS (<code>-XX:+UseConcMarkSweepGC</code>)；批处理/高吞吐 → Parallel (<code>-XX:+UseParallelGC</code>，默认)；堆 ≥6GB → G1</span></li>
+        <li><span class="blt">JDK11</span><span>默认 G1，直接用；超低延迟 → ZGC（JDK15 GA）</span></li>
+        <li><span class="blt">JDK17/21</span><span>通用 → G1（默认）；毫秒级停顿/大内存 → ZGC（JDK21 Generational ZGC，吞吐损耗更小）</span></li>
+      </ul>
+      <div class="note info"><strong>原则：</strong>① 优先用 JDK 默认 GC（经过最充分验证）② 不要过早优化，先观察业务表现再调 ③ 升级 JDK 版本往往比换 GC 收益更大</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#tuning">02 · 调优实战五步法</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="troubleshoot"><span class="sec-num">04</span> 故障排查题 <span class="q-count">Q22 – Q25</span></div>
+
+<!-- Q22 -->
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">线上发生 OOM，第一时间怎么处理？如何保留现场？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>高频实战题，考察应急处理的系统性思维。两条线并行：保留现场（dump）+ 快速恢复服务。面试官想听到你把"保留现场"放在优先位置，而不是立刻重启。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>保留现场（优先）：</strong></p>
+      <ul>
+        <li><span class="blt">①</span><span>若已配置 <code>-XX:+HeapDumpOnOutOfMemoryError</code>，OOM 时 JVM 自动 dump，直接取文件</span></li>
+        <li><span class="blt">②</span><span>进程还活着时立即手动 dump：<code>jmap -dump:format=b,live,file=/tmp/heap.hprof &lt;pid&gt;</code></span></li>
+        <li><span class="blt">③</span><span>同时抓线程快照：<code>jstack &lt;pid&gt; &gt; /tmp/thread.txt</code></span></li>
+        <li><span class="blt">④</span><span>保存 GC 日志，记录 OOM 前后 GC 状态</span></li>
+      </ul>
+      <p><strong>快速恢复服务：</strong>重启进程；若内存泄漏短期无法修复，临时扩大 <code>-Xmx</code> 买时间；流量突增则限流降级。</p>
+      <p><strong>事后分析：</strong>用 MAT 打开 .hprof，看 Leak Suspects 和 Dominator Tree，找持有最多内存的对象和引用链。</p>
+      <div class="note warn"><strong>预防：</strong>提前配置 HeapDumpOnOutOfMemoryError；监控堆趋势（Prometheus + JVM Exporter），内存持续上升及时告警。</div>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-01-memory.html#oom">01 · OOM 类型与排查</a>
+        <a class="qa-link" href="#q7">Q7 · 内存泄漏排查</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q23 -->
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">频繁 Full GC 的常见原因和完整排查步骤？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>生产故障排查高频题。考察你能否说出多种根因（而不只是"内存泄漏"），以及是否掌握 jstat/GC 日志等排查工具的具体用法。说出 System.gc() 这个容易被忽视的原因是加分项。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>常见原因（6类）：</strong></p>
+      <ul>
+        <li><span class="blt">①</span><span><strong>内存泄漏</strong>：老年代对象持续增加，GC 后不下降</span></li>
+        <li><span class="blt">②</span><span><strong>大对象直接进老年代</strong>：超过 <code>-XX:PretenureSizeThreshold</code> 的对象绕过新生代</span></li>
+        <li><span class="blt">③</span><span><strong>Promotion Failed</strong>：Minor GC 时对象晋升，老年代空间不足</span></li>
+        <li><span class="blt">④</span><span><strong>元空间不足</strong>：动态生成类过多，Metaspace 超限</span></li>
+        <li><span class="blt">⑤</span><span><strong>CMS 触发过晚</strong>：CMSInitiatingOccupancyFraction 设太高，并发清理来不及</span></li>
+        <li><span class="blt">⑥</span><span><strong>显式 System.gc()</strong>：代码或框架中调用，用 <code>-XX:+DisableExplicitGC</code> 禁用</span></li>
+      </ul>
+      <p><strong>排查步骤：</strong></p>
+      <ul>
+        <li><span class="blt">①</span><span><code>jstat -gcutil &lt;pid&gt; 2000 30</code> 观察 Old 区（OU/OC）是否持续增长</span></li>
+        <li><span class="blt">②</span><span>查 GC 日志中 Full GC 触发原因字符串</span></li>
+        <li><span class="blt">③</span><span>若 Old 持续增长 → 疑内存泄漏，<code>jmap -histo &lt;pid&gt;</code> 看实例数量异常的类</span></li>
+        <li><span class="blt">④</span><span>CMS 触发过晚 → 降低 CMSInitiatingOccupancyFraction（如 60%）</span></li>
+        <li><span class="blt">⑤</span><span>搜索代码中是否有 System.gc() 调用</span></li>
+      </ul>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#tuning">02 · 常见问题排查表</a>
+        <a class="qa-link" href="#q24">Q24 · Promotion Failed</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q24 -->
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">GC 日志中看到 Promotion Failed 是什么问题？如何解决？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>GC 日志诊断题，考察对 CMS 碎片问题的深度理解。能说清"Promotion Failed 的根本原因是老年代没有足够连续空间（不是总量不足）"，并给出升级 G1 这个最优解，是高分答案。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <p><strong>Promotion Failed</strong>：Minor GC 时存活对象需晋升到老年代，但老年代<strong>没有足够的连续空间</strong>（内存碎片导致总量够但分不出大块），JVM 被迫触发 Full GC 整理内存。</p>
+      <p><strong>根本原因：</strong>CMS 使用标记-清除算法，长期运行产生大量碎片；Survivor 区满导致对象提前晋升。</p>
+      <p><strong>解决方案：</strong></p>
+      <ul>
+        <li><span class="blt">①</span><span>CMS 开启碎片整理：<code>-XX:+UseCMSCompactAtFullCollection</code> + <code>-XX:CMSFullGCsBeforeCompaction=N</code></span></li>
+        <li><span class="blt">②</span><span>提前启动 CMS：降低 <code>-XX:CMSInitiatingOccupancyFraction</code>（如 60%）</span></li>
+        <li><span class="blt">③</span><span>增大老年代空间</span></li>
+        <li><span class="blt">④</span><span><strong>最佳方案：升级到 G1</strong>，G1 基于 Region 复制，基本消除碎片问题</span></li>
+      </ul>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="jvm-02-gc.html#collectors">02 · CMS 痛点</a>
+        <a class="qa-link" href="#q23">Q23 · 频繁 Full GC</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q25 -->
+<div class="qa-card" id="q25">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q25</span>
+    <span class="qa-qtext">Arthas 实战：dashboard / jad / trace / watch / redefine 各自的使用场景？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent">
+      <div class="qa-intent-lbl">面试官视角</div>
+      <p>工具实战题，考察线上诊断经验。能说出每个命令的典型场景（不只是功能描述），尤其是 trace 定位接口慢和 watch 拦截参数这两个最常用的，体现了真实的生产排查经验。</p>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-answer-lbl">参考回答</div>
+      <ul>
+        <li><span class="blt">①</span><span><strong>dashboard</strong>：实时总览 CPU/内存/线程/GC，快速判断 JVM 健康状态。<code>memory</code> 命令看详细内存分区。</span></li>
+        <li><span class="blt">②</span><span><strong>jad</strong>：反编译线上 class，排查"发布了新版本但代码未生效"、确认线上代码版本。</span></li>
+        <li><span class="blt">③</span><span><strong>trace</strong>：输出方法调用树 + 各步耗时，定位接口慢的根因（哪个子调用最耗时）。</span></li>
+        <li><span class="blt">④</span><span><strong>watch</strong>：实时拦截方法的入参/返回值/异常，不用加日志就能看到线上实际数据。</span></li>
+        <li><span class="blt">⑤</span><span><strong>redefine / retransform</strong>：热修复线上代码，无需重启。不能修改类结构（增删方法/字段）。</span></li>
+      </ul>
+      <pre>
+thread -n 5                     # CPU 最高的 5 个线程
+trace com.example.OrderService pay   # 方法调用树 + 耗时
+watch com.example.OrderService pay "{params,returnObj,throwExp}" -e -x 3
+jad com.example.OrderService    # 反编译
+redefine /tmp/OrderService.class # 热修复</pre>
+    </div>
+    <div class="qa-links">
+      <div class="qa-links-lbl">相关知识点</div>
+      <div class="qa-links-row">
+        <a class="qa-link" href="#q6">Q6 · CPU 飙高排查</a>
+        <a class="qa-link" href="jvm-03-classload.html#hotdeploy">03 · 热部署原理</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div></div>
+<script>
+function toggleQA(el){el.closest('.qa-card').classList.toggle('open');updateProgress();}
+function toggleScat(id){document.getElementById(id).classList.toggle('open');}
+function filterByBadge(type){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===type));
+  document.querySelectorAll('.qa-card').forEach(card=>{
+    if(!type){card.style.display='';return;}
+    card.style.display=card.querySelector('.qa-badge.'+type)?'':'none';
+  });
+}
+function toggleAll(open){
+  document.querySelectorAll('.qa-card').forEach(c=>c.classList.toggle('open',open));
+  updateProgress();
+}
+function updateProgress(){
+  const total=document.querySelectorAll('.qa-card').length;
+  const opened=document.querySelectorAll('.qa-card.open').length;
+  document.getElementById('pfill').style.width=(opened/total*100)+'%';
+  document.getElementById('ptxt').textContent=opened+'/'+total;
+}
+window.addEventListener('scroll',()=>{
+  const cards=document.querySelectorAll('.qa-card');
+  let cur=null;
+  cards.forEach(c=>{if(c.getBoundingClientRect().top<=80)cur=c.id;});
+  document.querySelectorAll('.scat-item').forEach(item=>{
+    item.classList.toggle('active',item.getAttribute('href').replace('#','')=== cur);
+  });
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  const first=document.querySelector('.qa-card');
+  if(first){first.classList.add('open');}
+  updateProgress();
+});
+</script>
+</body>
+</html>

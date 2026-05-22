@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分布式 01 · 理论基础（CAP / BASE / Paxos / Raft）</title>
+<style>
+:root{--accent-color:var(--purple);--accent-bg:var(--purple-bg);--accent-b:var(--purple-b)}
+header::before{content:'THEORY'}
+/* fallacies grid */
+.fal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fal-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 14px}
+.fal-num{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--purple);margin-bottom:4px}
+.fal-name{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.fal-desc{font-size:12px;color:var(--tx2);line-height:1.55}
+@media(max-width:600px){.fal-grid{grid-template-columns:1fr}}
+/* role badge */
+.rolebox{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.rolebox .r{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:10px 12px}
+.rolebox .r-n{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px}
+.rolebox .r-d{font-size:12.5px;color:var(--tx2);line-height:1.55}
+@media(max-width:700px){.rolebox{grid-template-columns:1fr}}
+/* SVG diagram */
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5}
+.dg-t{fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue{fill:var(--blue);font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-green{fill:var(--green);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-ln{stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-d{stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dist.js"></script>
+<header>
+  <div class="htag">DIST · 01 · THEORY</div>
+  <h1>分布式系统理论基础</h1>
+  <p class="sub">8 大谬误 · CAP / BASE · 一致性模型 · Paxos / Raft / ZAB / Gossip · 拜占庭容错</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#core"><span class="s-num">01</span>分布式核心问题</a>
+    <a class="s-link" href="#cap"><span class="s-num">02</span>CAP 定理</a>
+    <a class="s-link" href="#base"><span class="s-num">03</span>BASE 理论</a>
+    <a class="s-link" href="#consistency"><span class="s-num">04</span>一致性模型谱系</a>
+    <a class="s-link" href="#paxos"><span class="s-num">05</span>Paxos 共识算法</a>
+    <a class="s-link" href="#raft"><span class="s-num">06</span>Raft 共识算法</a>
+    <a class="s-link" href="#zab"><span class="s-num">07</span>ZAB 协议</a>
+    <a class="s-link" href="#gossip"><span class="s-num">08</span>Gossip 协议</a>
+    <a class="s-link" href="#bft"><span class="s-num">09</span>拜占庭容错</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="dist-04-interview.html#cat1">→ 面试题 理论基础</a>
+    <a class="s-link" href="dist-02-transaction.html">→ 下一章：分布式事务</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 核心问题 -->
+    <div class="sec" id="core"><span class="sn">01</span>分布式系统的核心问题</div>
+    <div class="card">
+      <div class="ct">为什么分布式系统难</div>
+      <p>单机程序的世界里，函数调用要么成功要么失败，进程内变量随时可读，时钟全局唯一。分布式系统打破了这三件事：调用可能<span class="kw">部分成功</span>、数据可能<span class="kw">读到旧值</span>、时钟可能<span class="kw">每台机器都不同</span>。</p>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">网络不可靠</strong>：丢包、延迟、抖动、分区都是常态。一次 RPC 超时，你无法判断"对方没收到"还是"对方收到了但回包丢了"</span></li>
+        <li><span class="b">②</span><span><strong class="kw">节点会故障</strong>：磁盘损坏、进程崩溃、机器断电、机房断网。任何时刻都要假设某些节点正在死</span></li>
+        <li><span class="b">③</span><span><strong class="kw">时钟不同步</strong>：每台机器的本地时钟有漂移，NTP 同步也只能压到毫秒级。"先后顺序"无法用墙上时间判断</span></li>
+        <li><span class="b">④</span><span><strong class="kw">消息可能乱序</strong>：两条消息先后发出，可能后发的先到。TCP 只保证同一连接内有序，跨连接、跨节点都不保证</span></li>
+        <li><span class="b">⑤</span><span><strong class="kw">没有真正的全局视图</strong>：任何节点看到的都是"延迟的、局部的、过期的"快照，全局一致状态需要付出昂贵的协调代价</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">分布式 8 大谬误（Fallacies of Distributed Computing）</div>
+      <p>Sun 公司 1994 年总结的 8 条新手最容易踩的"想当然"。每一条都对应着一类典型的线上事故。</p>
+      <div class="fal-grid">
+        <div class="fal-item"><div class="fal-num">谬误 1</div><div class="fal-name">网络是可靠的</div><div class="fal-desc">→ 任何远程调用都要考虑超时、重试、降级</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 2</div><div class="fal-name">延迟为零</div><div class="fal-desc">→ 跨机房调用动辄几十毫秒，N+1 查询会被放大</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 3</div><div class="fal-name">带宽无限</div><div class="fal-desc">→ 大对象传输、全表 dump 会打爆链路</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 4</div><div class="fal-name">网络是安全的</div><div class="fal-desc">→ 内网也要 TLS、鉴权、最小权限</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 5</div><div class="fal-name">拓扑不会变</div><div class="fal-desc">→ 扩缩容、迁移随时在发生，IP 不能写死</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 6</div><div class="fal-name">只有一个管理员</div><div class="fal-desc">→ 配置变更要有版本和审计，否则人祸难追</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 7</div><div class="fal-name">传输成本为零</div><div class="fal-desc">→ 序列化、压缩、跨机房流量都有真金白银的开销</div></div>
+        <div class="fal-item"><div class="fal-num">谬误 8</div><div class="fal-name">网络是同构的</div><div class="fal-desc">→ 不同语言、不同协议、不同版本共存，兼容性必须设计</div></div>
+      </div>
+    </div>
+
+    <!-- 02 CAP -->
+    <div class="sec" id="cap"><span class="sn">02</span>CAP 定理</div>
+    <div class="card">
+      <div class="ct">C / A / P 的精确含义</div>
+      <p>CAP 是 Eric Brewer 在 2000 年提出的论断：一个分布式系统不可能同时满足以下三个性质中的全部三个，最多只能满足两个。</p>
+      <table class="tbl">
+        <tr><th>字母</th><th>含义</th><th>口语解释</th></tr>
+        <tr><td>C — Consistency</td><td>一致性（强一致 / 线性一致）</td><td>所有节点在同一时刻看到相同的数据。任意时刻读到的都是最近一次成功写入的值</td></tr>
+        <tr><td>A — Availability</td><td>可用性</td><td>非故障节点收到的每个请求都能在合理时间内返回非错误响应（不要求是最新数据）</td></tr>
+        <tr><td>P — Partition tolerance</td><td>分区容忍性</td><td>当网络发生分区（部分节点之间通信中断）时，系统仍能继续工作</td></tr>
+      </table>
+      <div class="note warn"><strong>CAP 的核心不是"三选二"，而是"P 是必选项"</strong>。在真实分布式环境里，网络分区一定会发生，所以 P 不能放弃。真正的取舍是：<span class="kw">分区发生时，选 C 还是选 A</span>。CA 系统等于"不允许分区"，那就是单机数据库，不算分布式。</div>
+      <div class="diag-wrap">
+        <div class="diag-cap">CAP 三角 — P 必选，真实取舍是 CP 还是 AP</div>
+        <div class="diag-body">
+<svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;display:block">
+  <defs>
+    <marker id="dist01-cap-x" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5"><line x1="0" y1="0" x2="9" y2="9" stroke="var(--red)" stroke-width="2"/><line x1="9" y1="0" x2="0" y2="9" stroke="var(--red)" stroke-width="2"/></marker>
+  </defs>
+  <polygon points="240,40 60,230 420,230" fill="none" stroke="var(--bd2)" stroke-width="2" stroke-dasharray="5 3"/>
+  <circle cx="240" cy="40" r="30" class="dg-box-b"/>
+  <text x="240" y="38" text-anchor="middle" class="dg-blue" font-size="16" font-weight="700">C</text>
+  <text x="240" y="54" text-anchor="middle" class="dg-t3" font-size="9">Consistency</text>
+  <text x="240" y="20" text-anchor="middle" class="dg-t3" font-size="9">一致性</text>
+  <circle cx="60" cy="230" r="30" class="dg-box-g"/>
+  <text x="60" y="228" text-anchor="middle" class="dg-green" font-size="16" font-weight="700">A</text>
+  <text x="60" y="244" text-anchor="middle" class="dg-t3" font-size="9">Availability</text>
+  <text x="60" y="270" text-anchor="middle" class="dg-t3" font-size="9">可用性</text>
+  <circle cx="420" cy="230" r="30" class="dg-box-o"/>
+  <text x="420" y="228" text-anchor="middle" class="dg-orange" font-size="16" font-weight="700">P</text>
+  <text x="420" y="244" text-anchor="middle" class="dg-t3" font-size="9">Partition</text>
+  <text x="420" y="270" text-anchor="middle" class="dg-t3" font-size="9">分区容忍 · 必选</text>
+  <text x="350" y="125" text-anchor="middle" class="dg-blue" font-size="13" font-weight="700">CP</text>
+  <text x="350" y="140" text-anchor="middle" class="dg-t3" font-size="9">ZK · etcd · HBase</text>
+  <text x="240" y="252" text-anchor="middle" class="dg-orange" font-size="13" font-weight="700">AP</text>
+  <text x="240" y="220" text-anchor="middle" class="dg-t3" font-size="9">Eureka · Cassandra · Dynamo</text>
+  <text x="130" y="125" text-anchor="middle" fill="var(--red)" font-family="'IBM Plex Mono',monospace" font-size="13" font-weight="700" text-decoration="line-through">CA</text>
+  <text x="130" y="140" text-anchor="middle" class="dg-t3" font-size="9">= 单机 / 不算分布式</text>
+</svg>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">CP 系统与 AP 系统的取舍</div>
+      <p>当分区发生时（比如 5 节点集群被切成 3+2 两部分），CP 与 AP 走的是完全相反的路。</p>
+      <table class="tbl">
+        <tr><th>选择</th><th>分区时的行为</th><th>代表系统</th><th>适用场景</th></tr>
+        <tr><td>CP（保 C 弃 A）</td><td>少数派分区拒绝服务或转只读，多数派继续读写但仍要走共识。宁可返回错误，也不返回旧数据</td><td>ZooKeeper、etcd、HBase、Consul、Nacos（CP 模式）</td><td>配置中心、注册中心、分布式锁、领导选举</td></tr>
+        <tr><td>AP（保 A 弃 C）</td><td>所有分区都继续服务，可能返回旧数据，事后通过最终一致性收敛</td><td>Eureka、Cassandra、DynamoDB、Redis Cluster、Nacos（AP 模式）</td><td>商品详情、社交动态、推荐内容、监控数据</td></tr>
+      </table>
+      <div class="note info"><strong>常见误读纠正</strong>：
+        <br>① MySQL 主从架构不是 CP 也不是 AP，是"CA 加事后补救"。真分区时主从都还在跑，但数据可能丢。
+        <br>② ZooKeeper 严格来说是顺序一致而非线性一致，但分区时少数派直接不可用，属于 CP 阵营。
+        <br>③ "CAP 只能三选二"是网络上最常见的过度简化，面试时要能说清"P 是必选"这一层。</div>
+    </div>
+
+    <!-- 03 BASE -->
+    <div class="sec" id="base"><span class="sn">03</span>BASE 理论</div>
+    <div class="card">
+      <div class="ct">BASE 是什么</div>
+      <p>BASE 是 eBay 工程师提出的、对 CAP 中"AP 一侧"的工程落地总结。核心思想是：放弃 ACID 那种"强一致"的执念，换取整体的可用性和可伸缩性。</p>
+      <ul class="dl">
+        <li><span class="b">B</span><span><strong class="kw">Basically Available（基本可用）</strong>：允许损失部分可用性。比如响应时间从 200ms 退化到 2s、降级返回兜底数据、限流拒绝部分流量，但核心功能不挂</span></li>
+        <li><span class="b">S</span><span><strong class="kw">Soft state（软状态）</strong>：允许系统存在"中间状态"，即数据副本之间可以短暂不一致。比如订单刚下完，物流系统看到的还是空</span></li>
+        <li><span class="b">E</span><span><strong class="kw">Eventually consistent（最终一致）</strong>：经过一段时间的同步（通常是秒级到分钟级），所有副本最终会收敛到一致状态，但不保证任何时刻都一致</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">BASE 与 ACID 的取舍</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>ACID（强一致）</th><th>BASE（最终一致）</th></tr>
+        <tr><td>一致性</td><td>强一致：写完立即对所有人可见</td><td>最终一致：可能短暂看到旧值</td></tr>
+        <tr><td>可用性</td><td>故障时宁可不可用</td><td>故障时降级但保持响应</td></tr>
+        <tr><td>性能</td><td>跨节点锁与协调开销大</td><td>异步复制，吞吐高</td></tr>
+        <tr><td>扩展性</td><td>难水平扩展（受协调瓶颈）</td><td>天然水平扩展</td></tr>
+        <tr><td>典型场景</td><td>银行转账、库存扣减</td><td>商品浏览、评论、统计</td></tr>
+      </table>
+      <div class="note good">实际系统几乎都是"局部 ACID + 全局 BASE"：单库内用事务保证强一致，跨库跨服务用消息/补偿走最终一致。完全选边的系统很少。</div>
+    </div>
+
+    <!-- 04 一致性模型 -->
+    <div class="sec" id="consistency"><span class="sn">04</span>一致性模型谱系</div>
+    <div class="card">
+      <div class="ct">从最强到最弱</div>
+      <p>"一致性"这个词在分布式语境里有十几种精细划分，从强到弱大致排成一个谱系。掌握其中 4~5 个关键档位就够应付绝大多数面试。</p>
+      <table class="tbl">
+        <tr><th>等级</th><th>名称</th><th>含义</th></tr>
+        <tr><td>最强</td><td>线性一致（Linearizable）</td><td>所有操作看起来像在一个全局时钟下原子地、按真实时间顺序执行。读必然读到最新写入</td></tr>
+        <tr><td>强</td><td>顺序一致（Sequential）</td><td>所有节点看到的操作顺序一致，但不要求与真实时间一致。ZooKeeper 提供的是顺序一致</td></tr>
+        <tr><td>中</td><td>因果一致（Causal）</td><td>有因果关系的操作（A 引发 B）所有节点看到顺序一致；无因果关系的操作顺序无要求</td></tr>
+        <tr><td>弱</td><td>读己之写（Read-your-writes）</td><td>用户读到的内容一定包含自己之前写过的（避免发完朋友圈刷不到自己）</td></tr>
+        <tr><td>弱</td><td>单调读（Monotonic Read）</td><td>同一用户连续读，时间上不会"穿越"——已经读到 v2，不会再读到 v1</td></tr>
+        <tr><td>最弱</td><td>最终一致（Eventual）</td><td>停止写入后，经过足够长时间，所有副本最终会一致。中间任意时刻都可能不一致</td></tr>
+      </table>
+      <div class="note info"><strong>区分线性一致 vs 顺序一致的小例子</strong>：A 在 10:00 写 x=1，B 在 10:01 读 x。线性一致要求 B 必读到 1；顺序一致只要求"所有节点都先看到写、再看到读"这个顺序，但具体时间可以滞后——B 可能读到 0，只要全集群都还没看到这次写。</div>
+    </div>
+
+    <!-- 05 Paxos -->
+    <div class="sec" id="paxos"><span class="sn">05</span>Paxos 共识算法</div>
+    <div class="card">
+      <div class="ct">Paxos 解决的问题</div>
+      <p>多个节点对"一个值"达成一致 —— 听起来简单，但要在节点会崩、消息会丢、网络会乱序的条件下做到，需要严密的协议保证。Paxos 由 Leslie Lamport 在 1990 年提出，是所有现代共识算法的鼻祖。</p>
+      <div class="rolebox">
+        <div class="r"><div class="r-n">Proposer 提议者</div><div class="r-d">发起提案（包含一个值），驱动决议过程</div></div>
+        <div class="r"><div class="r-n">Acceptor 接受者</div><div class="r-d">对提案投票，存储被接受的提案。多数派同意即视为达成共识</div></div>
+        <div class="r"><div class="r-n">Learner 学习者</div><div class="r-d">不参与决议，只学习已达成的最终结果</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Basic Paxos 两阶段流程</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Prepare 阶段（提议）</div>
+            <div class="step-desc">Proposer 选一个全局唯一递增的提案编号 N，向所有 Acceptor 发送 Prepare(N)。Acceptor 收到后，若 N 比自己见过的所有编号都大，则承诺"不再接受编号 &lt; N 的提案"，并回复自己已接受过的最大编号提案（如果有）</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Accept 阶段（接受）</div>
+            <div class="step-desc">Proposer 收到多数派 Acceptor 的回复后，从回复里挑出"已接受的最大编号提案"对应的值 v（如果都没接受过，就用自己想提的值）。然后向所有 Acceptor 发 Accept(N, v)。Acceptor 收到后，若 N ≥ 自己承诺的最小编号，就接受并持久化</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">达成共识</div>
+            <div class="step-desc">当一个提案被多数派 Acceptor 接受，这个值就被"chosen"，所有 Learner 最终都会学到这个值</div>
+          </div>
+        </div>
+      </div>
+      <div class="note warn"><strong>活锁问题</strong>：两个 Proposer 反复用更高的 N 抢占，可能导致谁都无法 Accept 成功。Multi-Paxos 通过选举唯一 Leader 来规避这个问题。</div>
+    </div>
+    <div class="card">
+      <div class="ct">Multi-Paxos 与工程难点</div>
+      <p>Basic Paxos 只能对单个值达成一致。实际系统需要对"一连串值"达成一致（即复制日志），这就是 Multi-Paxos：选一个 Leader 一直当 Proposer，跳过每次的 Prepare 阶段，性能大幅提升。</p>
+      <ul class="dl">
+        <li><span class="b">▸</span><span>Paxos 论文只给了核心证明，没给完整工程实现，导致每家公司"实现的 Paxos 都长得不一样"</span></li>
+        <li><span class="b">▸</span><span>Leader 选举、日志补洞、配置变更等细节都需要自己设计</span></li>
+        <li><span class="b">▸</span><span>正是因为难懂难落地，才催生了后来"为了易懂而设计"的 Raft</span></li>
+      </ul>
+    </div>
+
+    <!-- 06 Raft -->
+    <div class="sec" id="raft"><span class="sn">06</span>Raft 共识算法</div>
+    <div class="card">
+      <div class="ct">Raft 的设计目标：可理解性</div>
+      <p>Raft 由 Diego Ongaro 在 2014 年提出，明确以"比 Paxos 更易理解"为目标，把共识问题拆成三个相对独立的子问题：<span class="kw">Leader 选举</span>、<span class="kw">日志复制</span>、<span class="kw">安全性</span>。etcd、TiKV、Consul、CockroachDB 都用 Raft。</p>
+      <div class="rolebox">
+        <div class="r"><div class="r-n">Leader 领导者</div><div class="r-d">同一 term 内唯一，负责接收客户端请求并复制日志到 Follower</div></div>
+        <div class="r"><div class="r-n">Follower 跟随者</div><div class="r-d">被动接收 Leader 的日志和心跳，不主动发请求</div></div>
+        <div class="r"><div class="r-n">Candidate 候选者</div><div class="r-d">选举期间的临时角色，赢得多数票即变成 Leader</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Leader 选举流程</div>
+      <p>Raft 把时间切成不定长的<span class="kw">任期（term）</span>，每个 term 开头是一次选举。term 是一个全局递增的整数，用来区分新旧 Leader。</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">心跳超时</div>
+            <div class="step-desc">Follower 在<span class="kw">随机选举超时</span>（通常 150~300ms）内没收到 Leader 心跳，转为 Candidate，term + 1，给自己投一票</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">拉票</div>
+            <div class="step-desc">向其他所有节点发送 RequestVote RPC，附带自己的 term 和最新日志的 (term, index)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">投票规则（Election Restriction）</div>
+            <div class="step-desc">收到 RequestVote 的节点：① 本 term 还没投过票；② 候选人的日志至少和自己一样新（按 last log term，相同则比 last log index）。两条都满足才投赞成票</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">赢得多数 → 变 Leader</div>
+            <div class="step-desc">收到多数派赞成票，立刻成为 Leader，开始发送心跳压制其他 Candidate。如果同时多人参选导致票被瓜分，等待下一次随机超时再选</div>
+          </div>
+        </div>
+      </div>
+      <div class="note info"><strong>随机超时的妙处</strong>：每个 Follower 的超时时间在区间内随机，几乎不可能多个节点同时变成 Candidate，从而避免脑裂式的票数瓜分。这是 Raft 简化设计的关键技巧。</div>
+      <div class="diag-wrap">
+        <div class="diag-cap">Raft 节点状态机 — Follower / Candidate / Leader 三态流转</div>
+        <div class="diag-body">
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;display:block">
+  <defs>
+    <marker id="dist01-raft-ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--purple)"/></marker>
+    <marker id="dist01-raft-ah-d" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="var(--tx3)"/></marker>
+  </defs>
+  <rect x="40" y="100" width="160" height="56" rx="10" class="dg-box-g"/>
+  <text x="120" y="125" text-anchor="middle" class="dg-green" font-size="14" font-weight="700">Follower</text>
+  <text x="120" y="142" text-anchor="middle" class="dg-t3" font-size="10">被动接收心跳 · 日志</text>
+  <rect x="280" y="100" width="160" height="56" rx="10" class="dg-box-o"/>
+  <text x="360" y="125" text-anchor="middle" class="dg-orange" font-size="14" font-weight="700">Candidate</text>
+  <text x="360" y="142" text-anchor="middle" class="dg-t3" font-size="10">term + 1 · 自投一票 · 拉票</text>
+  <rect x="520" y="100" width="160" height="56" rx="10" class="dg-box-b"/>
+  <text x="600" y="125" text-anchor="middle" class="dg-blue" font-size="14" font-weight="700">Leader</text>
+  <text x="600" y="142" text-anchor="middle" class="dg-t3" font-size="10">发心跳 · 复制日志</text>
+  <line x1="200" y1="120" x2="280" y2="120" stroke="var(--purple)" stroke-width="1.8" marker-end="url(#dist01-raft-ah)"/>
+  <text x="240" y="110" text-anchor="middle" class="dg-purple" font-size="9" font-weight="600">① 心跳超时</text>
+  <line x1="440" y1="120" x2="520" y2="120" stroke="var(--purple)" stroke-width="1.8" marker-end="url(#dist01-raft-ah)"/>
+  <text x="480" y="110" text-anchor="middle" class="dg-purple" font-size="9" font-weight="600">② 赢得多数票</text>
+  <path d="M 320 100 Q 320 60 360 60 Q 400 60 400 100" fill="none" stroke="var(--tx3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#dist01-raft-ah-d)"/>
+  <text x="360" y="48" text-anchor="middle" class="dg-t3" font-size="9">③ 选票瓜分 / 超时 · 新一轮</text>
+  <path d="M 280 140 Q 240 200 200 140" fill="none" stroke="var(--tx3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#dist01-raft-ah-d)"/>
+  <text x="240" y="210" text-anchor="middle" class="dg-t3" font-size="9">④ 收到更高 term → 退回</text>
+  <path d="M 520 156 Q 360 240 200 156" fill="none" stroke="var(--tx3)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#dist01-raft-ah-d)"/>
+  <text x="360" y="255" text-anchor="middle" class="dg-t3" font-size="9">⑤ 收到更高 term → 让位（同上）</text>
+</svg>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">日志复制流程</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">客户端写入 Leader</div>
+            <div class="step-desc">Leader 把命令追加到本地日志（未提交状态），并行向所有 Follower 发送 AppendEntries RPC</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Follower 写入本地日志</div>
+            <div class="step-desc">Follower 写入成功后回 ACK。Leader 维护每个 Follower 的 matchIndex（已匹配到的日志位置）</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">多数派确认 → 提交</div>
+            <div class="step-desc">当某条日志被多数派写入，Leader 推进 commitIndex，应用到状态机，返回客户端成功。下次心跳带上新的 commitIndex，Follower 也跟着应用</div>
+          </div>
+        </div>
+      </div>
+      <div class="note warn"><strong>Log Matching 性质</strong>：如果两个日志在某个 (term, index) 位置上的条目相同，那这两个日志在该位置之前的所有条目都相同。Leader 通过 AppendEntries 携带的 prevLogIndex/prevLogTerm 强制 Follower 与自己对齐，不一致就向前回退直到找到匹配点。</div>
+    </div>
+    <div class="card">
+      <div class="ct">配置变更（Joint Consensus）</div>
+      <p>集群从"3 节点"扩到"5 节点"的过程中，新旧节点集合可能各自选出一个 Leader 导致脑裂。Raft 用<span class="kw">联合共识</span>解决：先进入"新+旧都生效"的中间状态（任何决议都需要新旧两个多数派同时同意），再切到只用新配置。这样保证任意时刻不会有两个独立的多数派。</p>
+    </div>
+
+    <!-- 07 ZAB -->
+    <div class="sec" id="zab"><span class="sn">07</span>ZAB 协议</div>
+    <div class="card">
+      <div class="ct">ZAB 是什么</div>
+      <p>ZAB（ZooKeeper Atomic Broadcast）是 ZooKeeper 专用的原子广播协议。本质上和 Multi-Paxos / Raft 解决同一类问题，但有两个特色：① 为<span class="kw">主备模型</span>量身定制；② 支持<span class="kw">崩溃恢复后的快速日志补全</span>。</p>
+      <table class="tbl">
+        <tr><th>阶段</th><th>动作</th><th>说明</th></tr>
+        <tr><td>① Leader Election</td><td>选主</td><td>通过 epoch（类似 Raft 的 term）比较 + zxid（事务 ID）比较，选出日志最新的节点当 Leader</td></tr>
+        <tr><td>② Discovery + Sync</td><td>数据同步</td><td>新 Leader 收集多数派 Follower 的最高 zxid，把缺失的事务推送给落后的节点，让所有 Follower 与自己对齐</td></tr>
+        <tr><td>③ Broadcast</td><td>原子广播</td><td>对外服务阶段。Leader 把每个写请求封装成 proposal，两阶段提交：先广播给 Follower（写本地日志），收到多数派 ACK 后再广播 COMMIT</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">ZAB 与 Raft 的核心异同</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>ZAB</th><th>Raft</th></tr>
+        <tr><td>提交方式</td><td>两阶段：propose + commit</td><td>一阶段：AppendEntries 携带 commitIndex 顺带提交</td></tr>
+        <tr><td>选主标准</td><td>zxid 最大者优先</td><td>(last log term, last log index) 字典序最大者优先（本质相同）</td></tr>
+        <tr><td>日志同步</td><td>选主后专门的 Sync 阶段，把缺失事务补齐</td><td>持续运行中通过 AppendEntries 自动回退到匹配点</td></tr>
+        <tr><td>读一致性</td><td>默认本地读（顺序一致）；要强一致需 sync() + 读</td><td>默认走 Leader 读（线性一致）；优化可走 ReadIndex / Lease Read</td></tr>
+        <tr><td>典型实现</td><td>ZooKeeper</td><td>etcd、TiKV、Consul、CockroachDB</td></tr>
+      </table>
+    </div>
+
+    <!-- 08 Gossip -->
+    <div class="sec" id="gossip"><span class="sn">08</span>Gossip 协议</div>
+    <div class="card">
+      <div class="ct">Gossip 是什么</div>
+      <p>Gossip 是"流言传播式"的最终一致性协议：每个节点周期性地随机挑几个邻居交换状态，几轮之后整个集群都会收到。它<span class="kw">不追求强一致</span>，但天然适合大规模、动态、去中心化的集群。</p>
+      <ul class="dl">
+        <li><span class="b">▸</span><span><strong class="kw">反熵（Anti-entropy）</strong>：周期性地比对全量状态差异并修复。慢但能保证最终一致，适合后台修复</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">谣言传播（Rumor mongering）</strong>：只传播"新消息"，传几轮就停。快但可能丢，适合事件通知</span></li>
+        <li><span class="b">▸</span><span><strong class="kw">收敛速度</strong>：N 个节点理论上 O(log N) 轮就能全部收到一条消息</span></li>
+      </ul>
+      <div class="note info"><strong>典型应用</strong>：
+        <br>• <span class="kw">Cassandra / DynamoDB</span>：节点间交换成员状态、心跳
+        <br>• <span class="kw">Consul</span>：基于 Serf 库做服务发现的成员管理
+        <br>• <span class="kw">Redis Cluster</span>：16384 个 slot 的归属、节点 fail 状态都靠 Gossip 传播
+        <br>• <span class="kw">区块链</span>：交易和区块的全网广播</div>
+    </div>
+
+    <!-- 09 BFT -->
+    <div class="sec" id="bft"><span class="sn">09</span>拜占庭容错（BFT）</div>
+    <div class="card">
+      <div class="ct">拜占庭将军问题</div>
+      <p>Paxos / Raft / ZAB 都属于<span class="kw">CFT（Crash Fault Tolerance）</span>：只能容忍节点宕机，但假设所有活着的节点都"诚实"。如果有节点<span class="kw">作恶</span>（发假消息、发不同消息给不同人），CFT 协议就会失效。</p>
+      <p>BFT（Byzantine Fault Tolerance）解决的就是这个问题：在最多 f 个节点作恶的情况下，仍能让其他诚实节点达成一致。理论上需要总节点数 ≥ 3f + 1。</p>
+      <table class="tbl">
+        <tr><th>对比</th><th>CFT</th><th>BFT</th></tr>
+        <tr><td>故障模型</td><td>节点会宕机/网络丢包，但不撒谎</td><td>节点可能任意作恶</td></tr>
+        <tr><td>节点数要求</td><td>≥ 2f + 1 容忍 f 个故障</td><td>≥ 3f + 1 容忍 f 个作恶</td></tr>
+        <tr><td>性能</td><td>高，常用</td><td>低，消息复杂度 O(n²)</td></tr>
+        <tr><td>典型场景</td><td>公司内网集群</td><td>公链、跨组织联盟链</td></tr>
+        <tr><td>代表算法</td><td>Paxos、Raft、ZAB</td><td>PBFT、HotStuff、Tendermint</td></tr>
+      </table>
+      <div class="note good">日常工作中接触的中间件（ZK / etcd / Kafka / Redis）几乎全是 CFT。BFT 只在区块链、跨机构联盟系统里需要 —— 面试能点到"什么是拜占庭问题，CFT 和 BFT 区别"基本够用，深挖 PBFT 流程是加分项。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

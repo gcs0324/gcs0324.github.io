@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 并发 02 · 线程基础与生命周期</title>
+<style>
+header::before{content:'THREAD'}
+/* 状态流转图 */
+.state-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.state-box{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:6px 12px;border-radius:5px;border:1px solid;text-align:center}
+.state-box.new{background:var(--bg2);color:var(--tx3);border-color:var(--bd)}
+.state-box.run{background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border-color:var(--green-b,#9ed4b0)}
+.state-box.blk{background:var(--red-bg);color:var(--red);border-color:var(--red-b)}
+.state-box.wait{background:var(--yellow-bg,#fffbe6);color:var(--yellow,#b45309);border-color:var(--yellow-b,#f0d060)}
+.state-box.twait{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-b)}
+.state-box.term{background:var(--bg2);color:var(--tx3);border-color:var(--bd)}
+.state-arrow{color:var(--tx3);font-size:16px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-concurrent.js"></script>
+<header>
+  <div class="htag">CONCURRENT · 02 · THREAD</div>
+  <h1>线程基础与生命周期</h1>
+  <p class="sub">创建方式 · 6种状态 · 常用方法 · ThreadLocal · 线程协作</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#create"><span class="s-num">01</span>线程创建方式</a>
+    <a class="s-link" href="#state"><span class="s-num">02</span>线程 6 种状态</a>
+    <a class="s-link" href="#methods"><span class="s-num">03</span>常用方法</a>
+    <a class="s-link" href="#interrupt"><span class="s-num">04</span>线程中断</a>
+    <a class="s-link" href="#threadlocal"><span class="s-num">05</span>ThreadLocal</a>
+    <a class="s-link" href="#cooperate"><span class="s-num">06</span>线程协作</a>
+    <a class="s-link" href="#daemon"><span class="s-num">07</span>守护线程</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="concurrent-06-interview.html#thread">→ 面试题 线程</a>
+    <a class="s-link" href="concurrent-03-lock.html">→ 下一章：锁</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 线程创建 -->
+    <div class="sec" id="create"><span class="sn">01</span>线程创建方式</div>
+    <div class="card">
+      <div class="ct">4 种创建方式对比</div>
+      <table class="tbl">
+        <tr><th>方式</th><th>优点</th><th>缺点</th><th>推荐度</th></tr>
+        <tr><td>继承 Thread</td><td>代码简单</td><td>单继承限制，耦合度高</td><td>❌ 不推荐</td></tr>
+        <tr><td>实现 Runnable</td><td>解耦，可共享数据</td><td>无返回值，无法抛受检异常</td><td>⚠️ 一般</td></tr>
+        <tr><td>实现 Callable</td><td>有返回值，可抛异常，与 Future 配合</td><td>代码略繁琐</td><td>✅ 推荐</td></tr>
+        <tr><td>线程池</td><td>复用线程，统一管理，可监控</td><td>需要配置参数</td><td>✅✅ 首选</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">Callable + Future 示例</div>
+      <pre>// Callable：有返回值，可抛异常
+Callable&lt;Integer&gt; task = () -&gt; {
+    Thread.sleep(1000);
+    return 42;
+};
+
+// FutureTask 包装 Callable
+FutureTask&lt;Integer&gt; future = new FutureTask&lt;&gt;(task);
+new Thread(future).start();
+
+// get() 阻塞直到结果可用
+Integer result = future.get();       // 阻塞等待
+Integer result2 = future.get(2, TimeUnit.SECONDS); // 超时等待
+
+// CompletableFuture（推荐，支持异步编排）
+CompletableFuture&lt;Integer&gt; cf =
+    CompletableFuture.supplyAsync(() -&gt; 42, executor)
+        .thenApply(r -&gt; r * 2)
+        .exceptionally(e -&gt; 0);</pre>
+    </div>
+
+    <!-- 02 线程状态 -->
+    <div class="sec" id="state"><span class="sn">02</span>线程 6 种状态</div>
+    <div class="card">
+      <div class="ct">状态转换</div>
+      <div class="state-flow">
+        <div class="state-box new">NEW</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box run">RUNNABLE</div>
+        <div class="state-arrow">⇄</div>
+        <div class="state-box blk">BLOCKED</div>
+      </div>
+      <div class="state-flow">
+        <div class="state-box run">RUNNABLE</div>
+        <div class="state-arrow">⇄</div>
+        <div class="state-box wait">WAITING</div>
+      </div>
+      <div class="state-flow">
+        <div class="state-box run">RUNNABLE</div>
+        <div class="state-arrow">⇄</div>
+        <div class="state-box twait">TIMED_WAITING</div>
+      </div>
+      <div class="state-flow">
+        <div class="state-box run">RUNNABLE</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box term">TERMINATED</div>
+      </div>
+      <table class="tbl" style="margin-top:16px">
+        <tr><th>状态</th><th>说明</th><th>触发条件</th></tr>
+        <tr><td>NEW</td><td>新建，未启动</td><td>new Thread() 后，start() 前</td></tr>
+        <tr><td>RUNNABLE</td><td>就绪或运行中（JVM 层面合并）</td><td>start() 后，包含等待 CPU 时间片</td></tr>
+        <tr><td>BLOCKED</td><td>阻塞，等待获取 synchronized 锁</td><td>争抢 synchronized 锁失败</td></tr>
+        <tr><td>WAITING</td><td>无限等待，需被显式唤醒</td><td>Object.wait() / Thread.join() / LockSupport.park()</td></tr>
+        <tr><td>TIMED_WAITING</td><td>超时等待，到期自动唤醒</td><td>sleep(n) / wait(n) / join(n) / parkNanos(n)</td></tr>
+        <tr><td>TERMINATED</td><td>终止，run() 执行完毕或异常退出</td><td>run() 正常结束或抛出未捕获异常</td></tr>
+      </table>
+      <div class="note info"><strong>注意</strong>：Java 线程状态是 JVM 层面的，RUNNABLE 包含了操作系统的"就绪"和"运行"两个状态。操作系统调度的阻塞（如 IO 等待）在 JVM 看来仍是 RUNNABLE。</div>
+    </div>
+
+    <!-- 03 常用方法 -->
+    <div class="sec" id="methods"><span class="sn">03</span>常用方法对比</div>
+    <div class="card">
+      <div class="ct">sleep vs wait vs yield vs join</div>
+      <table class="tbl">
+        <tr><th>方法</th><th>所属类</th><th>是否释放锁</th><th>唤醒方式</th><th>状态</th></tr>
+        <tr><td>sleep(n)</td><td>Thread</td><td>❌ 不释放</td><td>超时自动唤醒</td><td>TIMED_WAITING</td></tr>
+        <tr><td>wait()</td><td>Object</td><td>✅ 释放对象锁</td><td>notify/notifyAll/超时</td><td>WAITING/TIMED_WAITING</td></tr>
+        <tr><td>yield()</td><td>Thread</td><td>❌ 不释放</td><td>让出 CPU，重新竞争</td><td>仍 RUNNABLE</td></tr>
+        <tr><td>join()</td><td>Thread</td><td>✅ 释放调用者的锁</td><td>目标线程终止</td><td>WAITING</td></tr>
+        <tr><td>park()</td><td>LockSupport</td><td>❌ 不释放</td><td>unpark() 或中断</td><td>WAITING</td></tr>
+      </table>
+    </div>
+
+    <!-- 04 线程中断 -->
+    <div class="sec" id="interrupt"><span class="sn">04</span>线程中断机制</div>
+    <div class="card">
+      <div class="ct">interrupt() 工作原理</div>
+      <p>Java 线程中断是<span class="kw">协作式</span>的，<code>interrupt()</code> 只设置中断标志位，不强制停止线程。线程需主动检查并响应：</p>
+      <pre>// 设置中断标志
+thread.interrupt();
+
+// 检查中断标志（不清除）
+if (Thread.currentThread().isInterrupted()) { ... }
+
+// 检查中断标志并清除（静态方法）
+if (Thread.interrupted()) { ... }
+
+// 可中断阻塞方法（sleep/wait/join）收到中断会抛 InterruptedException
+// 并清除中断标志！捕获后应恢复标志位
+try {
+    Thread.sleep(1000);
+} catch (InterruptedException e) {
+    Thread.currentThread().interrupt(); // 恢复中断标志
+    return; // 退出线程
+}</pre>
+      <div class="note warn"><strong>stop() 已废弃</strong>：<code>Thread.stop()</code> 强制停止会导致监视器解锁、数据不一致等问题，已废弃。应使用 interrupt() 协作中断或 volatile 标志位优雅停止。</div>
+    </div>
+
+    <!-- 05 ThreadLocal -->
+    <div class="sec" id="threadlocal"><span class="sn">05</span>ThreadLocal</div>
+    <div class="card">
+      <div class="ct">实现原理</div>
+      <p>每个线程内部有一个 <code>ThreadLocalMap</code>（类似 HashMap），key 是 <code>ThreadLocal</code> 对象（<span class="kw">弱引用</span>），value 是存储的值：</p>
+      <pre>Thread
+  └── threadLocals: ThreadLocalMap
+        └── Entry[] table
+              └── Entry(WeakReference&lt;ThreadLocal&gt;, Object value)
+
+// 读取：Thread.currentThread().threadLocals.get(this)
+threadLocal.get()
+// 写入：Thread.currentThread().threadLocals.set(this, value)
+threadLocal.set(value)</pre>
+    </div>
+    <div class="card">
+      <div class="ct">内存泄漏问题</div>
+      <p>Entry 的 key（ThreadLocal）是<span class="kw">弱引用</span>，当 ThreadLocal 对象不再被强引用时 key 会被 GC 回收变为 null，但 value 是强引用仍然存在，导致内存泄漏：</p>
+      <ul class="dl">
+        <li><span class="b">原因</span><span>线程池中线程长期存活，线程的 ThreadLocalMap 也长期存在，null key 的 Entry 无法被回收</span></li>
+        <li><span class="b">解决</span><span>每次使用完 ThreadLocal 后显式调用 <code>threadLocal.remove()</code>，最佳实践是在 try-finally 中确保 remove()</span></li>
+      </ul>
+      <pre>try {
+    userContext.set(currentUser);
+    // ... 业务逻辑
+} finally {
+    userContext.remove(); // 必须！防止内存泄漏和数据错乱
+}</pre>
+      <div class="note warn"><strong>线程池场景必须 remove()</strong>：线程被复用时，上一次请求残留的 ThreadLocal 值会被下一个请求读到，导致数据污染。</div>
+    </div>
+    <div class="card">
+      <div class="ct">InheritableThreadLocal — 父子线程传值</div>
+      <p>普通 ThreadLocal 子线程无法获取父线程的值；<code>InheritableThreadLocal</code> 在子线程创建时拷贝父线程的 inheritableThreadLocals，实现父子线程数据传递。</p>
+      <p>线程池场景：由于线程是复用的，InheritableThreadLocal 只在线程<strong>创建时</strong>复制，无法解决线程池问题。推荐使用阿里开源的 <code>TransmittableThreadLocal（TTL）</code>。</p>
+    </div>
+
+    <!-- 06 线程协作 -->
+    <div class="sec" id="cooperate"><span class="sn">06</span>线程协作（wait/notify）</div>
+    <div class="card">
+      <div class="ct">wait / notify 使用规范</div>
+      <p><code>wait()</code> 和 <code>notify()</code> 必须在 synchronized 块内调用（否则抛 IllegalMonitorStateException）：</p>
+      <pre>// 生产者-消费者模式
+class BoundedBuffer {
+    private final Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();
+    private final int capacity = 10;
+
+    public synchronized void put(int item) throws InterruptedException {
+        while (queue.size() == capacity) { // ← 必须用 while，防虚假唤醒
+            wait();
+        }
+        queue.add(item);
+        notifyAll(); // 唤醒所有等待者
+    }
+
+    public synchronized int take() throws InterruptedException {
+        while (queue.isEmpty()) { // ← 必须用 while
+            wait();
+        }
+        int item = queue.poll();
+        notifyAll();
+        return item;
+    }
+}</pre>
+      <div class="note warn"><strong>为什么用 while 而不是 if？</strong>虚假唤醒（Spurious Wakeup）：线程可能在没有被 notify 的情况下从 wait() 返回（操作系统层面行为）。用 while 可以在唤醒后重新检查条件，若条件不满足继续等待。Java 官方文档明确要求必须用 while。</div>
+    </div>
+
+    <!-- 07 守护线程 -->
+    <div class="sec" id="daemon"><span class="sn">07</span>守护线程</div>
+    <div class="card">
+      <div class="ct">守护线程 vs 用户线程</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>用户线程（User Thread）</th><th>守护线程（Daemon Thread）</th></tr>
+        <tr><td>生命周期</td><td>独立，JVM 等待所有用户线程结束才退出</td><td>依附于用户线程，所有用户线程退出后自动终止</td></tr>
+        <tr><td>设置方式</td><td>默认</td><td>start() 前调用 <code>setDaemon(true)</code></td></tr>
+        <tr><td>典型应用</td><td>业务线程、主线程</td><td>GC 线程、心跳检测、后台任务</td></tr>
+        <tr><td>finally 保证</td><td>✅ 可靠</td><td>❌ 不可靠（JVM 强制退出时 finally 不执行）</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

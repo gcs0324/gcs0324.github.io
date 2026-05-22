@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 学习大纲 · 目录结构</title>
+<style>
+h1{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.subtitle{font-size:13px;color:var(--tx2);margin-bottom:32px}
+
+/* ── chapter card ── */
+.ch-card{border:1px solid var(--bd);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.ch-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;flex-shrink:0}
+.ch-title{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--tx);flex:1}
+.ch-file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+.ch-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 10px;text-decoration:none;flex-shrink:0;transition:opacity .15s}
+.ch-link:hover{opacity:.75}
+.ch-link.todo{color:var(--tx3);background:var(--bg);border-color:var(--bd);cursor:default;pointer-events:none}
+.ch-body{padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+/* ── section group ── */
+.sec-group{}
+.sec-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--tx3);text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bd)}
+.sec-list{list-style:none;display:flex;flex-direction:column;gap:3px}
+.sec-list li{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--tx2);line-height:1.5;padding:2px 0}
+.sec-list li::before{content:'·';color:var(--bd2);font-size:14px;flex-shrink:0;margin-top:1px}
+.sec-list li strong{color:var(--tx);font-weight:600}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 4px}
+
+/* ── stats bar ── */
+.stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:var(--tx)}
+.stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.05em}
+
+/* ── progress ── */
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.progress-bar{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;border:1px solid var(--bd)}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px}
+.progress-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+
+/* ── status badge ── */
+.badge-done{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border:1px solid var(--green-b,#9ed4b0)}
+.badge-wip{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--yellow-bg,#fffbe6);color:var(--yellow,#b45309);border:1px solid var(--yellow-b,#f0d060)}
+.badge-todo{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--bg2);color:var(--tx3);border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+<main>
+  <h1>Spring · 学习大纲</h1>
+  <p class="subtitle">6 个文件 · 覆盖 IoC / AOP / 事务 / MVC / Boot 自动装配 / 高频面试题</p>
+
+  <!-- 统计 -->
+  <div class="stats">
+    <div class="stat"><span class="stat-val">6</span><span class="stat-lbl">FILES</span></div>
+    <div class="stat"><span class="stat-val">28</span><span class="stat-lbl">SECTIONS</span></div>
+    <div class="stat"><span class="stat-val">0 / 6</span><span class="stat-lbl">COMPLETED</span></div>
+    <div class="stat"><span class="stat-val">~180</span><span class="stat-lbl">MIN READ</span></div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-row">
+    <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    <span class="progress-txt">0% 完成</span>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH01  spring-01-ioc.html           -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch01">
+    <div class="ch-head">
+      <span class="ch-num">CH 01</span>
+      <span class="ch-title">IoC 容器与依赖注入</span>
+      <span class="ch-file">spring-01-ioc.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="spring-01-ioc.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · IoC 核心概念</div>
+        <ul class="sec-list">
+          <li><strong>控制反转</strong> — 对象创建权交给容器，解耦依赖</li>
+          <li><strong>依赖注入</strong> — 构造器注入 / Setter 注入 / 字段注入</li>
+          <li><strong>BeanFactory vs ApplicationContext</strong> — 懒加载 vs 预加载，企业功能</li>
+          <li><strong>Bean 作用域</strong> — singleton / prototype / request / session</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · Bean 生命周期</div>
+        <ul class="sec-list">
+          <li>① 实例化 → ② 属性填充 → ③ Aware 回调 → ④ BeanPostProcessor</li>
+          <li><strong>InitializingBean / @PostConstruct</strong> — 初始化钩子</li>
+          <li><strong>DisposableBean / @PreDestroy</strong> — 销毁钩子</li>
+          <li><strong>BeanPostProcessor</strong> — AOP 代理生成入口</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 容器启动流程</div>
+        <ul class="sec-list">
+          <li><code>refresh()</code> 12 步核心流程</li>
+          <li><strong>BeanDefinition</strong> — 元数据载体</li>
+          <li><strong>BeanDefinitionReader</strong> — XML / 注解扫描</li>
+          <li><strong>循环依赖</strong> — 三级缓存解决方案</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 注解驱动</div>
+        <ul class="sec-list">
+          <li><code>@Component</code> / <code>@Service</code> / <code>@Repository</code> / <code>@Controller</code></li>
+          <li><code>@Autowired</code> vs <code>@Resource</code> vs <code>@Inject</code></li>
+          <li><code>@Configuration</code> + <code>@Bean</code> — Full 模式 vs Lite 模式</li>
+          <li><code>@Conditional</code> — 条件化 Bean 注册</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH02  spring-02-aop.html           -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch02">
+    <div class="ch-head">
+      <span class="ch-num">CH 02</span>
+      <span class="ch-title">AOP 面向切面编程</span>
+      <span class="ch-file">spring-02-aop.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="spring-02-aop.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · AOP 概念体系</div>
+        <ul class="sec-list">
+          <li><strong>切面 Aspect</strong> — 横切关注点的模块化</li>
+          <li><strong>切点 Pointcut</strong> — 定义在哪些连接点织入</li>
+          <li><strong>通知 Advice</strong> — Before / After / Around / AfterReturning / AfterThrowing</li>
+          <li><strong>连接点 JoinPoint</strong> — 方法执行点</li>
+          <li><strong>织入 Weaving</strong> — 编译期 / 类加载期 / 运行期</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 动态代理</div>
+        <ul class="sec-list">
+          <li><strong>JDK 动态代理</strong> — 基于接口，<code>InvocationHandler</code></li>
+          <li><strong>CGLIB 代理</strong> — 基于子类，字节码增强</li>
+          <li>选择策略：有接口 → JDK；无接口 → CGLIB；Boot 2.x 默认 CGLIB</li>
+          <li><strong>自调用失效</strong> — <code>this.method()</code> 绕过代理的问题</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 切点表达式</div>
+        <ul class="sec-list">
+          <li><code>execution(* com.service..*.*(..))</code> — 方法匹配</li>
+          <li><code>@annotation()</code> — 注解匹配</li>
+          <li><code>@within()</code> — 类注解匹配</li>
+          <li>运算符：<code>&amp;&amp;</code> / <code>||</code> / <code>!</code></li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 实战应用</div>
+        <ul class="sec-list">
+          <li>日志切面 / 权限校验 / 接口限流</li>
+          <li><code>@Around</code> 拦截与 <code>ProceedingJoinPoint</code></li>
+          <li>多切面执行顺序 — <code>@Order</code></li>
+          <li>AOP 实现原理 — <code>AnnotationAwareAspectJAutoProxyCreator</code></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH03  spring-03-tx.html            -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch03">
+    <div class="ch-head">
+      <span class="ch-num">CH 03</span>
+      <span class="ch-title">事务管理</span>
+      <span class="ch-file">spring-03-tx.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="spring-03-tx.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 事务抽象</div>
+        <ul class="sec-list">
+          <li><strong>PlatformTransactionManager</strong> — 统一事务管理接口</li>
+          <li>JDBC / JPA / Hibernate / MyBatis 适配器</li>
+          <li>编程式事务 vs 声明式事务</li>
+          <li><code>@Transactional</code> 注解驱动</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 传播行为（7种）</div>
+        <ul class="sec-list">
+          <li><strong>REQUIRED</strong>（默认）— 有则加入，无则新建</li>
+          <li><strong>REQUIRES_NEW</strong> — 总是新建，挂起外层</li>
+          <li><strong>NESTED</strong> — 嵌套事务，保存点回滚</li>
+          <li><strong>SUPPORTS / NOT_SUPPORTED / MANDATORY / NEVER</strong></li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 隔离级别</div>
+        <ul class="sec-list">
+          <li>DEFAULT / READ_UNCOMMITTED / READ_COMMITTED / REPEATABLE_READ / SERIALIZABLE</li>
+          <li>与数据库隔离级别的映射关系</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 事务失效场景</div>
+        <ul class="sec-list">
+          <li>方法非 <code>public</code> — 代理无法拦截</li>
+          <li>同类自调用 — <code>this</code> 绕过代理</li>
+          <li>异常被 <code>try-catch</code> 吞掉</li>
+          <li>非受检异常 rollbackFor 未配置</li>
+          <li>多线程操作 — 事务不跨线程</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH04  spring-04-mvc.html           -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch04">
+    <div class="ch-head">
+      <span class="ch-num">CH 04</span>
+      <span class="ch-title">Spring MVC 请求处理</span>
+      <span class="ch-file">spring-04-mvc.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="spring-04-mvc.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 请求处理流程</div>
+        <ul class="sec-list">
+          <li><strong>DispatcherServlet</strong> — 前端控制器，请求分发</li>
+          <li><strong>HandlerMapping</strong> — 路由匹配 → Handler</li>
+          <li><strong>HandlerAdapter</strong> — 适配器执行 Handler</li>
+          <li><strong>ViewResolver</strong> — 视图解析（REST 场景可忽略）</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 核心注解</div>
+        <ul class="sec-list">
+          <li><code>@RequestMapping</code> / <code>@GetMapping</code> / <code>@PostMapping</code></li>
+          <li><code>@PathVariable</code> / <code>@RequestParam</code> / <code>@RequestBody</code></li>
+          <li><code>@ResponseBody</code> / <code>@RestController</code></li>
+          <li><code>@ControllerAdvice</code> — 全局异常处理</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 拦截器与过滤器</div>
+        <ul class="sec-list">
+          <li><strong>Filter</strong> — Servlet 规范，最外层</li>
+          <li><strong>HandlerInterceptor</strong> — Spring MVC，preHandle / postHandle / afterCompletion</li>
+          <li>执行顺序与区别</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 参数绑定与消息转换</div>
+        <ul class="sec-list">
+          <li><strong>HttpMessageConverter</strong> — JSON/XML 序列化</li>
+          <li><strong>Jackson / Gson</strong> — 常用转换器</li>
+          <li><code>@Valid</code> / <code>@Validated</code> — 参数校验</li>
+          <li><strong>数据绑定</strong> — <code>WebDataBinder</code></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH05  spring-05-boot.html          -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch05">
+    <div class="ch-head">
+      <span class="ch-num">CH 05</span>
+      <span class="ch-title">Spring Boot 自动装配</span>
+      <span class="ch-file">spring-05-boot.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="spring-05-boot.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 自动装配原理</div>
+        <ul class="sec-list">
+          <li><code>@SpringBootApplication</code> — 组合注解分解</li>
+          <li><code>@EnableAutoConfiguration</code> — SPI 加载入口</li>
+          <li><code>spring.factories</code> / <code>AutoConfiguration.imports</code>（Boot 3.x）</li>
+          <li><code>@Conditional*</code> — 条件过滤装配</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 启动流程</div>
+        <ul class="sec-list">
+          <li><code>SpringApplication.run()</code> 全流程拆解</li>
+          <li><strong>ApplicationListener</strong> — 启动事件监听</li>
+          <li><strong>CommandLineRunner / ApplicationRunner</strong> — 启动后回调</li>
+          <li><strong>Environment</strong> — 配置环境加载顺序</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 配置体系</div>
+        <ul class="sec-list">
+          <li><code>application.yml</code> / <code>application.properties</code> 优先级</li>
+          <li><strong>Profile</strong> — <code>@Profile</code> / <code>spring.profiles.active</code></li>
+          <li><code>@ConfigurationProperties</code> — 类型安全配置绑定</li>
+          <li><strong>外部化配置</strong> — 环境变量 / 命令行 / 配置中心</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · Starter 与 Actuator</div>
+        <ul class="sec-list">
+          <li><strong>Starter 机制</strong> — 如何自定义 Starter</li>
+          <li><strong>Actuator</strong> — 健康检查 / 指标暴露 / 端点管理</li>
+          <li><strong>内嵌容器</strong> — Tomcat / Jetty / Undertow</li>
+          <li><strong>打包部署</strong> — Fat JAR / WAR 部署</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH06  spring-06-interview.html     -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch06">
+    <div class="ch-head">
+      <span class="ch-num">CH 06</span>
+      <span class="ch-title">高频面试题（30道）</span>
+      <span class="ch-file">spring-06-interview.html</span>
+      <span class="badge-todo">TODO</span>
+      <a class="ch-link todo" href="spring-06-interview.html">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · IoC/DI 必背</div>
+        <ul class="sec-list">
+          <li>Bean 生命周期完整描述（必考）</li>
+          <li>循环依赖三级缓存解决原理</li>
+          <li>@Autowired 注入原理 vs @Resource</li>
+          <li>BeanFactory vs FactoryBean 区别</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · AOP 重点</div>
+        <ul class="sec-list">
+          <li>JDK 代理 vs CGLIB 代理选择逻辑</li>
+          <li>AOP 自调用失效原因与解决</li>
+          <li>多个切面执行顺序控制</li>
+          <li>Spring AOP vs AspectJ 的区别</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 事务高频</div>
+        <ul class="sec-list">
+          <li>@Transactional 失效 7 种场景</li>
+          <li>事务传播行为实战题</li>
+          <li>REQUIRES_NEW vs NESTED 区别</li>
+          <li>分布式事务解决方案概览</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · Boot 自动装配</div>
+        <ul class="sec-list">
+          <li>自动装配完整流程（SPI 机制）</li>
+          <li>如何自定义 Starter</li>
+          <li>Spring Boot 启动流程核心步骤</li>
+          <li>Spring Boot 3.x vs 2.x 重要变化</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

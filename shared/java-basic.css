@@ -1,0 +1,53 @@
+/* ══════════════════════════════════════════════
+   java-basic.css  —  Java 基础专题公共样式
+   适用于 java-basic-01 ~ 06 所有页面
+   依赖：theme.css（CSS 变量）必须在此之前加载
+   ══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* ── reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);line-height:1.7}
+a{color:var(--blue);text-decoration:none}
+code{font-family:'IBM Plex Mono',monospace;font-size:.85em;background:var(--bg2);padding:1px 5px;border-radius:3px}
+pre{font-family:'IBM Plex Mono',monospace;font-size:.82rem;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px;overflow-x:auto;line-height:1.6;margin:12px 0}
+
+/* ── top nav ── */
+.topnav{background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.topnav-brand{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--tx);padding:12px 0;margin-right:20px;white-space:nowrap;text-decoration:none}
+.topnav-links{display:flex;gap:0;overflow-x:auto;flex:1}
+.topnav-links a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em}
+.topnav-links a:hover{color:var(--tx);border-bottom-color:var(--bd2)}
+.topnav-links a.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── page layout（文章页 01-05）── */
+.layout{display:flex;min-height:calc(100vh - 48px)}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--bd);padding:20px 0;position:sticky;top:48px;height:calc(100vh - 48px);overflow-y:auto}
+.sb-title{font-size:.7rem;font-weight:700;color:var(--tx2);letter-spacing:.1em;text-transform:uppercase;padding:0 16px;margin-bottom:8px}
+.sb-link{display:block;padding:6px 16px;font-size:.82rem;color:var(--tx2);border-left:2px solid transparent;transition:all .15s}
+.sb-link:hover,.sb-link.active{color:var(--tx);border-left-color:var(--blue);background:var(--blue-bg)}
+main{flex:1;padding:32px 40px;max-width:860px}
+
+/* ── typography ── */
+h2.sec{font-size:1.25rem;font-weight:700;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--blue);scroll-margin-top:60px}
+h3{font-size:1rem;font-weight:700;margin:20px 0 10px;color:var(--tx)}
+p{margin-bottom:10px;color:var(--tx)}
+ul,ol{padding-left:20px;margin-bottom:10px}
+li{margin-bottom:4px;font-size:.9rem}
+
+/* ── tables ── */
+.table-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--bg2);padding:8px 12px;text-align:left;border:1px solid var(--bd);font-weight:600}
+td{padding:8px 12px;border:1px solid var(--bd);vertical-align:top}
+tr:hover td{background:var(--bg2)}
+
+/* ── callout blocks ── */
+.tip{background:var(--blue-bg);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.danger{background:var(--red-bg);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* ── inline badges ── */
+.key{display:inline-block;background:var(--blue-bg);color:var(--blue);font-size:.72rem;padding:1px 8px;border-radius:4px;font-weight:600;margin:2px 2px}
+.ver-badge{display:inline-block;font-size:.7rem;font-weight:700;background:var(--green-bg);color:var(--green);border-radius:4px;padding:1px 7px;margin-left:6px}

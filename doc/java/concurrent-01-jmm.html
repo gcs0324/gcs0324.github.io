@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java 并发 01 · Java 内存模型 JMM</title>
+<style>
+header::before{content:'JMM'}
+/* happens-before grid */
+.hb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.hb-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 14px}
+.hb-num{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.hb-name{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.hb-desc{font-size:12px;color:var(--tx2)}
+@media(max-width:600px){.hb-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-concurrent.js"></script>
+<header>
+  <div class="htag">CONCURRENT · 01 · JMM</div>
+  <h1>Java 内存模型（JMM）</h1>
+  <p class="sub">主内存/工作内存 · happens-before · volatile · 指令重排序 · 三大特性</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#model"><span class="s-num">01</span>主内存与工作内存</a>
+    <a class="s-link" href="#three"><span class="s-num">02</span>三大特性</a>
+    <a class="s-link" href="#hb"><span class="s-num">03</span>happens-before</a>
+    <a class="s-link" href="#volatile"><span class="s-num">04</span>volatile</a>
+    <a class="s-link" href="#reorder"><span class="s-num">05</span>指令重排序</a>
+    <a class="s-link" href="#dcl"><span class="s-num">06</span>DCL 单例</a>
+    <a class="s-link" href="#barrier"><span class="s-num">07</span>内存屏障</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="concurrent-06-interview.html#jmm">→ 面试题 JMM</a>
+    <a class="s-link" href="concurrent-02-thread.html">→ 下一章：线程</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 主内存与工作内存 -->
+    <div class="sec" id="model"><span class="sn">01</span>主内存与工作内存</div>
+    <div class="card">
+      <div class="ct">JMM 抽象模型</div>
+      <p>JMM（Java Memory Model）定义了线程与主内存之间的抽象关系：<span class="kw">所有共享变量存储在主内存</span>，每个线程有自己的<span class="kw">工作内存</span>（寄存器/Cache 的抽象），线程只能操作工作内存中变量的副本，不能直接读写主内存。</p>
+      <table class="tbl">
+        <tr><th>区域</th><th>位置</th><th>存储内容</th><th>作用</th></tr>
+        <tr><td>主内存（Main Memory）</td><td>堆内存（逻辑概念）</td><td>所有共享变量（实例字段、静态字段）</td><td>线程间数据共享的唯一来源</td></tr>
+        <tr><td>工作内存（Working Memory）</td><td>CPU 缓存/寄存器</td><td>主内存变量的副本</td><td>线程的私有工作区，操作更快</td></tr>
+      </table>
+      <p style="margin-top:12px">线程对变量的操作必须在工作内存中进行，写完后再<span class="kw">刷回</span>主内存，读时先从主内存<span class="kw">加载</span>到工作内存。正是这种缓存导致了可见性问题。</p>
+    </div>
+    <div class="card">
+      <div class="ct">8 种原子内存操作</div>
+      <table class="tbl">
+        <tr><th>操作</th><th>作用域</th><th>说明</th></tr>
+        <tr><td>lock</td><td>主内存</td><td>将变量标记为线程独占</td></tr>
+        <tr><td>unlock</td><td>主内存</td><td>释放独占锁定</td></tr>
+        <tr><td>read</td><td>主内存→工作内存</td><td>从主内存读取变量值（与 load 配合）</td></tr>
+        <tr><td>load</td><td>工作内存</td><td>将 read 的值放入工作内存副本</td></tr>
+        <tr><td>use</td><td>工作内存→执行引擎</td><td>线程读取工作内存变量，传给执行引擎</td></tr>
+        <tr><td>assign</td><td>执行引擎→工作内存</td><td>执行引擎赋值给工作内存变量</td></tr>
+        <tr><td>store</td><td>工作内存→主内存</td><td>将工作内存变量值传给主内存（与 write 配合）</td></tr>
+        <tr><td>write</td><td>主内存</td><td>将 store 的值写入主内存变量</td></tr>
+      </table>
+    </div>
+
+    <!-- 02 三大特性 -->
+    <div class="sec" id="three"><span class="sn">02</span>并发三大特性</div>
+    <div class="card">
+      <div class="ct">原子性 · 可见性 · 有序性</div>
+      <table class="tbl">
+        <tr><th>特性</th><th>含义</th><th>保证方式</th></tr>
+        <tr><td>原子性（Atomicity）</td><td>操作不可被中断，要么全执行要么全不执行</td><td>synchronized、Lock、Atomic 原子类</td></tr>
+        <tr><td>可见性（Visibility）</td><td>一个线程修改共享变量后，其他线程能立即看到最新值</td><td>volatile、synchronized、final</td></tr>
+        <tr><td>有序性（Ordering）</td><td>程序执行顺序按代码顺序，不受指令重排影响</td><td>volatile（禁止重排）、happens-before 规则</td></tr>
+      </table>
+      <div class="note warn"><strong>i++ 的原子性问题</strong>：<code>i++</code> 看似一条语句，实则三步：① 读取 i 值 ② 加 1 ③ 写回。多线程下可能两个线程都读到旧值，导致结果比预期少。解决：<code>AtomicInteger.getAndIncrement()</code> 或 synchronized。</div>
+    </div>
+
+    <!-- 03 happens-before -->
+    <div class="sec" id="hb"><span class="sn">03</span>happens-before 原则</div>
+    <div class="card">
+      <div class="ct">8 条 happens-before 规则</div>
+      <p>如果操作 A happens-before 操作 B，则 A 的结果对 B 可见，且 A 的执行顺序在 B 之前。JMM 通过以下规则定义可见性保证：</p>
+      <div class="hb-grid">
+        <div class="hb-item"><div class="hb-num">规则 1</div><div class="hb-name">程序顺序规则</div><div class="hb-desc">同一线程内，前面的操作 happens-before 后续操作</div></div>
+        <div class="hb-item"><div class="hb-num">规则 2</div><div class="hb-name">监视器锁规则</div><div class="hb-desc">unlock 操作 happens-before 后续对同一锁的 lock 操作</div></div>
+        <div class="hb-item"><div class="hb-num">规则 3</div><div class="hb-name">volatile 变量规则</div><div class="hb-desc">volatile 写操作 happens-before 后续对该变量的读操作</div></div>
+        <div class="hb-item"><div class="hb-num">规则 4</div><div class="hb-name">线程启动规则</div><div class="hb-desc">Thread.start() happens-before 被启动线程的每个操作</div></div>
+        <div class="hb-item"><div class="hb-num">规则 5</div><div class="hb-name">线程终止规则</div><div class="hb-desc">线程所有操作 happens-before 其他线程检测到该线程终止（join()/isAlive()）</div></div>
+        <div class="hb-item"><div class="hb-num">规则 6</div><div class="hb-name">线程中断规则</div><div class="hb-desc">interrupt() happens-before 被中断线程检测到中断</div></div>
+        <div class="hb-item"><div class="hb-num">规则 7</div><div class="hb-name">对象终结规则</div><div class="hb-desc">对象构造函数结束 happens-before finalize() 开始</div></div>
+        <div class="hb-item"><div class="hb-num">规则 8</div><div class="hb-name">传递性规则</div><div class="hb-desc">A happens-before B，B happens-before C，则 A happens-before C</div></div>
+      </div>
+    </div>
+
+    <!-- 04 volatile -->
+    <div class="sec" id="volatile"><span class="sn">04</span>volatile 关键字</div>
+    <div class="card">
+      <div class="ct">两个核心语义</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong class="kw">可见性</strong>：对 volatile 变量的写操作会立即刷新到主内存；其他线程读 volatile 变量时会先使工作内存副本失效，强制从主内存重新读取。底层通过 <code>lock</code> 前缀指令实现，触发 MESI 缓存一致性协议</span></li>
+        <li><span class="b">②</span><span><strong class="kw">禁止指令重排序</strong>：编译器和处理器不能对 volatile 变量的读写进行重排序。通过在 volatile 写前插入 StoreStore 屏障、写后插入 StoreLoad 屏障，读前插入 LoadLoad 屏障、读后插入 LoadStore 屏障实现</span></li>
+      </ul>
+      <div class="note warn"><strong>volatile 不保证原子性</strong>：<code>volatile int i; i++;</code> 仍然是非原子的三步操作。需要原子性请用 <code>AtomicInteger</code> 或 <code>synchronized</code>。</div>
+    </div>
+    <div class="card">
+      <div class="ct">volatile 适用场景</div>
+      <ul class="dl">
+        <li><span class="b">✅</span><span><strong>状态标志</strong>：<code>volatile boolean running = true;</code> 线程间停止信号</span></li>
+        <li><span class="b">✅</span><span><strong>双重检查锁定（DCL）</strong>：单例模式中防止半初始化对象逃逸</span></li>
+        <li><span class="b">✅</span><span><strong>独立观察</strong>：周期性发布数据，订阅者只需读最新值（无需原子性）</span></li>
+        <li><span class="b">❌</span><span><strong>不适用</strong>：复合操作（check-then-act、read-modify-write），需要 Atomic 类或 synchronized</span></li>
+      </ul>
+    </div>
+
+    <!-- 05 指令重排序 -->
+    <div class="sec" id="reorder"><span class="sn">05</span>指令重排序</div>
+    <div class="card">
+      <div class="ct">三种重排序</div>
+      <table class="tbl">
+        <tr><th>类型</th><th>发生阶段</th><th>说明</th></tr>
+        <tr><td>编译器重排序</td><td>编译期</td><td>JIT 编译器在不改变单线程语义前提下调整语句顺序</td></tr>
+        <tr><td>处理器重排序</td><td>运行期</td><td>CPU 乱序执行（Out-of-Order Execution），流水线优化</td></tr>
+        <tr><td>内存系统重排序</td><td>运行期</td><td>Store Buffer、Invalidate Queue 导致写操作延迟可见</td></tr>
+      </table>
+      <p style="margin-top:12px"><span class="kw">as-if-serial 语义</span>：在单线程内，重排序后的执行结果与顺序执行结果相同（编译器和CPU的底线保证）。但多线程下 as-if-serial 无法保证跨线程可见性，因此需要 JMM 的 happens-before 规则。</p>
+    </div>
+
+    <!-- 06 DCL 单例 -->
+    <div class="sec" id="dcl"><span class="sn">06</span>DCL 双重检查锁定单例</div>
+    <div class="card">
+      <div class="ct">为什么需要 volatile</div>
+      <pre>// ❌ 错误写法：没有 volatile，可能返回半初始化对象
+public class Singleton {
+    private static Singleton instance;
+    public static Singleton getInstance() {
+        if (instance == null) {               // 第一次检查
+            synchronized (Singleton.class) {
+                if (instance == null) {       // 第二次检查
+                    instance = new Singleton(); // ← 问题所在
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+// ✅ 正确写法：加 volatile
+private static volatile Singleton instance;</pre>
+      <p><code>instance = new Singleton()</code> 实际分三步：① 分配内存 ② 初始化对象 ③ 将引用指向内存。指令重排可能变成 ①③②，另一线程此时读到 instance 非 null，但对象未初始化完成（<span class="kw">半初始化对象</span>）。<code>volatile</code> 禁止 ②③ 重排，解决此问题。</p>
+    </div>
+
+    <!-- 07 内存屏障 -->
+    <div class="sec" id="barrier"><span class="sn">07</span>内存屏障</div>
+    <div class="card">
+      <div class="ct">4 种内存屏障</div>
+      <table class="tbl">
+        <tr><th>屏障类型</th><th>说明</th><th>作用</th></tr>
+        <tr><td>LoadLoad</td><td>Load1; LoadLoad; Load2</td><td>Load1 数据装载完成前，Load2 不能执行</td></tr>
+        <tr><td>StoreStore</td><td>Store1; StoreStore; Store2</td><td>Store1 数据对其他处理器可见后，Store2 才能执行</td></tr>
+        <tr><td>LoadStore</td><td>Load1; LoadStore; Store2</td><td>Load1 数据装载完成前，Store2 不能刷出</td></tr>
+        <tr><td>StoreLoad</td><td>Store1; StoreLoad; Load2</td><td>Store1 数据对所有处理器可见后，Load2 才能执行。开销最大，是全能屏障</td></tr>
+      </table>
+      <p style="margin-top:12px">volatile 写操作：前插 <code>StoreStore</code>，后插 <code>StoreLoad</code>；volatile 读操作：后插 <code>LoadLoad</code> 和 <code>LoadStore</code>。</p>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

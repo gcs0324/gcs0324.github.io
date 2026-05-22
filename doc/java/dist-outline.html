@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分布式系统 — 专题导航</title>
+<style>
+:root{--accent-color:var(--purple);--accent-bg:var(--purple-bg);--accent-b:var(--purple-b)}
+.hero{background:linear-gradient(135deg,var(--purple-bg) 0%,var(--bg) 60%);border-bottom:1px solid var(--bd);padding:48px 28px 36px}
+.hero-inner{max-width:960px;margin:0 auto}
+.hero h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+.hero p{color:var(--tx2);font-size:1rem;max-width:640px}
+.stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;text-align:center}
+.stat-num{font-size:1.4rem;font-weight:700;color:var(--purple)}
+.stat-label{font-size:.75rem;color:var(--tx2)}
+main{max-width:960px;margin:36px auto;padding:0 28px 60px}
+.section-title{font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--tx)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:40px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:20px;transition:border-color .2s,box-shadow .2s;cursor:pointer}
+.card:hover{border-color:var(--purple);box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.card-num{font-size:.72rem;font-weight:700;color:var(--purple);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:8px}
+.card-desc{font-size:.82rem;color:var(--tx2);margin-bottom:14px;line-height:1.5}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.72rem;background:var(--purple-bg);color:var(--purple);border-radius:4px;padding:2px 8px}
+.card-link{display:inline-block;margin-top:14px;font-size:.82rem;font-weight:600;color:var(--purple)}
+.interview-card{grid-column:1/-1;background:linear-gradient(135deg,var(--yellow-bg),var(--bg2));border-color:var(--yellow)}
+.interview-card .card-num{color:var(--yellow)}
+.interview-card .card-link{color:var(--yellow)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dist.js"></script>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>分布式系统专题</h1>
+    <p>从 CAP/BASE 到 Paxos/Raft 共识算法，吃透 2PC/TCC/Saga 分布式事务，掌握 Redis/ZK 分布式锁与雪花算法 —— 高级 Java 工程师绕不开的分布式硬核知识。</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">章节</div></div>
+      <div class="stat"><div class="stat-num">26</div><div class="stat-label">小节</div></div>
+      <div class="stat"><div class="stat-num">~150</div><div class="stat-label">分钟</div></div>
+      <div class="stat"><div class="stat-num">32</div><div class="stat-label">面试题</div></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="section-title">📚 章节目录</div>
+  <div class="cards">
+    <div class="card" onclick="location.href='dist-01-theory.html'">
+      <div class="card-num">Chapter 01</div>
+      <div class="card-title">理论基础</div>
+      <div class="card-desc">分布式 8 大谬误、CAP / BASE、一致性模型谱系、Paxos / Raft / ZAB / Gossip 共识算法，拜占庭容错</div>
+      <div class="card-tags"><span class="tag">CAP</span><span class="tag">Raft</span><span class="tag">Paxos</span><span class="tag">一致性</span></div>
+      <a class="card-link" href="dist-01-theory.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='dist-02-transaction.html'">
+      <div class="card-num">Chapter 02</div>
+      <div class="card-title">分布式事务</div>
+      <div class="card-desc">2PC / 3PC / XA、TCC、Saga（编排 vs 协调）、本地消息表、MQ 事务消息、Seata 四种模式，方案选型矩阵</div>
+      <div class="card-tags"><span class="tag">2PC</span><span class="tag">TCC</span><span class="tag">Saga</span><span class="tag">Seata</span></div>
+      <a class="card-link" href="dist-02-transaction.html">开始学习 →</a>
+    </div>
+    <div class="card" onclick="location.href='dist-03-lock-id.html'">
+      <div class="card-num">Chapter 03</div>
+      <div class="card-title">分布式锁 &amp; 分布式 ID</div>
+      <div class="card-desc">DB / Redis / ZK / etcd 锁实现，Redlock 争议，Redisson 看门狗；UUID / 号段 / 雪花算法 / Leaf 时钟回拨方案</div>
+      <div class="card-tags"><span class="tag">Redis 锁</span><span class="tag">Redlock</span><span class="tag">Snowflake</span><span class="tag">Leaf</span></div>
+      <a class="card-link" href="dist-03-lock-id.html">开始学习 →</a>
+    </div>
+    <div class="card interview-card" onclick="location.href='dist-04-interview.html'">
+      <div class="card-num">🎯 Interview</div>
+      <div class="card-title">分布式系统面试题 — 左侧分类导航</div>
+      <div class="card-desc">32 道高频面试题，覆盖理论基础、分布式事务、分布式锁、分布式 ID、综合实战五大分类，含代码与对比表格</div>
+      <div class="card-tags"><span class="tag">32题</span><span class="tag">5分类</span><span class="tag">高频</span></div>
+      <a class="card-link" href="dist-04-interview.html">进入面试题 →</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

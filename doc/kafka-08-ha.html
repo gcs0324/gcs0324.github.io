@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 08 · 高性能与高可用设计</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'PERF';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.note.bad{background:#fff0f0;border:1px solid #f5b8b8;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.bad  .nlbl{color:var(--red);background:var(--red-bg);border-color:var(--red-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:middle;display:inline-block;}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0;}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd);}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto;}
+.dg-cluster{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5;}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5;}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5;}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5;}
+.dg-box-p{fill:var(--pur-bg);stroke:var(--pur-b);stroke-width:1.5;}
+.dg-box-y{fill:var(--yel-bg);stroke:var(--yel-b);stroke-width:1.5;}
+.dg-t  {fill:var(--tx); font-family:'Inter',sans-serif;}
+.dg-t2 {fill:var(--tx2);font-family:'Inter',sans-serif;}
+.dg-t3 {fill:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace;}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace;}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace;}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace;}
+.dg-ln     {stroke:var(--bd2);stroke-width:1.5;fill:none;}
+.dg-ln-d   {stroke:var(--bd2);stroke-width:1;fill:none;stroke-dasharray:4 3;}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px;}.g2,.g3{grid-template-columns:1fr;}.phase-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAFKA · 08 · PERFORMANCE &amp; HA</div>
+  <h1>高性能与高可用设计</h1>
+  <p class="subtitle">顺序写 · Page Cache · 零拷贝 · Reactor 模型 · ISR · 双活灾备</p>
+</header>
+
+<nav>
+  <a href="#three-pillars">三驾马车</a>
+  <a href="#batch-compress">批量 &amp; 压缩</a>
+  <a href="#reactor">Reactor 模型</a>
+  <a href="#ha-replica">多副本 ISR</a>
+  <a href="#min-isr">min.insync 解析</a>
+  <a href="#recovery">宕机恢复</a>
+  <a href="#cross-dc">跨机房双活</a>
+  <a href="#interview">面试速答</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #three-pillars                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="three-pillars">01 · 高性能三驾马车原理串联</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">三驾马车综合示意 — Producer 写入 → Broker 处理 → Consumer 拉取</div>
+  <div class="diag-body">
+    <svg width="760" height="220" viewBox="0 0 760 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Producer -->
+      <rect x="10" y="70" width="110" height="80" rx="8" class="dg-box-b"/>
+      <text x="65" y="106" text-anchor="middle" font-size="12" font-weight="600" class="dg-t">Producer</text>
+      <text x="65" y="122" text-anchor="middle" font-size="10" class="dg-t2">RecordBatch</text>
+      <text x="65" y="136" text-anchor="middle" font-size="10" class="dg-t3">batch.size / linger.ms</text>
+
+      <!-- Arrow Producer -> Broker -->
+      <line x1="120" y1="110" x2="160" y2="110" class="dg-ln"/>
+      <polygon points="160,106 168,110 160,114" fill="var(--tx3)"/>
+      <text x="140" y="104" text-anchor="middle" font-size="9" class="dg-t3">write</text>
+
+      <!-- Broker box -->
+      <rect x="168" y="20" width="400" height="180" rx="8" class="dg-cluster"/>
+      <text x="368" y="38" text-anchor="middle" font-size="10" font-weight="600" class="dg-t3">BROKER</text>
+
+      <!-- Page Cache (OS Cache) - blue -->
+      <rect x="184" y="50" width="368" height="50" rx="6" class="dg-box-b"/>
+      <text x="368" y="72" text-anchor="middle" font-size="12" font-weight="600" class="dg-blue">OS Page Cache</text>
+      <text x="368" y="88" text-anchor="middle" font-size="10" class="dg-t2">消息写入即进 Page Cache，OS 异步刷盘，JVM 不参与缓存</text>
+
+      <!-- Disk (Append Only) - green -->
+      <rect x="184" y="118" width="160" height="68" rx="6" class="dg-box-g"/>
+      <text x="264" y="148" text-anchor="middle" font-size="12" font-weight="600" class="dg-green">磁盘日志</text>
+      <text x="264" y="164" text-anchor="middle" font-size="10" class="dg-t2">Append Only</text>
+      <text x="264" y="178" text-anchor="middle" font-size="10" class="dg-green">顺序写 600MB/s</text>
+
+      <!-- Arrow PageCache -> Disk -->
+      <line x1="264" y1="100" x2="264" y2="118" class="dg-ln"/>
+      <polygon points="260,118 264,126 268,118" fill="var(--tx3)"/>
+      <text x="282" y="112" font-size="9" class="dg-t3">async flush</text>
+
+      <!-- Network Card - orange -->
+      <rect x="380" y="118" width="172" height="68" rx="6" class="dg-box-o"/>
+      <text x="466" y="148" text-anchor="middle" font-size="12" font-weight="600" class="dg-orange">网卡 NIC</text>
+      <text x="466" y="164" text-anchor="middle" font-size="10" class="dg-t2">sendfile()</text>
+      <text x="466" y="178" text-anchor="middle" font-size="10" class="dg-orange">零拷贝  0 CPU copy</text>
+
+      <!-- Arrow PageCache -> NIC (zero-copy) -->
+      <path d="M 466 100 L 466 118" class="dg-ln" stroke="var(--orange)" stroke-width="2"/>
+      <polygon points="462,118 466,126 470,118" fill="var(--orange)"/>
+      <text x="480" y="112" font-size="9" class="dg-orange">sendfile</text>
+
+      <!-- Arrow NIC -> Consumer -->
+      <line x1="568" y1="152" x2="620" y2="152" class="dg-ln"/>
+      <polygon points="620,148 628,152 620,156" fill="var(--tx3)"/>
+
+      <!-- Consumer -->
+      <rect x="628" y="112" width="110" height="80" rx="8" class="dg-box-g"/>
+      <text x="683" y="148" text-anchor="middle" font-size="12" font-weight="600" class="dg-t">Consumer</text>
+      <text x="683" y="164" text-anchor="middle" font-size="10" class="dg-t2">poll()</text>
+      <text x="683" y="178" text-anchor="middle" font-size="10" class="dg-green">从 Cache 直读</text>
+
+      <!-- Write arrow from Producer to PageCache -->
+      <path d="M 120 100 Q 148 80 184 75" class="dg-ln" stroke="var(--blue)" stroke-width="1.5"/>
+      <polygon points="180,71 188,74 182,79" fill="var(--blue)"/>
+    </svg>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--green);">01 · 顺序写</div>
+    <div class="phase-title" style="color:var(--tx);">Append-Only 日志</div>
+    <ul class="phase-items">
+      <li>磁盘顺序写吞吐 <strong>600MB/s</strong>，随机写仅 100MB/s</li>
+      <li>Partition 日志只追加不修改，天然适配顺序 IO</li>
+      <li>OS 对顺序 IO 有 <strong>预读（readahead）</strong>优化，进一步提速</li>
+      <li>无需 B-Tree 索引维护，写放大极低</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--blue);">02 · Page Cache</div>
+    <div class="phase-title" style="color:var(--tx);">OS 托管内存层</div>
+    <ul class="phase-items">
+      <li>Broker 写入只写 OS Page Cache，<strong>异步刷盘</strong>，写入即返回</li>
+      <li>Consumer 读取先查 Page Cache，命中则 <strong>零延迟</strong>（纯内存读）</li>
+      <li>Kafka 故意不在 JVM 堆缓存消息，避免 GC 停顿影响延迟</li>
+      <li>OS 负责 Cache 淘汰（LRU），比应用层更高效</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="phase-tag" style="color:var(--orange);">03 · 零拷贝</div>
+    <div class="phase-title" style="color:var(--tx);">sendfile 系统调用</div>
+    <ul class="phase-items">
+      <li>Page Cache → 网卡仅 <strong>2 次 DMA 拷贝，0 次 CPU 拷贝</strong></li>
+      <li>传统路径：4 次拷贝（2 CPU + 2 DMA），涉及用户空间切换</li>
+      <li>减少约 <strong>50% 数据搬运</strong>，CPU 占用显著降低</li>
+      <li>DMA 直接操作内存，CPU 全程不参与数据复制</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #batch-compress                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="batch-compress">02 · 批量读写与消息压缩</div>
+
+<div class="g2">
+  <!-- 批量发送 -->
+  <div class="fw c-o">
+    <div class="fwh">
+      <span class="fwb">BATCH</span>
+      <span class="fwt">批量发送</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl">
+          <div class="sn">1</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">RecordBatch 打包</div>
+          <div class="sd">Producer 将多条消息打包成 RecordBatch，由 <code>batch.size</code>（容量上限）和 <code>linger.ms</code>（等待时间上限）共同控制触发条件。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">2</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">一次请求多条消息</div>
+          <div class="sd">一个网络请求携带一个或多个 RecordBatch，大幅降低请求次数和连接开销。<strong>量化</strong>：单条发送 QPS 约 5~10 万/s，批量后可达 100~200 万/s，提升 10~20 倍。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">3</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">推荐均衡配置</div>
+          <div class="sd"><code>linger.ms=5</code> + <code>batch.size=65536</code>（64KB）是常见的均衡配置，兼顾吞吐与延迟。高吞吐场景可调大 <code>batch.size=1048576</code>（1MB）。</div>
+          <div class="sc"><span class="cm"># Producer 关键配置</span>
+batch.size=65536
+linger.ms=5
+buffer.memory=67108864</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 消息压缩 -->
+  <div class="fw c-p">
+    <div class="fwh">
+      <span class="fwb">COMPRESS</span>
+      <span class="fwt">消息压缩</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="sl">
+          <div class="sn">1</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">批粒度压缩</div>
+          <div class="sd">压缩在 <strong>RecordBatch 粒度</strong>进行（一批压缩），比逐条压缩效率高得多，压缩比也更高（重复字段可跨消息去重）。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">2</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">Producer 压缩，Consumer 解压</div>
+          <div class="sd">压缩在 Producer 端完成，<strong>Broker 存储压缩数据</strong>（不解压），Consumer 拉取后解压。Broker 几乎不承担压缩 CPU 开销。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sl">
+          <div class="sn">3</div>
+          <div class="sline"></div>
+        </div>
+        <div class="sb">
+          <div class="st">算法对比</div>
+          <div class="sd">根据场景选择合适的压缩算法：</div>
+          <div class="tbl-wrap" style="margin-top:8px;">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>算法</th>
+                  <th>压缩比</th>
+                  <th>速度</th>
+                  <th>CPU</th>
+                  <th>推荐场景</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>none</td>
+                  <td>1x</td>
+                  <td>—</td>
+                  <td>无</td>
+                  <td>低延迟优先，消息本身已压缩</td>
+                </tr>
+                <tr>
+                  <td>gzip</td>
+                  <td>3~5x</td>
+                  <td>慢</td>
+                  <td>高</td>
+                  <td>带宽受限，CPU 充足</td>
+                </tr>
+                <tr>
+                  <td>snappy</td>
+                  <td>2~3x</td>
+                  <td>快</td>
+                  <td>低</td>
+                  <td>均衡选择（Google 推荐）</td>
+                </tr>
+                <tr>
+                  <td>lz4</td>
+                  <td>2~3x</td>
+                  <td>极快</td>
+                  <td>极低</td>
+                  <td>生产推荐，Kafka 默认支持</td>
+                </tr>
+                <tr>
+                  <td>zstd</td>
+                  <td>3~5x</td>
+                  <td>中</td>
+                  <td>中</td>
+                  <td>高压缩比且速度优于 gzip（Kafka 2.1+）</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #reactor                                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="reactor">03 · Reactor 网络模型</div>
+
+<div class="diag-wrap">
+  <div class="diag-cap">Kafka Broker 网络线程模型 — Acceptor / Processor / Handler 三层分工</div>
+  <div class="diag-body">
+    <svg width="720" height="200" viewBox="0 0 720 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Clients -->
+      <rect x="10" y="30" width="90" height="30" rx="5" class="dg-box"/>
+      <text x="55" y="50" text-anchor="middle" font-size="11" class="dg-t">Producer</text>
+      <rect x="10" y="75" width="90" height="30" rx="5" class="dg-box"/>
+      <text x="55" y="95" text-anchor="middle" font-size="11" class="dg-t">Consumer</text>
+      <rect x="10" y="120" width="90" height="30" rx="5" class="dg-box"/>
+      <text x="55" y="140" text-anchor="middle" font-size="11" class="dg-t">Consumer</text>
+
+      <!-- Arrows to Acceptor -->
+      <line x1="100" y1="45" x2="140" y2="90" class="dg-ln"/>
+      <line x1="100" y1="90" x2="140" y2="90" class="dg-ln"/>
+      <line x1="100" y1="135" x2="140" y2="90" class="dg-ln"/>
+      <polygon points="136,87 144,90 136,93" fill="var(--tx3)"/>
+
+      <!-- Acceptor -->
+      <rect x="144" y="72" width="88" height="36" rx="6" class="dg-box-b"/>
+      <text x="188" y="87" text-anchor="middle" font-size="11" font-weight="600" class="dg-blue">Acceptor</text>
+      <text x="188" y="101" text-anchor="middle" font-size="9" class="dg-t3">1 thread</text>
+
+      <!-- Arrow Acceptor -> Processors -->
+      <line x1="232" y1="90" x2="268" y2="70" class="dg-ln"/>
+      <line x1="232" y1="90" x2="268" y2="90" class="dg-ln"/>
+      <line x1="232" y1="90" x2="268" y2="110" class="dg-ln"/>
+
+      <!-- Processors -->
+      <rect x="268" y="55" width="110" height="30" rx="5" class="dg-box-g"/>
+      <text x="323" y="70" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">Processor-0</text>
+      <text x="323" y="82" text-anchor="middle" font-size="9" class="dg-t3">NIO Selector</text>
+
+      <rect x="268" y="92" width="110" height="30" rx="5" class="dg-box-g"/>
+      <text x="323" y="107" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">Processor-1</text>
+      <text x="323" y="119" text-anchor="middle" font-size="9" class="dg-t3">NIO Selector</text>
+
+      <rect x="268" y="129" width="110" height="30" rx="5" class="dg-box-g"/>
+      <text x="323" y="144" text-anchor="middle" font-size="10" font-weight="600" class="dg-green">Processor-N</text>
+      <text x="323" y="156" text-anchor="middle" font-size="9" class="dg-t3">num.network.threads=8</text>
+
+      <!-- Arrows to RequestChannel -->
+      <line x1="378" y1="70" x2="420" y2="90" class="dg-ln"/>
+      <line x1="378" y1="107" x2="420" y2="100" class="dg-ln"/>
+      <line x1="378" y1="144" x2="420" y2="110" class="dg-ln"/>
+
+      <!-- RequestChannel -->
+      <rect x="420" y="74" width="110" height="46" rx="6" class="dg-box-o"/>
+      <text x="475" y="93" text-anchor="middle" font-size="11" font-weight="600" class="dg-orange">Request</text>
+      <text x="475" y="108" text-anchor="middle" font-size="11" font-weight="600" class="dg-orange">Channel</text>
+
+      <!-- Arrows to Handlers -->
+      <line x1="530" y1="90" x2="568" y2="70" class="dg-ln"/>
+      <line x1="530" y1="97" x2="568" y2="97" class="dg-ln"/>
+      <line x1="530" y1="104" x2="568" y2="120" class="dg-ln"/>
+
+      <!-- Handlers -->
+      <rect x="568" y="55" width="130" height="30" rx="5" class="dg-box-p"/>
+      <text x="633" y="70" text-anchor="middle" font-size="10" font-weight="600" class="dg-t" style="fill:var(--purple);">Handler-0</text>
+      <text x="633" y="82" text-anchor="middle" font-size="9" class="dg-t3">磁盘读写 / 日志追加</text>
+
+      <rect x="568" y="82" width="130" height="30" rx="5" class="dg-box-p"/>
+      <text x="633" y="97" text-anchor="middle" font-size="10" font-weight="600" style="fill:var(--purple);" class="dg-t">Handler-M</text>
+      <text x="633" y="109" text-anchor="middle" font-size="9" class="dg-t3">num.io.threads=16</text>
+
+      <rect x="568" y="109" width="130" height="30" rx="5" class="dg-box-p"/>
+      <text x="633" y="124" text-anchor="middle" font-size="10" font-weight="600" style="fill:var(--purple);" class="dg-t">Handler...</text>
+      <text x="633" y="136" text-anchor="middle" font-size="9" class="dg-t3">响应 → ResponseQueue</text>
+
+      <!-- Labels -->
+      <text x="188" y="168" text-anchor="middle" font-size="9" class="dg-t3">Round-Robin 分配</text>
+      <text x="323" y="172" text-anchor="middle" font-size="9" class="dg-t3">只做网络 IO</text>
+      <text x="633" y="155" text-anchor="middle" font-size="9" class="dg-t3">业务逻辑瓶颈所在</text>
+    </svg>
+  </div>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh">
+    <span class="fwb">REACTOR</span>
+    <span class="fwt">三层线程模型详解</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Acceptor — 单线程连接分发</div>
+        <div class="sd">唯一的 Acceptor 线程负责 <code>accept()</code> 新连接，通过 <strong>Round-Robin</strong> 将连接分配给各 Processor。Acceptor 不做任何 IO 操作，只负责连接分发，永远不会成为瓶颈。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Processor — NIO 多路复用网络 IO</div>
+        <div class="sd">每个 Processor 线程通过 <strong>NIO Selector</strong> 同时管理多个客户端连接，只负责网络读写和请求解析，不做任何业务逻辑。解析完的请求放入 RequestChannel，收到响应后发回客户端。默认 <code>num.network.threads=8</code>，网络密集场景可适当调大。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">KafkaRequestHandler — 业务处理线程</div>
+        <div class="sd">从 RequestChannel 取请求，执行实际的磁盘读写、日志追加等业务逻辑，是 <strong>性能瓶颈所在</strong>。响应写回 Processor 的 ResponseQueue。建议线程数 = 磁盘数 × 2（IO 密集型），配置项 <code>num.io.threads=16</code>。</div>
+        <div class="sc"><span class="cm"># server.properties 核心线程配置</span>
+num.network.threads=8    <span class="cm"># Processor 数量</span>
+num.io.threads=16        <span class="cm"># Handler 数量，建议 = 磁盘数×2</span>
+queued.max.requests=500  <span class="cm"># RequestChannel 最大队列长度</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #ha-replica                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="ha-replica">04 · 多副本 + ISR 高可用</div>
+
+<div class="fw c-t">
+  <div class="fwh">
+    <span class="fwb">ISR · HA</span>
+    <span class="fwt">多副本高可用配置与策略</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">基础配置三件套</div>
+        <div class="sd"><code>replication.factor=3</code>（3 副本）、<code>min.insync.replicas=2</code>、<code>acks=-1</code>。这三个参数的<strong>组合才是真正的高可用保障</strong>，单独配置任何一项都不够。</div>
+        <div class="sc"><span class="cm"># Topic 级别配置</span>
+replication.factor=3
+min.insync.replicas=2
+
+<span class="cm"># Producer 配置</span>
+acks=-1  (all)</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">故障容忍能力</div>
+        <div class="sd">3 副本可容忍 <strong>1 个 Broker 宕机</strong>（ISR 还剩 2 个，满足 min.insync.replicas=2），消息不丢、服务不中断。2 个 Broker 同时宕机时写入失败（但已有数据不丢，不会丢消息）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">副本分布策略</div>
+        <div class="sd">Kafka 自动将 Partition 的不同副本分配到不同 Broker。建议配置<strong>机架感知</strong>（<code>broker.rack</code>），确保副本跨机架分布，抵御整机架故障。新增 Broker 后执行 <code>kafka-reassign-partitions.sh</code> 重新均衡。</div>
+        <div class="sc"><span class="cm"># broker.rack 配置（每个 Broker 节点设置）</span>
+broker.rack=rack-1    <span class="cm"># Broker1</span>
+broker.rack=rack-2    <span class="cm"># Broker2</span>
+broker.rack=rack-3    <span class="cm"># Broker3</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">核心监控指标</div>
+        <div class="sd">持续监控以下指标，任何异常立即告警：
+          <br><strong>UnderReplicatedPartitions</strong> &gt; 0：有 Partition 副本不足，紧急处理
+          <br><strong>IsrShrinksPerSec</strong>：ISR 收缩频率，频繁收缩说明 Follower 追不上
+          <br><strong>IsrExpandsPerSec</strong>：ISR 扩展频率，应与收缩频率基本持平（健康状态）
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #min-isr                                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="min-isr">05 · min.insync.replicas 深度解析</div>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>配置组合</th>
+        <th>数据可靠性</th>
+        <th>可用性</th>
+        <th>说明</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>acks=1（不配置 min.isr）</td>
+        <td><span class="badge c-o" style="background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);">中</span></td>
+        <td><span class="badge c-g" style="background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);">高</span></td>
+        <td>Leader 写入即 ACK，Follower 未同步时 Leader 宕机则<strong>丢数据</strong></td>
+      </tr>
+      <tr>
+        <td>acks=-1 + min.isr=1</td>
+        <td><span class="badge c-o" style="background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);">中</span></td>
+        <td><span class="badge c-g" style="background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);">高</span></td>
+        <td>等同于 acks=1，ISR 只剩 Leader 时仍然 ACK，<strong>无保护</strong></td>
+      </tr>
+      <tr>
+        <td>acks=-1 + min.isr=2 + rf=3</td>
+        <td><span class="badge c-g" style="background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);">高</span></td>
+        <td><span class="badge c-o" style="background:var(--ora-bg);color:var(--orange);border-color:var(--ora-b);">中</span></td>
+        <td><strong>真正的高可靠配置</strong>，同时宕机 2 个 Broker 时写入失败（保护数据）</td>
+      </tr>
+      <tr>
+        <td>acks=-1 + min.isr=3 + rf=3</td>
+        <td><span class="badge c-g" style="background:var(--grn-bg);color:var(--green);border-color:var(--grn-b);">极高</span></td>
+        <td><span class="badge c-r" style="background:var(--red-bg);color:var(--red);border-color:var(--red-b);">低</span></td>
+        <td>任一 Broker 异常即写入失败，<strong>可用性过低，不推荐</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="note good">
+  <span class="nlbl">BEST PRACTICE</span>
+  <p><strong>黄金配置</strong>：<code>replication.factor=3</code> + <code>min.insync.replicas=2</code> + <code>acks=-1</code>，在可靠性和可用性之间取得最佳平衡。这是生产环境核心 Topic 的标配。同时建议设置 <code>unclean.leader.election.enable=false</code>，防止非 ISR 成员被选为 Leader 导致数据丢失。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #recovery                                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="recovery">06 · Broker 宕机恢复流程</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">RECOVERY</span>
+    <span class="fwt">Broker 宕机到完全恢复的完整流程</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">宕机检测</div>
+        <div class="sd">Controller 通过 <strong>ZooKeeper Session 超时</strong>（默认 30s）或心跳超时检测到 Broker 宕机。KRaft 模式（Kafka 3.3+）通过 Raft 心跳机制检测，无需 ZooKeeper，检测速度更快（通常 &lt;10s）。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Leader 切换</div>
+        <div class="sd">Controller 为该 Broker 上所有 Partition（担任 Leader 的）从 <strong>ISR 中选举新 Leader</strong>，批量发送 <code>LeaderAndIsrRequest</code> 给存活 Broker 通知 Leader 变更。整个过程通常在 <strong>数秒内</strong>完成（Partition 数量越多耗时越长）。</div>
+        <div class="sc"><span class="cm"># 查看 Controller 当前状态</span>
+kafka-metadata-quorum.sh --bootstrap-server :9092 describe --status</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">客户端感知新 Leader</div>
+        <div class="sd">Producer/Consumer 遇到请求失败（<code>NotLeaderOrFollowerException</code>）后，通过 <code>metadata.max.age.ms</code>（默认 5min，建议调小到 30s）触发元数据刷新，获取新的 Partition Leader 信息，<strong>自动重连到新 Leader</strong> 继续工作，无需人工干预。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">宕机 Broker 恢复</div>
+        <div class="sd">Broker 重启后，以 <strong>Follower 身份</strong>重新加入集群，向新 Leader 发送 Fetch 请求追赶数据（Catch-up）。追上 HW（High Watermark）后重新加入 ISR，此时 <code>IsrExpandsPerSec</code> 指标会出现一次增长。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">5</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Preferred Leader 选举（恢复均衡）</div>
+        <div class="sd">Broker 恢复后，集群可能处于非均衡状态（原 Preferred Leader 已变成 Follower）。<code>auto.leader.rebalance.enable=true</code>（默认开启）会定期（<code>leader.imbalance.check.interval.seconds=300</code>）触发 Preferred Leader 选举，<strong>恢复均衡分布</strong>，避免热点。</div>
+        <div class="sc"><span class="cm"># 手动触发 Preferred Leader 选举</span>
+kafka-leader-election.sh --bootstrap-server :9092 \
+  --election-type preferred --all-topic-partitions</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #cross-dc                                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="cross-dc">07 · 跨机房双活 / 灾备方案</div>
+
+<div class="g2">
+  <!-- 主备模式 -->
+  <div class="ovc c-b">
+    <div class="ovh">
+      <div class="ovtag">主备模式</div>
+      <div class="ovname">Active-Standby</div>
+      <div class="ovsub">一主一备，MirrorMaker 2 异步同步，故障时 DNS 切换</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li><strong>主机房</strong>：正常处理所有流量，Producer/Consumer 全部连接主集群</li>
+        <li><strong>备机房</strong>：通过 MirrorMaker 2 异步同步数据（延迟 100ms~秒级）</li>
+        <li><strong>故障切换</strong>：DNS 切换到备机房，Consumer 通过 <code>RemoteClusterUtils.translateOffsets()</code> 恢复 Offset</li>
+        <li><strong>RPO</strong>：秒级（可能丢失最近几秒的数据）</li>
+        <li><strong>RTO</strong>：分钟级（DNS 生效 + Consumer 重启时间）</li>
+        <li><strong>缺点</strong>：切换有延迟，可能重复消费或少量丢失；备机房资源利用率低</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 双活模式 -->
+  <div class="ovc c-g">
+    <div class="ovh">
+      <div class="ovtag">双活模式</div>
+      <div class="ovname">Active-Active</div>
+      <div class="ovsub">两机房各自处理流量，双向 MirrorMaker 2 同步</div>
+    </div>
+    <div class="ovbody">
+      <ul>
+        <li><strong>架构</strong>：两机房各部署独立 Kafka 集群，各自处理部分流量（按用户 / 请求路由）</li>
+        <li><strong>同步</strong>：双向 MirrorMaker 2 同步，需用 Topic <strong>前缀过滤</strong>避免无限循环（如 <code>dc1.</code> 前缀的 Topic 不回同步到 dc1）</li>
+        <li><strong>优点</strong>：无单点故障，任一机房故障另一个接管，资源利用率高</li>
+        <li><strong>挑战</strong>：消息可能在两机房重复，下游需<strong>幂等处理</strong></li>
+        <li><strong>挑战</strong>：跨机房写入延迟高（通常 10~50ms RTT）</li>
+        <li><strong>RPO</strong>：准零（同步延迟内）</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="fw c-y">
+  <div class="fwh">
+    <span class="fwb">FAILOVER</span>
+    <span class="fwt">机房切换注意事项</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Offset 映射</div>
+        <div class="sd">源集群和目标集群的 Offset <strong>不同</strong>（MirrorMaker 2 不保证 Offset 一致）。使用 MM2 的 <strong>Checkpoint 文件</strong>（<code>__consumer_offsets</code> 中的映射记录）做 Offset 转换，确保从正确位置开始消费。</div>
+        <div class="sc"><span class="cm"># 使用 MM2 工具查询 Offset 映射</span>
+RemoteClusterUtils.translateOffsets(adminClient, "source-cluster", groupId, timeout)</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Consumer Group 迁移</div>
+        <div class="sd">告知 Consumer 连接<strong>新集群的 bootstrap.servers</strong>，并从映射后的 Offset 开始消费（不能直接 seek 到旧 Offset，需先 translate）。建议提前在目标集群创建好相同的 Consumer Group。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Schema 兼容</div>
+        <div class="sd">确保两端的 <strong>Schema Registry 同步</strong>（或共用同一个），避免切换后反序列化失败。如果是 Avro/Protobuf 消息，Schema ID 在两个集群中必须一致。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">监控双集群</div>
+        <div class="sd">两个集群都需要完整的监控体系（JMX + Prometheus + Grafana），切换后重点验证：<strong>Consumer Lag 是否正常下降</strong>、吞吐是否恢复到预期水平、是否有大量重复消费（幂等性验证）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- #interview                                                 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="sec" id="interview">08 · 面试速答（系统设计题）</div>
+
+<div class="fw c-r">
+  <div class="fwh">
+    <span class="fwb">INTERVIEW</span>
+    <span class="fwt">4 道高频系统设计面试题</span>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q1</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Kafka 为什么能实现百万级 TPS？</div>
+        <div class="sd">五个维度逐一回答：
+          <br><strong>① 顺序写</strong>：磁盘顺序写 600MB/s，接近内存随机写，Append-Only 设计避免寻址开销
+          <br><strong>② Page Cache</strong>：写入即写内存，OS 异步刷盘，完全不受 JVM GC 影响
+          <br><strong>③ 零拷贝</strong>：sendfile 系统调用，0 次 CPU 拷贝，2 次 DMA 拷贝，减少 50% 数据搬运
+          <br><strong>④ 批量处理</strong>：RecordBatch 批量发送，减少 10~20 倍网络请求次数
+          <br><strong>⑤ 分区并行</strong>：多 Partition 线性扩展，多 Consumer 并行消费，横向扩展能力强
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q2</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">如何保证 Kafka 消息不丢失？三端分析</div>
+        <div class="sd">
+          <strong>Producer 端</strong>：<code>acks=-1</code> + 异常处理（Callback 中捕获失败并重试）+ 幂等重试（<code>enable.idempotence=true</code>）
+          <br><strong>Broker 端</strong>：<code>replication.factor=3</code> + <code>min.insync.replicas=2</code> + <code>unclean.leader.election.enable=false</code>（禁止脏选举）
+          <br><strong>Consumer 端</strong>：关闭自动提交（<code>enable.auto.commit=false</code>），先处理消息再手动提交 Offset，业务逻辑幂等
+          <br><br>三端缺一不可，<strong>最容易忽视的是 Consumer 端的幂等设计</strong>（先提交再处理 = 可能丢消息，先处理再提交 = 可能重复消费，需业务幂等兜底）。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q3</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">设计一个支持 100 万 TPS 的 Kafka 集群，如何规划？</div>
+        <div class="sd">
+          <strong>分区规划</strong>：单分区写入约 10~20MB/s（100 字节消息约 10~20 万/s），100 万/s 需要约 5~10 个分区。考虑冗余和扩展性，设 <strong>50~100 个分区</strong>（过多分区会增加 Controller 和 ZooKeeper 负担）
+          <br><strong>Broker 规模</strong>：每个 Broker 约 100~200MB/s 吞吐，replication.factor=3 下实际写入约 300MB/s（100 万/s × 100 字节 × 3 副本 = 300MB/s），需要约 <strong>10 个 Broker</strong>（每个承载 30MB/s，留有余量）
+          <br><strong>硬件规格</strong>：每个 Broker 配 12 核 CPU、64GB 内存、RAID10 SSD 或多块独立 HDD（建议 JBOD 模式）
+          <br><strong>网络</strong>：万兆网卡（10GbE），避免网络成为瓶颈（300MB/s 复制流量 × 节点数）
+        </div>
+        <div class="sc"><span class="cm"># 容量估算公式</span>
+每秒总字节 = 消息数/s × 平均消息大小 × replication.factor
+所需 Broker 数 = 每秒总字节 / 单 Broker 吞吐上限 × 安全系数(1.5)</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sl">
+        <div class="sn">Q4</div>
+        <div class="sline"></div>
+      </div>
+      <div class="sb">
+        <div class="st">Broker 磁盘打满了怎么紧急处理？</div>
+        <div class="sd">
+          <strong>① 立即定位</strong>：<code>du -sh /data/kafka-logs/*/</code> 找出占用最大的 Topic 目录
+          <br><strong>② 触发快速清理</strong>：临时减小该 Topic 的 <code>log.retention.hours</code> 或 <code>log.retention.bytes</code>，触发快速清理（不需要重启 Broker，热更新生效）
+          <br><strong>③ 检查 Compaction</strong>：若有 Log Compaction Topic，检查 Cleaner 线程是否正常（<code>kafka-log-dirs.sh</code> 查看每个 Partition 的 Dirty ratio）
+          <br><strong>④ 紧急扩容</strong>：挂载新磁盘，在 <code>log.dirs</code> 中追加新路径（热更新），Kafka 会自动将新 Partition 分配到新磁盘
+          <br><strong>⑤ 长期方案</strong>：启用 Tiered Storage（Kafka 3.6+）将冷数据归档到对象存储（S3/OSS），本地只保留热数据
+        </div>
+        <div class="sc"><span class="cm"># 动态修改 Topic 保留策略（不需要重启）</span>
+kafka-configs.sh --bootstrap-server :9092 \
+  --entity-type topics --entity-name my-topic \
+  --alter --add-config retention.ms=3600000  <span class="cm"># 改为 1 小时</span>
+
+<span class="cm"># 追加新磁盘（热更新，修改后 SIGHUP 或等待配置刷新）</span>
+log.dirs=/data/kafka-logs1,/data/kafka-logs2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

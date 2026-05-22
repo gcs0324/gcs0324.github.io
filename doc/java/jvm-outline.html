@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JVM 学习大纲 · 目录结构</title>
+<style>
+h1{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.subtitle{font-size:13px;color:var(--tx2);margin-bottom:32px}
+
+/* ── chapter card ── */
+.ch-card{border:1px solid var(--bd);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.ch-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;flex-shrink:0}
+.ch-title{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--tx);flex:1}
+.ch-file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+.ch-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 10px;text-decoration:none;flex-shrink:0;transition:opacity .15s}
+.ch-link:hover{opacity:.75}
+.ch-link.todo{color:var(--tx3);background:var(--bg);border-color:var(--bd);cursor:default;pointer-events:none}
+.ch-body{padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+/* ── section group ── */
+.sec-group{}
+.sec-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--tx3);text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bd)}
+.sec-list{list-style:none;display:flex;flex-direction:column;gap:3px}
+.sec-list li{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--tx2);line-height:1.5;padding:2px 0}
+.sec-list li::before{content:'·';color:var(--bd2);font-size:14px;flex-shrink:0;margin-top:1px}
+.sec-list li.anchor a{color:var(--tx2);text-decoration:none}
+.sec-list li.anchor a:hover{color:var(--blue)}
+.sec-list li strong{color:var(--tx);font-weight:600}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 4px}
+
+/* ── stats bar ── */
+.stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:var(--tx)}
+.stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.05em}
+
+/* ── progress ── */
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.progress-bar{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;border:1px solid var(--bd)}
+.progress-fill{height:100%;background:var(--blue);border-radius:3px;width:0%}
+.progress-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-jvm.js"></script>
+<main>
+  <h1>JVM · 学习大纲</h1>
+  <p class="subtitle">4 个文件 · 完整覆盖 JVM 内存 / GC / 类加载 / 高频面试题</p>
+
+  <!-- 统计 -->
+  <div class="stats">
+    <div class="stat"><span class="stat-val">4</span><span class="stat-lbl">FILES</span></div>
+    <div class="stat"><span class="stat-val">21</span><span class="stat-lbl">SECTIONS</span></div>
+    <div class="stat"><span class="stat-val">4 / 4</span><span class="stat-lbl">COMPLETED</span></div>
+    <div class="stat"><span class="stat-val">~120</span><span class="stat-lbl">MIN READ</span></div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-row">
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <span class="progress-txt">100% 完成</span>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH01  jvm-01-memory.html           -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch01">
+    <div class="ch-head">
+      <span class="ch-num">CH 01</span>
+      <span class="ch-title">JVM 内存模型与对象</span>
+      <span class="ch-file">jvm-01-memory.html</span>
+      <a class="ch-link" href="jvm-01-memory.html" target="_blank">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 运行时数据区</div>
+        <ul class="sec-list">
+          <li><strong>程序计数器</strong> — 线程私有，唯一无 OOM 区域</li>
+          <li><strong>JVM 虚拟机栈</strong> — 栈帧：局部变量表 / 操作数栈 / 动态链接 / 返回地址</li>
+          <li><strong>本地方法栈</strong> — Native 方法执行</li>
+          <li><strong>堆（Heap）</strong> — Eden / S0 / S1 / Old Gen 分代布局</li>
+          <li><strong>方法区 → 元空间</strong> — 类信息 / 运行时常量池 / 静态变量</li>
+          <li><strong>直接内存</strong> — NIO ByteBuffer，不受 -Xmx 限制</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 对象创建过程</div>
+        <ul class="sec-list">
+          <li>① 类加载检查</li>
+          <li>② 内存分配：指针碰撞 vs 空闲列表；<code>TLAB</code> 线程私有缓冲</li>
+          <li>③ 零值初始化</li>
+          <li>④ 设置对象头（Mark Word + Klass Pointer）</li>
+          <li>⑤ 执行 <code>&lt;init&gt;</code></li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 对象内存布局</div>
+        <ul class="sec-list">
+          <li><strong>对象头</strong> — Mark Word（锁标志 / GC 年龄 / hashCode）</li>
+          <li><strong>Klass Pointer</strong> — 指向方法区类元数据（开启压缩后 4 字节）</li>
+          <li><strong>实例数据</strong> — 字段按类型对齐排列</li>
+          <li><strong>对齐填充</strong> — 保证对象起始地址为 8 字节倍数</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 对象访问方式</div>
+        <ul class="sec-list">
+          <li><strong>句柄池</strong> — GC 移对象只改句柄，引用稳定</li>
+          <li><strong>直接指针</strong>（HotSpot 默认）— 少一次间接寻址，速度快</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">05 · OOM 类型与排查</div>
+        <ul class="sec-list">
+          <li><code>Java heap space</code> — 堆溢出，最常见</li>
+          <li><code>Metaspace</code> — 动态代理 / CGLib 生成类过多</li>
+          <li><code>StackOverflowError</code> — 递归无出口 / 栈帧过大</li>
+          <li><code>Direct buffer memory</code> — 堆外内存耗尽</li>
+          <li><code>GC overhead limit exceeded</code> — GC 时间占比 &gt;98%</li>
+          <li>排查工具：<code>jmap</code> / <code>jhat</code> / MAT / <code>jstack</code> / Arthas</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH02  jvm-02-gc.html               -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch02">
+    <div class="ch-head">
+      <span class="ch-num">CH 02</span>
+      <span class="ch-title">GC 算法与垃圾收集器</span>
+      <span class="ch-file">jvm-02-gc.html</span>
+      <a class="ch-link" href="jvm-02-gc.html" target="_blank">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 可达性分析</div>
+        <ul class="sec-list">
+          <li><strong>GC Roots</strong> — 栈变量 / 静态变量 / JNI 引用 / 同步锁对象</li>
+          <li>引用类型：强引用 &gt; 软引用 &gt; 弱引用 &gt; 虚引用</li>
+          <li><code>finalize()</code> 二次标记机制（了解即可）</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 基础 GC 算法</div>
+        <ul class="sec-list">
+          <li><strong>标记-清除</strong> — 碎片问题，适合老年代</li>
+          <li><strong>标记-复制</strong> — 新生代主流，空间利用率 50%</li>
+          <li><strong>标记-整理</strong> — 无碎片，但整理开销大</li>
+          <li><strong>分代收集</strong> — 新生代用复制，老年代用清除/整理</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 经典收集器</div>
+        <ul class="sec-list">
+          <li><strong>Serial / Serial Old</strong> — 单线程 STW，Client 模式</li>
+          <li><strong>ParNew</strong> — Serial 多线程版，配合 CMS</li>
+          <li><strong>Parallel Scavenge</strong> — 吞吐量优先，自适应调节</li>
+          <li><strong>CMS</strong> — 初始标记(STW) → 并发标记 → 重新标记(STW) → 并发清除</li>
+          <li>CMS 痛点：浮动垃圾 / 并发模式失败 / 碎片问题</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · G1 收集器（重点）</div>
+        <ul class="sec-list">
+          <li><strong>Region 设计</strong> — E / S / O / H 动态分配，不再固定分代区域</li>
+          <li><strong>SATB 写屏障</strong> — 快照保证并发标记正确性</li>
+          <li><strong>Remembered Set</strong> + Card Table — 跨 Region 引用追踪</li>
+          <li>GC 模式：Young GC / Mixed GC / Full GC / Concurrent Cycle</li>
+          <li><code>-XX:MaxGCPauseMillis</code> 停顿预测模型</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">05 · ZGC / Shenandoah</div>
+        <ul class="sec-list">
+          <li><strong>ZGC</strong> — 着色指针 / 读屏障 / 并发整理，停顿 &lt;1ms</li>
+          <li>停顿时间不随堆大小增长（适合超大堆）</li>
+          <li><strong>Shenandoah</strong> — Brooks 转发指针，Region-based</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">06 · GC 调优实战</div>
+        <ul class="sec-list">
+          <li>核心参数：<code>-Xms</code> / <code>-Xmx</code> / <code>-Xmn</code> / <code>-XX:NewRatio</code></li>
+          <li>GC 日志解读：<code>-Xlog:gc*</code> 格式说明</li>
+          <li>常见问题：频繁 Full GC / 长 STW / 内存抖动</li>
+          <li>调优思路：确认问题类型 → 选收集器 → 调参数 → 验证</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH03  jvm-03-classload.html        -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch03">
+    <div class="ch-head">
+      <span class="ch-num">CH 03</span>
+      <span class="ch-title">类加载机制与双亲委派</span>
+      <span class="ch-file">jvm-03-classload.html</span>
+      <a class="ch-link" href="jvm-03-classload.html" target="_blank">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">01 · 类的生命周期</div>
+        <ul class="sec-list">
+          <li>加载 → 验证 → 准备 → 解析 → 初始化 → 使用 → 卸载</li>
+          <li>主动使用（触发初始化）vs 被动使用（不触发）</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">02 · 五个加载阶段</div>
+        <ul class="sec-list">
+          <li><strong>加载</strong> — .class 字节流 → 方法区 + 堆中 Class 对象</li>
+          <li><strong>验证</strong> — 文件格式 / 元数据 / 字节码 / 符号引用</li>
+          <li><strong>准备</strong> — static 变量分配内存，赋<strong>零值</strong>（≠ 初始值）</li>
+          <li><strong>解析</strong> — 符号引用 → 直接引用（类 / 字段 / 方法）</li>
+          <li><strong>初始化</strong> — 执行 <code>&lt;clinit&gt;</code>，static 块 + 静态赋值</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">03 · 类加载器体系</div>
+        <ul class="sec-list">
+          <li><strong>Bootstrap ClassLoader</strong> — C++ 实现，加载 <code>rt.jar</code></li>
+          <li><strong>Extension / Platform CL</strong> — 加载 <code>ext/</code> 目录</li>
+          <li><strong>Application ClassLoader</strong> — 加载 classpath</li>
+          <li><strong>自定义 ClassLoader</strong> — 继承 ClassLoader，重写 findClass</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">04 · 双亲委派模型</div>
+        <ul class="sec-list">
+          <li>加载请求逐级向上委派，只有父级加载不了才自己处理</li>
+          <li>作用：防止核心类被替换（保证 <code>java.lang.Object</code> 唯一）</li>
+          <li><strong>破坏场景</strong>：SPI / JNDI（线程上下文类加载器）</li>
+          <li><strong>破坏场景</strong>：Tomcat — 同名类隔离不同 WebApp</li>
+          <li><strong>破坏场景</strong>：OSGi — 模块化网状委派</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">05 · 热部署原理</div>
+        <ul class="sec-list">
+          <li>类的卸载条件：ClassLoader 实例被回收 + Class 对象无引用</li>
+          <li>热部署原理：创建新 ClassLoader 加载新版本类，替换旧引用</li>
+          <li><strong>Arthas</strong> 热更新：<code>redefine</code> / <code>retransform</code> 命令原理</li>
+          <li>OSGI / Spring DevTools 热重载实现方式</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- CH04  jvm-04-interview.html        -->
+  <!-- ══════════════════════════════════ -->
+  <div class="ch-card" id="ch04">
+    <div class="ch-head">
+      <span class="ch-num">CH 04</span>
+      <span class="ch-title">JVM 高频面试题</span>
+      <span class="ch-file">jvm-04-interview.html</span>
+      <a class="ch-link" href="jvm-04-interview.html" target="_blank">打开 →</a>
+    </div>
+    <div class="ch-body">
+
+      <div class="sec-group">
+        <div class="sec-lbl">必背高频题 · Q1–Q8</div>
+        <ul class="sec-list">
+          <li>Q1 · JVM 运行时数据区有哪些？各区域的作用？</li>
+          <li>Q2 · 堆和栈的区别？什么情况下对象会在栈上分配？</li>
+          <li>Q3 · Minor GC / Major GC / Full GC 的触发条件？</li>
+          <li>Q4 · CMS 和 G1 的核心区别？如何选择？</li>
+          <li>Q5 · 什么是 Stop-The-World？如何减少 STW 时间？</li>
+          <li>Q6 · 如何排查 CPU 飙高问题？（jstack + top -Hp）</li>
+          <li>Q7 · 如何排查内存泄漏？（jmap + MAT 分析）</li>
+          <li>Q8 · 双亲委派模型是什么？Tomcat 为什么要破坏它？</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">原理深挖题 · Q9–Q16</div>
+        <ul class="sec-list">
+          <li>Q9 · 对象一定在堆上分配吗？逃逸分析和栈上分配？</li>
+          <li>Q10 · G1 的 Region 是如何工作的？Mixed GC 触发条件？</li>
+          <li>Q11 · ZGC 的着色指针是什么？为什么停顿极短？</li>
+          <li>Q12 · 类的准备阶段和初始化阶段有什么区别？</li>
+          <li>Q13 · <code>static</code> 变量和实例变量分别在哪里存储？</li>
+          <li>Q14 · 方法区在 JDK 8 前后有何变化？为什么用 Metaspace？</li>
+          <li>Q15 · JVM 的内存屏障是什么？与 volatile 有什么关系？</li>
+          <li>Q16 · 如何自定义类加载器实现类隔离？</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">参数配置题 · Q17–Q21</div>
+        <ul class="sec-list">
+          <li>Q17 · <code>-Xms</code> 和 <code>-Xmx</code> 为什么建议设成相等？</li>
+          <li>Q18 · <code>-XX:NewRatio</code> 和 <code>-Xmn</code> 如何配合使用？</li>
+          <li>Q19 · <code>-XX:MaxGCPauseMillis</code> 设太小会有什么问题？</li>
+          <li>Q20 · 元空间溢出怎么配置上限？<code>-XX:MaxMetaspaceSize</code></li>
+          <li>Q21 · 生产环境推荐哪种 GC 收集器组合？理由是什么？</li>
+        </ul>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-lbl">故障排查题 · Q22–Q25</div>
+        <ul class="sec-list">
+          <li>Q22 · 线上发生 OOM，第一时间怎么处理？</li>
+          <li>Q23 · 频繁 Full GC 的常见原因和排查步骤？</li>
+          <li>Q24 · GC 日志里看到 Promotion Failed 是什么问题？</li>
+          <li>Q25 · Arthas 常用命令：dashboard / jad / trace / watch / redefine</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+<script>
+// 高亮当前 nav
+const sections = document.querySelectorAll('.ch-card');
+const navLinks = document.querySelectorAll('nav a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.style.borderBottomColor = '');
+      const id = e.target.id;
+      const active = document.querySelector(`nav a[href="#${id}"]`);
+      if (active) active.style.borderBottomColor = 'var(--blue)';
+    }
+  });
+}, {threshold: 0.3});
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

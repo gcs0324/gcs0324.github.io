@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude 使用指南</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;font-size:14px}
+nav{background:var(--bg2);padding:0 48px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);overflow-x:auto}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em}
+nav a:hover{color:var(--tx);border-bottom-color:var(--bd2)}
+nav a.active{color:var(--blue);border-bottom-color:var(--blue)}
+header{background:var(--bg2);padding:42px 48px 28px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+header::before{content:'CLAUDE';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:88px;font-weight:700;color:var(--watermark,rgba(128,128,128,.05));letter-spacing:-.04em;pointer-events:none}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8}
+main{padding:40px 48px 80px;max-width:1100px}
+/* section heading */
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;display:flex;align-items:center;gap:10px}
+.sec:first-child{margin-top:0}
+.sec .sn{color:var(--blue)}
+/* cards */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:18px 22px;margin-bottom:12px}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--blue);margin-bottom:12px;text-transform:uppercase}
+p{font-size:14px;color:var(--tx2);margin-bottom:10px;line-height:1.75}
+p:last-child{margin-bottom:0}
+.kw{color:var(--tx);font-weight:600}
+ul.detail{list-style:none;display:flex;flex-direction:column;gap:7px;padding-left:0;margin:10px 0}
+ul.detail li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--tx2)}
+ul.detail li .b{font-family:'IBM Plex Mono',monospace;color:var(--blue);flex-shrink:0;font-size:11px;margin-top:3px;min-width:18px}
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:7px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+/* note */
+.note{border-radius:6px;padding:10px 14px;font-size:13px;margin:12px 0;line-height:1.65}
+.note.tip{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--tx2)}
+.note.warn{background:var(--yellow-bg,#fffbe6);border:1px solid var(--yellow-b,#f0d060);color:var(--tx2)}
+.note.good{background:var(--green-bg,#e6f7ec);border:1px solid var(--green-b,#9ed4b0);color:var(--tx2)}
+.note strong{color:var(--tx)}
+/* code */
+code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx)}
+pre{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:14px 16px;overflow-x:auto;line-height:1.65;color:var(--tx2);margin:10px 0}
+/* effort grid */
+.effort-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+.effort-card{border:1px solid var(--bd);border-radius:8px;padding:16px 18px}
+.effort-card.low{border-color:var(--green-b,#9ed4b0);background:var(--green-bg,#e6f7ec)}
+.effort-card.med{border-color:var(--blue-b);background:var(--blue-bg)}
+.effort-card.high{border-color:var(--red-b,#f5a3a3);background:var(--red-bg)}
+.effort-label{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;margin-bottom:6px}
+.effort-card.low .effort-label{color:var(--green,#1a8c3c)}
+.effort-card.med .effort-label{color:var(--blue)}
+.effort-card.high .effort-label{color:var(--red)}
+.effort-desc{font-size:12.5px;color:var(--tx2);line-height:1.6}
+/* badge */
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;border-radius:3px;padding:2px 7px;border:1px solid;display:inline-block;margin-right:4px;vertical-align:middle}
+.badge.new{background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border-color:var(--green-b,#9ed4b0)}
+.badge.hot{background:var(--red-bg);color:var(--red);border-color:var(--red-b,#f5a3a3)}
+.badge.tip{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-b)}
+/* two-col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+/* cmd list */
+.cmd-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.cmd-row{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 16px;display:flex;gap:14px;align-items:flex-start}
+.cmd-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;min-width:180px;margin-top:1px}
+.cmd-desc{font-size:13px;color:var(--tx2);line-height:1.55}
+/* tip-list */
+.tip-list{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.tip-item{display:flex;gap:12px;align-items:flex-start;background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 16px}
+.tip-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.tip-body{}
+.tip-title{font-weight:600;font-size:13.5px;color:var(--tx);margin-bottom:3px}
+.tip-text{font-size:13px;color:var(--tx2);line-height:1.6}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px}.effort-grid{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">CLAUDE · GUIDE</div>
+  <h1>Claude 使用指南</h1>
+  <p class="subtitle">Claude.ai 功能全览 · 提示词工程 · Claude Code CLI · API 集成 · 实用技巧</p>
+</header>
+<nav>
+  <a href="#concepts">核心概念</a>
+  <a href="#prompting">提示词技巧</a>
+  <a href="#web">Claude.ai</a>
+  <a href="#code">Claude Code</a>
+  <a href="#api">API 集成</a>
+  <a href="#scenarios">使用场景</a>
+  <a href="#tips">最佳实践</a>
+</nav>
+<main>
+
+<!-- ── 01 核心概念 ── -->
+<div class="sec" id="concepts"><span class="sn">01</span> 核心概念</div>
+
+<div class="card">
+  <div class="card-title">Claude 是什么</div>
+  <p>Claude 是 Anthropic 开发的大语言模型，以<span class="kw">长上下文窗口</span>（最高 200K tokens）、<span class="kw">强推理能力</span>和<span class="kw">安全对齐</span>著称。相比 GPT 系列，Claude 在长文档理解、代码生成和遵循复杂指令方面表现更稳定。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">模型系列对比</div>
+  <table class="tbl">
+    <tr><th>模型</th><th>定位</th><th>上下文</th><th>适用场景</th></tr>
+    <tr><td>claude-haiku-3.5</td><td>速度优先</td><td>200K</td><td>实时问答、分类、摘要</td></tr>
+    <tr><td>claude-sonnet-4.5</td><td>均衡（默认）</td><td>200K</td><td>日常开发、写作、分析</td></tr>
+    <tr><td>claude-opus-4.5</td><td>推理最强</td><td>200K</td><td>复杂推理、研究、架构设计</td></tr>
+  </table>
+  <div class="note tip"><strong>选型原则：</strong>80% 的任务用 Sonnet；需要多步推理、思维链时升级 Opus；追求速度/低成本用 Haiku。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Token 与上下文窗口</div>
+  <ul class="detail">
+    <li><span class="b">▸</span> 1 个 token ≈ 0.75 个英文单词 ≈ 0.5 个汉字</li>
+    <li><span class="b">▸</span> 200K tokens ≈ 约 15 万个汉字 ≈ 一本 400 页技术书</li>
+    <li><span class="b">▸</span> 超长上下文时，Claude 对<span class="kw">开头和结尾</span>注意力最强，中间容易被稀释</li>
+    <li><span class="b">▸</span> 关键指令放在 <strong>System Prompt 和用户消息末尾</strong>，重要内容别只放中间</li>
+  </ul>
+</div>
+
+<!-- ── 02 提示词技巧 ── -->
+<div class="sec" id="prompting"><span class="sn">02</span> 提示词技巧</div>
+
+<div class="tip-list">
+  <div class="tip-item">
+    <div class="tip-icon">🎯</div>
+    <div class="tip-body">
+      <div class="tip-title">给 Claude 一个角色</div>
+      <div class="tip-text">开头用 <code>你是一名资深 Java 后端工程师，精通 Spring Boot 和微服务架构</code>，让模型进入专业模式，回答更聚焦。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">🧩</div>
+    <div class="tip-body">
+      <div class="tip-title">思维链（Chain of Thought）</div>
+      <div class="tip-text">在问题后加 <code>请一步一步思考</code> 或 <code>先分析再给出结论</code>，可大幅提升复杂推理准确率。Opus 会自动开启扩展思维链。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">📋</div>
+    <div class="tip-body">
+      <div class="tip-title">Few-shot 示例</div>
+      <div class="tip-text">提供 2-3 个输入/输出示例让模型理解格式。格式化输出（JSON、Markdown 表格）时效果尤佳。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">🔪</div>
+    <div class="tip-body">
+      <div class="tip-title">任务分解</div>
+      <div class="tip-text">复杂任务拆成子任务逐步完成，比一次性要求所有内容质量更高。可告知 Claude <code>先给我大纲，我确认后你再展开每节</code>。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">📐</div>
+    <div class="tip-body">
+      <div class="tip-title">格式约束</div>
+      <div class="tip-text">明确要求输出格式：<code>用 Markdown 表格</code>、<code>以 JSON 返回，字段包含 name/desc/example</code>。Claude 遵循格式指令很稳定。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">🔄</div>
+    <div class="tip-body">
+      <div class="tip-title">迭代优化</div>
+      <div class="tip-text">不满意时追问 <code>这个解释太笼统，举一个 Java 代码示例</code> 或 <code>从面试官角度补充 2 个追问点</code>，比重新提问效率更高。</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">System Prompt 最佳结构</div>
+  <pre># 角色
+你是 [具体角色]
+
+# 背景
+[项目/任务上下文]
+
+# 规则
+- 回答用中文，代码用英文注释
+- 关键结论用粗体标注
+- 不确定时主动说明
+
+# 输出格式
+[期望的格式描述]</pre>
+</div>
+
+<!-- ── 03 Claude.ai 功能 ── -->
+<div class="sec" id="web"><span class="sn">03</span> Claude.ai 功能</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">Projects <span class="badge new">推荐</span></div>
+    <ul class="detail">
+      <li><span class="b">▸</span> 创建 Project 后可共享 System Prompt 给该项目所有对话</li>
+      <li><span class="b">▸</span> 上传文档到 Project Knowledge（代码库、PRD、架构图）</li>
+      <li><span class="b">▸</span> 同项目的多轮对话共享上下文记忆</li>
+      <li><span class="b">▸</span> 适合：持续迭代的项目、团队共享的知识库</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">文件上传</div>
+    <ul class="detail">
+      <li><span class="b">▸</span> 支持 PDF、Word、代码文件、图片</li>
+      <li><span class="b">▸</span> 上传代码仓库（ZIP）让 Claude 全局理解项目</li>
+      <li><span class="b">▸</span> 上传截图描述 UI 问题比文字描述更准确</li>
+      <li><span class="b">▸</span> 单次最大 10 个文件，每个文件 ≤ 10MB</li>
+    </ul>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">Artifacts（工件）</div>
+    <ul class="detail">
+      <li><span class="b">▸</span> Claude 生成的代码/HTML/SVG 会显示在独立预览面板</li>
+      <li><span class="b">▸</span> 可直接运行 React 组件和 HTML 页面</li>
+      <li><span class="b">▸</span> 追问时 Artifact 自动增量更新，无需复制粘贴</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">Memory <span class="badge new">新功能</span></div>
+    <ul class="detail">
+      <li><span class="b">▸</span> Claude 可跨对话记住用户偏好和背景</li>
+      <li><span class="b">▸</span> 说 <code>记住我是 Java 开发，偏好简洁回答</code> 即可</li>
+      <li><span class="b">▸</span> 设置 → Memory 可查看/删除记忆条目</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 04 Claude Code CLI ── -->
+<div class="sec" id="code"><span class="sn">04</span> Claude Code CLI</div>
+
+<div class="card">
+  <div class="card-title">安装与启动</div>
+  <pre>npm install -g @anthropic-ai/claude-code   # 安装
+claude                                       # 启动交互模式
+claude "解释这段代码的作用"                   # 单次问答
+claude --print "生成 README"                 # 输出到终端（不交互）</pre>
+</div>
+
+<div class="card">
+  <div class="card-title">--effort 推理力度 <span class="badge hot">常用</span></div>
+  <div class="effort-grid">
+    <div class="effort-card low">
+      <div class="effort-label">--effort low</div>
+      <div class="effort-desc">快速回答，少思考<br>适合：改命名、查语法、简单问答</div>
+    </div>
+    <div class="effort-card med">
+      <div class="effort-label">--effort medium（默认）</div>
+      <div class="effort-desc">平衡速度与质量<br>适合：日常开发、Code Review</div>
+    </div>
+    <div class="effort-card high">
+      <div class="effort-label">--effort high</div>
+      <div class="effort-desc">最大推理力度，多步反思<br>适合：复杂重构、难 Bug、架构设计</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">常用 Slash 命令</div>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">/help</span><span class="cmd-desc">查看所有可用命令</span></div>
+    <div class="cmd-row"><span class="cmd-code">/clear</span><span class="cmd-desc">清除当前对话上下文，开始新会话</span></div>
+    <div class="cmd-row"><span class="cmd-code">/compact</span><span class="cmd-desc">压缩对话历史，节省 token（保留要点）</span></div>
+    <div class="cmd-row"><span class="cmd-code">/review</span><span class="cmd-desc">对当前工作目录的代码变更进行 Code Review</span></div>
+    <div class="cmd-row"><span class="cmd-code">/init</span><span class="cmd-desc">分析当前项目，生成 CLAUDE.md 项目说明文件</span></div>
+    <div class="cmd-row"><span class="cmd-code">/memory</span><span class="cmd-desc">查看并编辑 Claude 记住的用户信息</span></div>
+    <div class="cmd-row"><span class="cmd-code">/permissions</span><span class="cmd-desc">查看 Claude Code 当前的工具权限配置</span></div>
+    <div class="cmd-row"><span class="cmd-code">/cost</span><span class="cmd-desc">查看本次会话消耗的 token 和费用估算</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">MCP（模型上下文协议）</div>
+  <p>MCP 允许 Claude Code 调用外部工具和服务，扩展能力边界。</p>
+  <pre># 在 ~/.claude/settings.json 中配置 MCP 服务器
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "your_token" }
+    }
+  }
+}</pre>
+  <div class="note tip"><strong>常用 MCP：</strong>filesystem（文件读写）、github（PR/Issues）、puppeteer（网页截图）、postgres（数据库查询）</div>
+</div>
+
+<div class="card">
+  <div class="card-title">CLAUDE.md —— 项目上下文文件</div>
+  <p>在项目根目录放 <code>CLAUDE.md</code>，Claude Code 启动时自动读取，作为持久化的系统提示。</p>
+  <pre># Project Overview
+Spring Boot 电商系统，Java 17，MySQL 8 + Redis 7
+
+## 代码规范
+- Service 层用 @Transactional，不在 Controller 层开事务
+- 统一异常用 GlobalExceptionHandler，不要裸 try-catch
+- 字段校验用 @Valid + DTO，不直接用 Entity 接收参数
+
+## 禁止操作
+- 不直接 DROP TABLE
+- 不修改 migration 历史文件</pre>
+</div>
+
+<div class="card">
+  <div class="card-title">Hooks —— 自动化工作流</div>
+  <p>在 <code>~/.claude/settings.json</code> 配置 hooks，在 Claude 执行特定操作前/后触发脚本。</p>
+  <pre>{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{"type": "command", "command": "echo 'Claude is about to run bash'"}]
+    }],
+    "PostToolUse": [{
+      "matcher": "Edit",
+      "hooks": [{"type": "command", "command": "npx prettier --write $CLAUDE_FILE_PATH"}]
+    }]
+  }
+}</pre>
+  <div class="note tip"><strong>常见用途：</strong>保存前自动格式化、修改代码后运行测试、记录操作日志</div>
+</div>
+
+<!-- ── 05 API 集成 ── -->
+<div class="sec" id="api"><span class="sn">05</span> API 集成</div>
+
+<div class="card">
+  <div class="card-title">Java SDK 基础调用</div>
+  <pre>// Maven: com.anthropic:sdk:0.x.x
+AnthropicClient client = AnthropicOkHttpClient.builder()
+    .apiKey(System.getenv("ANTHROPIC_API_KEY"))
+    .build();
+
+Message message = client.messages().create(
+    MessageCreateParams.builder()
+        .model(Model.CLAUDE_SONNET_4_5)
+        .maxTokens(1024)
+        .addUserMessage("用一句话解释 JVM 类加载机制")
+        .build()
+);
+System.out.println(message.content().get(0));</pre>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">Python 流式输出</div>
+    <pre style="font-size:11px">import anthropic
+client = anthropic.Anthropic()
+with client.messages.stream(
+    model="claude-sonnet-4-5",
+    max_tokens=1024,
+    messages=[{"role":"user",
+      "content":"解释 HashMap 扩容"}]
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Tool Use（函数调用）</div>
+    <pre style="font-size:11px">tools = [{
+  "name": "get_weather",
+  "description": "获取城市天气",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "city": {"type": "string"}
+    },
+    "required": ["city"]
+  }
+}]
+# Claude 会返回 tool_use block
+# 你执行后把结果塞回 messages 继续对话</pre>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">关键参数说明</div>
+  <table class="tbl">
+    <tr><th>参数</th><th>说明</th><th>建议值</th></tr>
+    <tr><td>max_tokens</td><td>输出最大 token 数</td><td>代码生成 4096，问答 1024</td></tr>
+    <tr><td>temperature</td><td>随机性（0=确定性，1=创造性）</td><td>代码/分析 0.1，创意写作 0.7</td></tr>
+    <tr><td>system</td><td>系统提示词，定义角色和规则</td><td>每次请求都要带</td></tr>
+    <tr><td>top_p</td><td>核采样，与 temperature 二选一</td><td>一般不用调</td></tr>
+  </table>
+</div>
+
+<!-- ── 06 使用场景 ── -->
+<div class="sec" id="scenarios"><span class="sn">06</span> 实用场景</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">📝 Code Review</div>
+    <pre style="font-size:11px">帮我 Review 以下代码，从：
+1. 线程安全 2. 性能 3. 可读性
+4. 潜在 Bug 四个维度分析，
+给出修改建议和改后代码：
+
+[粘贴代码]</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">🐛 Bug 分析</div>
+    <pre style="font-size:11px">异常信息：[粘贴堆栈]
+相关代码：[粘贴代码]
+已尝试：[你试过的方法]
+
+请分析可能的原因，
+给出优先级排序和排查步骤</pre>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">🏗️ 架构设计</div>
+    <pre style="font-size:11px">背景：[业务场景，QPS 数量级]
+约束：[技术栈、团队规模]
+需求：[核心功能点]
+
+请给出系统架构方案，
+包含组件选型理由和权衡</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">📄 文档生成</div>
+    <pre style="font-size:11px">根据以下接口代码，
+生成 API 文档，包含：
+- 接口描述
+- 参数说明（表格）
+- 请求/响应示例
+- 错误码说明
+
+[粘贴 Controller 代码]</pre>
+  </div>
+</div>
+
+<!-- ── 07 最佳实践 ── -->
+<div class="sec" id="tips"><span class="sn">07</span> 最佳实践与注意事项</div>
+
+<div class="note warn"><strong>⚠️ 幻觉（Hallucination）：</strong>Claude 可能自信地给出错误信息，特别是具体版本号、API 签名、统计数据。重要技术决策要交叉验证官方文档。</div>
+
+<div class="tip-list">
+  <div class="tip-item">
+    <div class="tip-icon">✅</div>
+    <div class="tip-body">
+      <div class="tip-title">给 Claude 足够上下文</div>
+      <div class="tip-text">不要只说"帮我优化代码"，要说"这是 Spring Boot 项目，该方法每秒被调用 1000 次，目前 P99 延迟 500ms，帮我优化"。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">✅</div>
+    <div class="tip-body">
+      <div class="tip-title">让 Claude 先反问再回答</div>
+      <div class="tip-text">在提示词末尾加 <code>如果需要更多信息来给出更好的答案，请先问我</code>，能大幅减少因信息不足导致的质量下降。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">✅</div>
+    <div class="tip-body">
+      <div class="tip-title">用 XML 标签分隔不同内容</div>
+      <div class="tip-text">Claude 对 XML 标签识别非常好：<code>&lt;code&gt;[代码]&lt;/code&gt;</code>、<code>&lt;requirements&gt;[需求]&lt;/requirements&gt;</code>，比用换行分隔更清晰。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">✅</div>
+    <div class="tip-body">
+      <div class="tip-title">Claude Code：善用 /compact 控制 token</div>
+      <div class="tip-text">长对话后用 <code>/compact</code> 压缩上下文，节省 token 同时保留关键进度。上下文窗口到 80% 时 Claude 会自动提醒。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">⚠️</div>
+    <div class="tip-body">
+      <div class="tip-title">敏感信息不要输入</div>
+      <div class="tip-text">API Key、数据库密码、用户隐私数据不要直接粘贴。Claude Code 默认不上传文件内容，但养成习惯：脱敏后再分析。</div>
+    </div>
+  </div>
+  <div class="tip-item">
+    <div class="tip-icon">⚠️</div>
+    <div class="tip-body">
+      <div class="tip-title">代码生成后必须 Review</div>
+      <div class="tip-text">Claude Code 写的代码可能引入不必要的依赖、忽略边界情况或使用过时 API。生产环境代码务必人工 Review 后再合入。</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">快捷键（Claude.ai Web）</div>
+  <table class="tbl">
+    <tr><th>快捷键</th><th>功能</th></tr>
+    <tr><td>Shift + Enter</td><td>换行（不发送）</td></tr>
+    <tr><td>↑ 方向键</td><td>编辑上一条消息</td></tr>
+    <tr><td>Ctrl/Cmd + Shift + O</td><td>打开项目列表</td></tr>
+    <tr><td>Ctrl/Cmd + K</td><td>搜索对话历史</td></tr>
+    <tr><td>Escape</td><td>停止生成</td></tr>
+  </table>
+</div>
+
+</main>
+</body>
+</html>

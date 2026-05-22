@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>集群容错 & 高级特性</title>
+<style>
+:root{--accent-color:var(--red);--accent-bg:var(--red-bg);--accent-b:var(--red-b)}
+header::before{content:'CLUSTER'}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+.fbox{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:8px 14px;font-size:.82rem;text-align:center}
+.farrow{color:var(--tx2);font-size:1.2rem}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-dubbo.js"></script>
+<header>
+  <div class="htag">DUBBO · 04 · 集群</div>
+  <h1>集群容错 &amp; 高级特性</h1>
+  <p class="sub">容错策略 · 超时与重试 · 服务降级 · 限流熔断 · 异步调用</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">章节目录</div>
+  <a class="sb-link" href="#cluster">1. 集群容错策略</a>
+  <a class="sb-link" href="#timeout">2. 超时与重试</a>
+  <a class="sb-link" href="#degrade">3. 服务降级</a>
+  <a class="sb-link" href="#limit">4. 限流与熔断</a>
+  <a class="sb-link" href="#async">5. 异步调用</a>
+  <a class="sb-link" href="#generic">6. 泛化调用</a>
+  <a class="sb-link" href="#version">7. 版本与分组</a>
+</aside>
+<main>
+  <h2 class="sec" id="cluster">1. 集群容错策略</h2>
+  <div class="table-wrap"><table>
+    <tr><th>策略</th><th>类名</th><th>行为</th><th>适用</th></tr>
+    <tr><td>Failover（默认）</td><td>FailoverCluster</td><td>失败自动重试其他 Provider，retries=2</td><td>读操作，幂等写操作</td></tr>
+    <tr><td>Failfast</td><td>FailfastCluster</td><td>失败立即抛异常，不重试</td><td>非幂等写操作（下单）</td></tr>
+    <tr><td>Failsafe</td><td>FailsafeCluster</td><td>失败忽略，返回空结果</td><td>日志记录等非关键操作</td></tr>
+    <tr><td>Failback</td><td>FailbackCluster</td><td>失败后异步定时重试</td><td>消息通知、最终一致性</td></tr>
+    <tr><td>Forking</td><td>ForkingCluster</td><td>并行调用多个 Provider，最快返回</td><td>实时性要求高，资源充足</td></tr>
+    <tr><td>Broadcast</td><td>BroadcastCluster</td><td>广播调用所有 Provider，任一失败报错</td><td>缓存刷新、配置更新</td></tr>
+  </table></div>
+  <div class="danger">⚠️ Failover 重试会加大 Provider 压力，非幂等操作（如创建订单）必须用 Failfast，防止重复数据！</div>
+  <pre>// 配置容错策略
+@Reference(cluster = "failfast", retries = 0)
+OrderService orderService;
+
+@Reference(cluster = "failover", retries = 2)
+QueryService queryService;</pre>
+
+  <h2 class="sec" id="timeout">2. 超时与重试</h2>
+  <h3>超时机制</h3>
+  <ul>
+    <li>Consumer 侧超时：<code>timeout</code> 参数（默认 1000ms），超时抛 TimeoutException</li>
+    <li>Provider 侧超时：<code>TimeoutFilter</code> 检测，执行超时打印警告日志（但不中断执行）</li>
+    <li>超时≠取消：Provider 继续执行，只是 Consumer 放弃等待，可能导致重复执行</li>
+  </ul>
+  <h3>重试配置</h3>
+  <pre>@Reference(
+    timeout = 2000,     // 单次调用超时 2s
+    retries = 2         // 失败重试 2 次（共 3 次）
+)
+// 总耗时可能：3 * 2000 = 6s（最坏情况）
+
+// 方法级超时（更细粒度）
+@Reference(methods = {
+    @Method(name = "queryUser", timeout = 500, retries = 0),   // 不重试
+    @Method(name = "listUsers", timeout = 3000, retries = 1)
+})</pre>
+  <div class="warn">⚠️ 设置重试时，确保接口是幂等的！Failover 重试会换一台 Provider，重试前已执行的操作不会回滚。</div>
+
+  <h2 class="sec" id="degrade">3. 服务降级</h2>
+  <p>当 Provider 不可用或响应慢时，返回兜底数据，保证 Consumer 基本可用。</p>
+  <div class="table-wrap"><table>
+    <tr><th>方式</th><th>说明</th></tr>
+    <tr><td>force:return null</td><td>直接返回 null，不发起远程调用（Consumer 侧，紧急屏蔽）</td></tr>
+    <tr><td>fail:return null</td><td>调用失败后返回 null（不抛异常）</td></tr>
+    <tr><td>mock=true</td><td>调用失败执行 Mock 类（接口名 + Mock 后缀）</td></tr>
+    <tr><td>mock=com.x.MockImpl</td><td>调用失败执行指定 Mock 实现</td></tr>
+  </table></div>
+  <pre>// Mock 降级实现
+public class UserServiceMock implements UserService {
+    @Override
+    public User getUser(Long id) {
+        // 返回兜底数据，如缓存数据或默认对象
+        return User.builder().id(id).name("Unknown").build();
+    }
+}
+
+// 配置
+@Reference(mock = "true")  // 自动查找 UserServiceMock
+@Reference(mock = "return null")  // 直接返回 null</pre>
+
+  <h2 class="sec" id="limit">4. 限流与熔断</h2>
+  <h3>Dubbo 内置限流</h3>
+  <ul>
+    <li><code>executes</code>：Provider 并发执行数限制（超出抛 ExecuteLimitedException）</li>
+    <li><code>actives</code>：Consumer 侧并发调用数限制（超出等待或抛异常）</li>
+    <li><code>accepts</code>：Provider 接收的最大连接数</li>
+    <li><code>connections</code>：Consumer 到每个 Provider 的最大连接数</li>
+  </ul>
+  <pre>@Service(executes = 100)     // 最多 100 个并发执行
+@Reference(actives = 50)      // Consumer 最多 50 个并发调用</pre>
+  <h3>Sentinel 集成（推荐）</h3>
+  <p>Dubbo 官方推荐 Sentinel 实现熔断降级，通过 SPI 自动集成 Dubbo Filter。</p>
+  <div class="table-wrap"><table>
+    <tr><th>Sentinel 规则</th><th>说明</th></tr>
+    <tr><td>流量控制（FlowRule）</td><td>QPS/并发数限制，支持预热、排队模式</td></tr>
+    <tr><td>熔断降级（DegradeRule）</td><td>基于错误率/慢调用比例/异常数自动熔断</td></tr>
+    <tr><td>热点限流（ParamFlowRule）</td><td>对某个参数值限流（如某个商品 ID）</td></tr>
+    <tr><td>系统保护（SystemRule）</td><td>基于 CPU/Load/RT 的全局保护</td></tr>
+  </table></div>
+
+  <h2 class="sec" id="async">5. 异步调用</h2>
+  <pre>// 方式1：异步 + Future（JDK CompletableFuture，Dubbo 2.7+）
+@Reference(async = true)
+UserService userService;
+
+userService.getUser(1L);  // 立即返回 null
+CompletableFuture&lt;User&gt; future = RpcContext.getContext().getCompletableFuture();
+future.thenAccept(user -> System.out.println(user.getName()));
+
+// 方式2：接口直接返回 CompletableFuture（推荐）
+public interface UserService {
+    CompletableFuture&lt;User&gt; getUser(Long id);
+}
+
+// Provider 实现
+@Override
+public CompletableFuture&lt;User&gt; getUser(Long id) {
+    return CompletableFuture.supplyAsync(() -> userDao.findById(id));
+}</pre>
+
+  <h2 class="sec" id="generic">6. 泛化调用</h2>
+  <p>Consumer 无需引入 Provider 接口 jar，直接通过接口名 + 方法名 + 参数发起调用。适合网关、测试工具等场景。</p>
+  <pre>// 泛化调用
+ReferenceConfig&lt;GenericService&gt; ref = new ReferenceConfig&lt;&gt;();
+ref.setInterface("com.example.UserService");
+ref.setGeneric("true");
+
+GenericService genericService = ref.get();
+Object result = genericService.$invoke(
+    "getUser",                        // 方法名
+    new String[]{"java.lang.Long"},   // 参数类型
+    new Object[]{1L}                  // 参数值
+);
+
+// 结果是 Map，key 为字段名
+Map&lt;String, Object&gt; user = (Map) result;
+System.out.println(user.get("name"));</pre>
+
+  <h2 class="sec" id="version">7. 版本与分组</h2>
+  <div class="table-wrap"><table>
+    <tr><th>概念</th><th>用途</th><th>配置</th></tr>
+    <tr><td>version（版本）</td><td>接口升级兼容，灰度发布</td><td>@Service(version="2.0") / @Reference(version="2.0")</td></tr>
+    <tr><td>group（分组）</td><td>同一接口不同实现，AB测试</td><td>@Service(group="a") / @Reference(group="b")</td></tr>
+    <tr><td>version="*"</td><td>Consumer 随机调用任意版本</td><td>灰度期间混流</td></tr>
+  </table></div>
+  <pre>// 蓝绿部署（版本）
+@Service(version = "1.0")  // 旧版 Provider
+@Service(version = "2.0")  // 新版 Provider
+
+@Reference(version = "2.0")  // 新版 Consumer
+@Reference(version = "*")    // 随机选择（金丝雀）
+
+// AB测试（分组）
+@Service(group = "groupA", weight = 80)   // 80% 流量
+@Service(group = "groupB", weight = 20)   // 20% 流量</pre>
+</main>
+</div>
+<script>
+const links=document.querySelectorAll('.sb-link');
+const sections=document.querySelectorAll('h2.sec');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(s.getBoundingClientRect().top<=80)cur=s.id});
+  links.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});
+});
+</script>
+</body>
+</html>

@@ -11,30 +11,30 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── 亮色主题（暖黄） ── */
+    /* ── 亮色主题（暖米） ── */
     :root {
-      --bg:     #efebc2;
-      --bg2:    #e4dfa8;
-      --bg3:    #d6cf90;
-      --border: rgba(100,80,20,0.13);
-      --text:   #2d2510;
-      --muted:  #7a6a40;
-      --accent: #8b6508;
-      --accent2:#c4621a;
-      --glow:   rgba(139,101,8,0.2);
+      --bg:     #faf6f1;
+      --bg2:    #f0ebe4;
+      --bg3:    #e4ddd5;
+      --border: rgba(80,50,20,0.09);
+      --text:   #1e1a15;
+      --muted:  #4a3f34;
+      --accent: #4b7af5;
+      --accent2:#6c52f5;
+      --glow:   rgba(75,122,245,0.14);
     }
 
-    /* ── 暗色主题（深暖） ── */
+    /* ── 暗色主题（冷灰深色） ── */
     [data-theme="dark"] {
-      --bg:     #0f0e09;
-      --bg2:    #161409;
-      --bg3:    #1e1b0e;
-      --border: rgba(160,140,60,0.12);
-      --text:   #c8b878;
-      --muted:  #7a6a38;
-      --accent: #b8881a;
-      --accent2:#c05a10;
-      --glow:   rgba(184,136,26,0.2);
+      --bg:     #111113;
+      --bg2:    #18181c;
+      --bg3:    #222228;
+      --border: rgba(255,255,255,0.07);
+      --text:   #e2e2e8;
+      --muted:  #a8a8bc;
+      --accent: #5c87f5;
+      --accent2:#7c5cf7;
+      --glow:   rgba(92,135,245,0.18);
     }
     [data-theme="dark"] body,
     [data-theme="dark"] html {
@@ -56,12 +56,12 @@
       position: fixed; inset: 0; z-index: 0;
       pointer-events: none;
       background-image:
-        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 2 L38 20 L20 38 L2 20 Z' fill='none' stroke='rgba(100%2C80%2C20%2C0.1)' stroke-width='1'/%3E%3C/svg%3E");
-      background-size: 40px 40px;
+        url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='1' fill='rgba(128%2C128%2C160%2C0.12)'/%3E%3C/svg%3E");
+      background-size: 32px 32px;
     }
 
     /* ── layout ── */
-    :root { --sb-w: 200px; --sb-collapsed: 40px; }
+    :root { --sb-w: 260px; --sb-collapsed: 40px; }
 
     .layout {
       position: relative; z-index: 1;
@@ -72,7 +72,7 @@
       transition: margin-left .25s ease;
       min-width: 0;
       display: grid;
-      grid-template-rows: auto auto auto 1fr;
+      grid-template-rows: auto auto auto 1fr auto;
       gap: 48px;
       padding: 48px 48px 80px 40px;
       max-width: 1180px;
@@ -172,7 +172,7 @@
       max-height: 0;
       transition: max-height .25s ease;
     }
-    .sidebar-section.open > .sidebar-body { max-height: 700px; }
+    .sidebar-section.open > .sidebar-body { max-height: 9999px; }
 
     /* ── 子分类（group）── */
     .sidebar-group { margin: 0 0 2px; }
@@ -192,7 +192,6 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--muted);
-      opacity: 0.7;
       flex: 1;
       white-space: nowrap;
     }
@@ -213,7 +212,7 @@
       padding: 0 8px 0 20px;
     }
     .sidebar-group.open .sidebar-sub-links {
-      max-height: 300px;
+      max-height: 9999px;
       padding: 0 8px 4px 20px;
     }
     .sidebar-sub-links li a {
@@ -224,17 +223,16 @@
       border-radius: 4px;
       color: var(--muted);
       text-decoration: none;
-      font-size: 11px;
+      font-size: 12.5px;
       line-height: 1.4;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
       transition: color .15s, background .15s;
-      opacity: 0.85;
     }
     .sidebar-sub-links li a:hover {
       color: var(--accent);
-      background: rgba(139,101,8,0.07);
+      background: rgba(75,122,245,0.08);
       opacity: 1;
     }
     .sidebar-sub-links li a::before {
@@ -267,16 +265,16 @@
       border-radius: 4px;
       color: var(--muted);
       text-decoration: none;
-      font-size: 11px;
+      font-size: 12.5px;
       line-height: 1.4;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
       transition: color .15s, background .15s;
     }
     .sidebar-links li a:hover {
       color: var(--accent);
-      background: rgba(139,101,8,0.07);
+      background: rgba(75,122,245,0.08);
     }
     .sidebar-links li a::before {
       content: '›';
@@ -479,7 +477,7 @@
     }
     .link-list li a:hover {
       color: var(--accent);
-      background: rgba(139,101,8,0.07);
+      background: rgba(75,122,245,0.08);
     }
     .link-list li a::before {
       content: '→';
@@ -553,6 +551,63 @@
     .search-wrap { animation: fadeUp .4s .08s ease both; }
     .pins-section { animation: fadeUp .4s .14s ease both; }
     .categories-section { animation: fadeUp .4s .2s ease both; }
+    .plan-section { animation: fadeUp .4s .26s ease both; }
+
+    /* ── plan section ── */
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .plan-group {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px 12px;
+    }
+    .plan-group-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pg-num { color: var(--muted); font-weight: 400; }
+    .plan-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .plan-list li a,
+    .plan-list li span {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      line-height: 1.4;
+      text-decoration: none;
+      transition: color .15s, background .15s;
+    }
+    .plan-list li a { color: var(--muted); }
+    .plan-list li a:hover { color: var(--accent); background: rgba(240,165,0,0.06); }
+    .plan-list li a::before { content: '→'; font-size: 9px; color: rgba(255,255,255,0.1); flex-shrink:0; transition: color .15s; }
+    .plan-list li a:hover::before { color: var(--accent); }
+    .plan-list li span { color: rgba(107,110,128,0.5); cursor: default; }
+    .plan-list li span::before { content: '·'; font-size: 11px; color: rgba(107,110,128,0.25); flex-shrink:0; }
+    .badge-todo {
+      margin-left: auto;
+      font-size: 9px;
+      letter-spacing: .06em;
+      color: rgba(107,110,128,0.45);
+      border: 1px solid rgba(107,110,128,0.2);
+      border-radius: 3px;
+      padding: 1px 5px;
+      flex-shrink: 0;
+    }
 
   </style>
 </head>
@@ -589,6 +644,112 @@
 
         <div class="sidebar-group open">
           <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">JVM 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/jvm-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/jvm-01-memory.html" target="_blank">01 · 内存模型与对象</a></li>
+            <li><a href="doc/java/jvm-02-gc.html" target="_blank">02 · GC 算法与收集器</a></li>
+            <li><a href="doc/java/jvm-03-classload.html" target="_blank">03 · 类加载与双亲委派</a></li>
+            <li><a href="doc/java/jvm-04-interview.html" target="_blank">04 · 高频面试题 25 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">Java 基础专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/java-basic-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/java-basic-01-oop.html" target="_blank">01 · OOP &amp; 关键字 &amp; String</a></li>
+            <li><a href="doc/java/java-basic-02-collection.html" target="_blank">02 · 集合框架</a></li>
+            <li><a href="doc/java/java-basic-03-generic.html" target="_blank">03 · 泛型 &amp; 反射 &amp; 注解</a></li>
+            <li><a href="doc/java/java-basic-04-exception.html" target="_blank">04 · 异常 &amp; IO &amp; NIO</a></li>
+            <li><a href="doc/java/java-basic-05-jdk8.html" target="_blank">05 · JDK 8 ~ 21 新特性</a></li>
+            <li><a href="doc/java/java-basic-06-interview.html" target="_blank">06 · 高频面试题 32 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">Java 并发专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/concurrent-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/concurrent-01-jmm.html" target="_blank">01 · JMM 与内存可见性</a></li>
+            <li><a href="doc/java/concurrent-02-thread.html" target="_blank">02 · 线程基础与生命周期</a></li>
+            <li><a href="doc/java/concurrent-03-lock.html" target="_blank">03 · 锁机制</a></li>
+            <li><a href="doc/java/concurrent-04-juc.html" target="_blank">04 · JUC 并发工具</a></li>
+            <li><a href="doc/java/concurrent-05-pool.html" target="_blank">05 · 线程池</a></li>
+            <li><a href="doc/java/concurrent-06-interview.html" target="_blank">06 · 高频面试题</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">Spring 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/spring-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/spring-01-ioc.html" target="_blank">01 · IoC 容器与 Bean</a></li>
+            <li><a href="doc/java/spring-02-aop.html" target="_blank">02 · AOP 面向切面</a></li>
+            <li><a href="doc/java/spring-03-tx.html" target="_blank">03 · 事务管理</a></li>
+            <li><a href="doc/java/spring-04-mvc.html" target="_blank">04 · Spring MVC</a></li>
+            <li><a href="doc/java/spring-05-boot.html" target="_blank">05 · Spring Boot</a></li>
+            <li><a href="doc/java/spring-06-interview.html" target="_blank">06 · 高频面试题</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">RPC &amp; Dubbo 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/dubbo-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/dubbo-01-rpc.html" target="_blank">01 · RPC 基础与原理</a></li>
+            <li><a href="doc/java/dubbo-02-arch.html" target="_blank">02 · Dubbo 架构与 SPI</a></li>
+            <li><a href="doc/java/dubbo-03-registry.html" target="_blank">03 · 注册中心与负载均衡</a></li>
+            <li><a href="doc/java/dubbo-04-cluster.html" target="_blank">04 · 集群容错与高级特性</a></li>
+            <li><a href="doc/java/dubbo-05-interview.html" target="_blank">05 · 高频面试题 29 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">系统设计 &amp; 设计模式</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/design-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/design-01-creational.html" target="_blank">01 · 创建型模式</a></li>
+            <li><a href="doc/java/design-02-structural.html" target="_blank">02 · 结构型模式</a></li>
+            <li><a href="doc/java/design-03-behavioral.html" target="_blank">03 · 行为型模式</a></li>
+            <li><a href="doc/java/design-04-system.html" target="_blank">04 · 系统设计原则</a></li>
+            <li><a href="doc/java/design-05-interview.html" target="_blank">05 · 高频面试题 32 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">分布式系统专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/dist-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/dist-01-theory.html" target="_blank">01 · 理论基础（CAP / Raft / Paxos）</a></li>
+            <li><a href="doc/java/dist-02-transaction.html" target="_blank">02 · 分布式事务</a></li>
+            <li><a href="doc/java/dist-03-lock-id.html" target="_blank">03 · 分布式锁 &amp; 分布式 ID</a></li>
+            <li><a href="doc/java/dist-04-interview.html" target="_blank">04 · 高频面试题 32 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
             <span class="sidebar-subcat-name">Redis 专题</span>
             <span class="sidebar-subchevron">▾</span>
           </div>
@@ -606,6 +767,19 @@
           </div>
           <ul class="sidebar-sub-links">
             <li><a href="doc/kafka-mq-reliability.html" target="_blank">积压 · 不丢 · 幂等 · 顺序消费</a></li>
+            <li><a href="doc/kafka-learning-path.html" target="_blank">系统学习路径 · 从入门到面试</a></li>
+            <li><a href="doc/kafka-mindmap.html" target="_blank">知识体系思维导图（含锚点跳转）</a></li>
+            <li><a href="doc/kafka-study-outline.html" target="_blank">复习大纲 · 10 章知识体系</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">中间件对比</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/failover-compare.html" target="_blank">故障转移对比 · Redis哨兵/集群/Kafka</a></li>
           </ul>
         </div>
 
@@ -636,6 +810,16 @@
         <span class="sidebar-chevron">▾</span>
       </div>
       <div class="sidebar-body">
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">AI 工具</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/claude-guide.html" target="_blank">Claude 使用指南</a></li>
+          </ul>
+        </div>
 
         <div class="sidebar-group open">
           <div class="sidebar-subcat" onclick="toggleGroup(this)">
@@ -799,13 +983,189 @@
         <div class="card-header">
           <div class="card-icon">◉</div>
           <span class="card-title">AI 工具</span>
-          <span class="card-count">4 links</span>
+          <span class="card-count">5 links</span>
         </div>
         <ul class="link-list">
-          <li><a href="https://claude.ai" target="_blank">Claude</a></li>
+          <li><a href="doc/claude-guide.html" target="_blank">✦ Claude 使用指南</a></li>
+          <li><a href="https://claude.ai" target="_blank">Claude.ai</a></li>
           <li><a href="https://chat.openai.com" target="_blank">ChatGPT</a></li>
           <li><a href="https://www.perplexity.ai" target="_blank">Perplexity</a></li>
           <li><a href="https://gamma.app" target="_blank">Gamma（AI 幻灯片）</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Java 高级开发面试题库 -->
+  <div class="plan-section">
+    <div class="section-label">Java 高级开发面试题库 · 规划中</div>
+    <div class="plan-grid">
+
+      <!-- 01 Java 基础 -->
+      <div class="plan-group">
+        <div class="plan-group-title">01 · Java 基础 <span class="pg-num">7 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/java-basic-outline.html" target="_blank">java-basic-outline.html ✅</a></li>
+          <li><a href="doc/java/java-basic-01-oop.html" target="_blank">java-basic-01-oop.html ✅</a></li>
+          <li><a href="doc/java/java-basic-02-collection.html" target="_blank">java-basic-02-collection.html ✅</a></li>
+          <li><a href="doc/java/java-basic-03-generic.html" target="_blank">java-basic-03-generic.html ✅</a></li>
+          <li><a href="doc/java/java-basic-04-exception.html" target="_blank">java-basic-04-exception.html ✅</a></li>
+          <li><a href="doc/java/java-basic-05-jdk8.html" target="_blank">java-basic-05-jdk8.html ✅</a></li>
+          <li><a href="doc/java/java-basic-06-interview.html" target="_blank">java-basic-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 02 JVM -->
+      <div class="plan-group">
+        <div class="plan-group-title">02 · JVM <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/jvm-outline.html" target="_blank">jvm-outline.html ✅</a></li>
+          <li><a href="doc/java/jvm-01-memory.html" target="_blank">jvm-01-memory.html ✅</a></li>
+          <li><a href="doc/java/jvm-02-gc.html" target="_blank">jvm-02-gc.html ✅</a></li>
+          <li><a href="doc/java/jvm-03-classload.html" target="_blank">jvm-03-classload.html ✅</a></li>
+          <li><a href="doc/java/jvm-04-interview.html" target="_blank">jvm-04-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 03 Java 并发 -->
+      <div class="plan-group">
+        <div class="plan-group-title">03 · Java 并发 <span class="pg-num">7 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/concurrent-outline.html" target="_blank">concurrent-outline.html ✅</a></li>
+          <li><a href="doc/java/concurrent-01-jmm.html" target="_blank">concurrent-01-jmm.html ✅</a></li>
+          <li><a href="doc/java/concurrent-02-thread.html" target="_blank">concurrent-02-thread.html ✅</a></li>
+          <li><a href="doc/java/concurrent-03-lock.html" target="_blank">concurrent-03-lock.html ✅</a></li>
+          <li><a href="doc/java/concurrent-04-juc.html" target="_blank">concurrent-04-juc.html ✅</a></li>
+          <li><a href="doc/java/concurrent-05-pool.html" target="_blank">concurrent-05-pool.html ✅</a></li>
+          <li><a href="doc/java/concurrent-06-interview.html" target="_blank">concurrent-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 04 MySQL -->
+      <div class="plan-group">
+        <div class="plan-group-title">04 · MySQL <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>mysql-01-index.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>mysql-02-transaction.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>mysql-03-optimize.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>mysql-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 05 Redis -->
+      <div class="plan-group">
+        <div class="plan-group-title">05 · Redis <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>redis-01-datatype.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>redis-02-persistence.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>redis-03-cluster.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>redis-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 06 ORM -->
+      <div class="plan-group">
+        <div class="plan-group-title">06 · ORM <span class="pg-num">3 files</span></div>
+        <ul class="plan-list">
+          <li><span>orm-01-mybatis.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>orm-02-mybatisplus.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>orm-03-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 07 Spring -->
+      <div class="plan-group">
+        <div class="plan-group-title">07 · Spring 全家桶 <span class="pg-num">7 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/spring-outline.html" target="_blank">spring-outline.html ✅</a></li>
+          <li><a href="doc/java/spring-01-ioc.html" target="_blank">spring-01-ioc.html ✅</a></li>
+          <li><a href="doc/java/spring-02-aop.html" target="_blank">spring-02-aop.html ✅</a></li>
+          <li><a href="doc/java/spring-03-tx.html" target="_blank">spring-03-tx.html ✅</a></li>
+          <li><a href="doc/java/spring-04-mvc.html" target="_blank">spring-04-mvc.html ✅</a></li>
+          <li><a href="doc/java/spring-05-boot.html" target="_blank">spring-05-boot.html ✅</a></li>
+          <li><a href="doc/java/spring-06-interview.html" target="_blank">spring-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 08 RocketMQ -->
+      <div class="plan-group">
+        <div class="plan-group-title">08 · RocketMQ <span class="pg-num">3 files</span></div>
+        <ul class="plan-list">
+          <li><span>rocketmq-01-arch.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>rocketmq-02-features.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>rocketmq-03-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 09 RPC & Dubbo -->
+      <div class="plan-group">
+        <div class="plan-group-title">09 · RPC &amp; Dubbo <span class="pg-num">6 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/dubbo-outline.html" target="_blank">dubbo-outline.html ✅</a></li>
+          <li><a href="doc/java/dubbo-01-rpc.html" target="_blank">dubbo-01-rpc.html ✅</a></li>
+          <li><a href="doc/java/dubbo-02-arch.html" target="_blank">dubbo-02-arch.html ✅</a></li>
+          <li><a href="doc/java/dubbo-03-registry.html" target="_blank">dubbo-03-registry.html ✅</a></li>
+          <li><a href="doc/java/dubbo-04-cluster.html" target="_blank">dubbo-04-cluster.html ✅</a></li>
+          <li><a href="doc/java/dubbo-05-interview.html" target="_blank">dubbo-05-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 10 分布式系统 -->
+      <div class="plan-group">
+        <div class="plan-group-title">10 · 分布式系统 <span class="pg-num">5 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/dist-outline.html" target="_blank">dist-outline.html ✅</a></li>
+          <li><a href="doc/java/dist-01-theory.html" target="_blank">dist-01-theory.html ✅</a></li>
+          <li><a href="doc/java/dist-02-transaction.html" target="_blank">dist-02-transaction.html ✅</a></li>
+          <li><a href="doc/java/dist-03-lock-id.html" target="_blank">dist-03-lock-id.html ✅</a></li>
+          <li><a href="doc/java/dist-04-interview.html" target="_blank">dist-04-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 11 Elasticsearch -->
+      <div class="plan-group">
+        <div class="plan-group-title">11 · Elasticsearch <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>es-01-index.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>es-02-query.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>es-03-cluster.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>es-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 12 高性能高并发 -->
+      <div class="plan-group">
+        <div class="plan-group-title">12 · 高性能高并发 <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>perf-01-local-cache.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>perf-02-sharding.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>perf-03-ratelimit.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>perf-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 13 系统设计 & 设计模式 -->
+      <div class="plan-group">
+        <div class="plan-group-title">13 · 系统设计 &amp; 设计模式 <span class="pg-num">6 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/design-outline.html" target="_blank">design-outline.html ✅</a></li>
+          <li><a href="doc/java/design-01-creational.html" target="_blank">design-01-creational.html ✅</a></li>
+          <li><a href="doc/java/design-02-structural.html" target="_blank">design-02-structural.html ✅</a></li>
+          <li><a href="doc/java/design-03-behavioral.html" target="_blank">design-03-behavioral.html ✅</a></li>
+          <li><a href="doc/java/design-04-system.html" target="_blank">design-04-system.html ✅</a></li>
+          <li><a href="doc/java/design-05-interview.html" target="_blank">design-05-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 14 网络与 IO -->
+      <div class="plan-group">
+        <div class="plan-group-title">14 · 网络与 IO <span class="pg-num">4 files</span></div>
+        <ul class="plan-list">
+          <li><span>network-01-tcp.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>network-02-http.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>network-03-nio.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>network-04-interview.html <span class="badge-todo">TODO</span></span></li>
         </ul>
       </div>
 

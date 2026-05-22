@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 05 · Spring Boot 自动装配</title>
+<style>
+header::before{content:'BOOT'}
+/* step */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<header>
+  <div class="htag">SPRING · 05 · BOOT</div>
+  <h1>Spring Boot 自动装配</h1>
+  <p class="subtitle">自动装配原理 · 启动流程 · 配置体系 · 自定义 Starter · Actuator</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#autoconfig"><span class="s-link-num">01</span>自动装配原理</a>
+    <a class="s-link" href="#conditional"><span class="s-link-num">02</span>@Conditional 条件</a>
+    <a class="s-link" href="#startup"><span class="s-link-num">03</span>启动流程</a>
+    <a class="s-link" href="#config"><span class="s-link-num">04</span>配置体系</a>
+    <a class="s-link" href="#profile"><span class="s-link-num">05</span>Profile 多环境</a>
+    <a class="s-link" href="#starter"><span class="s-link-num">06</span>自定义 Starter</a>
+    <a class="s-link" href="#actuator"><span class="s-link-num">07</span>Actuator 监控</a>
+    <a class="s-link" href="#boot3"><span class="s-link-num">08</span>Boot 3.x 变化</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="spring-06-interview.html#boot">→ 面试题 Boot 章节</a>
+    <a class="s-link" href="spring-06-interview.html">→ 下一章：面试题</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 自动装配原理 ═══ -->
+    <div class="sec" id="autoconfig"><span class="sec-num">01</span>自动装配原理</div>
+
+    <div class="card">
+      <div class="card-title">从 @SpringBootApplication 到装配执行</div>
+      <p><code>@SpringBootApplication</code> 是三个注解的组合：</p>
+      <pre>@SpringBootConfiguration    // 等同于 @Configuration，声明配置类
+@EnableAutoConfiguration    // ← 自动装配核心入口
+@ComponentScan              // 扫描主类所在包及子包</pre>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">@EnableAutoConfiguration</div><div class="step-desc">通过 <code>@Import(AutoConfigurationImportSelector.class)</code> 导入自动配置选择器</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">SPI 加载候选配置类</div><div class="step-desc"><strong>Boot 2.x</strong>：扫描所有 jar 包 META-INF/spring.factories，读取 key 为 EnableAutoConfiguration 的配置类列表（可能 100+ 个）<br><strong>Boot 3.x</strong>：改为读取 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">@Conditional 条件过滤</div><div class="step-desc">对每个候选配置类进行条件检查，不满足条件的跳过（绝大多数情况下大量配置类被过滤掉）</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">注册满足条件的配置类</div><div class="step-desc">通过条件的 AutoConfiguration 类被注册为 BeanDefinition，后续正常走 Spring IoC 容器的 Bean 创建流程</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 02 @Conditional ═══ -->
+    <div class="sec" id="conditional"><span class="sec-num">02</span>@Conditional 条件注解</div>
+
+    <div class="card">
+      <div class="card-title">常用 Conditional 注解</div>
+      <table class="tbl">
+        <tr><th>注解</th><th>条件说明</th></tr>
+        <tr><td>@ConditionalOnClass</td><td>classpath 中存在指定类时生效（最常用）</td></tr>
+        <tr><td>@ConditionalOnMissingClass</td><td>classpath 中不存在指定类时生效</td></tr>
+        <tr><td>@ConditionalOnBean</td><td>容器中存在指定 Bean 时生效</td></tr>
+        <tr><td>@ConditionalOnMissingBean</td><td>容器中不存在指定 Bean 时生效（允许用户自定义覆盖）</td></tr>
+        <tr><td>@ConditionalOnProperty</td><td>配置文件中指定属性满足条件时生效</td></tr>
+        <tr><td>@ConditionalOnWebApplication</td><td>是 Web 应用时生效</td></tr>
+        <tr><td>@ConditionalOnExpression</td><td>SpEL 表达式为 true 时生效</td></tr>
+        <tr><td>@ConditionalOnJava</td><td>Java 版本满足条件时生效</td></tr>
+      </table>
+      <div class="note info"><strong>用户覆盖原理</strong>：AutoConfiguration 通常在 @Bean 上加 <code>@ConditionalOnMissingBean</code>，如果用户已注册同类型的 Bean，则自动配置的 Bean 跳过，实现"约定优于配置"。</div>
+    </div>
+
+    <!-- ═══ 03 启动流程 ═══ -->
+    <div class="sec" id="startup"><span class="sec-num">03</span>SpringApplication 启动流程</div>
+
+    <div class="card">
+      <div class="card-title">SpringApplication.run() 核心步骤</div>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">创建 SpringApplication 对象</div><div class="step-desc">推断应用类型（Servlet Web / Reactive Web / None），通过 SPI 加载 ApplicationContextInitializer 和 ApplicationListener 列表</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">发布 ApplicationStartingEvent</div><div class="step-desc">通知监听器应用即将启动</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">prepareEnvironment()</div><div class="step-desc">创建 ConfigurableEnvironment，加载配置源（application.yml / 环境变量 / 命令行参数），发布 ApplicationEnvironmentPreparedEvent</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">createApplicationContext()</div><div class="step-desc">根据应用类型创建 ApplicationContext（Servlet Web → AnnotationConfigServletWebServerApplicationContext）</div></div></div>
+        <div class="step"><div class="step-num">⑤</div><div><div class="step-title">prepareContext()</div><div class="step-desc">执行 ApplicationContextInitializer，注册主启动类为 BeanDefinition</div></div></div>
+        <div class="step"><div class="step-num">⑥ ★</div><div><div class="step-title">refreshContext() — Spring IoC 核心</div><div class="step-desc">执行 AbstractApplicationContext#refresh() 的 12 步，包含自动装配配置类加载、所有 Bean 的实例化。Web 容器在 onRefresh() 阶段创建并启动内嵌 Tomcat</div></div></div>
+        <div class="step"><div class="step-num">⑦</div><div><div class="step-title">afterRefresh() + Runner</div><div class="step-desc">执行所有 CommandLineRunner 和 ApplicationRunner（按 @Order 排序），发布 ApplicationReadyEvent</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 04 配置体系 ═══ -->
+    <div class="sec" id="config"><span class="sec-num">04</span>配置体系与优先级</div>
+
+    <div class="card">
+      <div class="card-title">配置源优先级（从高到低）</div>
+      <table class="tbl">
+        <tr><th>优先级</th><th>配置源</th></tr>
+        <tr><td>最高</td><td>命令行参数（<code>--server.port=8081</code>）</td></tr>
+        <tr><td>↓</td><td>Java 系统属性（<code>-Dserver.port=8081</code>）</td></tr>
+        <tr><td>↓</td><td>操作系统环境变量（<code>SERVER_PORT=8081</code>）</td></tr>
+        <tr><td>↓</td><td>application-{profile}.yml（Profile 配置文件）</td></tr>
+        <tr><td>↓</td><td>application.yml（默认配置文件）</td></tr>
+        <tr><td>最低</td><td>@PropertySource 注解导入的配置</td></tr>
+      </table>
+      <div class="note info">高优先级的配置会覆盖低优先级的相同 key，这是实现多环境配置的基础。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">@ConfigurationProperties 类型安全绑定</div>
+      <pre># application.yml
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: user@gmail.com
+
+// Java 类型安全绑定
+@ConfigurationProperties(prefix = "mail")
+@Component // 或在 @EnableConfigurationProperties 中注册
+public class MailProperties {
+    private String host;
+    private int port;
+    private String username;
+    // getter/setter...
+}</pre>
+      <p>相比 <code>@Value("${mail.host}")</code>，<code>@ConfigurationProperties</code> 支持复杂对象绑定、集合绑定，且可在 IDE 中自动补全（需引入 spring-boot-configuration-processor）。</p>
+    </div>
+
+    <!-- ═══ 05 Profile ═══ -->
+    <div class="sec" id="profile"><span class="sec-num">05</span>Profile 多环境配置</div>
+
+    <div class="card">
+      <div class="card-title">Profile 使用方式</div>
+      <pre># 激活 Profile
+spring.profiles.active=prod  # application.yml 中配置
+# 或命令行：--spring.profiles.active=prod
+# 或环境变量：SPRING_PROFILES_ACTIVE=prod
+
+# application-dev.yml（开发环境）
+spring.datasource.url=jdbc:mysql://localhost:3306/dev_db
+
+# application-prod.yml（生产环境）
+spring.datasource.url=jdbc:mysql://prod-server:3306/prod_db</pre>
+      <pre>// 代码中的 Profile 条件
+@Configuration
+@Profile("dev")  // 仅在 dev Profile 下生效
+public class DevDataConfig {
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder().setType(H2).build();
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 06 自定义 Starter ═══ -->
+    <div class="sec" id="starter"><span class="sec-num">06</span>自定义 Starter</div>
+
+    <div class="card">
+      <div class="card-title">Starter 标准结构</div>
+      <p>推荐分两个模块：</p>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin:10px 0">
+        <li style="display:flex;gap:10px;font-size:13.5px;color:var(--tx2)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--blue)">▸</span><span><code>xxx-spring-boot-autoconfigure</code>：包含自动配置类、Properties 类、核心功能代码</span></li>
+        <li style="display:flex;gap:10px;font-size:13.5px;color:var(--tx2)"><span style="font-family:'IBM Plex Mono',monospace;color:var(--blue)">▸</span><span><code>xxx-spring-boot-starter</code>：仅含 pom.xml，依赖 autoconfigure 模块，供用户引入</span></li>
+      </ul>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">编写 AutoConfiguration 类</div><div class="step-desc"><code>@AutoConfiguration</code>（Boot 3.x）或 <code>@Configuration</code>（Boot 2.x），用 @ConditionalOn* 控制装配条件</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">编写 ConfigurationProperties</div><div class="step-desc"><code>@ConfigurationProperties(prefix="xxx")</code> 定义配置项，提供 IDE 补全支持</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">注册 AutoConfiguration（Boot 2.x）</div><div class="step-desc">在 <code>META-INF/spring.factories</code> 中：<code>org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.xxx.XxxAutoConfiguration</code></div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">注册 AutoConfiguration（Boot 3.x）</div><div class="step-desc">在 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 中写入配置类全路径</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">添加 configuration-processor 依赖</div><div class="step-desc">生成 <code>META-INF/spring-configuration-metadata.json</code>，IDE 自动补全配置项提示</div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 07 Actuator ═══ -->
+    <div class="sec" id="actuator"><span class="sec-num">07</span>Actuator 监控</div>
+
+    <div class="card">
+      <div class="card-title">常用端点</div>
+      <table class="tbl">
+        <tr><th>端点</th><th>说明</th></tr>
+        <tr><td>/actuator/health</td><td>健康状态检查（数据库连接、磁盘空间等）</td></tr>
+        <tr><td>/actuator/metrics</td><td>应用指标（JVM 内存、线程数、HTTP 请求数等）</td></tr>
+        <tr><td>/actuator/env</td><td>环境配置信息（配置属性）</td></tr>
+        <tr><td>/actuator/beans</td><td>所有 Spring Bean 列表</td></tr>
+        <tr><td>/actuator/mappings</td><td>所有 @RequestMapping 路由映射</td></tr>
+        <tr><td>/actuator/loggers</td><td>日志级别查看与动态修改</td></tr>
+        <tr><td>/actuator/threaddump</td><td>线程堆栈信息</td></tr>
+        <tr><td>/actuator/heapdump</td><td>下载堆内存 dump 文件</td></tr>
+        <tr><td>/actuator/info</td><td>应用信息（git 版本、构建信息等）</td></tr>
+      </table>
+      <pre># 开放端点配置（生产环境谨慎开放）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info  # 或 * 开放所有
+  endpoint:
+    health:
+      show-details: always  # 显示详细健康信息</pre>
+    </div>
+
+    <!-- ═══ 08 Boot 3.x ═══ -->
+    <div class="sec" id="boot3"><span class="sec-num">08</span>Spring Boot 3.x 重要变化</div>
+
+    <div class="card">
+      <div class="card-title">Boot 3.x vs 2.x 主要差异</div>
+      <table class="tbl">
+        <tr><th>变化点</th><th>Boot 2.x</th><th>Boot 3.x</th></tr>
+        <tr><td>最低 Java 版本</td><td>Java 8+</td><td>Java 17+</td></tr>
+        <tr><td>最低 Spring 版本</td><td>Spring 5.x</td><td>Spring 6.x</td></tr>
+        <tr><td>Servlet API</td><td>javax.servlet.*</td><td>jakarta.servlet.*（全面迁移 Jakarta EE 9+）</td></tr>
+        <tr><td>AutoConfiguration 注册</td><td>spring.factories</td><td>AutoConfiguration.imports 文件</td></tr>
+        <tr><td>原生镜像</td><td>实验性支持</td><td>一等公民，AOT 编译，GraalVM Native Image</td></tr>
+        <tr><td>声明式 HTTP 客户端</td><td>需 Feign</td><td>原生 @HttpExchange（替代 Feign）</td></tr>
+        <tr><td>可观测性</td><td>Micrometer</td><td>Micrometer Tracing + OpenTelemetry 集成</td></tr>
+      </table>
+      <div class="note warn"><strong>迁移注意</strong>：2.x → 3.x 最大痛点是 javax → jakarta 包名变更，所有代码中的 import 都需修改。可使用 <code>spring-boot-migrator</code> 工具辅助迁移。</div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

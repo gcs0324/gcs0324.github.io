@@ -1,0 +1,127 @@
+/* ============================================================
+   doc-page.css — shared styles for knowledge/content pages
+   Depends on theme.css for CSS custom properties.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* ── reset ── */
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;font-size:14px}
+a{color:var(--blue);text-decoration:none}
+
+/* ── top nav ── */
+.topnav{background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.topnav-brand{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--tx);padding:12px 0;margin-right:20px;white-space:nowrap;text-decoration:none}
+.topnav-links{display:flex;gap:0;overflow-x:auto;flex:1}
+.topnav-links a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em}
+.topnav-links a:hover{color:var(--tx);border-bottom-color:var(--bd2)}
+.topnav-links a.active{color:var(--accent-color,var(--blue));border-bottom-color:var(--accent-color,var(--blue))}
+
+/* ── layout ── */
+.layout{display:flex;align-items:flex-start}
+
+/* ── sidebar ── */
+.sidebar{width:200px;flex-shrink:0;position:sticky;top:44px;height:calc(100vh - 44px);overflow-y:auto;border-right:1px solid var(--bd);padding:16px 0 40px;background:var(--bg)}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.s-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--tx3);text-transform:uppercase;padding:8px 16px 4px}
+/* alias for different naming conventions in older pages */
+.sb-title{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--tx3);text-transform:uppercase;padding:8px 16px 4px}
+.s-section-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--tx3);text-transform:uppercase;padding:8px 16px 4px}
+.s-link{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;color:var(--tx2);text-decoration:none;transition:background .12s,color .12s}
+.s-link:hover{background:var(--bg2);color:var(--tx)}
+.s-link.active{background:var(--blue-bg);color:var(--blue)}
+/* legacy sidebar link style used in java-basic / dubbo / design */
+.sb-link{display:block;padding:6px 16px;font-size:.82rem;color:var(--tx2);border-left:2px solid transparent;transition:all .15s;text-decoration:none}
+.sb-link:hover,.sb-link.active{color:var(--tx);border-left-color:var(--accent-color,var(--blue));background:var(--blue-bg)}
+.s-num,.s-link-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);min-width:22px}
+.s-div,.s-divider{height:1px;background:var(--bd);margin:8px 16px}
+
+/* ── header ── */
+header{background:var(--bg2);padding:36px 40px 24px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+header::before{content:attr(data-wm);position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:700;color:var(--watermark,rgba(128,128,128,.05));letter-spacing:-.04em;pointer-events:none}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--accent-color,var(--blue));background:var(--accent-bg,var(--blue-bg));border:1px solid var(--accent-b,var(--blue-b));border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px}
+header h1{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px}
+header .sub,header .subtitle{font-size:13px;color:var(--tx2);max-width:560px;line-height:1.7}
+
+/* ── main content ── */
+.mc,.mcontent{flex:1;padding:32px 48px 80px;min-width:0}
+/* full-width layouts (jvm style) */
+main{padding:44px 64px 80px;max-width:1360px}
+
+/* ── section heading ── */
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;display:flex;align-items:center;gap:10px}
+.sec:first-child{margin-top:0}
+.sec .sn,.sec .sec-num{color:var(--accent-color,var(--blue))}
+/* legacy h2.sec for older pages */
+h2.sec{font-size:1.25rem;font-weight:700;margin:40px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-color,var(--blue));scroll-margin-top:60px;letter-spacing:normal;text-transform:none;font-family:'Inter',system-ui,sans-serif;color:var(--tx)}
+
+/* ── card ── */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:20px 24px;margin-bottom:12px}
+.ct,.card-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--accent-color,var(--blue));margin-bottom:12px;text-transform:uppercase}
+
+/* ── typography ── */
+p{font-size:14px;color:var(--tx2);margin-bottom:10px;line-height:1.75}
+p:last-child{margin-bottom:0}
+h3{font-size:1rem;font-weight:700;margin:20px 0 10px;color:var(--tx)}
+.kw{color:var(--tx);font-weight:600}
+
+/* ── code ── */
+code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 5px}
+pre{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:12px 14px;overflow-x:auto;line-height:1.6;color:var(--tx2);margin:10px 0}
+
+/* ── table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:7px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+/* legacy generic table */
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--bg2);padding:8px 12px;text-align:left;border:1px solid var(--bd);font-weight:600}
+td{padding:8px 12px;border:1px solid var(--bd);vertical-align:top}
+tr:hover td{background:var(--bg2)}
+.table-wrap{overflow-x:auto;margin:12px 0}
+
+/* ── list ── */
+ul.dl,.dl{list-style:none;display:flex;flex-direction:column;gap:7px;padding-left:0;margin-top:10px}
+ul.dl li,.dl li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--tx2)}
+ul.dl li .b,.dl li .b{font-family:'IBM Plex Mono',monospace;color:var(--accent-color,var(--blue));flex-shrink:0;font-size:11px;margin-top:3px;min-width:16px}
+ul.detail{list-style:none;display:flex;flex-direction:column;gap:8px;padding-left:0;margin-top:10px}
+ul.detail li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--tx2)}
+ul.detail li .bullet{font-family:'IBM Plex Mono',monospace;color:var(--accent-color,var(--blue));flex-shrink:0;font-size:12px;margin-top:3px}
+ul,ol{padding-left:20px;margin-bottom:10px}
+li{margin-bottom:4px;font-size:.9rem}
+
+/* ── note/tip/warn ── */
+.note{border-radius:6px;padding:10px 14px;font-size:13px;margin:10px 0}
+.note.info{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--tx2)}
+.note.warn{background:var(--yellow-bg,#fffbe6);border:1px solid var(--yellow-b,#f0d060);color:var(--tx2)}
+.note.danger{background:var(--red-bg);border:1px solid var(--red-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+.tip{background:var(--blue-bg);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.warn{background:var(--yellow-bg,#fffbe6);border-left:3px solid var(--yellow,#b45309);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.danger{background:var(--red-bg);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* ── badge/key ── */
+.key{display:inline-block;background:var(--blue-bg);color:var(--blue);font-size:.72rem;padding:1px 8px;border-radius:4px;font-weight:600;margin:2px 2px}
+.ver-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;margin-right:4px;vertical-align:middle;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.tag-priv{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.tag-shared{background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border:1px solid var(--green-b,#9ed4b0)}
+.tag-oom,.tag-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.tag-safe{background:var(--bg2);color:var(--tx3);border:1px solid var(--bd)}
+
+/* ── step flow ── */
+.step-flow{display:flex;flex-direction:column;gap:0;margin-top:12px}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--accent-color,var(--blue));background:var(--accent-bg,var(--blue-bg));border:1px solid var(--accent-b,var(--blue-b));border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:2px}
+.step-desc{font-size:13px;color:var(--tx2)}
+
+/* ── responsive ── */
+@media(max-width:900px){.sidebar{display:none}.mc,.mcontent{padding:20px}header{padding:24px 20px}}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px}}
