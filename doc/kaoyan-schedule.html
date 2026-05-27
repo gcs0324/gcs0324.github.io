@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研时间分配表 · 2026.5—2026.12</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'PLAN';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1300px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+/* phase overview */
+.phase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:32px;}
+.phase-card{border-radius:10px;padding:18px 16px 14px;border:1px solid;}
+.phase-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.phase-months{font-size:20px;font-weight:700;line-height:1.1;margin-bottom:4px;}
+.phase-hours{font-size:11px;margin-top:6px;opacity:.75;}
+.phase-desc{font-size:12px;margin-top:6px;opacity:.8;line-height:1.5;}
+.phase-base{background:var(--blu-bg);border-color:var(--blu-b);color:var(--blue);}
+.phase-intensive{background:var(--yel-bg);border-color:var(--yel-b);color:var(--yellow);}
+.phase-exam{background:var(--grn-bg);border-color:var(--grn-b);color:var(--green);}
+.phase-sprint{background:var(--red-bg);border-color:var(--red-b);color:var(--red);}
+
+/* week budget */
+.budget-bar{display:flex;gap:8px;margin-bottom:16px;padding:16px 20px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;align-items:center;flex-wrap:wrap;}
+.budget-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+.budget-num{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--tx);}
+.budget-sep{color:var(--bd2);font-size:18px;}
+
+/* daily rhythm */
+.rhythm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:32px;}
+.rhythm-card{padding:12px 16px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;}
+.rhythm-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--tx3);margin-bottom:8px;}
+.rhythm-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px;}
+.rhythm-label{color:var(--tx3);min-width:36px;}
+.rhythm-bar{flex:1;height:8px;border-radius:4px;overflow:hidden;background:var(--bg3);display:flex;}
+.rb-math{background:var(--blue);height:100%;}
+.rb-408{background:var(--green);height:100%;}
+.rb-eng{background:var(--yellow);height:100%;}
+.rhythm-legend{display:flex;gap:12px;margin-top:6px;font-size:11px;color:var(--tx3);}
+.rl{display:flex;align-items:center;gap:4px;}
+.rl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+/* month timeline */
+.timeline{display:flex;flex-direction:column;gap:12px;}
+.month-block{border:1px solid var(--bd);border-radius:12px;overflow:hidden;}
+.month-head{display:flex;align-items:center;gap:16px;padding:14px 20px;cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:background .15s;}
+.month-head:hover{background:var(--bg3);}
+.month-block.open .month-head{border-bottom-color:var(--bd);}
+.month-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;min-width:52px;text-align:center;}
+.month-name{font-size:16px;font-weight:700;color:var(--tx);flex:1;}
+.month-phase-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid;flex-shrink:0;}
+.month-hours{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx3);flex-shrink:0;}
+.chevron{font-size:12px;color:var(--tx3);transition:transform .2s;flex-shrink:0;}
+.month-block.open .chevron{transform:rotate(180deg);}
+.month-body{display:none;padding:0;}
+.month-block.open .month-body{display:block;}
+
+/* subject rows */
+.subj-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:none;}
+.subj-cell{padding:16px 20px;border-bottom:1px solid var(--bd);border-right:1px solid var(--bd);}
+.subj-cell:nth-child(2n){border-right:none;}
+.subj-cell:nth-last-child(-n+2){border-bottom:none;}
+.subj-label{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.subj-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--tx2);letter-spacing:.04em;}
+.subj-h{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);margin-left:auto;}
+.task-list{display:flex;flex-direction:column;gap:4px;}
+.task{display:flex;align-items:baseline;gap:7px;font-size:13px;color:var(--tx2);line-height:1.5;}
+.task::before{content:"·";color:var(--tx3);flex-shrink:0;}
+.task strong{color:var(--tx);font-weight:600;}
+.task-note{display:flex;align-items:baseline;gap:7px;font-size:12px;color:var(--tx3);line-height:1.5;margin-top:2px;}
+.task-note::before{content:"↳";color:var(--bd2);flex-shrink:0;}
+.skip-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--bg3);color:var(--tx3);border:1px solid var(--bd);vertical-align:middle;margin-left:4px;}
+.month-total{padding:10px 20px;background:var(--bg2);display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid var(--bd);}
+.total-item{font-size:12px;color:var(--tx3);display:flex;align-items:center;gap:5px;}
+.total-item b{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx2);}
+.advice{margin-top:8px;padding:10px 14px;background:var(--bg3);border-radius:6px;font-size:12px;color:var(--tx3);line-height:1.6;}
+.advice b{color:var(--tx2);}
+.c-base{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.c-intensive{color:var(--yellow);border-color:var(--yel-b);background:var(--yel-bg);}
+.c-exam{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+.c-sprint{color:var(--red);border-color:var(--red-b);background:var(--red-bg);}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">KAOYAN · 时间规划</div>
+  <h1>考研时间分配表</h1>
+  <p class="subtitle">2026年5月28日启动 → 2026年12月考试 · 政50+英50+数100+408·100=300 · 在职每周18h</p>
+</header>
+
+<nav>
+  <a href="#overview">阶段总览</a>
+  <a href="#may">5月</a>
+  <a href="#jun">6月</a>
+  <a href="#jul">7月</a>
+  <a href="#aug">8月</a>
+  <a href="#sep">9月</a>
+  <a href="#oct">10月</a>
+  <a href="#nov">11月</a>
+  <a href="#dec">12月</a>
+</nav>
+
+<main>
+
+<div class="sec" id="overview">OVERVIEW · 四个阶段</div>
+
+<div class="phase-grid">
+  <div class="phase-card phase-base">
+    <div class="phase-title">Phase 1 · 基础</div>
+    <div class="phase-months">5.28—7月</div>
+    <div class="phase-desc">高数（前8章）+数据结构，单词每日，6月起精读2篇/周</div>
+    <div class="phase-hours">约 165h · 含5月仅4天</div>
+  </div>
+  <div class="phase-card phase-intensive">
+    <div class="phase-title">Phase 2 · 强化</div>
+    <div class="phase-months">8—9月</div>
+    <div class="phase-desc">高数收尾（二重积分+线代）+660题，OS+CO全部，精读提速，政治启动</div>
+    <div class="phase-hours">约 155h · 2个月</div>
+  </div>
+  <div class="phase-card phase-exam">
+    <div class="phase-title">Phase 3 · 真题</div>
+    <div class="phase-months">10—11月</div>
+    <div class="phase-desc">数学+408各刷2轮真题，政治肖八，英语作文</div>
+    <div class="phase-hours">约 155h · 2个月</div>
+  </div>
+  <div class="phase-card phase-sprint">
+    <div class="phase-title">Phase 4 · 冲刺</div>
+    <div class="phase-months">12月</div>
+    <div class="phase-desc">肖四大题背诵，模拟卷，查漏补缺</div>
+    <div class="phase-hours">约 55h · 1个月</div>
+  </div>
+</div>
+
+<div class="budget-bar">
+  <div class="budget-item">每日/每周时间预算</div>
+  <div class="budget-sep">|</div>
+  <div class="budget-item">工作日 <span class="budget-num">2h</span>/天 × 5天 = <span class="budget-num">10h</span>（数学1h + 408·1h）</div>
+  <div class="budget-sep">+</div>
+  <div class="budget-item">周末 <span class="budget-num">4h</span>/天 × 2天 = <span class="budget-num">8h</span>（数学2h + 408·2h）</div>
+  <div class="budget-sep">=</div>
+  <div class="budget-item">每周合计 <span class="budget-num">18h</span> · 数学9h + 408·9h · 约30周共 <span class="budget-num">~530h</span></div>
+</div>
+
+<div class="rhythm">
+  <div class="rhythm-card">
+    <div class="rhythm-title">工作日 · 2h/天</div>
+    <div class="rhythm-row">
+      <span class="rhythm-label">数学</span>
+      <div class="rhythm-bar"><div class="rb-math" style="width:50%"></div><div class="rb-408" style="width:50%"></div></div>
+      <span style="font-size:11px;color:var(--tx3);margin-left:6px;">各1h</span>
+    </div>
+    <div class="rhythm-legend">
+      <div class="rl"><div class="rl-dot" style="background:var(--blue)"></div>数学</div>
+      <div class="rl"><div class="rl-dot" style="background:var(--green)"></div>408</div>
+      <div class="rl"><div class="rl-dot" style="background:var(--yellow)"></div>单词（每天20min额外）</div>
+    </div>
+  </div>
+  <div class="rhythm-card">
+    <div class="rhythm-title">周末 · 4h/天</div>
+    <div class="rhythm-row">
+      <span class="rhythm-label">数学</span>
+      <div class="rhythm-bar"><div class="rb-math" style="width:50%"></div><div class="rb-408" style="width:50%"></div></div>
+      <span style="font-size:11px;color:var(--tx3);margin-left:6px;">各2h</span>
+    </div>
+    <div class="rhythm-legend">
+      <div class="rl" style="font-size:11px;color:var(--tx3);">每周数学9h + 408·9h = 18h · 每月约39h/科</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">TIMELINE · 月度计划</div>
+<div class="timeline">
+
+<!-- 5月 -->
+<div class="month-block open" id="may">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-base">05月</span>
+    <span class="month-name">5月 · 启动（5.28—5.31，仅4天）</span>
+    <span class="month-phase-badge c-base">基础阶段</span>
+    <span class="month-hours">≈ 12h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">5h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>翻看强化讲义目录</strong> — 了解数二覆盖的9章范围</div>
+          <div class="task"><strong>极限入门</strong> — 等价无穷小10个公式先背</div>
+          <div class="task-note">sinx~x, tanx~x, e^x-1~x, ln(1+x)~x, 1-cosx~x²/2 等</div>
+          <div class="advice">4天目标是"不陌生"，6月才是真正第一个完整学习月</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数据结构</span>
+          <span class="subj-h">5h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>绪论</strong> — 时间/空间复杂度大O记号，手算3道例题</div>
+          <div class="task"><strong>翻看王道目录</strong> — 了解8章结构和重点分布</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">2h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>单词App启动</strong> — 墨墨/不背单词，添加考研高频2000词</div>
+          <div class="task-note">每天20min额外记单词，全年不断，英语唯一的复利</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">0h</span>
+        </div>
+        <div class="task-list">
+          <div class="task" style="color:var(--tx3)">尚未开始 <span class="skip-tag">9月启动</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学 <b>5h</b></div>
+      <div class="total-item">数据结构 <b>5h</b></div>
+      <div class="total-item">英语（单词）<b>2h</b></div>
+      <div class="total-item">合计 <b>≈ 12h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6月 -->
+<div class="month-block open" id="jun">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-base">06月</span>
+    <span class="month-name">6月 · 高数前半 + DS前半</span>
+    <span class="month-phase-badge c-base">基础阶段</span>
+    <span class="month-hours">≈ 77h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">34h（9h/周×3.8周）</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：极限完整</strong> — 七种不定式练透，洛必达+等价替换+泰勒并用</div>
+          <div class="task-note">连续与间断点分类，每类型做5道题</div>
+          <div class="task"><strong>周2：一元微分</strong> — 导数法则，分段函数用定义求导，隐函数/参数方程</div>
+          <div class="task"><strong>周3：中值定理+导数应用</strong> — 极值/最值/凹凸/渐近线+罗尔/拉格朗日</div>
+          <div class="task-note">辅助函数构造是大题难点，强化讲义有套路，照着背</div>
+          <div class="task"><strong>周4：不定积分</strong> — 22个公式背完，第一类换元大量练</div>
+          <div class="task-note">分部积分"反对幂三指"顺序记住，每天最少练5道积分题</div>
+          <div class="advice">每章强化讲义看完，当天做对应的660题（先选择题），不要攒</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数据结构</span>
+          <span class="subj-h">34h（9h/周×3.8周）</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：线性表</strong> — 顺序+链式，链表插删代码手写（不看答案）</div>
+          <div class="task"><strong>周2：栈与队列</strong> — 循环队列判空判满，括号匹配/后缀表达式代码</div>
+          <div class="task"><strong>周3：串/KMP</strong> — next数组手算练习，朴素匹配→KMP改进</div>
+          <div class="task"><strong>周4：树前半</strong> — 二叉树性质（n0=n2+1），三种遍历递归+非递归</div>
+          <div class="task-note">非递归中序遍历用栈，手写代码是重点</div>
+          <div class="advice">Java开发背景，链表和树操作上手会比较快，重点在"代码无bug"而不在理解</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">9h（单词+精读启动）</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>单词</strong> — App每日20min，不间断</div>
+          <div class="task-note">错词加入错词本，每周五统一复习</div>
+          <div class="task"><strong>精读启动</strong> — 2篇/周，慢节奏热身，2012-2013年阅读Part A</div>
+          <div class="task-note">精读 = 生词查义+长难句拆解+选项逐个分析，利用午休/通勤时间，约45min/篇</div>
+          <div class="advice">6月先慢不要求完整，培养精读习惯比做完数量重要</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">0h</span>
+        </div>
+        <div class="task-list">
+          <div class="task" style="color:var(--tx3)">尚未开始 <span class="skip-tag">9月启动</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学 <b>34h</b></div>
+      <div class="total-item">数据结构 <b>34h</b></div>
+      <div class="total-item">英语（单词+精读）<b>9h</b></div>
+      <div class="total-item">合计 <b>≈ 77h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 7月 -->
+<div class="month-block open" id="jul">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-base">07月</span>
+    <span class="month-name">7月 · 高数收尾（仅高数） + DS完成</span>
+    <span class="month-phase-badge c-base">基础阶段</span>
+    <span class="month-hours">≈ 77h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">34h · 线代→8月，二重→8月</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：定积分</strong> — 变限积分求导（必考！含复合形式），奇偶化简，换元注意上下限跟着变</div>
+          <div class="task-note">变限积分求导几乎每年都考，单独专项练10道</div>
+          <div class="task"><strong>周2：定积分应用</strong> — 旋转体体积（盘法 π∫y²dx / 壳法 2π∫xy dx），平面面积</div>
+          <div class="task-note">每题先画图再建立积分式，别直接套公式</div>
+          <div class="task"><strong>周3：微分方程</strong> — 一阶可分离+一阶线性（公式法）+二阶常系数非齐次</div>
+          <div class="task-note">二阶非齐次特解设法：多项式型/e^αx型/三角型，各练3道</div>
+          <div class="task"><strong>周4：多元函数微分</strong> — 偏导/全微分/链式/隐函数F法/条件极值（拉格朗日）</div>
+          <div class="task-note">链式求导画图后下笔，条件极值是大题高频考点</div>
+          <div class="task" style="color:var(--tx2)">7月高数4章收尾（定积分·微分方程·定积分应用·多元函数）<br><span style="color:var(--tx3);font-size:12px;">⚠ 高数尚未全完：二重积分（第9章）+ 线代 → 8月集中完成</span></div>
+          <div class="advice"><b>线代和二重积分移到8月集中学</b>，7月只收尾高数4章，每章9h刚好一周；数学二全部完成要等到8月底</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数据结构</span>
+          <span class="subj-h">34h · 本月完成DS全部</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：树后半</strong> — AVL四种旋转（LL/RR/LR/RL），哈夫曼树构造，B树性质</div>
+          <div class="task-note">AVL旋转画图练到不出错，是大题高频</div>
+          <div class="task"><strong>周2：图</strong> — BFS/DFS代码+手动模拟，Dijkstra手算，Prim/Kruskal手算</div>
+          <div class="task-note">Java开发熟悉图算法，重点在"手算规范步骤"而非理解</div>
+          <div class="task"><strong>周3：查找</strong> — 折半查找判定树，哈希表冲突处理，ASL手算</div>
+          <div class="task"><strong>周4：排序</strong> — 八大排序时间/空间/稳定性全背，快排+归并+堆排手动模拟</div>
+          <div class="task-note">排序算法比较表是每年必考选择题，背到条件反射</div>
+          <div class="task" style="color:var(--green)">数据结构全部完成 ✓</div>
+          <div class="advice">7月底DS做1套408历年真题检验，选择题正确率目标65%+</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">9h（单词+精读提速）</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>单词</strong> — 持续每天20min</div>
+          <div class="task"><strong>精读提速</strong> — 4篇/周，2014-2017年阅读Part A（约16篇）</div>
+          <div class="task-note">7月要提速：周内2篇+周末2篇，午休+通勤合力，保证做完精读</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">0h</span>
+        </div>
+        <div class="task-list">
+          <div class="task" style="color:var(--tx3)">尚未开始 <span class="skip-tag">9月启动</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学（高数收尾）<b>34h</b></div>
+      <div class="total-item">数据结构（完成）<b>34h</b></div>
+      <div class="total-item">英语（单词+精读）<b>9h</b></div>
+      <div class="total-item">合计 <b>≈ 77h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 8月 -->
+<div class="month-block open" id="aug">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-intensive">08月</span>
+    <span class="month-name">8月 · 二重积分+线代 + 操作系统</span>
+    <span class="month-phase-badge c-intensive">强化阶段</span>
+    <span class="month-hours">≈ 77h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">34h · 二重+线代，全部完成</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：二重积分</strong> — 直角坐标X型/Y型，极坐标（圆形区域必用），奇偶化简</div>
+          <div class="task-note">交换积分次序：每题先画积分域，这是真题必考点</div>
+          <div class="task"><strong>周2：线代前3章</strong> — 行列式（化三角形），矩阵（运算/求逆），矩阵的秩</div>
+          <div class="task-note">3×3矩阵求逆要练到3分钟内完成，后面每章都用</div>
+          <div class="task"><strong>周3：线代后3章</strong> — 向量组（线性相关）+方程组（含参数讨论）+特征值对角化</div>
+          <div class="task-note">含参数方程组讨论r(A)是大题核心，分情况写规范</div>
+          <div class="task"><strong>周4：二次型+查漏</strong> — 正交变换化标准形（Schmidt正交化），回扫强化讲义弱点</div>
+          <div class="task" style="color:var(--green)">数学二全部完成（高数+线代）✓</div>
+          <div class="advice">线代集中4周一气呵成效果好，不要拆散到多个月</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">操作系统</span>
+          <span class="subj-h">34h · 本月完成OS全部</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：进程管理</strong> — 五态图，CPU调度（FCFS/SJF/RR）画甘特图</div>
+          <div class="task-note">计算等待时间/周转时间，这是大题常考点</div>
+          <div class="task"><strong>周2：进程同步</strong> — 信号量PV操作，生产者消费者/读写者模板背熟手写</div>
+          <div class="task-note">PV代码是大题必考，写法要规范，不看答案手写完整</div>
+          <div class="task"><strong>周3：死锁+内存管理</strong> — 银行家算法，分页地址变换，TLB命中率计算</div>
+          <div class="task-note">逻辑→物理地址手算10道，TLB平均存取时间公式背</div>
+          <div class="task"><strong>周4：页面置换+文件+磁盘</strong> — OPT/FIFO/LRU缺页率，inode文件大小计算，SCAN</div>
+          <div class="task" style="color:var(--green)">操作系统全部完成 ✓</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">9h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>单词</strong> — 持续每天20min</div>
+          <div class="task"><strong>精读收尾</strong> — 4篇/周，2018-2021年阅读Part A（约16篇）</div>
+          <div class="task-note">8月底精读完 2012-2021 全部10年 ✓，后续留近年真题给9月</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">0h</span>
+        </div>
+        <div class="task-list">
+          <div class="task" style="color:var(--tx3)">尚未开始 <span class="skip-tag">9月启动</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学（二重+线代完成）<b>34h</b></div>
+      <div class="total-item">操作系统（完成）<b>34h</b></div>
+      <div class="total-item">英语 <b>9h</b></div>
+      <div class="total-item">合计 <b>≈ 77h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 9月 -->
+<div class="month-block open" id="sep">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-intensive">09月</span>
+    <span class="month-name">9月 · 660题+真题第一轮 + 组成原理 + 政治启动</span>
+    <span class="month-phase-badge c-intensive">强化阶段</span>
+    <span class="month-hours">≈ 77h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">25h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1-2：660题</strong> — 数二范围选择题刷一遍，填补强化和真题的空档</div>
+          <div class="task-note">660题错误率&gt;40%说明基础有洞，先标注后补，不要硬推</div>
+          <div class="task"><strong>周3-4：真题第1轮启动</strong> — 2011-2025，每套限时180分钟</div>
+          <div class="task-note">做完对答案，错题分类：粗心/方法不熟/完全不会，建错题本</div>
+          <div class="advice">9月数学让出时间给组成原理，数学降到每天1h节奏</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">组成原理</span>
+          <span class="subj-h">30h · 本月完成CO</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>周1：数据表示与运算</strong> — 补码/移码/IEEE754浮点，溢出双符号位判断</div>
+          <div class="task-note">浮点转换手算10道，补码加法做到条件反射</div>
+          <div class="task"><strong>周2：存储系统</strong> — Cache三种映射（直接/组相联/全相联），地址划分计算</div>
+          <div class="task-note">命中率计算是大题常考，做5道不同类型题</div>
+          <div class="task"><strong>周3：CPU+流水线</strong> — 数据通路，流水线加速比/效率/冒险处理</div>
+          <div class="task-note">流水线计算做10道，这是组成原理大题核心</div>
+          <div class="task"><strong>周4：指令+中断+IO</strong> — 寻址方式，中断处理全流程，IO控制方式4种背熟</div>
+          <div class="task" style="color:var(--green)">组成原理全部完成 ✓</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">12h · 9月启动！</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>徐涛核心考案</strong>（非全程班，太耗时）</div>
+          <div class="task"><strong>马原+毛中特</strong> — 核心章节，同步刷1000题选择题</div>
+          <div class="advice">政治每天20-30min，利用通勤时间</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">10h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>精读收官</strong> — 2022-2025年阅读Part A（近年真题，最接近考试风格）</div>
+          <div class="task-note">2012-2021精读已在678月完成，9月集中做近年题感受新风格</div>
+          <div class="task"><strong>新题型</strong> — 英二真题新题型过5套</div>
+          <div class="task-note">段落匹配先看各段首句，排序题先找固定句</div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学 <b>25h</b></div>
+      <div class="total-item">组成原理（完成）<b>30h</b></div>
+      <div class="total-item">政治 <b>12h</b></div>
+      <div class="total-item">英语 <b>10h</b></div>
+      <div class="total-item">合计 <b>≈ 77h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 10月 -->
+<div class="month-block open" id="oct">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-exam">10月</span>
+    <span class="month-name">10月 · 数学真题收尾 + 网络 + 408真题第一轮</span>
+    <span class="month-phase-badge c-exam">真题阶段</span>
+    <span class="month-hours">≈ 77h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">25h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>真题第1轮收尾</strong> — 继续2011-2025，目标全部做完</div>
+          <div class="task"><strong>错题本第1轮专项</strong> — 按错误类型分组，集中补弱</div>
+          <div class="task"><strong>李林6+4前3套</strong> — 限时模拟，找考场感觉</div>
+          <div class="advice">10月底数学真题两轮，目标稳定85-92分区间</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">网络 + 408真题</span>
+          <span class="subj-h">32h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>计算机网络全部</strong> — 体系结构→链路层→网络层→传输层→应用层（约12h）</div>
+          <div class="task-note">子网划分手算20道，TCP三握四挥默写，拥塞控制窗口图</div>
+          <div class="task" style="color:var(--green)">计算机网络完成 ✓ 408四科全部完成 ✓</div>
+          <div class="task"><strong>408真题第1轮</strong> — 2016-2025，限时150分钟做，大题手写全程</div>
+          <div class="task-note">答题格式从这轮开始训练规范，每步写清楚才有过程分</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">12h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>史纲+思法</strong> — 精讲精练+1000题对应部分</div>
+          <div class="task"><strong>形策</strong> — 1000题形策部分</div>
+          <div class="task">1000题全部完成第一遍</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">8h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>翻译</strong> — 英二真题翻译练5篇</div>
+          <div class="task"><strong>作文准备</strong> — 整理10个万能句框架（不背整篇）</div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学 <b>25h</b></div>
+      <div class="total-item">网络+408真题 <b>32h</b></div>
+      <div class="total-item">政治 <b>12h</b></div>
+      <div class="total-item">英语 <b>8h</b></div>
+      <div class="total-item">合计 <b>≈ 77h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11月 -->
+<div class="month-block open" id="nov">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-exam">11月</span>
+    <span class="month-name">11月 · 数学李林 + 408真题二刷 + 肖八</span>
+    <span class="month-phase-badge c-exam">真题阶段</span>
+    <span class="month-hours">≈ 77h</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">22h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>李林6+4后3套</strong> — 限时模拟，难度贴近真题</div>
+          <div class="task"><strong>真题二刷错题</strong> — 只做错题本里的题，不重复会的</div>
+          <div class="advice">11月底数学目标稳定85-95分，低于80再查弱章节</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">408</span>
+          <span class="subj-h">35h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>408真题第2轮</strong> — 专攻第1轮错题，手写完整大题过程</div>
+          <div class="task"><strong>王道8套模拟</strong> — 前4套，重点看大题解析</div>
+          <div class="task-note">王道卷偏难，低分很正常，重点是学解题思路</div>
+          <div class="task"><strong>错题本汇总</strong> — 四科错题分类整理</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">12h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>肖八</strong> — 8套选择题全部刷完</div>
+          <div class="task-note">多选题错了不要慌，正常情况</div>
+          <div class="task"><strong>大题模板</strong> — 马原/毛中特大题答题框架，每题背3-5个关键词</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">8h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>大作文</strong> — 10个万能句背诵，自己默写重组</div>
+          <div class="task"><strong>小作文</strong> — 5种格式各写1篇，计时15分钟</div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学 <b>22h</b></div>
+      <div class="total-item">408 <b>35h</b></div>
+      <div class="total-item">政治 <b>12h</b></div>
+      <div class="total-item">英语 <b>8h</b></div>
+      <div class="total-item">合计 <b>≈ 77h</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- 12月 -->
+<div class="month-block open" id="dec">
+  <div class="month-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="month-tag c-sprint">12月</span>
+    <span class="month-name">12月 · 冲刺上考场</span>
+    <span class="month-phase-badge c-sprint">冲刺阶段</span>
+    <span class="month-hours">≈ 55h（上旬为主）</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="month-body">
+    <div class="subj-grid">
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">数学二</span>
+          <span class="subj-h">15h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>李林6+4</strong> — 剩余套数</div>
+          <div class="task"><strong>错题本最终回顾</strong> — 按题型分类过一遍</div>
+          <div class="task">考前3天不做新题，只看错题本和公式速查表</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">408</span>
+          <span class="subj-h">18h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>王道8套</strong> — 后4套</div>
+          <div class="task"><strong>错题本最终回顾</strong></div>
+          <div class="task"><strong>代码手感</strong> — 链表/二叉树/BFS 5道经典题手写保持感觉</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">政治</span>
+          <span class="subj-h">14h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>肖四大题背诵</strong>（最重要！）</div>
+          <div class="task-note">4套大题，理解意思→背关键句→默写要点</div>
+          <div class="task"><strong>肖八选择题</strong> — 再刷一遍错题</div>
+          <div class="advice">北京旱区大题给分低，但背肖四模板至少保底25分</div>
+        </div>
+      </div>
+      <div class="subj-cell">
+        <div class="subj-label">
+          <span class="subj-name">英语二</span>
+          <span class="subj-h">8h</span>
+        </div>
+        <div class="task-list">
+          <div class="task"><strong>作文</strong> — 大小作文各默写2遍</div>
+          <div class="task"><strong>新题型</strong> — 再过2套真题</div>
+          <div class="task" style="color:var(--tx3)">完型 — 全选C <span class="skip-tag">不做</span></div>
+          <div class="task-note">考前一天看作文模板，早睡</div>
+        </div>
+      </div>
+    </div>
+    <div class="month-total">
+      <div class="total-item">数学 <b>15h</b></div>
+      <div class="total-item">408 <b>18h</b></div>
+      <div class="total-item">政治（肖四）<b>14h</b></div>
+      <div class="total-item">英语 <b>8h</b></div>
+      <div class="total-item">合计 <b>≈ 55h</b></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end timeline -->
+</main>
+
+<script>
+document.querySelectorAll('.month-head').forEach(h => {
+  h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+});
+</script>
+</body>
+</html>

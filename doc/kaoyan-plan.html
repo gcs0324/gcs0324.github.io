@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研学习清单 · 非全计算机 300分方案</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'考研';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1200px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+/* score overview */
+.score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px;}
+.score-card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px;text-align:center;}
+.score-card.total{border-color:var(--blue);background:var(--blu-bg);}
+.score-num{font-size:28px;font-weight:700;color:var(--tx);font-family:'IBM Plex Mono',monospace;line-height:1;}
+.score-card.total .score-num{color:var(--blue);}
+.score-label{font-size:11px;color:var(--tx3);margin-top:4px;}
+.score-max{font-size:10px;color:var(--tx3);margin-top:2px;}
+
+/* legend */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;padding:12px 16px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+
+/* status badges */
+.s-must{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;background:var(--grn-bg);color:var(--green);border:1px solid var(--grn-b);}
+.s-opt{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;background:var(--yel-bg);color:var(--yellow);border:1px solid var(--yel-b);}
+.s-skip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;background:var(--bg3);color:var(--tx3);border:1px solid var(--bd);}
+
+/* level badges */
+.lv{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--bd);background:var(--bg3);color:var(--tx2);}
+.lv-master{color:var(--red);border-color:var(--red-b);background:var(--red-bg);}
+.lv-understand{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.lv-memorize{color:var(--yellow);border-color:var(--yel-b);background:var(--yel-bg);}
+.lv-know{color:var(--tx3);border-color:var(--bd);background:var(--bg3);}
+
+/* subject block */
+.subject{margin-bottom:8px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.subject-head{padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
+.subject-head:hover{background:var(--bg3);}
+.subject.open .subject-head{background:var(--bg2);}
+.subj-title{font-size:15px;font-weight:600;color:var(--tx);flex:1;}
+.subj-target{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx2);}
+.subj-icon{font-size:16px;}
+.chevron{font-size:12px;color:var(--tx3);transition:transform .2s;}
+.subject.open .chevron{transform:rotate(180deg);}
+.subject-body{display:none;padding:16px 20px 20px;}
+.subject.open .subject-body{display:block;}
+
+/* group inside subject */
+.group{margin-bottom:20px;}
+.group:last-child{margin-bottom:0;}
+.group-title{font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;}
+.group-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;border:1px solid;}
+
+/* chapter table */
+table{width:100%;border-collapse:collapse;}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.05em;color:var(--tx3);text-align:left;padding:7px 10px;border-bottom:1px solid var(--bd);white-space:nowrap;}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);font-size:13px;color:var(--tx2);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+.td-name{color:var(--tx);font-weight:500;}
+.td-note{font-size:12px;color:var(--tx3);}
+.skip-row td{opacity:.45;}
+
+/* skip summary */
+.skip-zone-title{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:8px;margin:20px 0 12px;}
+.skip-zone-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 9px;border-radius:3px;border:1px solid;}
+.skip-zone-intro{font-size:12px;color:var(--tx3);margin-bottom:14px;line-height:1.7;}
+.skip-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:32px;}
+.skip-card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.skip-card-head{padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;border-bottom:1px solid var(--bd);}
+.skip-card.red .skip-card-head{color:var(--red);background:var(--red-bg);border-bottom-color:var(--red-b);}
+.skip-card.yellow .skip-card-head{color:var(--yellow);background:var(--yel-bg);border-bottom-color:var(--yel-b);}
+.skip-items{padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+.skip-item{display:flex;flex-direction:column;gap:2px;}
+.skip-item-name{font-size:13px;color:var(--tx);font-weight:500;}
+.skip-item-why{font-size:11px;color:var(--tx3);line-height:1.5;}
+.skip-divider{height:1px;background:var(--bd);margin:4px 0;}
+
+/* importance stars */
+.imp{font-size:11px;letter-spacing:-1px;line-height:1;display:block;margin-top:2px;color:var(--yellow);}
+.imp-dim{color:var(--bd2);}
+
+/* score breakdown */
+.score-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
+.sb-block{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.sb-head{padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.sb-subj{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx);flex:1;}
+.sb-target{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);}
+.sb-rows{padding:0;}
+.sb-row{display:flex;align-items:center;padding:8px 16px;border-bottom:1px solid var(--bd);gap:12px;}
+.sb-row:last-child{border-bottom:none;}
+.sb-type{font-size:12px;color:var(--tx);flex:1;}
+.sb-total{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);}
+.sb-bar-wrap{flex:1;background:var(--bg3);border-radius:3px;height:6px;overflow:hidden;min-width:60px;}
+.sb-bar{height:100%;border-radius:3px;background:var(--blue);}
+.sb-score{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx);min-width:52px;text-align:right;}
+.sb-note{font-size:11px;color:var(--tx3);min-width:80px;text-align:right;}
+/* 408 sub breakdown */
+.sb-sub{padding:8px 16px 12px;border-top:1px solid var(--bd);background:var(--bg3);}
+.sb-sub-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.06em;margin-bottom:8px;}
+.sb-sub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.sb-sub-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;}
+.sb-sub-name{font-size:11px;color:var(--tx2);margin-bottom:4px;}
+.sb-sub-nums{display:flex;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.sb-sub-sel{color:var(--blue);}
+.sb-sub-big{color:var(--green);}
+.sb-sub-tot{color:var(--tx);font-weight:600;}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">KAOYAN · 非全计算机</div>
+  <h1>考研学习清单</h1>
+  <p class="subtitle">目标 300 分 · 政50 + 英50 + 数100 + 408·100 · 北京旱区 · 在职方案</p>
+</header>
+
+<nav>
+  <a href="#overview">总览</a>
+  <a href="#scores">得分分配</a>
+  <a href="#politics">政治</a>
+  <a href="#english">英语二</a>
+  <a href="#math">数学二</a>
+  <a href="#ds">数据结构</a>
+  <a href="#co">组成原理</a>
+  <a href="#os">操作系统</a>
+  <a href="#net">计算机网络</a>
+  <a href="#skip">跳过清单</a>
+</nav>
+
+<main>
+
+<!-- 总览 -->
+<div class="sec" id="overview">OVERVIEW · 分数目标</div>
+
+<div class="score-grid">
+  <div class="score-card">
+    <div class="score-num">50</div>
+    <div class="score-label">政治</div>
+    <div class="score-max">/ 100</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num">50</div>
+    <div class="score-label">英语二</div>
+    <div class="score-max">/ 100</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num">100</div>
+    <div class="score-label">数学二</div>
+    <div class="score-max">/ 150</div>
+  </div>
+  <div class="score-card">
+    <div class="score-num">100</div>
+    <div class="score-label">408</div>
+    <div class="score-max">/ 150</div>
+  </div>
+  <div class="score-card total">
+    <div class="score-num">300</div>
+    <div class="score-label">总分目标</div>
+    <div class="score-max">院校线 260</div>
+  </div>
+</div>
+
+<!-- 分题型得分目标 -->
+<div class="sec" id="scores">SCORE BREAKDOWN · 分题型得分目标</div>
+
+<div class="score-breakdown">
+  <!-- 数学二 -->
+  <div class="sb-block">
+    <div class="sb-head">
+      <span class="sb-subj">数学二</span>
+      <span class="sb-target">目标 100 / 150</span>
+    </div>
+    <div class="sb-rows">
+      <div class="sb-row">
+        <span class="sb-type">选择题 <span style="font-size:11px;color:var(--tx3)">8题×4分</span></span>
+        <span class="sb-total">满分32</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:75%"></div></div>
+        <span class="sb-score">目标 24</span>
+        <span class="sb-note">6/8题，放弃最难2题</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">填空题 <span style="font-size:11px;color:var(--tx3)">6题×4分</span></span>
+        <span class="sb-total">满分24</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:67%"></div></div>
+        <span class="sb-score">目标 16</span>
+        <span class="sb-note">4/6题，放弃最后2题</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">解答大题 <span style="font-size:11px;color:var(--tx3)">6道</span></span>
+        <span class="sb-total">满分94</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:64%"></div></div>
+        <span class="sb-score">目标 60</span>
+        <span class="sb-note">靠过程分保底</span>
+      </div>
+    </div>
+    <div class="sb-sub">
+      <div class="sb-sub-title">大题按类型目标</div>
+      <div class="sb-sub-grid">
+        <div class="sb-sub-item"><div class="sb-sub-name">积分计算（不定+定积分）</div><div class="sb-sub-nums"><span class="sb-sub-tot">全拿 10-12分</span></div></div>
+        <div class="sb-sub-item"><div class="sb-sub-name">微分方程（一阶+二阶）</div><div class="sb-sub-nums"><span class="sb-sub-tot">全拿 12-14分</span></div></div>
+        <div class="sb-sub-item"><div class="sb-sub-name">多元/二重积分</div><div class="sb-sub-nums"><span class="sb-sub-tot">80% → 10分</span></div></div>
+        <div class="sb-sub-item"><div class="sb-sub-name">中值定理证明题</div><div class="sb-sub-nums"><span class="sb-sub-tot">过程分 → 8分</span></div></div>
+        <div class="sb-sub-item"><div class="sb-sub-name">导数应用/极值</div><div class="sb-sub-nums"><span class="sb-sub-tot">全拿 10-12分</span></div></div>
+        <div class="sb-sub-item"><div class="sb-sub-name">综合压轴题（最后1道）</div><div class="sb-sub-nums"><span class="sb-sub-tot">只求过程 → 6-10分</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 408 -->
+  <div class="sb-block">
+    <div class="sb-head">
+      <span class="sb-subj">408</span>
+      <span class="sb-target">目标 100 / 150</span>
+    </div>
+    <div class="sb-rows">
+      <div class="sb-row">
+        <span class="sb-type">单项选择 <span style="font-size:11px;color:var(--tx3)">40题×2分</span></span>
+        <span class="sb-total">满分80</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:68%"></div></div>
+        <span class="sb-score">目标 54</span>
+        <span class="sb-note">27/40题，错13题内</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">综合应用大题</span>
+        <span class="sb-total">满分70</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:66%"></div></div>
+        <span class="sb-score">目标 46</span>
+        <span class="sb-note">步骤分保底</span>
+      </div>
+    </div>
+    <div class="sb-sub">
+      <div class="sb-sub-title">按科目分解（选择 + 大题）</div>
+      <div class="sb-sub-grid">
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">数据结构（满分45）</div>
+          <div class="sb-sub-nums">
+            <span class="sb-sub-sel">选20</span>
+            <span style="color:var(--tx3)">+</span>
+            <span class="sb-sub-big">大17</span>
+            <span style="color:var(--tx3)">=</span>
+            <span class="sb-sub-tot">37分</span>
+          </div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">组成原理（满分45）</div>
+          <div class="sb-sub-nums">
+            <span class="sb-sub-sel">选16</span>
+            <span style="color:var(--tx3)">+</span>
+            <span class="sb-sub-big">大13</span>
+            <span style="color:var(--tx3)">=</span>
+            <span class="sb-sub-tot">29分</span>
+          </div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">操作系统（满分35）</div>
+          <div class="sb-sub-nums">
+            <span class="sb-sub-sel">选12</span>
+            <span style="color:var(--tx3)">+</span>
+            <span class="sb-sub-big">大10</span>
+            <span style="color:var(--tx3)">=</span>
+            <span class="sb-sub-tot">22分</span>
+          </div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">计算机网络（满分25）</div>
+          <div class="sb-sub-nums">
+            <span class="sb-sub-sel">选8</span>
+            <span style="color:var(--tx3)">+</span>
+            <span class="sb-sub-big">大6</span>
+            <span style="color:var(--tx3)">=</span>
+            <span class="sb-sub-tot">14分</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 英语二 -->
+  <div class="sb-block">
+    <div class="sb-head">
+      <span class="sb-subj">英语二</span>
+      <span class="sb-target">目标 50 / 100</span>
+    </div>
+    <div class="sb-rows">
+      <div class="sb-row">
+        <span class="sb-type">阅读 Part A <span style="font-size:11px;color:var(--tx3)">4篇×10分</span></span>
+        <span class="sb-total">满分40</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:55%"></div></div>
+        <span class="sb-score">目标 22</span>
+        <span class="sb-note">每篇错2-3题，约55%</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">写作 <span style="font-size:11px;color:var(--tx3)">大20+小10</span></span>
+        <span class="sb-total">满分30</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:43%"></div></div>
+        <span class="sb-score">目标 13</span>
+        <span class="sb-note">大8+小5，万能句组合</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">新题型 Part B</span>
+        <span class="sb-total">满分10</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:60%"></div></div>
+        <span class="sb-score">目标 6</span>
+        <span class="sb-note">刷5套真题，60%可达</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">翻译 Part C</span>
+        <span class="sb-total">满分10</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:50%"></div></div>
+        <span class="sb-score">目标 5</span>
+        <span class="sb-note">靠阅读积累，练5篇</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">完型填空</span>
+        <span class="sb-total">满分10</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:40%"></div></div>
+        <span class="sb-score">目标 4</span>
+        <span class="sb-note">全选C，0投入</span>
+      </div>
+    </div>
+    <div class="sb-sub">
+      <div class="sb-sub-title">得分重心</div>
+      <div class="sb-sub-grid">
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">阅读（核心，最大头）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-sel">22/40</span><span style="color:var(--tx3);margin:0 4px">=</span><span class="sb-sub-tot">55%</span></div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">写作大（万能句框架）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-sel">8/20</span><span style="color:var(--tx3);margin:0 4px">=</span><span class="sb-sub-tot">40%</span></div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">新题型（刷真题见套路）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-sel">6/10</span><span style="color:var(--tx3);margin:0 4px">=</span><span class="sb-sub-tot">60%</span></div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">写作小+翻译+完型</div>
+          <div class="sb-sub-nums"><span class="sb-sub-sel">5+5+4</span><span style="color:var(--tx3);margin:0 4px">=</span><span class="sb-sub-tot">14分保底</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 政治 -->
+  <div class="sb-block">
+    <div class="sb-head">
+      <span class="sb-subj">政治</span>
+      <span class="sb-target">目标 50 / 100</span>
+    </div>
+    <div class="sb-rows">
+      <div class="sb-row">
+        <span class="sb-type">单选题 <span style="font-size:11px;color:var(--tx3)">16题×1分</span></span>
+        <span class="sb-total">满分16</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:75%"></div></div>
+        <span class="sb-score">目标 12</span>
+        <span class="sb-note">12/16，马原毛中特拿稳</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">多选题 <span style="font-size:11px;color:var(--tx3)">17题×2分</span></span>
+        <span class="sb-total">满分34</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:53%"></div></div>
+        <span class="sb-score">目标 18</span>
+        <span class="sb-note">9/17，全选对才得2分</span>
+      </div>
+      <div class="sb-row">
+        <span class="sb-type">分析题 <span style="font-size:11px;color:var(--tx3)">5道×10分</span></span>
+        <span class="sb-total">满分50</span>
+        <div class="sb-bar-wrap"><div class="sb-bar" style="width:40%"></div></div>
+        <span class="sb-score">目标 20</span>
+        <span class="sb-note">旱区压分，肖四模板保底</span>
+      </div>
+    </div>
+    <div class="sb-sub">
+      <div class="sb-sub-title">大题按科目目标（共20分）</div>
+      <div class="sb-sub-grid">
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">马原（1-2道）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-tot">目标 7分</span></div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">毛中特（1-2道）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-tot">目标 7分</span></div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">史纲/思法/形策（1道）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-tot">目标 6分，背模板套写</span></div>
+        </div>
+        <div class="sb-sub-item">
+          <div class="sb-sub-name">时政热点（偶有）</div>
+          <div class="sb-sub-nums"><span class="sb-sub-tot" style="color:var(--tx3)">不准备，随缘</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="leg-item"><span class="s-must">必学</span> 必须掌握，直接出分</div>
+  <div class="leg-item"><span class="s-opt">选学</span> 时间够再看，否则跳过</div>
+  <div class="leg-item"><span class="s-skip">跳过</span> 直接不看</div>
+  <div class="leg-item"><span class="lv lv-master">精通</span> 会做综合题</div>
+  <div class="leg-item"><span class="lv lv-understand">理解</span> 会做基础题</div>
+  <div class="leg-item"><span class="lv lv-memorize">背记</span> 记结论不推导</div>
+  <div class="leg-item"><span class="lv lv-know">了解</span> 知道有这个</div>
+</div>
+
+<!-- 政治 -->
+<div class="sec" id="politics">POLITICS · 政治 目标50分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">北京旱区大题压分，选择题 35+ 是关键。9月开始，总投入 50h。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">📐</span>
+    <span class="subj-title">马克思主义基本原理（马原）</span>
+    <span class="subj-target">选择 10分 + 大题 1道</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">唯物论（物质、意识、规律）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">选择 3-4 分</td></tr>
+      <tr><td class="td-name">辩证法（矛盾、联系、发展）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">选择高频，4-5 分</td></tr>
+      <tr><td class="td-name">认识论（实践、真理）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">大题常出处，背1个模板</td></tr>
+      <tr><td class="td-name">唯物史观（生产力/生产关系）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">选择+大题，2-3 分</td></tr>
+      <tr><td class="td-name">政治经济学（剩余价值、资本）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">选择 3 分，背结论不推导</td></tr>
+      <tr class="skip-row"><td class="td-name">科学社会主义</td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">分值极低，时间紧可跳</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">🇨🇳</span>
+    <span class="subj-title">毛中特</span>
+    <span class="subj-target">选择 10分 + 大题 2道</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">毛泽东思想</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">选择 2-3 分</td></tr>
+      <tr><td class="td-name">中特理论基础（新发展理念等）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">大题热点，2 道大题之一</td></tr>
+      <tr><td class="td-name">社会主义建设（五位一体）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">选择+大题高频</td></tr>
+      <tr><td class="td-name">党的建设</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">大题热点，另一道大题来源</td></tr>
+      <tr class="skip-row"><td class="td-name">对外开放/外交</td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">时事结合，看肖四即可</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">📜</span>
+    <span class="subj-title">史纲 + 思法 + 形策</span>
+    <span class="subj-target">选择共 15分，大题战略放弃</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">史纲·近代史基本线索</td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">选择 6-7 分，花 2 天刷肖1000</td></tr>
+      <tr class="skip-row"><td class="td-name">史纲·各纲领/会议细节</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">50 分目标不值深挖</td></tr>
+      <tr class="skip-row"><td class="td-name">史纲·大题</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">背1段模板收尾，不深学</td></tr>
+      <tr><td class="td-name">思法·道德部分（核心价值观）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">选择+大题</td></tr>
+      <tr><td class="td-name">思法·法治部分（宪法基础）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">选择 4-5 分</td></tr>
+      <tr class="skip-row"><td class="td-name">思法·大题</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">考前背1个模板，15分钟写完</td></tr>
+      <tr><td class="td-name">形策·全部</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">9月后刷肖1000形策部分，4-5 分</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 英语 -->
+<div class="sec" id="english">ENGLISH · 英语二 目标50分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">阅读22 + 作文13 + 新题型6 + 翻译5 + 完型4。单词每天20min全年不断。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">📖</span>
+    <span class="subj-title">词汇</span>
+    <span class="subj-target">全年基础</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>内容</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">高频 2000 词</td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每天 20min，全年不断，用 App 刷（墨墨/不背单词）</td></tr>
+      <tr class="skip-row"><td class="td-name">2000-4000 词</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">时间不够，不认识的靠猜词义</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">📝</span>
+    <span class="subj-title">阅读理解</span>
+    <span class="subj-target">Part A 40分，目标 22分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>内容</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">英二真题 2012-2025 阅读精读</td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每篇精读，标注生词，<strong>每篇错2-3个</strong>（4篇总错8-9个，约55%正确）即达标 ← 目标22/40分</td></tr>
+      <tr class="skip-row"><td class="td-name">英一真题阅读</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">比英二难，基础差时打击信心</td></tr>
+      <tr class="skip-row"><td class="td-name">长难句专项课</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">靠真题积累足够</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">✍️</span>
+    <span class="subj-title">写作 · 新题型 · 翻译 · 完型</span>
+    <span class="subj-target">共 60分，目标 28分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>内容</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">小作文（10分）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">背5个格式（感谢/建议/邀请/道歉/通知），目标5分</td></tr>
+      <tr><td class="td-name">大作文（20分）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">背10个万能句自己组合，旱区给12-14，目标8分</td></tr>
+      <tr class="skip-row"><td class="td-name">整篇范文背诵</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">旱区模板痕迹重，直接压分</td></tr>
+      <tr><td class="td-name">新题型 Part B（10分）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">考前刷英二真题5套，目标6分</td></tr>
+      <tr><td class="td-name">翻译 Part C（10分）</td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">考前练5篇，靠阅读积累，目标5分</td></tr>
+      <tr class="skip-row"><td class="td-name">完型填空（10分）</td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">全选C，拿4分，0投入</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 数学 -->
+<div class="sec" id="math">MATH · 数学二 目标100分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:4px;">高等数学 + 线性代数，<strong style="color:var(--red)">无概率论、无级数、无曲线曲面积分</strong>。全年 350-400h，最大投入科目。</p>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">教材：武忠祥基础+强化讲义 / 李永乐线代讲义 / 真题近15年刷2轮。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">∫</span>
+    <span class="subj-title">高等数学</span>
+    <span class="subj-target">约 116分（数二比例）</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <div class="group">
+      <div class="group-title">极限与连续</div>
+      <table>
+        <tr><th>知识点</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+        <tr><td class="td-name">极限计算（等价无穷小、洛必达、泰勒）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每年必考，选填+大题共10-15分</td></tr>
+        <tr><td class="td-name">连续与间断点分类<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">3-5分，每年1道选择</td></tr>
+        <tr><td class="td-name">ε-δ定义证明<span class="imp" style="color:var(--tx3)">⭐</span></td><td></td><td><span class="s-skip">跳过</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">100分目标不需要，跳过</td></tr>
+      </table>
+    </div>
+    <div class="group">
+      <div class="group-title">导数与微分</div>
+      <table>
+        <tr><th>知识点</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+        <tr><td class="td-name">基本求导法则（复合/乘积/商）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">基础，后面所有章节都用</td></tr>
+        <tr><td class="td-name">分段函数用定义求导<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每年至少1题，必须会格式</td></tr>
+        <tr><td class="td-name">隐函数/参数方程求导<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">大题常考，与多元联动</td></tr>
+        <tr><td class="td-name">微分的概念与近似<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">理解即可，很少单独大考</td></tr>
+      </table>
+    </div>
+    <div class="group">
+      <div class="group-title">中值定理与导数应用</div>
+      <table>
+        <tr><th>知识点</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+        <tr><td class="td-name">单调性、极值、最值<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">必考，一般选择+填空共8分</td></tr>
+        <tr><td class="td-name">凹凸性与拐点<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">和极值同步考，步骤要规范</td></tr>
+        <tr><td class="td-name">渐近线（水平/垂直/斜）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">斜渐近线公式套用即可</td></tr>
+        <tr><td class="td-name">罗尔/拉格朗日定理证明题<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">辅助函数构造是关键，背套路</td></tr>
+        <tr><td class="td-name">泰勒公式<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">6个标准展开式背熟，和极限联动</td></tr>
+      </table>
+    </div>
+    <div class="group">
+      <div class="group-title">积分</div>
+      <table>
+        <tr><th>知识点</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+        <tr><td class="td-name">22个基本积分公式<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">地基，公式错一个后面全错</td></tr>
+        <tr><td class="td-name">第一类换元（凑微分）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">最常用，练100题以上</td></tr>
+        <tr><td class="td-name">分部积分（"反对幂三指"顺序）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">大题常出，循环积分要会处理</td></tr>
+        <tr><td class="td-name">变限积分求导<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">几乎每年必考，含复合形式</td></tr>
+        <tr><td class="td-name">奇偶函数对称区间化简<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">节省大量计算，形成本能</td></tr>
+        <tr><td class="td-name">第二类换元（三角/根式）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">见根号必须会换元</td></tr>
+        <tr><td class="td-name">定积分应用（面积/旋转体体积）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每年必考大题，盘法+壳法都要</td></tr>
+        <tr><td class="td-name">反常积分（敛散性判断）<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">选填偶考，记公式套用</td></tr>
+        <tr><td class="td-name">弧长<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-opt">选学</span></td><td><span class="lv lv-memorize">背公式</span></td><td class="td-note">偶考，会套即可</td></tr>
+        <tr class="skip-row"><td class="td-name">有理函数积分（待定系数）<span class="imp" style="color:var(--tx3)">⭐⭐</span></td><td></td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">繁琐耗时，100分目标低优先</td></tr>
+      </table>
+    </div>
+    <div class="group">
+      <div class="group-title">微分方程</div>
+      <table>
+        <tr><th>知识点</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+        <tr><td class="td-name">一阶线性方程（公式法）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">数二核心大题，公式必须背</td></tr>
+        <tr><td class="td-name">可分离变量方程<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">最基础，必会</td></tr>
+        <tr><td class="td-name">二阶常系数齐次方程<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">特征方程三种情况背熟</td></tr>
+        <tr><td class="td-name">二阶常系数非齐次（特解设法）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">多项式/指数/三角型特解，年年考</td></tr>
+        <tr><td class="td-name">齐次方程（令y=ux）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">中等频率，会换元即可</td></tr>
+        <tr class="skip-row"><td class="td-name">欧拉方程<span class="imp" style="color:var(--tx3)">⭐</span></td><td></td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">极少考，直接跳过</td></tr>
+      </table>
+    </div>
+    <div class="group">
+      <div class="group-title">多元函数微积分</div>
+      <table>
+        <tr><th>知识点</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+        <tr><td class="td-name">偏导数计算<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">地基，不能错</td></tr>
+        <tr><td class="td-name">复合函数链式求导<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">画链式图再下笔，必考</td></tr>
+        <tr><td class="td-name">隐函数求导（F法）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">公式背记：∂z/∂x=-Fx/Fz</td></tr>
+        <tr><td class="td-name">条件极值（拉格朗日乘数法）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">年年考大题，必须熟练</td></tr>
+        <tr><td class="td-name">无条件极值（AC-B²判别）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">结合实际应用最值</td></tr>
+        <tr><td class="td-name">二重积分（直角坐标/极坐标）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每年必考，每题先画图</td></tr>
+        <tr><td class="td-name">交换积分次序<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">几乎每年必考，画图解决</td></tr>
+        <tr class="skip-row"><td class="td-name">无穷级数<span class="imp" style="color:var(--tx3)">✗</span></td><td></td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note"><strong>数二不考</strong>，别碰</td></tr>
+        <tr class="skip-row"><td class="td-name">曲线/曲面积分<span class="imp" style="color:var(--tx3)">✗</span></td><td></td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note"><strong>数二不考</strong>，别碰</td></tr>
+        <tr class="skip-row"><td class="td-name">向量代数/空间解析几何<span class="imp" style="color:var(--tx3)">✗</span></td><td></td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note"><strong>数二不考</strong>，别碰</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">矩</span>
+    <span class="subj-title">线性代数</span>
+    <span class="subj-target">约 34分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>重要度</th><th>状态</th><th>程度</th><th>说明</th></tr>
+      <tr><td class="td-name">行列式（性质+化三角形）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">后面所有章节都用，5分</td></tr>
+      <tr><td class="td-name">矩阵运算/求逆（初等变换法）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">3×3矩阵求逆要3分钟内完成，8分</td></tr>
+      <tr><td class="td-name">矩阵的秩<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">每章都用到，r(A)化行阶梯形</td></tr>
+      <tr><td class="td-name">线性相关/无关，极大线性无关组<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">概念最绕，多做判断题建直觉</td></tr>
+      <tr><td class="td-name">含参数方程组（讨论r(A)）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">线代大题最常考！分情况讨论</td></tr>
+      <tr><td class="td-name">齐次/非齐次方程组通解<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">特解+齐次通解，结构清晰</td></tr>
+      <tr><td class="td-name">特征值/特征向量/对角化全流程<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">必出大题，至少完整做10道</td></tr>
+      <tr><td class="td-name">正交变换化标准形（Schmidt正交化）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">Schmidt过程易出错，手写3-5遍</td></tr>
+      <tr><td class="td-name">正定矩阵判断<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">特征值全>0 ↔ 正定</td></tr>
+      <tr><td class="td-name">克拉默法则<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">了解定理，实际解方程用消元更快</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 408 数据结构 -->
+<div class="sec" id="ds">DATA STRUCTURE · 数据结构 目标37/45分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">408 性价比最高的科目，有基础的话上手快。王道教材刷题为主。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">🌳</span>
+    <span class="subj-title">数据结构 全章节</span>
+    <span class="subj-target">满分 45分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>重要度</th><th>状态</th><th>程度</th><th>分值</th><th>说明</th></tr>
+      <tr><td class="td-name">时间/空间复杂度分析<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">每年必考，循环嵌套分析</td></tr>
+      <tr><td class="td-name">线性表（顺序/链式）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">链表插删代码手写，大题常考</td></tr>
+      <tr><td class="td-name">栈与队列（含循环队列）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">括号匹配/后缀表达式，必考</td></tr>
+      <tr><td class="td-name">KMP算法（next数组）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">2分</td><td class="td-note">几乎每年必考，手算next要熟练</td></tr>
+      <tr><td class="td-name">二叉树遍历（递归+非递归）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">10分</td><td class="td-note">前中后序三种+层序，每年必考</td></tr>
+      <tr><td class="td-name">由遍历序列还原二叉树<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">前+中或中+后，选填大题都有</td></tr>
+      <tr><td class="td-name">AVL树（四种旋转）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">LL/RR/LR/RL，年年必考</td></tr>
+      <tr><td class="td-name">哈夫曼树与编码<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">构造步骤+编码，必出</td></tr>
+      <tr><td class="td-name">图BFS/DFS（代码+手动模拟）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">8分</td><td class="td-note">每年必考，代码+模拟都要</td></tr>
+      <tr><td class="td-name">最短路径（Dijkstra手算）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">大题常考，Floyd了解即可</td></tr>
+      <tr><td class="td-name">最小生成树（Prim/Kruskal）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">手动模拟步骤，大题常考</td></tr>
+      <tr><td class="td-name">拓扑排序<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">AOV网，每年必考</td></tr>
+      <tr><td class="td-name">散列表（冲突处理/装填因子/ASL）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">开放定址/链地址，大题常考</td></tr>
+      <tr><td class="td-name">折半查找（判定树）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">判定树必须会画</td></tr>
+      <tr><td class="td-name">排序（八大排序比较）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">时间/空间/稳定性全背，必考</td></tr>
+      <tr><td class="td-name">数组与矩阵压缩存储<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">2分</td><td class="td-note">下标公式推导，选择填空</td></tr>
+      <tr><td class="td-name">关键路径（AOE网）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">—</td><td class="td-note">最早/最迟时间计算</td></tr>
+      <tr><td class="td-name">B树/B+树（性质）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">—</td><td class="td-note">记阶数定义，选择题</td></tr>
+      <tr class="skip-row"><td class="td-name">外部排序（最优归并树）<span class="imp" style="color:var(--tx3)">⭐⭐</span></td><td></td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">2分</td><td class="td-note">偶考，背概念即可</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 组成原理 -->
+<div class="sec" id="co">COMPUTER ORG · 组成原理 目标27/45分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">408 最难科目，67%得分率即可（25/45）。总线直接跳过，IO只背4种控制方式。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">💻</span>
+    <span class="subj-title">计算机组成原理 全章节</span>
+    <span class="subj-target">满分 45分，目标 25分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>重要度</th><th>状态</th><th>程度</th><th>分值</th><th>说明</th></tr>
+      <tr><td class="td-name">补码/移码/IEEE754浮点表示<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">8-10分</td><td class="td-note">每年必考计算题，浮点转换手算10道</td></tr>
+      <tr><td class="td-name">补码加减运算+溢出判断<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">双符号位溢出判断必考</td></tr>
+      <tr><td class="td-name">Cache三种映射+替换策略+写策略<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">8分</td><td class="td-note">地址划分+命中率计算，大题必考</td></tr>
+      <tr><td class="td-name">流水线（吞吐率/加速比/冒险处理）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">8-10分</td><td class="td-note">每年必考计算题</td></tr>
+      <tr><td class="td-name">指令寻址方式（8种）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">立即/直接/间接/寄存器/相对等</td></tr>
+      <tr><td class="td-name">中断处理流程+优先级屏蔽字<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">关中断→保护现场→服务→恢复→开中断</td></tr>
+      <tr><td class="td-name">主存储器扩展（位扩展/字扩展）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">芯片数量计算常考</td></tr>
+      <tr><td class="td-name">IO控制方式（程序/中断/DMA/通道）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">5分</td><td class="td-note">背4种方式特点和区别</td></tr>
+      <tr><td class="td-name">CISC/RISC对比<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">2分</td><td class="td-note">选择题背特点</td></tr>
+      <tr><td class="td-name">冯·诺依曼结构+性能指标(CPI/MIPS)<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">2分</td><td class="td-note">性能计算题偶考</td></tr>
+      <tr><td class="td-name">浮点数运算（对阶/规格化）<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">—</td><td class="td-note">理解流程即可，计算题低频</td></tr>
+      <tr class="skip-row"><td class="td-name">总线（仲裁/协议/总线标准）<span class="imp" style="color:var(--tx3)">⭐⭐</span></td><td></td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">3分</td><td class="td-note">性价比全408最低，直接跳过</td></tr>
+      <tr class="skip-row"><td class="td-name">IO接口/具体外设细节<span class="imp" style="color:var(--tx3)">⭐</span></td><td></td><td><span class="s-skip">跳过</span></td><td>—</td><td class="td-note">—</td><td class="td-note">几乎不出综合大题，跳过</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 操作系统 -->
+<div class="sec" id="os">OS · 操作系统 目标22/35分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">进程管理+内存管理是命门，合计 22 分，必须精通。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">⚙️</span>
+    <span class="subj-title">操作系统 全章节</span>
+    <span class="subj-target">满分 35分，目标 22分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>重要度</th><th>状态</th><th>程度</th><th>分值</th><th>说明</th></tr>
+      <tr><td class="td-name">进程同步/互斥（信号量/PV操作）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">12分</td><td class="td-note">大题必考，生产者消费者/读写者模板背熟</td></tr>
+      <tr><td class="td-name">CPU调度算法（FCFS/SJF/RR）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">甘特图+周转时间/等待时间计算</td></tr>
+      <tr><td class="td-name">分页存储（地址变换/TLB）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">10分</td><td class="td-note">逻辑→物理地址计算，TLB命中率，必考</td></tr>
+      <tr><td class="td-name">页面置换算法（OPT/FIFO/LRU）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">缺页率手算，每年必考</td></tr>
+      <tr><td class="td-name">死锁（银行家算法/安全序列）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">步骤规范写出，每年考</td></tr>
+      <tr><td class="td-name">进程状态转换（5态图）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">转换图手画，转换条件必须清楚</td></tr>
+      <tr><td class="td-name">磁盘调度算法（SSTF/SCAN）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">磁头移动距离手算，常考</td></tr>
+      <tr><td class="td-name">文件系统（inode索引块/文件大小计算）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">物理块地址计算，inode是重点</td></tr>
+      <tr><td class="td-name">线程（与进程区别）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">2分</td><td class="td-note">资源/调度的基本单位区分</td></tr>
+      <tr><td class="td-name">分段/段页式存储<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">3分</td><td class="td-note">与分页对比，段表查找</td></tr>
+      <tr><td class="td-name">OS概述（特征/类型/内核态）<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">2分</td><td class="td-note">选择题，背4个特征</td></tr>
+      <tr><td class="td-name">SPOOLing假脱机技术<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">—</td><td class="td-note">虚设备概念，选择题</td></tr>
+      <tr><td class="td-name">IO管理/缓冲区<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">3分</td><td class="td-note">偶考，了解单/双缓冲区即可</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 计算机网络 -->
+<div class="sec" id="net">NETWORK · 计算机网络 目标14/25分</div>
+<p style="font-size:12px;color:var(--tx3);margin-bottom:16px;">记忆性强，背记为主。子网划分和TCP是每年必考计算题。</p>
+
+<div class="subject open">
+  <div class="subject-head" onclick="this.parentElement.classList.toggle('open')">
+    <span class="subj-icon">🌐</span>
+    <span class="subj-title">计算机网络 全章节</span>
+    <span class="subj-target">满分 25分，目标 18分</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="subject-body">
+    <table>
+      <tr><th>章节</th><th>重要度</th><th>状态</th><th>程度</th><th>分值</th><th>说明</th></tr>
+      <tr><td class="td-name">TCP三次握手/四次挥手<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">每年必考，序列号/确认号计算，状态图</td></tr>
+      <tr><td class="td-name">TCP拥塞控制（慢开始/拥塞避免/快重传/快恢复）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">手画窗口变化图，大题必考</td></tr>
+      <tr><td class="td-name">IP子网划分/CIDR<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">5分</td><td class="td-note">子网掩码/主机数计算，纯计算全拿</td></tr>
+      <tr><td class="td-name">IP数据报格式+分片重组<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-master">精通</span></td><td class="td-note">—</td><td class="td-note">各字段含义+offset计算，大题常考</td></tr>
+      <tr><td class="td-name">路由算法（RIP/OSPF/BGP）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">—</td><td class="td-note">RIP距离向量手算，OSPF链路状态</td></tr>
+      <tr><td class="td-name">滑动窗口协议（GBN/SR）效率计算<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">5分</td><td class="td-note">窗口大小/效率公式，大题常考</td></tr>
+      <tr><td class="td-name">DNS（递归/迭代查询）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">—</td><td class="td-note">解析过程要清楚，选择必考</td></tr>
+      <tr><td class="td-name">HTTP（方法/状态码/持久连接）<span class="imp">⭐⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">3分</td><td class="td-note">GET/POST, 200/301/404等必背</td></tr>
+      <tr><td class="td-name">CSMA/CD原理（以太网）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-understand">理解</span></td><td class="td-note">—</td><td class="td-note">碰撞检测+退避算法</td></tr>
+      <tr><td class="td-name">ARP/ICMP<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">2分</td><td class="td-note">选择题，背各自功能</td></tr>
+      <tr><td class="td-name">体系结构（OSI七层/TCP-IP四层）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">3分</td><td class="td-note">每层协议/功能必背</td></tr>
+      <tr><td class="td-name">FTP（主动/被动/双连接）<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">—</td><td class="td-note">21控制+20数据，主动被动区别</td></tr>
+      <tr><td class="td-name">奈奎斯特/香农公式<span class="imp">⭐⭐⭐⭐</span></td><td></td><td><span class="s-must">必学</span></td><td><span class="lv lv-memorize">背记</span></td><td class="td-note">2分</td><td class="td-note">两个公式背会代入计算</td></tr>
+      <tr><td class="td-name">HTTPS/TLS握手<span class="imp">⭐⭐⭐</span></td><td></td><td><span class="s-opt">选学</span></td><td><span class="lv lv-know">了解</span></td><td class="td-note">—</td><td class="td-note">近年新增，偶考，了解握手步骤</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 跳过汇总 -->
+<div class="sec" id="skip">SKIP LIST · 减法清单</div>
+
+<!-- 完全不用看 -->
+<div class="skip-zone-title">
+  <span class="skip-zone-badge" style="color:var(--red);border-color:var(--red-b);background:var(--red-bg);">❌ 完全不用看</span>
+  直接跳过，0 投入
+</div>
+<p class="skip-zone-intro">这些内容要么数二考纲外、要么分值极低、要么时间代价远大于得分，<strong>一分钟都不要花</strong>。</p>
+
+<div class="skip-card-grid">
+
+  <div class="skip-card red">
+    <div class="skip-card-head">政治</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">史纲各纲领/会议细节</span>
+        <span class="skip-item-why">50分目标靠大纲选择题，细节深挖投入产出比极低</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">史纲/思法大题深度学习</span>
+        <span class="skip-item-why">北京旱区大题给分低，考前背1段模板套写即可</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">徐涛全程班（视频）</span>
+        <span class="skip-item-why">只看核心考案讲义，配精讲精练即可，全程班太耗时</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">腿姐技巧班 / 风中劲草 / 各类带背营</span>
+        <span class="skip-item-why">在职时间有限，多个课程叠加得不偿失</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card red">
+    <div class="skip-card-head">英语二</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">完型填空（10分）</span>
+        <span class="skip-item-why">全选 C 能拿 4 分，专项练习性价比约等于 0</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">英语一真题（阅读）</span>
+        <span class="skip-item-why">比英二难很多，基础差时做英一只会打击信心</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">长难句专项课（何凯文/刘晓艳全程）</span>
+        <span class="skip-item-why">靠真题精读积累长难句感觉，专项课性价比低</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">整篇作文范文背诵</span>
+        <span class="skip-item-why">北京旱区对模板文识别敏感，背整篇反而压分</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">翻译专项课</span>
+        <span class="skip-item-why">英二翻译简单，考前练5篇真题足够，不值专项</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card red">
+    <div class="skip-card-head">数学二 · 考纲外内容</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">概率论（全部）</span>
+        <span class="skip-item-why">数二考纲无概率论，碰都不要碰</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">无穷级数</span>
+        <span class="skip-item-why">数二考纲外，只有数一考</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">曲线积分 / 曲面积分</span>
+        <span class="skip-item-why">数二考纲外，只有数一考</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">向量代数 / 空间解析几何</span>
+        <span class="skip-item-why">数二考纲外，只有数一考</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">欧拉方程</span>
+        <span class="skip-item-why">极少出现，即便考到也只有1题2分</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card red">
+    <div class="skip-card-head">数学二 · 资料选择</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">张宇 36讲 / 1000题 / 闭关修炼</span>
+        <span class="skip-item-why">题量过大，在职完全刷不完；风格偏技巧，不如武忠祥实用</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">李林 880 题难题部分</span>
+        <span class="skip-item-why">超纲题和压轴题，与真题风格差距大</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">合工大超越系列 / 李艳芳模拟卷</span>
+        <span class="skip-item-why">难度远超真题，做了打击信心，李林6+4足够</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card red">
+    <div class="skip-card-head">408 · 组成原理</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">总线（仲裁方式/总线协议/总线标准）</span>
+        <span class="skip-item-why">仅3分，内容繁琐零碎，性价比全408最低</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">IO接口细节 / 具体外设（打印机/磁带）</span>
+        <span class="skip-item-why">几乎不出综合大题，零散记忆成本高</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">微程序控制器（微指令/微操作）</span>
+        <span class="skip-item-why">极少考，理解概念即可，不深入</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card red">
+    <div class="skip-card-head">408 · 资料选择</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">王道视频全程课（四科）</span>
+        <span class="skip-item-why">在职没时间全看，只挑薄弱章节看，其余章节直接看书+刷题</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">王道8套以外的模拟题（天勤/机工社等）</span>
+        <span class="skip-item-why">市面上大部分模拟题质量参差，刷真题+王道8套足够</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">各高校自命题历年真题</span>
+        <span class="skip-item-why">国科大考408统考，自命题题型和风格不同，不要刷</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 性价比低 -->
+<div class="skip-zone-title">
+  <span class="skip-zone-badge" style="color:var(--yellow);border-color:var(--yel-b);background:var(--yel-bg);">⚠️ 性价比低</span>
+  时间紧可放弃，时间够再看
+</div>
+<p class="skip-zone-intro">这些内容偶尔出现或分值较低，在职时间有限时<strong>优先放弃</strong>。如果基础好、进度快，可以捡回来。</p>
+
+<div class="skip-card-grid">
+
+  <div class="skip-card yellow">
+    <div class="skip-card-head">政治</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">科学社会主义（马原末章）</span>
+        <span class="skip-item-why">选择题仅1-2分，理解大意即可，不深背</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">对外开放/外交政策细节</span>
+        <span class="skip-item-why">时事性强，看肖四时事部分就够，不单独复习</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">1000题二刷（全部）</span>
+        <span class="skip-item-why">时间不够时只二刷错题，不全刷</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card yellow">
+    <div class="skip-card-head">英语二</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">词汇 2000–4000 词</span>
+        <span class="skip-item-why">高频2000词是核心，超出部分靠上下文猜词义</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">2010年以前的英二真题</span>
+        <span class="skip-item-why">题型变化大，早期题目参考价值低</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">阅读解题技巧专项课</span>
+        <span class="skip-item-why">技巧靠真题归纳自学，单独买课性价比低</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card yellow">
+    <div class="skip-card-head">数学二</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">有理函数积分（待定系数法）</span>
+        <span class="skip-item-why">极繁琐，真题中出现时往往可以绕开，性价比低</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">弧长公式</span>
+        <span class="skip-item-why">偶考，背住公式会套即可，不推导</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">柯西中值定理</span>
+        <span class="skip-item-why">罗尔/拉格朗日才是常考，柯西几乎不单独出题</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card yellow">
+    <div class="skip-card-head">数据结构</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">串 / KMP算法</span>
+        <span class="skip-item-why">每2-3年考1次，仅2分，时间紧可只记概念</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">外部排序（最优归并树/置换选择）</span>
+        <span class="skip-item-why">偶考，仅2分，了解基本概念即可</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">线索二叉树的构造细节</span>
+        <span class="skip-item-why">概念题多，代码题极少，会判断即可</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card yellow">
+    <div class="skip-card-head">组成原理 + 操作系统</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">浮点数运算过程（对阶/规格化细节）</span>
+        <span class="skip-item-why">以选择题为主，理解过程即可，计算题极少</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">指令系统—具体指令格式细节</span>
+        <span class="skip-item-why">知道寻址方式即可，具体指令字段分析极少考</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">操作系统 IO管理/缓冲区深度</span>
+        <span class="skip-item-why">仅3分，了解单/双缓冲区概念，不深入</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skip-card yellow">
+    <div class="skip-card-head">计算机网络</div>
+    <div class="skip-items">
+      <div class="skip-item">
+        <span class="skip-item-name">HTTPS / SSL / TLS 握手细节</span>
+        <span class="skip-item-why">近年新增，偶考，了解握手步骤即可，不深入密钥推导</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">物理层编码方式（曼彻斯特/差分曼彻斯特）</span>
+        <span class="skip-item-why">奈奎斯特/香农两个公式才是考点，编码方式仅选择题1分</span>
+      </div>
+      <div class="skip-divider"></div>
+      <div class="skip-item">
+        <span class="skip-item-name">具体路由协议内部实现（OSPF细节）</span>
+        <span class="skip-item-why">知道"链路状态算法"就够，内部报文格式不考</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+document.querySelectorAll('.subject-head').forEach(h => {
+  h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+});
+</script>
+</body>
+</html>
