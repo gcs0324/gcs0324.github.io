@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORM 03 · 高频面试题</title>
+<style>
+:root{--accent-color:var(--orange);--accent-bg:var(--orange-bg);--accent-b:var(--orange-b)}
+header::before{content:'ORM'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-orm.js"></script>
+<header>
+  <div class="htag">ORM · 03 · INTERVIEW</div>
+  <h1>ORM 高频面试题</h1>
+  <p class="sub">面试官视角 · 口语化回答 · 知识点跳转 — 24 道真题</p>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">题目分类</span>
+    <div class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">全展开</button>
+      <button class="s-btn" onclick="toggleAll(false)">全收起</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/24</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+
+  <div class="scat open" id="cat1">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">01</span>
+      <span class="scat-label">MyBatis 基础</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">MyBatis 和 Hibernate 的区别</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">#{ } 和 ${ } 的区别</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">resultType 和 resultMap 区别</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">动态 SQL 的实现原理</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">N+1 问题是什么，怎么解决</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">association 和 collection 区别</span></a>
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">Mapper 接口怎么工作（动态代理）</span></a>
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">XML 和 Mapper 接口如何绑定</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="cat2">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">02</span>
+      <span class="scat-label">MyBatis 进阶</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">一级缓存和二级缓存的区别</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">二级缓存脏读问题</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">插件的拦截原理</span></a>
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">PageHelper 分页原理</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">三种执行器类型</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">SqlSession 线程安全问题</span></a>
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">延迟加载的原理</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">Spring 整合后事务怎么管理</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="cat3">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">03</span>
+      <span class="scat-label">MyBatis-Plus</span>
+      <span class="scat-count">6题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">LambdaQueryWrapper 优于 QueryWrapper 在哪</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">逻辑删除实现原理</span></a>
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">乐观锁的 CAS 流程</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">分页插件 count 优化</span></a>
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">自动填充的时机和原理</span></a>
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">多租户怎么实现 SQL 隔离</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="cat4">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">04</span>
+      <span class="scat-label">综合实战</span>
+      <span class="scat-count">2题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">MyBatis vs JPA 怎么选</span></a>
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">大批量数据插入怎么优化</span></a>
+    </div>
+  </div>
+</aside>
+
+<div class="mc">
+
+<!-- ── 01 MyBatis 基础 ── -->
+<div class="sec" id="cat1-sec"><span class="sn">01</span> MyBatis 基础 <span class="q-count">Q1–Q8</span></div>
+
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">MyBatis 和 Hibernate 的区别是什么？各自适合什么场景？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开场引入题，考察对 ORM 框架的基本认知。能说清"半自动 vs 全自动"以及场景选择就到位了。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>核心差异在于<strong>谁来写 SQL</strong>：</p>
+      <table class="tbl">
+        <tr><th>维度</th><th>MyBatis</th><th>Hibernate / JPA</th></tr>
+        <tr><td>SQL 控制权</td><td>开发者手写，框架做参数绑定和结果映射</td><td>框架自动生成，开发者写 HQL / JPQL</td></tr>
+        <tr><td>灵活性</td><td>高，复杂 SQL、存储过程、报表都能应付</td><td>低，复杂查询要绕很多弯</td></tr>
+        <tr><td>学习曲线</td><td>低，会 SQL 就基本会用</td><td>高，Session 生命周期、一二级缓存、懒加载异常容易踩坑</td></tr>
+        <tr><td>移植性</td><td>差，SQL 和数据库方言耦合</td><td>好，理论上换数据库只改方言配置</td></tr>
+        <tr><td>适用场景</td><td>报表、复杂查询、已有 DBA 优化 SQL 的项目</td><td>领域驱动、简单 CRUD 主导的项目</td></tr>
+      </table>
+      <p>国内互联网项目以 MyBatis 为主，原因是 SQL 可控、排查慢查询容易、DBA 能直接介入优化。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#intro">MyBatis 是什么</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">#{ } 和 ${ } 的区别是什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>MyBatis 最基础也最容易考的题。重点是 SQL 注入风险，能给出反例加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><code>#{}</code> 是<span class="kw">预编译参数占位符</span>，最终生成 <code>PreparedStatement</code> 的 <code>?</code>；<code>${}</code> 是<span class="kw">字符串直接替换</span>，把值原样拼进 SQL。</p>
+      <table class="tbl">
+        <tr><th>对比</th><th>#{ }</th><th>${ }</th></tr>
+        <tr><td>底层</td><td>PreparedStatement ?</td><td>字符串拼接</td></tr>
+        <tr><td>SQL 注入风险</td><td>无（参数被转义）</td><td>有（直接拼接，用户输入可注入）</td></tr>
+        <tr><td>类型处理</td><td>由 TypeHandler 处理，字符串加引号</td><td>原样替换，不加引号</td></tr>
+        <tr><td>常用场景</td><td>绝大多数参数传入</td><td>表名、列名、ORDER BY 列（不能用 ?）</td></tr>
+      </table>
+      <p><strong>反例（${ } 导致 SQL 注入）</strong>：</p>
+      <pre>-- 用户传入 name = "' OR '1'='1"
+SELECT * FROM user WHERE name = '${name}'
+-- 实际执行：SELECT * FROM user WHERE name = '' OR '1'='1'  → 绕过验证</pre>
+      <p><strong>结论</strong>：只有表名/列名这种 PreparedStatement 不支持的场景才用 <code>${}</code>，且必须做白名单校验，绝不能直接拼用户输入。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">resultType 和 resultMap 的区别？什么时候用 resultMap？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>结果映射是 MyBatis 核心功能，考察对两种方式的理解和使用边界。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><code>resultType</code> 指定返回的 Java 类型，MyBatis 自动把列名映射到同名（驼峰转下划线时需开启 <code>mapUnderscoreToCamelCase</code>）字段。<code>resultMap</code> 是手动定义的映射规则，精确控制每一列对应哪个字段。</p>
+      <p>以下几种情况<strong>必须用 resultMap</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> 列名和字段名不一致（且不符合下划线转驼峰规则）</li>
+        <li><span class="b">▸</span> 结果中有嵌套对象（<code>association</code>，多对一）</li>
+        <li><span class="b">▸</span> 结果中有集合（<code>collection</code>，一对多）</li>
+        <li><span class="b">▸</span> 需要标注主键列（<code>&lt;id&gt;</code>）用于对象去重</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#resultmap">XML 映射文件详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">MyBatis 动态 SQL 的实现原理是什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对框架原理的理解深度，不只是"会用 if/where/foreach"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MyBatis 解析 XML 时把动态 SQL 标签转成<span class="kw">节点树</span>（<code>SqlNode</code> 接口的实现类），每个标签对应一个节点：<code>IfSqlNode</code>、<code>ForeachSqlNode</code>、<code>ChooseSqlNode</code> 等。</p>
+      <p>执行时，<code>DynamicSqlSource</code> 遍历节点树，用 OGNL 表达式引擎求值各节点条件，把满足条件的 SQL 片段拼接进 <code>DynamicContext</code>（一个 StringBuilder）。最终生成一个带 <code>?</code> 占位符的静态 SQL 交给 PreparedStatement。</p>
+      <p>关键点：<code>&lt;where&gt;</code> 和 <code>&lt;set&gt;</code> 本质上是带裁剪逻辑的 <code>&lt;trim&gt;</code>——自动去掉多余的 AND/OR/逗号，避免拼接错误。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#dynamic">动态 SQL 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">什么是 N+1 问题？MyBatis 怎么解决？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>ORM 典型性能陷阱，考察对嵌套查询开销的认知和解法。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>N+1 问题是说：查询 N 条主记录，再为每条主记录查一次关联数据，发出 1+N 条 SQL，而不是 1 条 JOIN 查询。</p>
+      <p><strong>例子</strong>：查 100 个用户（1条SQL），再为每个用户查订单（100条SQL）= 101 条 SQL。随着数据量增大，性能急剧下降。</p>
+      <p>MyBatis 有两种解法：</p>
+      <ul>
+        <li><span class="b">方法 1 — 嵌套结果（推荐）</span>：用 JOIN 一次性查出所有数据，通过 <code>resultMap</code> + <code>collection</code>/<code>association</code> 把扁平结果合并成嵌套对象。只发 1 条 SQL</li>
+        <li><span class="b">方法 2 — 延迟加载</span>：在 <code>collection</code>/<code>association</code> 上设 <code>fetchType="lazy"</code>，只有真正访问关联字段时才触发查询。适合不一定需要关联数据的场景，但仍是 N+1 SQL，只是延迟了时机</li>
+      </ul>
+      <p><strong>首选方法 1</strong>，减少数据库往返。只有关联数据访问频率极低时才考虑方法 2。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#resultmap">association / collection 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">association 和 collection 的区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对嵌套映射的掌握，理解多对一和一对多的不同处理方式。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>两者都用于嵌套结果映射，区别是关联关系的方向：</p>
+      <table class="tbl">
+        <tr><th></th><th>association</th><th>collection</th></tr>
+        <tr><td>关系</td><td>多对一 / 一对一</td><td>一对多</td></tr>
+        <tr><td>Java 类型</td><td>单个对象（javaType）</td><td>集合（ofType 指定元素类型）</td></tr>
+        <tr><td>典型场景</td><td>订单 → 用户（一个订单属于一个用户）</td><td>用户 → 订单列表（一个用户有多个订单）</td></tr>
+      </table>
+      <p>MyBatis 在合并一对多结果时，通过 <code>&lt;id&gt;</code> 标签的主键值判断是否同一条主记录，相同则把关联行追加到 collection，不同则创建新的主对象。所以<strong>一对多查询必须在 resultMap 里标注主键的 <code>&lt;id&gt;</code></strong>，否则合并会出错。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#resultmap">XML 映射文件详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">Mapper 接口没有实现类，调用方法时是怎么执行的？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察 JDK 动态代理的应用，以及 MyBatis 框架原理。能讲出 MapperProxy 的核心流程加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MyBatis 用 <span class="kw">JDK 动态代理</span>为 Mapper 接口创建代理对象。调用 <code>sqlSession.getMapper(UserMapper.class)</code> 实际返回的是 <code>MapperProxy</code> 实例。</p>
+      <p>调用 <code>userMapper.selectById(1L)</code> 时的链路：</p>
+      <ul>
+        <li><span class="b">①</span> 进入 <code>MapperProxy.invoke()</code>，获取被调用的方法对象</li>
+        <li><span class="b">②</span> 从缓存中取出对应的 <code>MapperMethod</code>（封装了 MappedStatement 的 id 和方法签名）</li>
+        <li><span class="b">③</span> 判断操作类型（SELECT / INSERT / UPDATE / DELETE），调用 SqlSession 对应方法</li>
+        <li><span class="b">④</span> SqlSession → Executor → StatementHandler → JDBC，走完整执行链路</li>
+      </ul>
+      <p>关键：Mapper 接口的全限定名 + 方法名 组合成 <code>statementId</code>，和 XML 里的 <code>namespace + id</code> 对应，这就是接口和 XML 绑定的原理。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#flow">完整执行流程</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">XML 文件和 Mapper 接口是怎么绑定的？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>MyBatis 基础原理题，考察对 namespace 机制的理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>绑定规则很直接：XML 里的 <code>namespace</code> 必须等于接口的全限定名，XML 里每个 SQL 语句的 <code>id</code> 必须等于接口里对应的方法名。</p>
+      <pre>&lt;!-- namespace = 接口全限定名 --&gt;
+&lt;mapper namespace="com.example.mapper.UserMapper"&gt;
+  &lt;!-- id = 方法名 --&gt;
+  &lt;select id="selectById" resultType="User"&gt;
+    SELECT * FROM user WHERE id = #{id}
+  &lt;/select&gt;
+&lt;/mapper&gt;</pre>
+      <p>MyBatis 启动时扫描所有 Mapper XML，按 <code>namespace.id</code> 为 key 把每条 SQL 解析成 <code>MappedStatement</code> 对象存入 <code>Configuration</code>。运行时通过同样的 key 取出对应的 SQL 配置执行。</p>
+      <p>两个常见报错：<strong>namespace 写错</strong>（找不到接口）、<strong>id 和方法名不一致</strong>（调用方法时找不到 MappedStatement）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#flow">执行流程</a>
+      <a class="qa-link" href="orm-01-mybatis.html#spring">Spring 整合</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 02 MyBatis 进阶 ── -->
+<div class="sec" id="cat2-sec"><span class="sn">02</span> MyBatis 进阶 <span class="q-count">Q9–Q16</span></div>
+
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">一级缓存和二级缓存的区别？在 Spring 中一级缓存失效了吗？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>高频题，能讲出"Spring 整合后一级缓存基本失效"是理解深度的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>一级缓存</th><th>二级缓存</th></tr>
+        <tr><td>作用域</td><td>同一个 SqlSession</td><td>同一个 Mapper namespace（跨 SqlSession）</td></tr>
+        <tr><td>默认</td><td>开启</td><td>关闭（需加 &lt;cache/&gt;）</td></tr>
+        <tr><td>失效条件</td><td>DML 操作 / 关闭 Session / clearCache()</td><td>同 namespace 下任意 DML 操作</td></tr>
+        <tr><td>数据提升</td><td>Session 关闭时写入二级缓存</td><td>—</td></tr>
+      </table>
+      <p><strong>Spring 整合后一级缓存的实际情况</strong>：Spring 通过 <code>SqlSessionTemplate</code> 管理 SqlSession，每个方法调用（非事务）都会创建新 SqlSession 并在用完后立即关闭，所以<span class="kw">同一个事务之外的相同查询不会命中一级缓存</span>。只有在同一个 <code>@Transactional</code> 方法内的多次相同查询才共享一级缓存。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#cache">缓存机制详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">二级缓存有什么问题？为什么实际项目几乎不开？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对缓存实际使用风险的认知，不止是会配置。能讲出脏读场景加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>二级缓存最大的问题是<span class="kw">跨表操作的脏读</span>：</p>
+      <p>假设 <code>OrderMapper</code> 里有一个 JOIN 查询，结果涉及 <code>order</code> 和 <code>user</code> 两张表，缓存存在 <code>OrderMapper</code> 的 namespace 下。当 <code>UserMapper</code> 更新了用户姓名，<code>OrderMapper</code> 的缓存不会失效，下次查订单时带出的仍是旧的用户姓名——这就是脏读。</p>
+      <p>MyBatis 的缓存失效只能感知到<strong>同一 namespace</strong>的 DML，无法感知其他 Mapper 的写入。</p>
+      <p>另外，分布式环境下默认的 <code>PerpetualCache</code>（单机内存）在多实例部署时还会出现各实例缓存不一致的问题。即使用 Redis / Ehcache 等外置缓存，和业务缓存双写的一致性维护也很麻烦。</p>
+      <p><strong>结论</strong>：二级缓存适合数据极少更新、单机部署、查询量大的场景（如数据字典）。多数业务场景直接用 Redis 做应用层缓存，逻辑更清晰可控。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#cache">缓存机制详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">MyBatis 插件的拦截原理是什么？能拦截哪些方法？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对 JDK 动态代理在插件中的应用，能讲出四大对象和链式调用加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MyBatis 插件基于 <span class="kw">JDK 动态代理</span>实现拦截。MyBatis 初始化时，对每个注册的 <code>Interceptor</code>，把四大对象（Executor、StatementHandler、ParameterHandler、ResultSetHandler）包一层代理。方法调用时先进代理的 <code>invoke()</code>，再由插件决定是否调用 <code>invocation.proceed()</code> 继续原方法。</p>
+      <p>可拦截的方法（需在 <code>@Signature</code> 里精确声明）：</p>
+      <table class="tbl">
+        <tr><th>目标对象</th><th>常用拦截方法</th><th>典型用途</th></tr>
+        <tr><td>Executor</td><td>query / update / commit</td><td>全局 SQL 审计、缓存增强</td></tr>
+        <tr><td>StatementHandler</td><td>prepare / query</td><td>分页 SQL 改写（PageHelper）</td></tr>
+        <tr><td>ParameterHandler</td><td>setParameters</td><td>加密参数</td></tr>
+        <tr><td>ResultSetHandler</td><td>handleResultSets</td><td>结果解密</td></tr>
+      </table>
+      <p>多个插件按注册顺序形成<span class="kw">代理链</span>，最后注册的最先执行（洋葱模型）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#plugin">插件机制详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">PageHelper 的分页原理是什么？有什么注意事项？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>PageHelper 几乎每个项目都用，考察原理和坑点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>PageHelper 是 MyBatis 插件，拦截 <code>Executor.query()</code>，在 SQL 执行前做以下操作：</p>
+      <ul>
+        <li><span class="b">①</span> <code>PageHelper.startPage(1, 10)</code> 把分页参数写入 <code>ThreadLocal</code></li>
+        <li><span class="b">②</span> 插件拦截到下一条 query，取出 ThreadLocal 里的分页参数</li>
+        <li><span class="b">③</span> 用 JSqlParser 把原 SQL 改写为 <code>SELECT ... LIMIT 0, 10</code></li>
+        <li><span class="b">④</span> 另外执行一条 <code>SELECT COUNT(*) FROM (...)</code> 统计总条数</li>
+        <li><span class="b">⑤</span> 返回 <code>Page</code> 对象（继承 ArrayList），同时包含 total / pages 等分页信息</li>
+      </ul>
+      <p><strong>两个主要坑</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> <code>startPage()</code> 之后必须<span class="kw">紧接着</span>是要分页的查询，中间不能穿插其他查询，否则分页参数会被错误消费</li>
+        <li><span class="b">▸</span> <code>startPage()</code> 后的查询如果在 try-finally 里未被执行（抛异常跳过），ThreadLocal 里的参数不会被清除，影响下一次请求（推荐用 <code>PageHelper.clearPage()</code> 清理）</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#plugin">插件机制详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">MyBatis 的三种执行器类型有什么区别？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对执行器设计的理解，能说清 Batch 和 Reuse 的适用场景即可。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>类型</th><th>行为</th><th>适用场景</th></tr>
+        <tr><td>SimpleExecutor（默认）</td><td>每次执行都创建新的 Statement，执行完即关闭</td><td>普通查询 / 更新</td></tr>
+        <tr><td>ReuseExecutor</td><td>缓存 Statement，相同 SQL 的 Statement 复用，只重新设置参数</td><td>短时间内大量相同 SQL 的场景，减少 Statement 创建开销</td></tr>
+        <tr><td>BatchExecutor</td><td>多条 UPDATE/INSERT 攒到一起，调用 <code>executeBatch()</code> 一次性发送</td><td>批量写入，需手动 flushStatements() 或 commit()</td></tr>
+      </table>
+      <p>默认是 <code>SimpleExecutor</code>。Spring Boot 项目里默认也是 Simple，要用 Batch 需要手动配置或在 SqlSessionTemplate 构造时指定 <code>ExecutorType.BATCH</code>。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#objects">四大核心对象</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">SqlSession 是线程安全的吗？为什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>高频基础题，考察并发意识。能说明 SqlSessionTemplate 怎么解决这个问题更好。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><code>SqlSession</code> <span class="kw">不是线程安全的</span>。它内部持有一个数据库 Connection 和一级缓存（HashMap），多线程共用同一个 SqlSession 会导致：</p>
+      <ul>
+        <li><span class="b">▸</span> Connection 并发使用，读写交错，产生不可预知的 SQL 顺序</li>
+        <li><span class="b">▸</span> 一级缓存 HashMap 并发读写，产生 ConcurrentModificationException</li>
+      </ul>
+      <p>因此原生使用时，SqlSession 应该在方法内创建、使用、关闭，不能作为成员变量。</p>
+      <p>Spring 通过 <code>SqlSessionTemplate</code> 解决了这个问题：它是线程安全的代理，每次方法调用时从 Spring 事务上下文取线程绑定的 SqlSession，不跨线程共享。这也是为什么在 Spring 里可以把 Mapper 注入为 Bean 单例——实际上是注入了 SqlSessionTemplate 代理，而不是真正的 SqlSession。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#spring">Spring 整合原理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">MyBatis 延迟加载的原理是什么？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对动态代理在延迟加载中的应用，能说出 CGLIB 代理加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>延迟加载（Lazy Loading）是指关联对象不在主查询时加载，只有当真正访问关联属性时才执行额外的 SQL。</p>
+      <p>MyBatis 的实现原理：用 <span class="kw">CGLIB（或 Javassist）动态代理</span>生成结果对象的子类，在代理类里记录哪些关联属性还未加载。当外部代码调用 <code>order.getUser()</code> 时，代理拦截到 getter 调用，判断 user 字段未加载，触发一次额外 SQL 查询，再把结果填充到字段并返回。</p>
+      <p>需要注意：</p>
+      <ul>
+        <li><span class="b">▸</span> 延迟加载要求 SqlSession 在使用关联对象时仍然处于打开状态，Spring 的"延迟加载 + 事务外访问"容易触发 <code>org.apache.ibatis.executor.ExecutorException: Executor was closed</code></li>
+        <li><span class="b">▸</span> 全局配置 <code>lazyLoadingEnabled=true</code> 或在 <code>association/collection</code> 里单独设 <code>fetchType="lazy"</code></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#resultmap">N+1 与 association 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">Spring 中 MyBatis 的事务是怎么管理的？和 @Transactional 怎么配合？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Spring 事务和 MyBatis 整合是面试必考，考察对 SqlSessionTemplate 和 DataSourceTransactionManager 协作的理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Spring + MyBatis 的事务管理由 <code>DataSourceTransactionManager</code> 负责，它和 MyBatis 通过 <code>Connection</code> 绑定协作：</p>
+      <ul>
+        <li><span class="b">①</span> <code>@Transactional</code> 方法被 AOP 拦截，Spring 从连接池获取 Connection，设置 <code>autoCommit=false</code>，绑定到当前线程（ThreadLocal）</li>
+        <li><span class="b">②</span> 方法内所有 MyBatis 操作通过 <code>SqlSessionUtils.getSqlSession()</code> 取到同一个 Connection（因为 Spring 事务把 Connection 绑定在线程上），共享同一个事务</li>
+        <li><span class="b">③</span> 方法正常返回 → Spring 调用 <code>connection.commit()</code>；抛出异常 → <code>connection.rollback()</code></li>
+      </ul>
+      <p>关键结论：<span class="kw">同一 @Transactional 方法内的所有 Mapper 操作共用一个 SqlSession 和 Connection</span>，保证了事务原子性；没有事务时每次 Mapper 调用独立 SqlSession，互不干扰。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#spring">Spring 整合原理</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 03 MyBatis-Plus ── -->
+<div class="sec" id="cat3-sec"><span class="sn">03</span> MyBatis-Plus <span class="q-count">Q17–Q22</span></div>
+
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext">LambdaQueryWrapper 相比 QueryWrapper 有什么优势？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>MP 基础题，考察对两种写法差异的理解，核心是类型安全和重构安全。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>两者生成的 SQL 完全相同，区别在于<span class="kw">列名的表达方式</span>：</p>
+      <table class="tbl">
+        <tr><th>维度</th><th>QueryWrapper</th><th>LambdaQueryWrapper</th></tr>
+        <tr><td>列名表达</td><td>字符串：<code>.eq("user_name", v)</code></td><td>Lambda：<code>.eq(User::getName, v)</code></td></tr>
+        <tr><td>重构安全</td><td>差，改字段名不报错，运行才发现</td><td>好，改字段名后编译就报错</td></tr>
+        <tr><td>类型安全</td><td>无，字符串无编译检查</td><td>有，方法引用由编译器检查</td></tr>
+        <tr><td>IDE 支持</td><td>无自动补全</td><td>全自动补全</td></tr>
+      </table>
+      <p><strong>结论</strong>：新代码全部用 LambdaQueryWrapper，字符串版 QueryWrapper 只在需要动态列名（如排序字段由前端传入）时才用，并配合白名单校验防注入。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-02-mybatisplus.html#wrapper">条件构造器</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext">MP 逻辑删除是怎么实现的？有什么坑？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对 MP 逻辑删除原理和唯一索引冲突坑的认知。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MP 逻辑删除通过 <code>@TableLogic</code> 注解实现。原理是 MP 在全局 SQL 拦截器里：</p>
+      <ul>
+        <li><span class="b">▸</span> <strong>删除操作</strong>改写为 <code>UPDATE table SET deleted=1 WHERE id=?</code></li>
+        <li><span class="b">▸</span> <strong>查询 / 更新操作</strong>自动追加 <code>AND deleted=0</code> 条件，过滤已删除数据</li>
+      </ul>
+      <p><strong>主要坑</strong>：</p>
+      <ul>
+        <li><span class="b">坑 1</span> <strong>唯一索引冲突</strong>：手机号/邮箱字段有唯一索引，逻辑删除后值还在，新用户注册同手机号会报唯一冲突。解法：改成联合唯一索引 <code>(phone, deleted)</code>，或删除时把 phone 改写成随机字符串</li>
+        <li><span class="b">坑 2</span> <strong>原生 XML SQL 不生效</strong>：自己写的 XML Mapper 查询不会自动追加 <code>deleted=0</code>，需要手动加</li>
+        <li><span class="b">坑 3</span> <strong>统计类 SQL 遗漏</strong>：COUNT(*) 等聚合 SQL 如果走 XML 写，也要记得加 <code>deleted=0</code></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-02-mybatisplus.html#logic">逻辑删除 &amp; 乐观锁</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext">MP 乐观锁的 CAS 流程是什么？失败了怎么处理？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察乐观锁原理和业务处理方式。能对比悲观锁的适用场景加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MP 乐观锁通过 <code>@Version</code> 注解实现 CAS（Compare And Swap）。完整流程：</p>
+      <ul>
+        <li><span class="b">①</span> 查询：<code>SELECT id, name, version FROM user WHERE id=1</code> → 返回 <code>version=3</code></li>
+        <li><span class="b">②</span> 修改业务逻辑</li>
+        <li><span class="b">③</span> 更新：<code>UPDATE user SET name=?, version=4 WHERE id=1 AND version=3</code></li>
+        <li><span class="b">④</span> 若影响行数为 0，说明其他线程已修改（version 已不是 3），本次更新失败</li>
+      </ul>
+      <p><strong>失败处理方式</strong>（按业务场景选）：</p>
+      <ul>
+        <li><span class="b">▸</span> 重新查询最新数据 + 重试（适合冲突概率低、重试代价小的场景）</li>
+        <li><span class="b">▸</span> 抛出业务异常 + 提示用户刷新重试（适合后台管理系统）</li>
+        <li><span class="b">▸</span> 放弃乐观锁改用悲观锁（适合高并发冲突率高的场景，如秒杀扣库存）</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-02-mybatisplus.html#logic">逻辑删除 &amp; 乐观锁</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">MP 分页插件是怎么对 COUNT 做优化的？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对分页插件底层优化策略的了解，适合有性能调优意识的面试官。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>分页查询通常需要两条 SQL：一条带 LIMIT 的主查询 + 一条 COUNT 查询（统计总条数）。MP 对 COUNT 做了以下优化：</p>
+      <ul>
+        <li><span class="b">优化 1 — 去除 ORDER BY</span>：COUNT 不需要排序，MP 自动去掉 <code>ORDER BY</code> 子句，减少数据库排序开销</li>
+        <li><span class="b">优化 2 — 去除多余列</span>：COUNT 只需要行数，主查询里 <code>SELECT a, b, c</code> 的列可以简化为 <code>SELECT 1</code> 或 <code>COUNT(*)</code></li>
+        <li><span class="b">优化 3 — GROUP BY 包装</span>：原 SQL 带 GROUP BY 时，直接改写 COUNT 会语义错误，MP 会包一层 <code>SELECT COUNT(*) FROM (原SQL) AS tmp</code></li>
+        <li><span class="b">优化 4 — 关闭 COUNT</span>：<code>new Page&lt;&gt;(1, 10, false)</code> 第三个参数传 false，完全不执行 COUNT 查询，适合不需要总页数的下拉加载场景</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-02-mybatisplus.html#page">分页插件</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">MP 自动填充的时机和原理是什么？什么情况下不生效？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>自动填充是高频实际开发场景，考察原理和生效边界。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MP 自动填充依赖 <code>MetaObjectHandler</code>，在 <code>BaseMapper.insert()</code> 和 <code>BaseMapper.update()</code> 执行前，MP 调用 Handler 的 <code>insertFill</code> / <code>updateFill</code> 方法，通过反射把值设置到对应字段。</p>
+      <p>触发条件：字段上有 <code>@TableField(fill = FieldFill.INSERT / INSERT_UPDATE / UPDATE)</code> 注解，且通过 MP 的方法操作（不是原生 MyBatis XML）。</p>
+      <p><strong>不生效的情况</strong>：</p>
+      <ul>
+        <li><span class="b">▸</span> 用 UpdateWrapper / LambdaUpdateWrapper 的 <code>.set("update_time", ...)</code> 直接设 SET 字段，不走实体字段填充</li>
+        <li><span class="b">▸</span> XML 里写的 <code>&lt;insert&gt;</code> / <code>&lt;update&gt;</code>，不走 MP 插件体系</li>
+        <li><span class="b">▸</span> 字段已有非 null 值时，<code>strictInsertFill</code> 不会覆盖（用 <code>setFieldValByName</code> 可强制覆盖）</li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-02-mybatisplus.html#fill">自动填充</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">MP 多租户是怎么实现 SQL 隔离的？超级管理员怎么查全量数据？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对多租户实现方案的掌握，能讲出"管理员绕过"设计加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>MP 多租户通过 <code>TenantLineInnerInterceptor</code> 实现，拦截所有 SQL，在 WHERE 子句里自动追加 <code>AND tenant_id = ?</code>（由 <code>getTenantId()</code> 提供当前租户 ID）。不需要每条 SQL 手写租户条件。</p>
+      <p><strong>超级管理员查全量数据</strong>：在 <code>getTenantId()</code> 里判断当前登录用户角色，是超级管理员时返回 <code>null</code>，MP 会跳过追加条件。</p>
+      <pre>@Override
+public Expression getTenantId() {
+    User user = SecurityContext.getCurrentUser();
+    if (user.isAdmin()) return null;  // 管理员不追加 tenant_id 条件
+    return new LongValue(user.getTenantId());
+}</pre>
+      <p><strong>ignoreTable</strong>：系统字典、配置表等不需要租户隔离的表，在 <code>ignoreTable(tableName)</code> 里返回 true，MP 跳过该表的 tenant_id 追加。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-02-mybatisplus.html#tenant">多租户 &amp; 动态表名</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ── 04 综合实战 ── -->
+<div class="sec" id="cat4-sec"><span class="sn">04</span> 综合实战 <span class="q-count">Q23–Q24</span></div>
+
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">项目里选 MyBatis / MyBatis-Plus 还是 JPA，你怎么决策？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放选型题，考察技术选型思维。能从业务复杂度和团队背景两个维度讲清楚加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>我的判断标准是两个维度：<strong>SQL 复杂度</strong>和<strong>团队背景</strong>。</p>
+      <table class="tbl">
+        <tr><th>场景</th><th>选型建议</th><th>理由</th></tr>
+        <tr><td>复杂查询多（报表、多表 JOIN、分页筛选）</td><td>MyBatis / MP</td><td>SQL 可控，便于 DBA 介入，慢查询好定位</td></tr>
+        <tr><td>业务以简单 CRUD 为主，领域模型清晰</td><td>JPA / Hibernate</td><td>减少重复代码，Schema 变更后代码自动适应</td></tr>
+        <tr><td>需要快速上手，团队 Java 背景深但 DBA 少</td><td>MP</td><td>BaseMapper + LambdaQueryWrapper 几乎不用写 SQL</td></tr>
+        <tr><td>跨数据库迁移需求（MySQL → PostgreSQL）</td><td>JPA</td><td>方言切换成本低</td></tr>
+      </table>
+      <p>国内互联网主流选 MyBatis-Plus：SQL 可控 + CRUD 不用写 + 分页/逻辑删除/乐观锁开箱即用，是工程效率和可控性的最佳平衡点。JPA 在国内用得相对少，主要在 Spring Boot 快速原型项目里。</p>
+    </div>
+  </div>
+</div>
+
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">大批量数据插入如何优化？saveBatch 为什么不够快？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>性能优化实战题，考察对 JDBC 批量插入机制的深度理解。能说出 rewriteBatchedStatements 加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><code>saveBatch()</code> 的默认实现是<span class="kw">循环单条 INSERT</span>，每条 SQL 单独发送到数据库，网络往返 N 次，性能差。优化分三个层次：</p>
+      <ul>
+        <li><span class="b">层次 1 — 批量值 INSERT</span>：用 MyBatis XML 的 <code>&lt;foreach&gt;</code> 拼接 <code>INSERT INTO user VALUES (?,?),(?,?),...</code> 一条 SQL 多行，减少网络往返。注意每批控制在 500~1000 条（避免超过 <code>max_allowed_packet</code>）</li>
+        <li><span class="b">层次 2 — JDBC Batch + rewriteBatchedStatements</span>：JDBC URL 加 <code>?rewriteBatchedStatements=true</code>，再用 <code>BatchExecutor</code> 或 JDBC <code>addBatch() / executeBatch()</code>。MySQL 驱动会把多条 PreparedStatement 改写成一条多值 INSERT，效果同层次 1 但更通用</li>
+        <li><span class="b">层次 3 — LOAD DATA INFILE</span>：极大数据量（百万级）直接用 MySQL <code>LOAD DATA INFILE</code>，跳过 SQL 解析，是最快方式，但需要文件权限且不支持事务回滚</li>
+      </ul>
+      <p><strong>日常推荐</strong>：<code>foreach</code> 批量 INSERT 每批 500 条 + 开启 <code>rewriteBatchedStatements=true</code>，覆盖 99% 的场景需求。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="orm-01-mybatis.html#dynamic">动态 SQL foreach</a>
+      <a class="qa-link" href="orm-02-mybatisplus.html#mapper">三层接口 saveBatch</a>
+    </div></div>
+  </div>
+</div>
+
+</div><!-- end .mc -->
+</div><!-- end .layout -->
+
+<script>
+function toggleQA(el){const c=el.closest('.qa-card');c.classList.toggle('open',!c.classList.contains('open'));updateProgress()}
+function toggleScat(el){const s=el.closest('.scat');s.classList.toggle('open')}
+function toggleAll(open){document.querySelectorAll('.qa-card').forEach(c=>c.classList.toggle('open',open));updateProgress()}
+function filterByBadge(type){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active',b.dataset.filter===type));
+  document.querySelectorAll('.qa-card').forEach(card=>{if(!type){card.style.display='';return}card.style.display=card.querySelector('.qa-badge.'+type)?'':'none'});
+  updateProgress();
+}
+function updateProgress(){
+  const visible=[...document.querySelectorAll('.qa-card')].filter(c=>c.style.display!=='none');
+  const open=visible.filter(c=>c.classList.contains('open'));
+  document.getElementById('pfill').style.width=(visible.length?open.length/visible.length*100:0)+'%';
+  document.getElementById('ptxt').textContent=open.length+'/'+visible.length;
+}
+const items=document.querySelectorAll('.scat-item');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  document.querySelectorAll('.qa-card[id]').forEach(c=>{if(c.getBoundingClientRect().top<=80)cur=c.id});
+  items.forEach(i=>i.classList.toggle('active',i.getAttribute('href')==='#'+cur));
+});
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MySQL 04 · 性能调优与架构</title>
+<style>
+:root{--accent-color:var(--blue);--accent-bg:var(--blue-bg);--accent-b:var(--blue-b)}
+header::before{content:'OPTIMIZE'}
+.note.tip {background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--tx2)}
+.note.good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr}}
+.comp-card{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:13px 15px}
+.comp-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--blue);margin-bottom:5px}
+.comp-name.green{color:var(--green)}.comp-name.orange{color:var(--orange)}
+.comp-name.purple{color:var(--purple)}.comp-name.red{color:var(--red)}
+.comp-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blue-bg);stroke:var(--blue-b);stroke-width:1.5}
+.dg-box-g{fill:var(--green-bg);stroke:var(--green-b);stroke-width:1.5}
+.dg-box-o{fill:var(--orange-bg);stroke:var(--orange-b);stroke-width:1.5}
+.dg-box-p{fill:var(--purple-bg);stroke:var(--purple-b);stroke-width:1.5}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5}
+.dg-box-y{fill:var(--yellow-bg);stroke:var(--yellow-b);stroke-width:1.5}
+.dg-t {fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace}
+.dg-ln   {stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-b {stroke:var(--blue);stroke-width:1.8;fill:none}
+.dg-ln-g {stroke:var(--green);stroke-width:1.8;fill:none}
+.dg-ln-o {stroke:var(--orange);stroke-width:1.8;fill:none}
+.dg-ln-p {stroke:var(--purple);stroke-width:1.5;fill:none}
+.dg-ln-dash{stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;fill:none}
+/* EXPLAIN type badge */
+.type-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--bd)}
+.type-row:last-child{border-bottom:none}
+.type-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;min-width:80px;text-align:center;flex-shrink:0}
+.type-badge.t0{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.type-badge.t1{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-b)}
+.type-badge.t2{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-b)}
+.type-badge.t3{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.type-badge.t4{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-b)}
+.type-desc{font-size:13px;color:var(--tx2);line-height:1.5}
+.type-desc strong{color:var(--tx)}
+/* replication flow */
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <marker id="arr"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="rgba(120,140,170,0.7)"/></marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--blue)"/></marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--green)"/></marker>
+    <marker id="arr-o" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--orange)"/></marker>
+  </defs>
+</svg>
+<script src="../../shared/nav-mysql.js"></script>
+<header>
+  <div class="htag">MySQL · 04 · OPTIMIZE</div>
+  <h1>性能调优与架构</h1>
+  <p class="sub">EXPLAIN 精读 · 慢查询分析 · JOIN 优化 · 分页优化 · count 优化 · 主从复制 · 分库分表 · 高可用与 Online DDL</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#explain"><span class="s-num">01</span>EXPLAIN 全字段精读</a>
+    <a class="s-link" href="#slowquery"><span class="s-num">02</span>慢查询分析流程</a>
+    <a class="s-link" href="#join"><span class="s-num">03</span>JOIN 优化</a>
+    <a class="s-link" href="#pagination"><span class="s-num">04</span>分页优化</a>
+    <a class="s-link" href="#count"><span class="s-num">05</span>count 优化</a>
+    <a class="s-link" href="#replication"><span class="s-num">06</span>主从复制</a>
+    <a class="s-link" href="#sharding"><span class="s-num">07</span>分库分表</a>
+    <a class="s-link" href="#ha"><span class="s-num">08</span>高可用与 Online DDL</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="mysql-05-interview.html#cat3">→ 面试题 · 优化篇</a>
+    <a class="s-link" href="mysql-03-transaction.html">← 上一章：事务与锁</a>
+    <a class="s-link" href="mysql-05-interview.html">→ 下一章：面试题</a>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ════════════════════════════════ 01 EXPLAIN -->
+    <div class="sec" id="explain"><span class="sn">01</span>EXPLAIN 全字段精读</div>
+    <div class="card">
+      <div class="ct">type 列 — 访问类型（最重要的字段）</div>
+      <p>type 列描述 MySQL 找到行的方式，性能从好到差排列。<span class="kw">生产环境目标：至少达到 range，最好 ref 或 eq_ref。ALL 必须优化。</span></p>
+      <div style="background:var(--bg);border:1px solid var(--bd);border-radius:6px;overflow:hidden;margin-top:12px">
+        <div class="type-row">
+          <span class="type-badge t4">system</span>
+          <div class="type-desc"><strong>表只有一行数据</strong>（系统表）。特殊情况，几乎不出现在业务表中。</div>
+        </div>
+        <div class="type-row">
+          <span class="type-badge t4">const</span>
+          <div class="type-desc"><strong>主键或唯一索引等值查询</strong>，最多返回一行。优化器将结果视为常量。<br>例：<code>WHERE id = 5</code>（id 是主键）</div>
+        </div>
+        <div class="type-row">
+          <span class="type-badge t4">eq_ref</span>
+          <div class="type-desc"><strong>JOIN 时被驱动表用主键/唯一索引等值查找</strong>，每个驱动表行最多匹配一行。最优的 JOIN 类型。<br>例：<code>FROM a JOIN b ON a.id = b.id</code>（b.id 是主键）</div>
+        </div>
+        <div class="type-row">
+          <span class="type-badge t3">ref</span>
+          <div class="type-desc"><strong>非唯一索引等值查询</strong>，可能返回多行。<br>例：<code>WHERE user_id = 100</code>（user_id 有普通索引，非唯一）</div>
+        </div>
+        <div class="type-row">
+          <span class="type-badge t3">range</span>
+          <div class="type-desc"><strong>索引范围扫描</strong>。<code>&gt; / &lt; / BETWEEN / IN / LIKE 'x%'</code> 等。<br>索引有效，只扫描一段范围，可接受。</div>
+        </div>
+        <div class="type-row">
+          <span class="type-badge t2">index</span>
+          <div class="type-desc"><strong>全索引扫描</strong>（扫整棵二级索引树）。虽走了索引，但扫描量大。常见于覆盖索引但没有 WHERE 条件。<br>比 ALL 好（只扫索引不读行数据），但仍需关注。</div>
+        </div>
+        <div class="type-row">
+          <span class="type-badge t0">ALL</span>
+          <div class="type-desc"><strong>全表扫描</strong>。最差。扫描所有行，IO 和 CPU 最高。必须优化：检查 WHERE 条件是否能加索引或改写。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">key_len — 索引使用长度计算</div>
+      <p>key_len 显示优化器实际用到的索引长度（字节），可以判断联合索引用了几列。</p>
+      <table class="tbl">
+        <tr><th>数据类型</th><th>key_len 计算</th><th>示例</th></tr>
+        <tr><td>INT NOT NULL</td><td>4</td><td>4</td></tr>
+        <tr><td>INT NULL</td><td>4 + 1（null 标志位）</td><td>5</td></tr>
+        <tr><td>BIGINT NOT NULL</td><td>8</td><td>8</td></tr>
+        <tr><td>VARCHAR(n) NOT NULL, utf8mb4</td><td>n × 4 + 2（长度字节）</td><td>VARCHAR(50) → 202</td></tr>
+        <tr><td>VARCHAR(n) NULL, utf8mb4</td><td>n × 4 + 2 + 1</td><td>VARCHAR(50) → 203</td></tr>
+        <tr><td>CHAR(n) NOT NULL, utf8mb4</td><td>n × 4</td><td>CHAR(10) → 40</td></tr>
+        <tr><td>DATETIME NOT NULL</td><td>5（5.6.4+ 精简格式）</td><td>5</td></tr>
+      </table>
+      <pre>-- 联合索引 (user_id BIGINT NOT NULL, status TINYINT NOT NULL)
+-- 如果 key_len=8 → 只用了 user_id
+-- 如果 key_len=9 → 用了 user_id + status
+-- 可以判断 WHERE 条件有没有用到后续列</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">Extra 列关键词含义</div>
+      <table class="tbl">
+        <tr><th>Extra 值</th><th>含义</th><th>是否需要优化</th></tr>
+        <tr><td>Using index</td><td>覆盖索引，从索引直接返回，无回表</td><td>✅ 最优状态</td></tr>
+        <tr><td>Using where</td><td>在 Server 层对引擎返回的行再次过滤（WHERE 条件中有不在索引里的列）</td><td>⚠ 视过滤比例决定</td></tr>
+        <tr><td>Using index condition</td><td>ICP 生效，在存储引擎层做了 WHERE 过滤</td><td>✅ 有优化</td></tr>
+        <tr><td>Using MRR</td><td>MRR 优化生效，顺序化回表 IO</td><td>✅ 有优化</td></tr>
+        <tr><td>Using filesort</td><td>ORDER BY 无法用索引排序，需额外排序</td><td>⚠ 结果集大时需优化</td></tr>
+        <tr><td>Using temporary</td><td>需要创建临时表（GROUP BY / DISTINCT 常见）</td><td>❌ 需优化</td></tr>
+        <tr><td>Using temporary; Using filesort</td><td>先建临时表再排序</td><td>❌ 必须优化</td></tr>
+        <tr><td>Using join buffer (Block Nested Loop)</td><td>JOIN 时被驱动表没有走索引，用 join_buffer 做 BNL</td><td>❌ 需给被驱动表加索引</td></tr>
+        <tr><td>Using join buffer (Hash join)</td><td>8.0+ Hash Join，没有合适索引但用了 Hash 算法</td><td>⚠ 比 BNL 好，但最好还是加索引</td></tr>
+        <tr><td>Select tables optimized away</td><td>聚合函数（MIN/MAX）被优化为直接读索引边界值</td><td>✅ 极优状态</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">其他重要字段速查</div>
+      <table class="tbl">
+        <tr><th>字段</th><th>含义与使用技巧</th></tr>
+        <tr><td>id</td><td>SELECT 的编号，相同 id 从上到下执行；id 越大越先执行（子查询先执行）</td></tr>
+        <tr><td>select_type</td><td>SIMPLE（无子查询/UNION）/ PRIMARY（最外层）/ SUBQUERY（子查询）/ DERIVED（FROM 子查询，临时表）/ UNION</td></tr>
+        <tr><td>possible_keys</td><td>优化器考虑过的候选索引（不一定用）。为 NULL 说明没有合适索引。</td></tr>
+        <tr><td>key</td><td>实际选用的索引。为 NULL 表示全表扫描。</td></tr>
+        <tr><td>rows</td><td>优化器估算需要扫描的行数（估算值，有误差）。与 filtered 结合看实际影响。</td></tr>
+        <tr><td>filtered</td><td>经过 WHERE 过滤后剩余行的百分比估算。rows × filtered / 100 = 预计返回行数。</td></tr>
+        <tr><td>ref</td><td>与索引比较的列或常量。const 表示与常量比较；列名表示 JOIN 时与驱动表某列比较。</td></tr>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════ 02 慢查询 -->
+    <div class="sec" id="slowquery"><span class="sn">02</span>慢查询分析流程</div>
+    <div class="card">
+      <div class="ct">五步分析法</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">①</div>
+          <div><div class="step-title">开启慢查询日志</div>
+          <div class="step-desc">
+            <pre style="margin:4px 0">slow_query_log = ON
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 1          -- 超过 1 秒记录（生产可设 0.1 秒）
+log_queries_not_using_indexes = ON  -- 未走索引的查询也记录</pre>
+          </div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">②</div>
+          <div><div class="step-title">用 pt-query-digest 聚合分析</div>
+          <div class="step-desc">
+            <pre style="margin:4px 0">pt-query-digest /var/log/mysql/slow.log | head -200
+# 输出按响应时间总量排序的 TOP SQL，附带调用次数、平均/最大耗时、示例 SQL</pre>
+            找出 <strong>响应时间总量最大</strong>（影响面最广）和<strong>最大单次耗时</strong>（最严重）的 SQL。
+          </div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">③</div>
+          <div><div class="step-title">EXPLAIN 分析执行计划</div>
+          <div class="step-desc">对问题 SQL 执行 EXPLAIN（或 <code>EXPLAIN FORMAT=JSON</code> 获取代价信息），重点检查：type 是否 ALL、有没有 Using temporary/filesort、key 是否正确。</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">④</div>
+          <div><div class="step-title">针对性优化</div>
+          <div class="step-desc">
+            — 缺索引 → 加索引（注意等值在前、范围在后、覆盖查询列）<br>
+            — 索引存在但不走 → 排查失效原因（见第01章第06节）<br>
+            — 回表太多 → 把 SELECT 列追加进联合索引（覆盖索引）<br>
+            — filesort → 调整索引列顺序以消灭 ORDER BY 额外排序<br>
+            — JOIN BNL → 给被驱动表的 JOIN 列加索引
+          </div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">⑤</div>
+          <div><div class="step-title">验证效果</div>
+          <div class="step-desc">上线后观察慢查询日志中该 SQL 的耗时变化；用 SHOW PROFILE 或 performance_schema 验证 IO 次数下降。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">SHOW PROFILE — 精确诊断单条 SQL 耗时</div>
+      <pre>SET profiling = 1;
+SELECT * FROM orders WHERE user_id=1 ORDER BY created_at DESC LIMIT 10;
+SHOW PROFILES;            -- 找到对应 query_id
+SHOW PROFILE FOR QUERY 1; -- 查看每个阶段耗时
+-- 关注：
+-- Sending data     → 扫描 + 回表阶段
+-- Sorting result   → filesort 阶段
+-- Creating tmp table → 临时表
+-- 8.0 推荐改用 performance_schema.events_stages_history_long</pre>
+    </div>
+
+    <!-- ════════════════════════════════ 03 JOIN -->
+    <div class="sec" id="join"><span class="sn">03</span>JOIN 优化</div>
+    <div class="card">
+      <div class="ct">Nested Loop Join（NLJ）— 最常见的 JOIN 算法</div>
+      <p>MySQL 最基本的 JOIN 算法：从驱动表取一行，到被驱动表用索引查匹配行，逐行循环。</p>
+      <pre>-- 驱动表：orders（WHERE 条件过滤后小结果集）
+-- 被驱动表：order_items（大表，需要在 order_id 上有索引）
+SELECT o.*, oi.product_id
+FROM orders o
+JOIN order_items oi ON o.id = oi.order_id   -- oi.order_id 必须有索引！
+WHERE o.user_id = 100;</pre>
+      <p style="margin-top:8px">NLJ 的时间复杂度 = 驱动表扫描行数 × 被驱动表每次查找代价。被驱动表有索引时，每次查找是 O(log n)；无索引时退化为全表扫描，极慢。</p>
+      <div class="note warn" style="margin-top:8px"><strong>被驱动表的 JOIN 列必须有索引。</strong>没有索引时，EXPLAIN 会显示 <code>Using join buffer (Block Nested Loop)</code>，MySQL 把驱动表放入 join_buffer（默认 256KB），与被驱动表做笛卡尔积过滤，IO 量 = 驱动表行数 × 被驱动表行数，百万级数据下几乎不可接受。</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Hash Join（MySQL 8.0.18+）</div>
+      <p>8.0.18 引入 Hash Join：把小表（驱动表）的 JOIN 列构建 Hash 表放入内存，然后扫描大表（被驱动表）逐行用 Hash 查找匹配。</p>
+      <ul class="dl">
+        <li><span class="b">适用</span><span>被驱动表无法使用索引的等值 JOIN，此时 Hash Join 比 BNL 快得多</span></li>
+        <li><span class="b">限制</span><span>只支持等值 JOIN（<code>=</code>）；Hash 表需放入内存（<code>join_buffer_size</code>），超出则落磁盘</span></li>
+        <li><span class="b">识别</span><span>EXPLAIN Extra: <code>Using join buffer (Hash join)</code></span></li>
+      </ul>
+      <p style="margin-top:8px">即使有 Hash Join，也应尽量给 JOIN 列加索引，NLJ + 索引的效率在大多数场景仍优于 Hash Join。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">驱动表选择与优化原则</div>
+      <ul class="dl">
+        <li><span class="b">小表驱动大表</span><span>过滤后行数少的表作为驱动表，减少循环次数。MySQL 优化器通常能自动选择，但统计信息不准时可能选错。</span></li>
+        <li><span class="b">IN vs EXISTS</span><span><code>IN (SELECT ... FROM small_table)</code> ≈ 小表驱动，适合子查询结果集小；<code>EXISTS (SELECT 1 FROM large_table WHERE ...)</code> ≈ 大表驱动，适合外表结果集小。两者的实际性能取决于子查询结果集大小，需 EXPLAIN 验证。</span></li>
+        <li><span class="b">STRAIGHT_JOIN</span><span>强制左边的表作为驱动表：<code>SELECT ... FROM a STRAIGHT_JOIN b ON ...。</code>优化器选错驱动表时使用。</span></li>
+        <li><span class="b">减少 JOIN 层数</span><span>多表 JOIN 超过 3 张时，优化器选择执行顺序的组合数指数增长（n! 复杂度），建议业务层拆分为多次查询。</span></li>
+      </ul>
+    </div>
+
+    <!-- ════════════════════════════════ 04 分页 -->
+    <div class="sec" id="pagination"><span class="sn">04</span>分页优化</div>
+    <div class="card">
+      <div class="ct">LIMIT offset 的代价</div>
+      <p><code>SELECT * FROM orders ORDER BY id LIMIT 100000, 20</code> 看起来只返回 20 行，但 MySQL 实际上要<span class="kw">扫描前 100020 行</span>，丢弃前 100000 行，只返回后 20 行。随着 offset 增大，扫描量线性增长，到第 10 万页时已经极慢。</p>
+      <pre>-- 验证：两条语句扫描行数相差 100000 倍
+EXPLAIN SELECT * FROM orders LIMIT 20;            -- rows ≈ 20
+EXPLAIN SELECT * FROM orders LIMIT 100000, 20;    -- rows ≈ 100020</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">三种优化方案</div>
+      <div class="step-flow" style="margin-top:0">
+        <div class="step">
+          <div class="step-num" style="font-size:11px;min-width:28px">方案1</div>
+          <div>
+            <div class="step-title">延迟关联（Deferred Join / Late Row Lookup）</div>
+            <div class="step-desc">
+              先用子查询在覆盖索引上快速拿到目标页的主键 ID，再用主键回表取完整数据。<br>核心思路：把"扫描+回表"拆成"扫描（覆盖索引，快）+ 小批量回表（按 ID，精准）"。
+              <pre style="margin:6px 0">-- 原查询（慢）
+SELECT * FROM orders ORDER BY id LIMIT 100000, 20;
+
+-- 延迟关联（快）
+SELECT o.* FROM orders o
+JOIN (SELECT id FROM orders ORDER BY id LIMIT 100000, 20) AS t
+ON o.id = t.id;</pre>
+              效果：子查询只扫索引（覆盖索引，Using index），不回表；JOIN 只用 20 次精准主键查找。
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="font-size:11px;min-width:28px">方案2</div>
+          <div>
+            <div class="step-title">游标分页（Cursor Pagination / Seek Method）</div>
+            <div class="step-desc">
+              记录上一页最后一行的 ID（或排序列值），下一页用 <code>WHERE id &gt; last_id LIMIT 20</code>。<br>完全消灭 offset 扫描，无论翻到第几页，扫描量恒定为 20 行。
+              <pre style="margin:6px 0">-- 第一页
+SELECT id, user_id, amount FROM orders WHERE user_id=1 ORDER BY id LIMIT 20;
+-- 假设最后一行 id = 1500
+
+-- 下一页（使用游标，O(1) 定位）
+SELECT id, user_id, amount FROM orders
+WHERE user_id=1 AND id > 1500 ORDER BY id LIMIT 20;</pre>
+              限制：<strong>不支持随机跳页</strong>（无法直接跳到第 5000 页）；排序列必须有索引且唯一（或组合唯一）。适合"下拉加载更多"交互。
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="font-size:11px;min-width:28px">方案3</div>
+          <div>
+            <div class="step-title">业务层约束最大页数</div>
+            <div class="step-desc">
+              强制限制用户最多翻到第 N 页（如第 200 页），超出返回空结果或提示"请细化搜索条件"。<br>适合搜索场景，用户很少会真的翻到第 1000 页，产品设计上直接规避深分页。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════ 05 count -->
+    <div class="sec" id="count"><span class="sn">05</span>count 优化</div>
+    <div class="card">
+      <div class="ct">count(*) vs count(1) vs count(id) vs count(非空列)</div>
+      <table class="tbl">
+        <tr><th>写法</th><th>行为</th><th>性能</th></tr>
+        <tr><td>count(*)</td><td>统计所有行，包括 NULL 行；InnoDB 优化器会选最小的索引（或主键）扫描，不读行数据</td><td>最优（MySQL 专门优化）</td></tr>
+        <tr><td>count(1)</td><td>与 count(*) 完全等价，MySQL 8.0 优化器处理方式相同</td><td>与 count(*) 相同</td></tr>
+        <tr><td>count(id)（主键）</td><td>统计主键非 NULL 的行数；主键不可能为 NULL，等价于 count(*)，但需要读主键列值</td><td>稍逊于 count(*)</td></tr>
+        <tr><td>count(非主键列)</td><td>统计该列非 NULL 的行数；若列可为 NULL，结果可能小于总行数；需读该列值判断是否 NULL</td><td>最慢，需判断 NULL</td></tr>
+      </table>
+      <p style="margin-top:10px">结论：<span class="kw">统一用 count(*)</span>，可读性好，且 MySQL 专门优化。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">为什么 InnoDB count(*) 比 MyISAM 慢</div>
+      <p>MyISAM 在表的元数据中记录了总行数，<code>SELECT count(*) FROM t</code>（无 WHERE 条件）直接返回，O(1)。</p>
+      <p>InnoDB 不记录总行数（因为 MVCC：不同事务看到的行数可能不同），必须<span class="kw">扫描一遍</span>才能得到当前事务视图下的行数。优化器选最小的二级索引扫描（比主键索引小），但仍是 O(n)。</p>
+      <pre>-- InnoDB 大表 count(*) 的替代方案：
+-- 1. 缓存行数（Redis INCR/DECR，写入时+1，删除时-1）
+-- 2. 单独维护计数表（事务内同时更新业务表和计数表，保证原子性）
+-- 3. 业务允许近似值时：SHOW TABLE STATUS LIKE 'orders' → Rows 列（估算值）
+-- 4. information_schema.TABLES.TABLE_ROWS（同上，估算）</pre>
+    </div>
+
+    <!-- ════════════════════════════════ 06 主从复制 -->
+    <div class="sec" id="replication"><span class="sn">06</span>主从复制</div>
+    <div class="card">
+      <div class="ct">异步复制流程</div>
+    </div>
+
+    <div class="diag-wrap">
+      <div class="diag-cap">MySQL 主从复制三个核心线程</div>
+      <div class="diag-body">
+        <svg width="600" height="180" viewBox="0 0 600 180">
+          <!-- Master -->
+          <rect x="10" y="20" width="160" height="140" rx="6" class="dg-box-b"/>
+          <text x="90" y="40" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">MASTER</text>
+          <rect x="24" y="48" width="132" height="26" rx="4" class="dg-box-g"/>
+          <text x="90" y="63" class="dg-green" font-size="10.5" text-anchor="middle" font-weight="600">事务提交</text>
+          <text x="90" y="75" class="dg-t3" font-size="8" text-anchor="middle">写入 binlog</text>
+          <rect x="24" y="84" width="132" height="26" rx="4" class="dg-box-o"/>
+          <text x="90" y="99" class="dg-orange" font-size="10.5" text-anchor="middle" font-weight="600">Dump Thread</text>
+          <text x="90" y="111" class="dg-t3" font-size="8" text-anchor="middle">监听并发送 binlog events</text>
+          <rect x="24" y="120" width="132" height="28" rx="4" class="dg-box-b"/>
+          <text x="90" y="135" class="dg-blue" font-size="10" text-anchor="middle" font-weight="600">binlog file</text>
+          <text x="90" y="146" class="dg-t3" font-size="8" text-anchor="middle">mysql-bin.000xxx</text>
+
+          <!-- network -->
+          <line x1="170" y1="97" x2="220" y2="97" class="dg-ln-o" marker-end="url(#arr-o)"/>
+          <text x="195" y="90" class="dg-t3" font-size="8" text-anchor="middle">TCP</text>
+
+          <!-- Slave -->
+          <rect x="220" y="20" width="370" height="140" rx="6" class="dg-box-g"/>
+          <text x="405" y="40" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">SLAVE</text>
+
+          <rect x="234" y="48" width="150" height="26" rx="4" class="dg-box-o"/>
+          <text x="309" y="63" class="dg-orange" font-size="10.5" text-anchor="middle" font-weight="600">I/O Thread</text>
+          <text x="309" y="75" class="dg-t3" font-size="8" text-anchor="middle">接收 binlog，写 relay log</text>
+
+          <line x1="309" y1="84" x2="309" y2="108" class="dg-ln" marker-end="url(#arr)"/>
+
+          <rect x="234" y="108" width="150" height="26" rx="4" class="dg-box-b"/>
+          <text x="309" y="123" class="dg-blue" font-size="10.5" text-anchor="middle" font-weight="600">relay log file</text>
+          <text x="309" y="135" class="dg-t3" font-size="8" text-anchor="middle">中继日志</text>
+
+          <line x1="384" y1="121" x2="408" y2="121" class="dg-ln" marker-end="url(#arr)"/>
+
+          <rect x="408" y="108" width="170" height="26" rx="4" class="dg-box-g"/>
+          <text x="493" y="123" class="dg-green" font-size="10.5" text-anchor="middle" font-weight="600">SQL Thread</text>
+          <text x="493" y="135" class="dg-t3" font-size="8" text-anchor="middle">重放 relay log，更新从库数据</text>
+
+          <rect x="408" y="48" width="170" height="50" rx="4" class="dg-box"/>
+          <text x="493" y="65" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".04em">从库数据</text>
+          <text x="493" y="82" class="dg-t" font-size="10" text-anchor="middle" font-weight="600">延迟 = SQL Thread 回放速度</text>
+          <text x="493" y="94" class="dg-t3" font-size="8" text-anchor="middle">Seconds_Behind_Master 衡量</text>
+
+          <line x1="493" y1="108" x2="493" y2="98" class="dg-ln-g" marker-end="url(#arr-g)"/>
+          <text x="300" y="172" class="dg-t3" font-size="8.5" text-anchor="middle">binlog → relay log → 回放，三个阶段异步进行，Seconds_Behind_Master 反映 SQL Thread 落后主库的秒数</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">三种复制模式</div>
+      <div class="three-col">
+        <div class="comp-card">
+          <div class="comp-name">异步复制（默认）</div>
+          <div class="comp-desc">主库提交事务后立即返回客户端，不等待从库确认。<br><br>风险：主库崩溃后，未同步到从库的事务丢失，主从数据不一致。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">半同步复制</div>
+          <div class="comp-desc">主库提交后，等待至少一个从库确认收到 binlog（写入 relay log 即可，不等 SQL Thread 执行），再返回。<br><br>保证至少一份副本有数据，主库崩溃不丢事务，但增加提交延迟约 1 个 RTT。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name green">GTID 复制（推荐）</div>
+          <div class="comp-desc">每个事务有全局唯一 ID（GTID = server_uuid:seq_no）。从库通过 GTID 自动定位同步位点，主从切换无需手动指定 binlog 文件和位置，大幅简化运维。<br><br>MySQL 5.6+ 推荐使用。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">主从延迟排查与优化</div>
+      <pre>-- 查看从库延迟
+SHOW SLAVE STATUS\G
+-- 关注 Seconds_Behind_Master（SQL Thread 落后主库的秒数）
+-- 若 Seconds_Behind_Master 持续增大，说明 SQL Thread 回放速度跟不上
+
+-- 常见原因：
+-- 1. 主库有大事务（单个 binlog event 很大，SQL Thread 回放慢）
+-- 2. 主库并发写入高，从库单线程 SQL Thread 追不上（5.6 以前）
+-- 3. 从库服务器性能差（CPU/IO 不足）</pre>
+      <table class="tbl" style="margin-top:12px">
+        <tr><th>优化手段</th><th>说明</th></tr>
+        <tr><td>并行复制（MTS）</td><td>5.6+ 多线程 SQL Thread，按库（5.6）或按事务组（5.7 LOGICAL_CLOCK）并行回放。设置 <code>slave_parallel_workers=8</code></td></tr>
+        <tr><td>半同步 + 并行复制</td><td>组合使用，既保证不丢数据，又加快从库追赶速度</td></tr>
+        <tr><td>从库使用 SSD</td><td>IO 是回放瓶颈时，换 SSD 直接见效</td></tr>
+        <tr><td>拆分大事务</td><td>根本方案，避免主库产生大事务 binlog event</td></tr>
+        <tr><td>读写分离中间件感知延迟</td><td>ShardingSphere / MyCat 等中间件可读取 Seconds_Behind_Master，延迟超阈值时自动路由到主库</td></tr>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════ 07 分库分表 -->
+    <div class="sec" id="sharding"><span class="sn">07</span>分库分表</div>
+    <div class="card">
+      <div class="ct">垂直拆分 vs 水平拆分</div>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">垂直分库（按业务）</div>
+          <div class="comp-desc">把不同业务模块的表拆到不同数据库实例（用户库、订单库、商品库）。<br><br>解决：单实例连接数/并发上限；不同业务独立扩容。<br>问题：跨库 JOIN 消失，需应用层聚合；分布式事务问题。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">水平分表（按数据量）</div>
+          <div class="comp-desc">同一张表按 sharding key 分散到多个表/库（orders_0、orders_1…orders_n）。<br><br>解决：单表数据量超过 2000 万行后的性能问题。<br>问题：跨分片查询、全局唯一 ID、分布式事务。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Sharding Key 选择原则</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong>业务最常用的查询维度</strong>：订单按 user_id 分片（绝大多数查询都带 user_id）；日志按时间分片（按月查询）</span></li>
+        <li><span class="b">②</span><span><strong>数据分布均匀</strong>：避免 hotspot——如果按 user_id hash 分片，热门用户集中在少数分片会导致不均</span></li>
+        <li><span class="b">③</span><span><strong>尽量不改</strong>：sharding key 一旦确定很难修改，修改需要迁移所有数据</span></li>
+        <li><span class="b">④</span><span><strong>避免跨分片查询</strong>：选择能覆盖 80% 以上查询的维度作为 sharding key</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="ct">全局唯一 ID 方案</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>实现</th><th>优点</th><th>缺点</th></tr>
+        <tr><td>UUID v4</td><td>随机 128 位</td><td>实现简单</td><td>随机写，页分裂严重；太长（36 字符）</td></tr>
+        <tr><td>数据库自增（号段模式）</td><td>每次取一段 ID（如 1000 个）缓存本地</td><td>趋势递增，无页分裂</td><td>依赖 DB，需单独维护 ID 生成服务</td></tr>
+        <tr><td>雪花 ID（推荐）</td><td>64 位 = 时间戳 41 + 机器 ID 10 + 序列 12</td><td>趋势递增，高并发（约 400 万/秒/节点），无 DB 依赖</td><td>时钟回拨问题（需处理）</td></tr>
+        <tr><td>UUID v7</td><td>前 48 位是毫秒时间戳，保证时序有序</td><td>有序，标准化，无需部署 ID 服务</td><td>128 位仍然较长</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">分库分表的难题</div>
+      <ul class="dl">
+        <li><span class="b">跨分片查询</span><span>涉及多个分片的 ORDER BY / GROUP BY / JOIN，需要中间件（ShardingSphere / Vitess）在内存中聚合，代价极高，建议业务设计时尽量避免</span></li>
+        <li><span class="b">分布式事务</span><span>跨分片写操作无法用本地事务保证原子性，需引入 2PC / Saga / TCC 等方案，复杂度大增</span></li>
+        <li><span class="b">数据迁移</span><span>从单库迁移到分库分表，需要双写 + 数据校验 + 切流，通常需要 2~4 周停机窗口（或在线迁移方案）</span></li>
+        <li><span class="b">扩容再分片</span><span>分片数固定后扩容需要重新 rehash，建议一开始就按足够多分片（如 1024），每个物理库承载多个逻辑分片，扩容时只需迁移逻辑分片</span></li>
+      </ul>
+    </div>
+
+    <!-- ════════════════════════════════ 08 高可用 -->
+    <div class="sec" id="ha"><span class="sn">08</span>高可用与 Online DDL</div>
+    <div class="card">
+      <div class="ct">高可用架构对比</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>架构</th><th>RTO</th><th>RPO</th><th>特点</th></tr>
+        <tr><td>MHA</td><td>1主+N从，MHA Manager 监控</td><td>30~60s</td><td>~0（半同步）</td><td>成熟，社区广泛，需额外 MHA Manager 节点</td></tr>
+        <tr><td>MGR（MySQL Group Replication）</td><td>多主或单主，Paxos 共识</td><td>秒级</td><td>0（同步写多数节点）</td><td>官方内置，强一致性；写入需多数节点确认，写性能略低</td></tr>
+        <tr><td>Galera Cluster（PXC）</td><td>多主同步复制</td><td>秒级</td><td>0</td><td>每次写都需全节点同步；适合小集群强一致场景</td></tr>
+        <tr><td>云 RDS（如 Aurora）</td><td>共享存储多写</td><td>&lt;30s</td><td>0</td><td>托管服务，运维成本低；存储与计算分离</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">读写分离注意事项</div>
+      <ul class="dl">
+        <li><span class="b">主从延迟导致读到旧数据</span><span>写操作后立刻读，可能路由到有延迟的从库，读到写前的数据。解决：写后读策略路由到主库；或用 <code>select ... master_bind</code>；或 ProxySQL 的会话黏性</span></li>
+        <li><span class="b">事务内读必须走主库</span><span>事务内的读操作必须路由到主库，否则读到的数据与事务的写操作不一致</span></li>
+        <li><span class="b">中间件选型</span><span>ProxySQL（轻量，规则灵活）/ ShardingSphere-Proxy（功能全，分库分表 + 读写分离）/ MyCat</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="ct">Online DDL — 大表不锁表变更</div>
+      <p>MySQL 5.6+ 支持大部分 DDL Online 执行（不锁表），但某些操作仍会锁表（如 <code>CHANGE COLUMN</code> 修改类型）。大表 DDL 的安全方案：</p>
+      <table class="tbl">
+        <tr><th>工具</th><th>原理</th><th>锁表时间</th><th>适用场景</th></tr>
+        <tr><td>MySQL Online DDL（5.6+）</td><td>在原表上操作，允许并发 DML，内部有一段短暂 MDL 升级</td><td>秒级（MDL 升级时）</td><td>大多数 DDL，需评估 type</td></tr>
+        <tr><td>pt-online-schema-change</td><td>建影子表 → 触发器同步增量 → rename</td><td>rename 时约 1s</td><td>5.6 以前，或需要精细控速</td></tr>
+        <tr><td>gh-ost（推荐）</td><td>基于 binlog 的无触发器迁移，模拟从库接收变更</td><td>rename 时约 1s</td><td>主从复制环境，触发器有风险时</td></tr>
+      </table>
+      <pre>-- 查看 DDL 是否 Online（ALGORITHM=INPLACE, LOCK=NONE 为最优）
+EXPLAIN FORMAT=TREE ALTER TABLE orders ADD INDEX idx_status(status)\G
+
+-- gh-ost 示例（不影响生产读写，支持限速）
+gh-ost \
+  --user="root" --password="xxx" \
+  --host=master --database=db --table=orders \
+  --alter="ADD COLUMN remark VARCHAR(200)" \
+  --max-load=Threads_running=25 \    -- 主库负载超过时暂停
+  --chunk-size=1000 \                -- 每次迁移 1000 行
+  --execute</pre>
+    </div>
+
+    <div class="note good"><strong>性能调优思路总结：</strong><br>
+    ① 慢查询 → EXPLAIN → 索引优化是第一优先级（80% 的慢查询是索引问题）<br>
+    ② 大偏移分页 → 游标分页或延迟关联<br>
+    ③ count(*) 大表 → 缓存计数，接受近似值<br>
+    ④ 主从延迟 → 并行复制 + 避免大事务<br>
+    ⑤ 单表超 2000 万行 → 考虑分表，提前规划 sharding key<br>
+    ⑥ 大表 DDL → gh-ost，不要裸跑 ALTER TABLE</div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.s-link[href^="#"]');
+  var secs=Array.from(links).map(function(l){return document.querySelector(l.getAttribute('href'));}).filter(Boolean);
+  function spy(){var top=window.scrollY+80,cur=secs[0];secs.forEach(function(s){if(s.offsetTop<=top)cur=s;});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur.id);});}
+  window.addEventListener('scroll',spy,{passive:true});
+})();
+</script>
+</body>
+</html>

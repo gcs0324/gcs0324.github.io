@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORM 01 · MyBatis 核心原理</title>
+<style>
+:root{--accent-color:var(--orange);--accent-bg:var(--orange-bg);--accent-b:var(--orange-b)}
+header::before{content:'MYBATIS'}
+/* component grid */
+.comp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.comp-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 14px}
+.comp-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px}
+.comp-desc{font-size:12.5px;color:var(--tx2);line-height:1.55}
+@media(max-width:600px){.comp-grid{grid-template-columns:1fr}}
+/* SVG diagram */
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5}
+.dg-t{fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-blue{fill:var(--blue);font-family:'IBM Plex Mono',monospace}
+.dg-green{fill:var(--green);font-family:'IBM Plex Mono',monospace}
+.dg-ln{stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-o{stroke:var(--orange);stroke-width:1.5;fill:none}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-orm.js"></script>
+<header>
+  <div class="htag">ORM · 01 · MYBATIS</div>
+  <h1>MyBatis 核心原理</h1>
+  <p class="sub">半自动 ORM · 执行链路 · 四大核心对象 · 动态 SQL · 缓存机制 · 插件 · Spring 整合</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#intro"><span class="s-num">01</span>MyBatis 是什么</a>
+    <a class="s-link" href="#flow"><span class="s-num">02</span>完整执行流程</a>
+    <a class="s-link" href="#objects"><span class="s-num">03</span>四大核心对象</a>
+    <a class="s-link" href="#resultmap"><span class="s-num">04</span>XML 映射文件</a>
+    <a class="s-link" href="#dynamic"><span class="s-num">05</span>动态 SQL</a>
+    <a class="s-link" href="#cache"><span class="s-num">06</span>缓存机制</a>
+    <a class="s-link" href="#plugin"><span class="s-num">07</span>插件机制</a>
+    <a class="s-link" href="#spring"><span class="s-num">08</span>Spring 整合</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="orm-03-interview.html#cat1">→ 面试题 MyBatis</a>
+    <a class="s-link" href="orm-02-mybatisplus.html">→ 下一章：MyBatis-Plus</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 是什么 -->
+    <div class="sec" id="intro"><span class="sn">01</span>MyBatis 是什么</div>
+    <div class="card">
+      <div class="ct">半自动 ORM</div>
+      <p>MyBatis 是一个<span class="kw">持久层框架</span>，负责把 Java 对象和 SQL 结果之间的转换处理掉，但 SQL 本身由开发者写。这和 Hibernate 的"全自动 ORM"（框架自动生成 SQL）不同。</p>
+      <p>称它"半自动"的原因：开发者负责写 SQL，MyBatis 负责<span class="kw">参数绑定</span>和<span class="kw">结果映射</span>。SQL 可以完全手控，适合复杂查询、慢查询优化场景。</p>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th>对比维度</th><th>JDBC（原生）</th><th>MyBatis</th><th>Hibernate / JPA</th></tr>
+        <tr><td>SQL 由谁写</td><td>开发者</td><td>开发者</td><td>框架自动生成（也可自定义）</td></tr>
+        <tr><td>结果映射</td><td>手动 rs.getString()</td><td>自动映射到 POJO</td><td>自动映射</td></tr>
+        <tr><td>动态 SQL</td><td>字符串拼接</td><td>XML / 注解 标签</td><td>Criteria API / JPQL</td></tr>
+        <tr><td>适用场景</td><td>极简单或追求零依赖</td><td>复杂 SQL、报表、分库分表</td><td>简单 CRUD、领域驱动设计</td></tr>
+        <tr><td>学习曲线</td><td>低（但重复代码多）</td><td>低到中</td><td>高（Proxy、Session、缓存复杂）</td></tr>
+      </table>
+    </div>
+    <div class="note info">MyBatis 更准确的名字应该叫 <strong>SQL 映射框架</strong>（SQL Mapper Framework）。它不试图隐藏 SQL，而是让 SQL 写起来更优雅、参数绑定更安全、结果解析更方便。</div>
+
+    <!-- 02 执行流程 -->
+    <div class="sec" id="flow"><span class="sn">02</span>完整执行流程</div>
+    <div class="card">
+      <div class="ct">从方法调用到 SQL 返回</div>
+      <p>一次 <code>userMapper.selectById(1L)</code> 的完整链路分为三段：<span class="kw">初始化阶段</span>（启动时完成，只走一次）、<span class="kw">代理拦截阶段</span>（每次调用时触发）、<span class="kw">SQL 执行阶段</span>（每次调用时执行）。</p>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong>启动时</strong>：读取 <code>mybatis-config.xml</code> + 所有 Mapper XML，解析成 <code>MappedStatement</code> 对象，缓存进 <code>Configuration</code>。每个 SQL 片段对应一个 MappedStatement，key 是 <code>接口全限定名.方法名</code></span></li>
+        <li><span class="b">②</span><span><strong>获取 SqlSession</strong>：通过 <code>SqlSessionFactory.openSession()</code> 创建，每个 SqlSession 独立持有一份连接和一级缓存</span></li>
+        <li><span class="b">③</span><span><strong>Mapper 代理</strong>：<code>sqlSession.getMapper(UserMapper.class)</code> 返回 JDK 动态代理对象；调用方法时进入 <code>MapperProxy.invoke()</code></span></li>
+        <li><span class="b">④</span><span><strong>查 MappedStatement</strong>：从 Configuration 按 id 取出目标 SQL 的所有配置（参数类型、结果映射、SQL 模板）</span></li>
+        <li><span class="b">⑤</span><span><strong>Executor 执行</strong>：调用 <code>Executor.query()</code> 或 <code>update()</code>；先查一级缓存，命中则直接返回</span></li>
+        <li><span class="b">⑥</span><span><strong>StatementHandler</strong>：创建 JDBC <code>PreparedStatement</code>，调用 <code>ParameterHandler</code> 设置 <code>?</code> 参数</span></li>
+        <li><span class="b">⑦</span><span><strong>执行 SQL</strong>：JDBC 发出查询，拿到 <code>ResultSet</code></span></li>
+        <li><span class="b">⑧</span><span><strong>ResultSetHandler</strong>：将 ResultSet 按 resultMap 规则映射成 Java 对象，存入一级缓存，返回给调用方</span></li>
+      </ul>
+    </div>
+    <div class="diag-wrap">
+      <div class="diag-cap">MyBatis 执行链路 — Mapper 调用到 DB 返回</div>
+      <div class="diag-body">
+<svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;display:block">
+  <defs>
+    <marker id="orm01-arr" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="var(--bd2)"/>
+    </marker>
+    <marker id="orm01-arr-o" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="var(--orange)"/>
+    </marker>
+  </defs>
+  <!-- top row: Mapper→SqlSession→Executor→StatementHandler→JDBC DB -->
+  <!-- Mapper Proxy -->
+  <rect x="10" y="30" width="110" height="44" rx="6" class="dg-box-o"/>
+  <text x="65" y="49" text-anchor="middle" class="dg-orange" font-size="10" font-weight="700">MapperProxy</text>
+  <text x="65" y="64" text-anchor="middle" class="dg-t3" font-size="9">JDK 动态代理</text>
+  <!-- arrow -->
+  <line x1="121" y1="52" x2="148" y2="52" class="dg-ln" marker-end="url(#orm01-arr)"/>
+  <!-- SqlSession -->
+  <rect x="150" y="30" width="110" height="44" rx="6" class="dg-box-o"/>
+  <text x="205" y="49" text-anchor="middle" class="dg-orange" font-size="10" font-weight="700">SqlSession</text>
+  <text x="205" y="64" text-anchor="middle" class="dg-t3" font-size="9">一级缓存所在</text>
+  <!-- arrow -->
+  <line x1="261" y1="52" x2="288" y2="52" class="dg-ln" marker-end="url(#orm01-arr)"/>
+  <!-- Executor -->
+  <rect x="290" y="30" width="100" height="44" rx="6" class="dg-box-o"/>
+  <text x="340" y="49" text-anchor="middle" class="dg-orange" font-size="10" font-weight="700">Executor</text>
+  <text x="340" y="64" text-anchor="middle" class="dg-t3" font-size="9">Simple/Reuse/Batch</text>
+  <!-- arrow -->
+  <line x1="391" y1="52" x2="418" y2="52" class="dg-ln" marker-end="url(#orm01-arr)"/>
+  <!-- StatementHandler -->
+  <rect x="420" y="30" width="120" height="44" rx="6" class="dg-box-b"/>
+  <text x="480" y="49" text-anchor="middle" class="dg-blue" font-size="10" font-weight="700">StatementHandler</text>
+  <text x="480" y="64" text-anchor="middle" class="dg-t3" font-size="9">PreparedStatement</text>
+  <!-- arrow -->
+  <line x1="541" y1="52" x2="568" y2="52" class="dg-ln" marker-end="url(#orm01-arr)"/>
+  <!-- DB -->
+  <rect x="570" y="30" width="100" height="44" rx="6" class="dg-box-g"/>
+  <text x="620" y="49" text-anchor="middle" class="dg-green" font-size="10" font-weight="700">Database</text>
+  <text x="620" y="64" text-anchor="middle" class="dg-t3" font-size="9">JDBC / 连接池</text>
+
+  <!-- ParameterHandler below StatementHandler -->
+  <rect x="420" y="120" width="120" height="40" rx="6" class="dg-box"/>
+  <text x="480" y="136" text-anchor="middle" class="dg-t" font-size="10" font-weight="600">ParameterHandler</text>
+  <text x="480" y="152" text-anchor="middle" class="dg-t3" font-size="9">? 参数设置</text>
+  <line x1="480" y1="74" x2="480" y2="119" class="dg-ln" marker-end="url(#orm01-arr)"/>
+
+  <!-- ResultSetHandler below DB -->
+  <rect x="570" y="120" width="100" height="40" rx="6" class="dg-box"/>
+  <text x="620" y="136" text-anchor="middle" class="dg-t" font-size="10" font-weight="600">ResultSetHandler</text>
+  <text x="620" y="152" text-anchor="middle" class="dg-t3" font-size="9">ResultSet 映射</text>
+  <line x1="620" y1="74" x2="620" y2="119" class="dg-ln" marker-end="url(#orm01-arr)"/>
+
+  <!-- Configuration below -->
+  <rect x="150" y="120" width="130" height="40" rx="6" class="dg-box"/>
+  <text x="215" y="136" text-anchor="middle" class="dg-t" font-size="10" font-weight="600">Configuration</text>
+  <text x="215" y="152" text-anchor="middle" class="dg-t3" font-size="9">MappedStatement 缓存</text>
+  <line x1="215" y1="74" x2="215" y2="119" class="dg-ln" stroke-dasharray="4 3" marker-end="url(#orm01-arr)"/>
+
+  <!-- return arrow bottom -->
+  <path d="M 570,185 Q 540,220 400,230 Q 200,240 65,220 Q 50,215 65,200" fill="none" stroke="var(--orange)" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#orm01-arr-o)"/>
+  <text x="340" y="250" text-anchor="middle" class="dg-orange" font-size="9">返回映射后的 Java 对象 / 集合</text>
+
+  <!-- Plugin intercept note -->
+  <rect x="280" y="115" width="96" height="36" rx="5" class="dg-box"/>
+  <text x="328" y="130" text-anchor="middle" class="dg-t3" font-size="9">Plugin 插件</text>
+  <text x="328" y="144" text-anchor="middle" class="dg-t3" font-size="9">可在此拦截</text>
+  <line x1="340" y1="74" x2="328" y2="114" class="dg-ln-o" stroke-dasharray="3 3"/>
+</svg>
+      </div>
+    </div>
+
+    <!-- 03 四大核心对象 -->
+    <div class="sec" id="objects"><span class="sn">03</span>四大核心对象</div>
+    <div class="card">
+      <div class="ct">Executor / StatementHandler / ParameterHandler / ResultSetHandler</div>
+      <p>MyBatis 把 SQL 执行拆成四个独立对象，每个对象负责一件事。插件（Interceptor）只能拦截这四个对象的方法，不能拦截其他。</p>
+      <div class="comp-grid">
+        <div class="comp-item">
+          <div class="comp-name">Executor</div>
+          <div class="comp-desc">最顶层的执行器，负责调度整个查询/更新流程。三种实现：<br>
+          · <strong>SimpleExecutor</strong>：每次都创建新 Statement，用完即关<br>
+          · <strong>ReuseExecutor</strong>：复用相同 SQL 的 Statement<br>
+          · <strong>BatchExecutor</strong>：批量 update，多条 SQL 攒在一起发送</div>
+        </div>
+        <div class="comp-item">
+          <div class="comp-name">StatementHandler</div>
+          <div class="comp-desc">负责创建 JDBC <code>Statement</code>，三种实现：<br>
+          · <strong>SimpleStatementHandler</strong>：对应 JDBC Statement（无 ?）<br>
+          · <strong>PreparedStatementHandler</strong>：对应 PreparedStatement（有 ?，默认）<br>
+          · <strong>CallableStatementHandler</strong>：调用存储过程</div>
+        </div>
+        <div class="comp-item">
+          <div class="comp-name">ParameterHandler</div>
+          <div class="comp-desc">把 Java 方法的入参设置到 PreparedStatement 的 <code>?</code> 占位符上。底层通过 TypeHandler 做 Java 类型 → JDBC 类型的转换，比如 <code>LocalDate → DATE</code>。</div>
+        </div>
+        <div class="comp-item">
+          <div class="comp-name">ResultSetHandler</div>
+          <div class="comp-desc">把 JDBC <code>ResultSet</code> 映射成 Java 对象。先按 resultMap 规则找列映射，再通过 TypeHandler 做类型转换，最后填充到 POJO 字段。嵌套结果（association/collection）也在这里合并。</div>
+        </div>
+      </div>
+    </div>
+    <div class="note tip"><strong>记忆口诀</strong>：Executor 调度 → StatementHandler 创建语句 → ParameterHandler 设参数 → SQL 执行 → ResultSetHandler 映射结果。插件可拦截这四个的任意方法。</div>
+
+    <!-- 04 XML 映射 -->
+    <div class="sec" id="resultmap"><span class="sn">04</span>XML 映射文件</div>
+    <div class="card">
+      <div class="ct">resultMap — 精确控制列到字段的映射</div>
+      <p><code>resultType</code> 只适合列名和字段名完全一致的简单查询。一旦有别名、嵌套对象、一对多关系，就需要 <code>resultMap</code>。</p>
+      <pre>&lt;resultMap id="userMap" type="User"&gt;
+  &lt;id     column="user_id"   property="id"/&gt;
+  &lt;result column="user_name" property="name"/&gt;
+  &lt;result column="create_time" property="createTime"/&gt;
+&lt;/resultMap&gt;</pre>
+      <ul class="dl">
+        <li><span class="b">id</span><span><code>&lt;id&gt;</code> 标注主键列，MyBatis 用它做对象去重（在嵌套查询里很关键）</span></li>
+        <li><span class="b">result</span><span><code>&lt;result&gt;</code> 标注普通列，column 是 SQL 列名，property 是 Java 字段名</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">association — 多对一（嵌套单个对象）</div>
+      <p>查询订单时顺带把用户信息也带出来，用户是"单个对象"，用 <code>association</code>。</p>
+      <pre>&lt;resultMap id="orderMap" type="Order"&gt;
+  &lt;id column="order_id" property="id"/&gt;
+  &lt;result column="amount" property="amount"/&gt;
+  &lt;!-- 多对一：一个订单对应一个用户 --&gt;
+  &lt;association property="user" javaType="User"&gt;
+    &lt;id     column="user_id"   property="id"/&gt;
+    &lt;result column="user_name" property="name"/&gt;
+  &lt;/association&gt;
+&lt;/resultMap&gt;</pre>
+    </div>
+    <div class="card">
+      <div class="ct">collection — 一对多（嵌套集合）</div>
+      <p>查询用户时顺带把他的所有订单带出来，订单是"集合"，用 <code>collection</code>。</p>
+      <pre>&lt;resultMap id="userWithOrders" type="User"&gt;
+  &lt;id column="user_id" property="id"/&gt;
+  &lt;result column="user_name" property="name"/&gt;
+  &lt;!-- 一对多：一个用户有多个订单 --&gt;
+  &lt;collection property="orders" ofType="Order"&gt;
+    &lt;id     column="order_id" property="id"/&gt;
+    &lt;result column="amount"   property="amount"/&gt;
+  &lt;/collection&gt;
+&lt;/resultMap&gt;</pre>
+      <div class="note warn"><strong>N+1 问题</strong>：如果先查出 N 条用户，再为每个用户单独查订单，就会发 N+1 条 SQL。解决方法：用 JOIN 一次性查出（嵌套结果 resultMap），或开启懒加载（fetchType="lazy"）只在真正访问 orders 字段时才查。</div>
+    </div>
+
+    <!-- 05 动态 SQL -->
+    <div class="sec" id="dynamic"><span class="sn">05</span>动态 SQL</div>
+    <div class="card">
+      <div class="ct">根据运行时条件拼接 SQL</div>
+      <p>动态 SQL 解决的是 JDBC 时代常见的"字符串拼接漏洞"问题——根据参数是否为空决定是否加 WHERE 条件。MyBatis 用 OGNL 表达式 + XML 标签在框架层完成拼接，生成的永远是合法 SQL。</p>
+      <table class="tbl">
+        <tr><th>标签</th><th>作用</th><th>常见场景</th></tr>
+        <tr><td>&lt;if&gt;</td><td>条件判断</td><td>参数不为空才加条件：<code>AND name = #{name}</code></td></tr>
+        <tr><td>&lt;where&gt;</td><td>智能 WHERE</td><td>包裹多个 if，自动处理开头多余的 AND/OR</td></tr>
+        <tr><td>&lt;set&gt;</td><td>智能 SET</td><td>UPDATE 时自动去掉末尾多余的逗号</td></tr>
+        <tr><td>&lt;foreach&gt;</td><td>循环</td><td>IN 查询、批量 INSERT</td></tr>
+        <tr><td>&lt;choose/when/otherwise&gt;</td><td>多选一（like switch）</td><td>根据传入参数类型决定用哪个条件</td></tr>
+        <tr><td>&lt;trim&gt;</td><td>通用裁剪</td><td>自定义要去掉的前缀/后缀，where/set 底层就是 trim 实现的</td></tr>
+      </table>
+      <pre style="margin-top:12px">&lt;select id="list" resultType="User"&gt;
+  SELECT * FROM user
+  &lt;where&gt;
+    &lt;if test="name != null and name != ''"&gt;
+      AND name LIKE CONCAT('%', #{name}, '%')
+    &lt;/if&gt;
+    &lt;if test="status != null"&gt;
+      AND status = #{status}
+    &lt;/if&gt;
+  &lt;/where&gt;
+&lt;/select&gt;</pre>
+    </div>
+    <div class="card">
+      <div class="ct">foreach — IN 查询与批量插入</div>
+      <pre>&lt;!-- IN 查询 --&gt;
+&lt;select id="listByIds" resultType="User"&gt;
+  SELECT * FROM user WHERE id IN
+  &lt;foreach collection="ids" item="id" open="(" separator="," close=")"&gt;
+    #{id}
+  &lt;/foreach&gt;
+&lt;/select&gt;
+
+&lt;!-- 批量插入（单条 SQL，效率远高于循环单插）--&gt;
+&lt;insert id="batchInsert"&gt;
+  INSERT INTO user(name, age) VALUES
+  &lt;foreach collection="list" item="u" separator=","&gt;
+    (#{u.name}, #{u.age})
+  &lt;/foreach&gt;
+&lt;/insert&gt;</pre>
+      <div class="note info"><code>foreach</code> 批量插入要注意 MySQL 单条 SQL 大小限制（默认 <code>max_allowed_packet = 4MB</code>），列表超大时建议每次 500 条分批提交。</div>
+    </div>
+
+    <!-- 06 缓存 -->
+    <div class="sec" id="cache"><span class="sn">06</span>缓存机制</div>
+    <div class="card">
+      <div class="ct">一级缓存（SqlSession 级，默认开启）</div>
+      <p>一级缓存的作用域是<span class="kw">单个 SqlSession</span>。同一个 SqlSession 内，相同的 SQL + 相同的参数，第二次查询直接返回缓存里的对象，不再发 SQL。</p>
+      <ul class="dl">
+        <li><span class="b">命中条件</span><span>同一 SqlSession + 相同 statementId + 相同参数 + 相同 RowBounds（分页偏移量）</span></li>
+        <li><span class="b">失效时机</span><span>执行了 insert/update/delete（任何写操作都会清空本 SqlSession 的一级缓存）；调用 <code>sqlSession.clearCache()</code>；SqlSession 关闭</span></li>
+        <li><span class="b">Spring 整合后</span><span>Spring 每次方法调用都会创建新的 SqlSession（通过 SqlSessionTemplate），<span class="kw">一级缓存实际上在大多数场景下失效</span>。除非当前方法在同一事务内</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">二级缓存（Mapper 级，需手动开启）</div>
+      <p>二级缓存的作用域是<span class="kw">同一个 Mapper（namespace）</span>，跨 SqlSession 共享。SqlSession 关闭/提交后，数据才会从一级缓存写入二级缓存。</p>
+      <ul class="dl">
+        <li><span class="b">开启方式</span><span><code>mybatis-config.xml</code> 开 <code>cacheEnabled=true</code>（默认 true），再在 Mapper XML 加 <code>&lt;cache/&gt;</code> 标签</span></li>
+        <li><span class="b">失效时机</span><span>同 namespace 下任意 insert/update/delete 操作，整个 namespace 的二级缓存全部清空</span></li>
+        <li><span class="b">脏读风险</span><span>多表 JOIN 查询时，若结果涉及 B 表，但缓存在 A 的 namespace 下，当 B 表更新后 A 的缓存不会失效，导致脏读。<strong>实际项目中二级缓存很少开启</strong></span></li>
+      </ul>
+    </div>
+    <div class="diag-wrap">
+      <div class="diag-cap">一级 / 二级缓存读写流程</div>
+      <div class="diag-body">
+<svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px;display:block">
+  <defs>
+    <marker id="orm01-ca" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L8,3.5 z" fill="var(--bd2)"/>
+    </marker>
+  </defs>
+  <!-- Query entry -->
+  <rect x="10" y="108" width="80" height="36" rx="5" class="dg-box-o"/>
+  <text x="50" y="122" text-anchor="middle" class="dg-orange" font-size="10" font-weight="700">查询请求</text>
+  <text x="50" y="136" text-anchor="middle" class="dg-t3" font-size="9">Executor.query</text>
+  <line x1="91" y1="126" x2="118" y2="126" class="dg-ln" marker-end="url(#orm01-ca)"/>
+
+  <!-- L1 cache -->
+  <rect x="120" y="90" width="110" height="72" rx="6" class="dg-box-b"/>
+  <text x="175" y="108" text-anchor="middle" class="dg-blue" font-size="10" font-weight="700">一级缓存</text>
+  <text x="175" y="122" text-anchor="middle" class="dg-t3" font-size="9">SqlSession 级</text>
+  <text x="175" y="136" text-anchor="middle" class="dg-t3" font-size="9">PerpetualCache</text>
+  <text x="175" y="150" text-anchor="middle" class="dg-t3" font-size="9">HashMap</text>
+
+  <!-- miss arrow L1 → L2 -->
+  <line x1="231" y1="126" x2="258" y2="126" class="dg-ln" marker-end="url(#orm01-ca)"/>
+  <text x="244" y="120" text-anchor="middle" class="dg-t3" font-size="8">miss</text>
+
+  <!-- L2 cache -->
+  <rect x="260" y="90" width="110" height="72" rx="6" class="dg-box-g"/>
+  <text x="315" y="108" text-anchor="middle" class="dg-green" font-size="10" font-weight="700">二级缓存</text>
+  <text x="315" y="122" text-anchor="middle" class="dg-t3" font-size="9">Mapper namespace</text>
+  <text x="315" y="136" text-anchor="middle" class="dg-t3" font-size="9">跨 SqlSession</text>
+  <text x="315" y="150" text-anchor="middle" class="dg-t3" font-size="9">需手动开启</text>
+
+  <!-- miss arrow L2 → DB -->
+  <line x1="371" y1="126" x2="398" y2="126" class="dg-ln" marker-end="url(#orm01-ca)"/>
+  <text x="384" y="120" text-anchor="middle" class="dg-t3" font-size="8">miss</text>
+
+  <!-- DB -->
+  <rect x="400" y="90" width="100" height="72" rx="6" class="dg-box"/>
+  <text x="450" y="118" text-anchor="middle" class="dg-t" font-size="10" font-weight="600">Database</text>
+  <text x="450" y="134" text-anchor="middle" class="dg-t3" font-size="9">实际 SQL 查询</text>
+  <text x="450" y="148" text-anchor="middle" class="dg-t3" font-size="9">JDBC</text>
+
+  <!-- hit labels -->
+  <text x="160" y="80" text-anchor="middle" class="dg-blue" font-size="9" font-style="italic">命中 → 直接返回</text>
+  <text x="310" y="80" text-anchor="middle" class="dg-green" font-size="9" font-style="italic">命中 → 直接返回</text>
+
+  <!-- Write back arrow: DB → L1 -->
+  <path d="M 450,163 Q 450,200 315,210 Q 175,220 50,200 Q 30,195 40,175" fill="none" stroke="var(--orange)" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#orm01-ca)"/>
+  <text x="250" y="228" text-anchor="middle" class="dg-orange" font-size="9">结果写回一级缓存；SqlSession 关闭时提升到二级缓存</text>
+
+  <!-- Write invalidate note -->
+  <rect x="510" y="30" width="120" height="42" rx="5" class="dg-box"/>
+  <text x="570" y="46" text-anchor="middle" class="dg-t" font-size="9" font-weight="600">写操作（DML）</text>
+  <text x="570" y="59" text-anchor="middle" class="dg-t3" font-size="8">清空同 Session 一级缓存</text>
+  <text x="570" y="71" text-anchor="middle" class="dg-t3" font-size="8">清空同 namespace 二级缓存</text>
+  <line x1="510" y1="51" x2="502" y2="120" class="dg-ln" stroke-dasharray="3 3" marker-end="url(#orm01-ca)"/>
+</svg>
+      </div>
+    </div>
+
+    <!-- 07 插件 -->
+    <div class="sec" id="plugin"><span class="sn">07</span>插件机制</div>
+    <div class="card">
+      <div class="ct">Interceptor — 拦截四大对象</div>
+      <p>MyBatis 插件基于 JDK 动态代理，在四大对象的方法上套一层代理。可以在 SQL 执行前后插入自定义逻辑，最典型的是分页插件（PageHelper）和 SQL 审计日志。</p>
+      <ul class="dl">
+        <li><span class="b">可拦截目标</span><span><code>Executor</code>（query/update/commit 等）、<code>StatementHandler</code>（prepare/query）、<code>ParameterHandler</code>（setParameters）、<code>ResultSetHandler</code>（handleResultSets）</span></li>
+        <li><span class="b">声明方式</span><span>实现 <code>Interceptor</code> 接口，加 <code>@Intercepts</code> + <code>@Signature</code> 注解声明要拦截哪个类的哪个方法</span></li>
+        <li><span class="b">执行顺序</span><span>多个插件按注册顺序依次套代理，形成调用链（类似 Servlet Filter）</span></li>
+      </ul>
+      <pre>@Intercepts({
+  @Signature(type = StatementHandler.class,
+             method = "prepare",
+             args = {Connection.class, Integer.class})
+})
+public class SqlPrintPlugin implements Interceptor {
+  @Override
+  public Object intercept(Invocation invocation) throws Throwable {
+    // 在 SQL 执行前打印
+    StatementHandler handler = (StatementHandler) invocation.getTarget();
+    System.out.println("SQL: " + handler.getBoundSql().getSql());
+    return invocation.proceed(); // 继续执行
+  }
+}</pre>
+    </div>
+    <div class="card">
+      <div class="ct">PageHelper 分页原理</div>
+      <p>PageHelper 是最常用的 MyBatis 分页插件。它拦截 <code>Executor.query()</code>，在 SQL 执行前把原 SQL 改写成带 <code>LIMIT offset, size</code> 的分页 SQL，同时执行一条 <code>COUNT(*)</code> 查询总条数。</p>
+      <ul class="dl">
+        <li><span class="b">使用方式</span><span><code>PageHelper.startPage(pageNum, pageSize)</code> 先设置分页参数（存入 ThreadLocal），紧接着的第一条查询自动应用分页</span></li>
+        <li><span class="b">底层拦截</span><span>拦截 <code>StatementHandler.prepare()</code>，取出 ThreadLocal 里的分页参数，用 JSqlParser 改写 SQL</span></li>
+        <li><span class="b">注意事项</span><span>startPage 之后必须紧跟查询，中间不能有其他查询，否则分页参数会被错误的查询消费</span></li>
+      </ul>
+    </div>
+
+    <!-- 08 Spring 整合 -->
+    <div class="sec" id="spring"><span class="sn">08</span>Spring 整合</div>
+    <div class="card">
+      <div class="ct">SqlSessionTemplate — 线程安全的 SqlSession</div>
+      <p>原生 <code>SqlSession</code> 不是线程安全的，不能作为单例 Bean 注入。<code>SqlSessionTemplate</code> 是 MyBatis-Spring 提供的代理类，每次调用时从 Spring 事务上下文里取当前线程绑定的 SqlSession，没有则创建新的，使用完自动关闭。</p>
+      <ul class="dl">
+        <li><span class="b">线程安全原理</span><span>每个方法调用都通过 <code>SqlSessionUtils.getSqlSession()</code> 获取 Session，该方法先检查 Spring 事务同步器里是否已绑定，有则复用，无则新建</span></li>
+        <li><span class="b">事务一致性</span><span>在 <code>@Transactional</code> 方法内，多个 Mapper 操作共享同一个 SqlSession（同一个 Connection），保证同一事务</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">MapperScannerConfigurer — 自动扫描注册 Mapper</div>
+      <p><code>@MapperScan("com.example.mapper")</code> 背后的原理：Spring 启动时扫描指定包下所有接口，为每个接口创建一个 <code>MapperFactoryBean</code>，注册到 BeanFactory。运行时 <code>getBean(UserMapper.class)</code> 实际返回的是 JDK 动态代理对象（<code>MapperProxy</code>），调用方法时走 MyBatis 执行流程。</p>
+      <ul class="dl">
+        <li><span class="b">MapperFactoryBean</span><span>实现了 <code>FactoryBean</code>，<code>getObject()</code> 返回 <code>sqlSession.getMapper(mapperInterface)</code> 的代理对象</span></li>
+        <li><span class="b">@Mapper vs @MapperScan</span><span><code>@Mapper</code> 标注单个接口；<code>@MapperScan</code> 批量扫描，两者效果相同，不要重复使用</span></li>
+      </ul>
+      <div class="note good">Spring Boot 已自动配置 <code>SqlSessionFactory</code> 和 <code>MapperScannerConfigurer</code>，只需加 <code>mybatis-spring-boot-starter</code> 依赖 + 配置数据源即可，无需手动写 XML 配置。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

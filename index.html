@@ -463,7 +463,9 @@
     }
 
     .link-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .link-list li { display: flex; align-items: center; }
     .link-list li a {
+      flex: 1;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -609,6 +611,197 @@
       flex-shrink: 0;
     }
 
+    /* ── categories header ── */
+    .categories-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .categories-header .section-label { margin-bottom: 0; }
+    .categories-header .section-label::after { display: none; }
+    .categories-header-line { flex: 1; height: 1px; background: var(--border); }
+    .cards-edit-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      transition: color .15s, border-color .15s;
+    }
+    .cards-edit-btn:hover, .cards-edit-btn.active { color: var(--accent); border-color: var(--accent); }
+
+    /* ── card edit controls ── */
+    .card { position: relative; }
+    .card-del-btn {
+      position: absolute; top: 8px; right: 8px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(220,50,50,0.08);
+      color: #e04040;
+      border: none; cursor: pointer;
+      font-size: 15px; line-height: 20px; text-align: center; padding: 0;
+      display: none;
+      transition: background .15s;
+    }
+    .card-del-btn:hover { background: rgba(220,50,50,0.22); }
+    .categories.edit-mode .card-del-btn { display: block; }
+
+    .link-del-btn {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(220,50,50,0.08);
+      color: #e04040;
+      border: none; cursor: pointer;
+      font-size: 13px; line-height: 16px; text-align: center; padding: 0;
+      flex-shrink: 0; margin-right: 2px;
+      display: none;
+      transition: background .15s;
+    }
+    .link-del-btn:hover { background: rgba(220,50,50,0.22); }
+    .categories.edit-mode .link-del-btn { display: block; }
+
+    .card-add-link {
+      display: none;
+      flex-direction: column; gap: 5px;
+      margin-top: 8px; padding-top: 8px;
+      border-top: 1px dashed var(--border);
+    }
+    .categories.edit-mode .card-add-link { display: flex; }
+    .card-add-link input {
+      background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 5px;
+      padding: 5px 9px; width: 100%;
+      color: var(--text); font-family: 'DM Mono', monospace; font-size: 11px;
+      outline: none; transition: border-color .2s;
+    }
+    .card-add-link input:focus { border-color: var(--accent); }
+    .card-add-link input::placeholder { color: var(--muted); opacity: .6; }
+    .card-add-link-btn {
+      align-self: flex-start;
+      background: transparent; border: 1px solid var(--border); border-radius: 5px;
+      padding: 3px 10px; font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--muted); cursor: pointer; letter-spacing: 0.04em;
+      transition: color .15s, border-color .15s;
+    }
+    .card-add-link-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    .add-card-tile {
+      display: none;
+      flex-direction: column; gap: 8px;
+      background: var(--bg2);
+      border: 1px dashed var(--border); border-radius: 8px;
+      padding: 20px 22px 18px;
+    }
+    .categories.edit-mode .add-card-tile { display: flex; }
+    .add-card-tile-label {
+      font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    }
+    .add-card-row { display: flex; gap: 8px; }
+    .add-card-tile input {
+      background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 5px;
+      padding: 6px 10px; color: var(--text);
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      outline: none; transition: border-color .2s;
+    }
+    .add-card-tile input:focus { border-color: var(--accent); }
+    .add-card-tile input::placeholder { color: var(--muted); opacity: .6; }
+    .nc-icon-input { width: 58px; flex-shrink: 0; }
+    .nc-title-input { flex: 1; }
+    .add-card-confirm-btn {
+      align-self: flex-start;
+      background: var(--accent); color: #fff; border: none; border-radius: 5px;
+      padding: 6px 16px; font-family: 'DM Mono', monospace; font-size: 11px;
+      cursor: pointer; letter-spacing: 0.04em; transition: opacity .15s;
+    }
+    .add-card-confirm-btn:hover { opacity: .85; }
+
+    /* ── pins edit ── */
+    .pins-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .label-line { flex: 1; height: 1px; background: var(--border); }
+    .pins-edit-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: color .15s, border-color .15s;
+      flex-shrink: 0;
+    }
+    .pins-edit-btn:hover, .pins-edit-btn.active { color: var(--accent); border-color: var(--accent); }
+    .pin-del {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: rgba(220,50,50,0.12);
+      color: #e04040;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      margin-left: 5px;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .pin-del:hover { background: rgba(220,50,50,0.28); }
+    .pins-add-form {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .pins-add-form.visible { display: flex; }
+    .pins-add-form input {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .pins-add-form input:first-child { width: 90px; }
+    .pins-add-form input:nth-child(2) { flex: 1; min-width: 160px; }
+    .pins-add-form input::placeholder { color: var(--muted); opacity: .6; }
+    .pins-add-form input:focus { border-color: var(--accent); }
+    .add-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity .15s;
+    }
+    .add-btn:hover { opacity: 0.85; }
+
   </style>
 </head>
 <body>
@@ -700,7 +893,22 @@
             <li><a href="doc/java/spring-03-tx.html" target="_blank">03 · 事务管理</a></li>
             <li><a href="doc/java/spring-04-mvc.html" target="_blank">04 · Spring MVC</a></li>
             <li><a href="doc/java/spring-05-boot.html" target="_blank">05 · Spring Boot</a></li>
-            <li><a href="doc/java/spring-06-interview.html" target="_blank">06 · 高频面试题</a></li>
+            <li><a href="doc/java/spring-07-event.html" target="_blank">06 · 事件机制 · @TransactionalEventListener</a></li>
+            <li><a href="doc/java/spring-06-interview.html" target="_blank">07 · 高频面试题</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">Spring Cloud 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/sc-01-arch.html" target="_blank">01 · 微服务架构总览</a></li>
+            <li><a href="doc/java/sc-02-register.html" target="_blank">02 · 注册中心与配置中心</a></li>
+            <li><a href="doc/java/sc-03-gateway.html" target="_blank">03 · 网关与服务调用</a></li>
+            <li><a href="doc/java/sc-04-reliability.html" target="_blank">04 · 可靠性：Sentinel · Seata</a></li>
+            <li><a href="doc/java/sc-05-interview.html" target="_blank">05 · 高频面试题 32 道</a></li>
           </ul>
         </div>
 
@@ -750,6 +958,32 @@
 
         <div class="sidebar-group open">
           <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">MySQL 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/mysql-01-index.html" target="_blank">01 · 索引原理与实战</a></li>
+            <li><a href="doc/java/mysql-02-innodb.html" target="_blank">02 · InnoDB 架构与执行流程</a></li>
+            <li><a href="doc/java/mysql-03-transaction.html" target="_blank">03 · 事务、MVCC 与锁</a></li>
+            <li><a href="doc/java/mysql-04-optimize.html" target="_blank">04 · 性能调优与架构</a></li>
+            <li><a href="doc/java/mysql-05-interview.html" target="_blank">05 · 高频面试题 32 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
+            <span class="sidebar-subcat-name">ORM 专题</span>
+            <span class="sidebar-subchevron">▾</span>
+          </div>
+          <ul class="sidebar-sub-links">
+            <li><a href="doc/java/orm-01-mybatis.html" target="_blank">01 · MyBatis 核心原理</a></li>
+            <li><a href="doc/java/orm-02-mybatisplus.html" target="_blank">02 · MyBatis-Plus 核心功能</a></li>
+            <li><a href="doc/java/orm-03-interview.html" target="_blank">03 · 高频面试题 24 道</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-group open">
+          <div class="sidebar-subcat" onclick="toggleGroup(this)">
             <span class="sidebar-subcat-name">Redis 专题</span>
             <span class="sidebar-subchevron">▾</span>
           </div>
@@ -766,10 +1000,13 @@
             <span class="sidebar-subchevron">▾</span>
           </div>
           <ul class="sidebar-sub-links">
-            <li><a href="doc/kafka-mq-reliability.html" target="_blank">积压 · 不丢 · 幂等 · 顺序消费</a></li>
-            <li><a href="doc/kafka-learning-path.html" target="_blank">系统学习路径 · 从入门到面试</a></li>
-            <li><a href="doc/kafka-mindmap.html" target="_blank">知识体系思维导图（含锚点跳转）</a></li>
-            <li><a href="doc/kafka-study-outline.html" target="_blank">复习大纲 · 10 章知识体系</a></li>
+            <li><a href="doc/java/kafka-outline.html" target="_blank">大纲 · 目录结构</a></li>
+            <li><a href="doc/java/kafka-01-arch.html" target="_blank">01 · 整体架构与存储原理</a></li>
+            <li><a href="doc/java/kafka-02-producer.html" target="_blank">02 · Producer 深度解析</a></li>
+            <li><a href="doc/java/kafka-03-consumer.html" target="_blank">03 · Consumer 深度解析</a></li>
+            <li><a href="doc/java/kafka-04-reliable.html" target="_blank">04 · 消息可靠性保障</a></li>
+            <li><a href="doc/java/kafka-05-spring.html" target="_blank">05 · Spring Kafka 实战</a></li>
+            <li><a href="doc/java/kafka-06-interview.html" target="_blank">06 · 高频面试题</a></li>
           </ul>
         </div>
 
@@ -846,6 +1083,21 @@
 
     <div class="sb-divider"></div>
 
+    <!-- ── 考研备考 ── -->
+    <div class="sidebar-section open">
+      <div class="sidebar-cat" onclick="toggleCat(this)">
+        <span class="sidebar-cat-icon">📚</span>
+        <span class="sidebar-cat-name">考研备考</span>
+        <span class="sidebar-chevron">▾</span>
+      </div>
+      <ul class="sidebar-links">
+        <li><a href="doc/kaoyan-plan.html" target="_blank">学习清单 · 章节要不要学</a></li>
+        <li><a href="doc/kaoyan-schedule.html" target="_blank">时间分配表 · 哪月学哪章</a></li>
+      </ul>
+    </div>
+
+    <div class="sb-divider"></div>
+
     <!-- ── 资讯 ── -->
     <div class="sidebar-section open">
       <div class="sidebar-cat" onclick="toggleCat(this)">
@@ -887,114 +1139,27 @@
 
   <!-- Pinned / Quick -->
   <div class="pins-section">
-    <div class="section-label">快速访问</div>
-    <div class="pins">
-      <a class="pin" href="https://github.com/gcs0324" target="_blank"><span class="pin-dot"></span>GitHub</a>
-      <a class="pin" href="https://claude.ai" target="_blank"><span class="pin-dot"></span>Claude</a>
-      <a class="pin" href="https://mail.google.com" target="_blank"><span class="pin-dot"></span>Gmail</a>
-      <a class="pin" href="https://translate.google.com" target="_blank"><span class="pin-dot"></span>翻译</a>
-      <a class="pin" href="https://www.bilibili.com" target="_blank"><span class="pin-dot"></span>Bilibili</a>
-      <a class="pin" href="https://chat.openai.com" target="_blank"><span class="pin-dot"></span>ChatGPT</a>
+    <div class="pins-header">
+      快速访问
+      <span class="label-line"></span>
+      <button class="pins-edit-btn" id="pins-edit-btn">✎ 编辑</button>
+    </div>
+    <div class="pins" id="pins-container"></div>
+    <div class="pins-add-form" id="pins-add-form">
+      <input type="text" id="pin-name" placeholder="名称" maxlength="16" />
+      <input type="text" id="pin-url" placeholder="https://..." />
+      <button class="add-btn" id="pin-add-btn">+ 添加</button>
     </div>
   </div>
 
   <!-- Categories -->
   <div class="categories-section">
-    <div class="section-label">知识分类</div>
-    <div class="categories">
-
-      <!-- 编程 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">⌨</div>
-          <span class="card-title">编程开发</span>
-          <span class="card-count">4 links</span>
-        </div>
-        <ul class="link-list">
-          <li><a href="pages/python-basics.html" target="_blank">Python 基础知识点</a></li>
-          <li><a href="pages/git-cheatsheet.html" target="_blank">Git 常用命令速查</a></li>
-          <li><a href="https://developer.mozilla.org/zh-CN/" target="_blank">MDN Web 文档</a></li>
-          <li><a href="https://roadmap.sh" target="_blank">开发者路线图</a></li>
-        </ul>
-      </div>
-
-      <!-- 前端 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">◻</div>
-          <span class="card-title">前端 & CSS</span>
-          <span class="card-count">4 links</span>
-        </div>
-        <ul class="link-list">
-          <li><a href="pages/css-flexbox.html" target="_blank">CSS Flexbox 速查</a></li>
-          <li><a href="pages/html-tags.html" target="_blank">HTML 常用标签</a></li>
-          <li><a href="https://css-tricks.com" target="_blank">CSS Tricks</a></li>
-          <li><a href="https://codepen.io" target="_blank">CodePen</a></li>
-        </ul>
-      </div>
-
-      <!-- 工具 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">⚙</div>
-          <span class="card-title">开发工具</span>
-          <span class="card-count">4 links</span>
-        </div>
-        <ul class="link-list">
-          <li><a href="https://regex101.com" target="_blank">正则表达式测试</a></li>
-          <li><a href="https://jsonformatter.org" target="_blank">JSON 格式化</a></li>
-          <li><a href="https://transform.tools" target="_blank">代码格式转换</a></li>
-          <li><a href="https://caniuse.com" target="_blank">Can I Use</a></li>
-        </ul>
-      </div>
-
-      <!-- 学习 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">◈</div>
-          <span class="card-title">学习资源</span>
-          <span class="card-count">4 links</span>
-        </div>
-        <ul class="link-list">
-          <li><a href="https://www.coursera.org" target="_blank">Coursera</a></li>
-          <li><a href="https://leetcode.cn" target="_blank">LeetCode（中文）</a></li>
-          <li><a href="https://www.runoob.com" target="_blank">菜鸟教程</a></li>
-          <li><a href="https://missing.csail.mit.edu" target="_blank">MIT Missing Semester</a></li>
-        </ul>
-      </div>
-
-      <!-- 设计 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">✦</div>
-          <span class="card-title">设计 & 素材</span>
-          <span class="card-count">4 links</span>
-        </div>
-        <ul class="link-list">
-          <li><a href="https://www.figma.com" target="_blank">Figma</a></li>
-          <li><a href="https://unsplash.com" target="_blank">Unsplash 免费图片</a></li>
-          <li><a href="https://coolors.co" target="_blank">配色方案生成</a></li>
-          <li><a href="https://fontawesome.com" target="_blank">Font Awesome 图标</a></li>
-        </ul>
-      </div>
-
-      <!-- AI 工具 -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">◉</div>
-          <span class="card-title">AI 工具</span>
-          <span class="card-count">5 links</span>
-        </div>
-        <ul class="link-list">
-          <li><a href="doc/claude-guide.html" target="_blank">✦ Claude 使用指南</a></li>
-          <li><a href="https://claude.ai" target="_blank">Claude.ai</a></li>
-          <li><a href="https://chat.openai.com" target="_blank">ChatGPT</a></li>
-          <li><a href="https://www.perplexity.ai" target="_blank">Perplexity</a></li>
-          <li><a href="https://gamma.app" target="_blank">Gamma（AI 幻灯片）</a></li>
-        </ul>
-      </div>
-
+    <div class="categories-header">
+      <div class="section-label">知识分类</div>
+      <span class="categories-header-line"></span>
+      <button class="cards-edit-btn" id="cards-edit-btn">✎ 编辑</button>
     </div>
+    <div class="categories" id="categories-grid"></div>
   </div>
 
   <!-- Java 高级开发面试题库 -->
@@ -1044,12 +1209,13 @@
 
       <!-- 04 MySQL -->
       <div class="plan-group">
-        <div class="plan-group-title">04 · MySQL <span class="pg-num">4 files</span></div>
+        <div class="plan-group-title">04 · MySQL <span class="pg-num">5 files</span></div>
         <ul class="plan-list">
-          <li><span>mysql-01-index.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>mysql-02-transaction.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>mysql-03-optimize.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>mysql-04-interview.html <span class="badge-todo">TODO</span></span></li>
+          <li><a href="doc/java/mysql-01-index.html" target="_blank">mysql-01-index.html ✅</a></li>
+          <li><a href="doc/java/mysql-02-innodb.html" target="_blank">mysql-02-innodb.html ✅</a></li>
+          <li><a href="doc/java/mysql-03-transaction.html" target="_blank">mysql-03-transaction.html ✅</a></li>
+          <li><a href="doc/java/mysql-04-optimize.html" target="_blank">mysql-04-optimize.html ✅</a></li>
+          <li><a href="doc/java/mysql-05-interview.html" target="_blank">mysql-05-interview.html ✅</a></li>
         </ul>
       </div>
 
@@ -1068,9 +1234,9 @@
       <div class="plan-group">
         <div class="plan-group-title">06 · ORM <span class="pg-num">3 files</span></div>
         <ul class="plan-list">
-          <li><span>orm-01-mybatis.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>orm-02-mybatisplus.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>orm-03-interview.html <span class="badge-todo">TODO</span></span></li>
+          <li><a href="doc/java/orm-01-mybatis.html" target="_blank">orm-01-mybatis.html ✅</a></li>
+          <li><a href="doc/java/orm-02-mybatisplus.html" target="_blank">orm-02-mybatisplus.html ✅</a></li>
+          <li><a href="doc/java/orm-03-interview.html" target="_blank">orm-03-interview.html ✅</a></li>
         </ul>
       </div>
 
@@ -1084,7 +1250,20 @@
           <li><a href="doc/java/spring-03-tx.html" target="_blank">spring-03-tx.html ✅</a></li>
           <li><a href="doc/java/spring-04-mvc.html" target="_blank">spring-04-mvc.html ✅</a></li>
           <li><a href="doc/java/spring-05-boot.html" target="_blank">spring-05-boot.html ✅</a></li>
+          <li><a href="doc/java/spring-07-event.html" target="_blank">spring-07-event.html ✅</a></li>
           <li><a href="doc/java/spring-06-interview.html" target="_blank">spring-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- Spring Cloud -->
+      <div class="plan-group">
+        <div class="plan-group-title">Spring Cloud · Alibaba <span class="pg-num">5 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/sc-01-arch.html" target="_blank">sc-01-arch.html ✅</a></li>
+          <li><a href="doc/java/sc-02-register.html" target="_blank">sc-02-register.html ✅</a></li>
+          <li><a href="doc/java/sc-03-gateway.html" target="_blank">sc-03-gateway.html ✅</a></li>
+          <li><a href="doc/java/sc-04-reliability.html" target="_blank">sc-04-reliability.html ✅</a></li>
+          <li><a href="doc/java/sc-05-interview.html" target="_blank">sc-05-interview.html ✅</a></li>
         </ul>
       </div>
 
@@ -1166,6 +1345,40 @@
           <li><span>network-02-http.html <span class="badge-todo">TODO</span></span></li>
           <li><span>network-03-nio.html <span class="badge-todo">TODO</span></span></li>
           <li><span>network-04-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 15 Kafka -->
+      <div class="plan-group">
+        <div class="plan-group-title">15 · Kafka <span class="pg-num">7 files</span></div>
+        <ul class="plan-list">
+          <li><a href="doc/java/kafka-outline.html" target="_blank">kafka-outline.html ✅</a></li>
+          <li><a href="doc/java/kafka-01-arch.html" target="_blank">kafka-01-arch.html ✅</a></li>
+          <li><a href="doc/java/kafka-02-producer.html" target="_blank">kafka-02-producer.html ✅</a></li>
+          <li><a href="doc/java/kafka-03-consumer.html" target="_blank">kafka-03-consumer.html ✅</a></li>
+          <li><a href="doc/java/kafka-04-reliable.html" target="_blank">kafka-04-reliable.html ✅</a></li>
+          <li><a href="doc/java/kafka-05-spring.html" target="_blank">kafka-05-spring.html ✅</a></li>
+          <li><a href="doc/java/kafka-06-interview.html" target="_blank">kafka-06-interview.html ✅</a></li>
+        </ul>
+      </div>
+
+      <!-- 16 Netty -->
+      <div class="plan-group">
+        <div class="plan-group-title">16 · Netty <span class="pg-num">3 files</span></div>
+        <ul class="plan-list">
+          <li><span>netty-01-reactor.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>netty-02-pipeline.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>netty-03-interview.html <span class="badge-todo">TODO</span></span></li>
+        </ul>
+      </div>
+
+      <!-- 17 ZooKeeper -->
+      <div class="plan-group">
+        <div class="plan-group-title">17 · ZooKeeper <span class="pg-num">3 files</span></div>
+        <ul class="plan-list">
+          <li><span>zk-01-arch.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>zk-02-feature.html <span class="badge-todo">TODO</span></span></li>
+          <li><span>zk-03-interview.html <span class="badge-todo">TODO</span></span></li>
         </ul>
       </div>
 
@@ -1262,6 +1475,224 @@
   window.addEventListener('load', () => {
     document.getElementById('search').focus();
   });
+
+  // ── Quick Pins ──
+  (function () {
+    const DEFAULT_PINS = [
+      { name: 'GitHub',   url: 'https://github.com/gcs0324' },
+      { name: 'Claude',   url: 'https://claude.ai' },
+      { name: 'Gmail',    url: 'https://mail.google.com' },
+      { name: '翻译',     url: 'https://translate.google.com' },
+      { name: 'Bilibili', url: 'https://www.bilibili.com' },
+      { name: 'ChatGPT',  url: 'https://chat.openai.com' },
+    ];
+
+    let editing = false;
+
+    function getPins() {
+      try {
+        const s = localStorage.getItem('quickPins');
+        return s ? JSON.parse(s) : DEFAULT_PINS;
+      } catch { return DEFAULT_PINS; }
+    }
+
+    function savePins(pins) {
+      localStorage.setItem('quickPins', JSON.stringify(pins));
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function render() {
+      const container = document.getElementById('pins-container');
+      const pins = getPins();
+      if (editing) {
+        container.innerHTML = pins.map((p, i) =>
+          `<span class="pin"><span class="pin-dot"></span>${esc(p.name)}<span class="pin-del" data-i="${i}">×</span></span>`
+        ).join('');
+        container.querySelectorAll('.pin-del').forEach(el => {
+          el.addEventListener('click', () => {
+            const p = getPins(); p.splice(+el.dataset.i, 1); savePins(p); render();
+          });
+        });
+      } else {
+        container.innerHTML = pins.map(p =>
+          `<a class="pin" href="${esc(p.url)}" target="_blank"><span class="pin-dot"></span>${esc(p.name)}</a>`
+        ).join('');
+      }
+    }
+
+    document.getElementById('pins-edit-btn').addEventListener('click', () => {
+      editing = !editing;
+      const btn = document.getElementById('pins-edit-btn');
+      btn.textContent = editing ? '完成' : '✎ 编辑';
+      btn.classList.toggle('active', editing);
+      document.getElementById('pins-add-form').classList.toggle('visible', editing);
+      render();
+    });
+
+    document.getElementById('pin-add-btn').addEventListener('click', () => {
+      const name = document.getElementById('pin-name').value.trim();
+      const raw  = document.getElementById('pin-url').value.trim();
+      if (!name || !raw) return;
+      const url = /^https?:\/\//.test(raw) ? raw : 'https://' + raw;
+      const pins = getPins();
+      pins.push({ name, url });
+      savePins(pins);
+      document.getElementById('pin-name').value = '';
+      document.getElementById('pin-url').value = '';
+      render();
+    });
+
+    document.getElementById('pin-url').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('pin-add-btn').click();
+    });
+
+    render();
+  })();
+
+  // ── 知识分类卡片（可编辑，持久化到 localStorage） ──
+  (function () {
+    const DEFAULT_CARDS = [
+      { icon: '⌨', title: '编程开发', links: [
+        { text: 'Python 基础知识点', url: 'pages/python-basics.html' },
+        { text: 'Git 常用命令速查', url: 'pages/git-cheatsheet.html' },
+        { text: 'MDN Web 文档', url: 'https://developer.mozilla.org/zh-CN/' },
+        { text: '开发者路线图', url: 'https://roadmap.sh' },
+      ]},
+      { icon: '◻', title: '前端 & CSS', links: [
+        { text: 'CSS Flexbox 速查', url: 'pages/css-flexbox.html' },
+        { text: 'HTML 常用标签', url: 'pages/html-tags.html' },
+        { text: 'CSS Tricks', url: 'https://css-tricks.com' },
+        { text: 'CodePen', url: 'https://codepen.io' },
+      ]},
+      { icon: '⚙', title: '开发工具', links: [
+        { text: '正则表达式测试', url: 'https://regex101.com' },
+        { text: 'JSON 格式化', url: 'https://jsonformatter.org' },
+        { text: '代码格式转换', url: 'https://transform.tools' },
+        { text: 'Can I Use', url: 'https://caniuse.com' },
+      ]},
+      { icon: '◈', title: '学习资源', links: [
+        { text: 'Coursera', url: 'https://www.coursera.org' },
+        { text: 'LeetCode（中文）', url: 'https://leetcode.cn' },
+        { text: '菜鸟教程', url: 'https://www.runoob.com' },
+        { text: 'MIT Missing Semester', url: 'https://missing.csail.mit.edu' },
+      ]},
+      { icon: '✦', title: '设计 & 素材', links: [
+        { text: 'Figma', url: 'https://www.figma.com' },
+        { text: 'Unsplash 免费图片', url: 'https://unsplash.com' },
+        { text: '配色方案生成', url: 'https://coolors.co' },
+        { text: 'Font Awesome 图标', url: 'https://fontawesome.com' },
+      ]},
+      { icon: '◉', title: 'AI 工具', links: [
+        { text: '✦ Claude 使用指南', url: 'doc/claude-guide.html' },
+        { text: 'Claude.ai', url: 'https://claude.ai' },
+        { text: 'ChatGPT', url: 'https://chat.openai.com' },
+        { text: 'Perplexity', url: 'https://www.perplexity.ai' },
+        { text: 'Gamma（AI 幻灯片）', url: 'https://gamma.app' },
+      ]},
+      { icon: '📚', title: '考研备考', links: [
+        { text: '学习清单 · 章节要不要学', url: 'doc/kaoyan-plan.html' },
+        { text: '时间分配表 · 哪月学哪章', url: 'doc/kaoyan-schedule.html' },
+      ]},
+    ];
+
+    function getCards() {
+      try { const s = localStorage.getItem('customCards'); return s ? JSON.parse(s) : DEFAULT_CARDS; }
+      catch { return DEFAULT_CARDS; }
+    }
+    function saveCards(cards) { localStorage.setItem('customCards', JSON.stringify(cards)); }
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    const grid    = document.getElementById('categories-grid');
+    const editBtn = document.getElementById('cards-edit-btn');
+    let editing   = false;
+
+    function render() {
+      const cards = getCards();
+      grid.innerHTML = cards.map((card, ci) => `
+        <div class="card">
+          <button class="card-del-btn" data-ci="${ci}" title="删除此卡片">×</button>
+          <div class="card-header">
+            <div class="card-icon">${esc(card.icon)}</div>
+            <span class="card-title">${esc(card.title)}</span>
+            <span class="card-count">${card.links.length} links</span>
+          </div>
+          <ul class="link-list">
+            ${card.links.map((lk, li) => `
+              <li>
+                <a href="${esc(lk.url)}" target="_blank">${esc(lk.text)}</a>
+                <button class="link-del-btn" data-ci="${ci}" data-li="${li}" title="删除">×</button>
+              </li>`).join('')}
+          </ul>
+          <div class="card-add-link">
+            <input class="al-text" type="text" placeholder="链接名称" />
+            <input class="al-url"  type="text" placeholder="https://..." />
+            <button class="card-add-link-btn" data-ci="${ci}">+ 添加链接</button>
+          </div>
+        </div>`).join('') + `
+        <div class="add-card-tile">
+          <div class="add-card-tile-label">+ 新增卡片</div>
+          <div class="add-card-row">
+            <input class="nc-icon-input"  id="nc-icon"  type="text" placeholder="图标" maxlength="4" />
+            <input class="nc-title-input" id="nc-title" type="text" placeholder="卡片标题" />
+          </div>
+          <button class="add-card-confirm-btn" id="nc-add-btn">确认添加</button>
+        </div>`;
+
+      // delete card
+      grid.querySelectorAll('.card-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!confirm('确认删除此卡片？')) return;
+          const c = getCards(); c.splice(+btn.dataset.ci, 1); saveCards(c); render();
+        });
+      });
+      // delete link
+      grid.querySelectorAll('.link-del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const c = getCards();
+          c[+btn.dataset.ci].links.splice(+btn.dataset.li, 1);
+          saveCards(c); render();
+        });
+      });
+      // add link
+      grid.querySelectorAll('.card-add-link-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const ci   = +btn.dataset.ci;
+          const form = btn.closest('.card-add-link');
+          const text = form.querySelector('.al-text').value.trim();
+          const raw  = form.querySelector('.al-url').value.trim();
+          if (!text || !raw) return;
+          const url = /^https?:\/\//.test(raw) ? raw : 'https://' + raw;
+          const c = getCards(); c[ci].links.push({ text, url }); saveCards(c); render();
+        });
+      });
+      // add card
+      const ncBtn = document.getElementById('nc-add-btn');
+      if (ncBtn) {
+        ncBtn.addEventListener('click', () => {
+          const icon  = (document.getElementById('nc-icon').value.trim()  || '◆');
+          const title =  document.getElementById('nc-title').value.trim();
+          if (!title) return;
+          const c = getCards(); c.push({ icon, title, links: [] }); saveCards(c); render();
+        });
+      }
+    }
+
+    editBtn.addEventListener('click', () => {
+      editing = !editing;
+      editBtn.textContent = editing ? '完成' : '✎ 编辑';
+      editBtn.classList.toggle('active', editing);
+      grid.classList.toggle('edit-mode', editing);
+      render();
+    });
+
+    render();
+  })();
 </script>
 </body>
 </html>

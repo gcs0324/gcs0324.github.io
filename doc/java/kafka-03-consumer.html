@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafka 03 · Consumer 深度解析</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'CONSUMER'}
+
+/* step flow */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+
+/* warn / tip */
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.tip {background:var(--green-bg);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* rebalance phase bar */
+.rb-flow{display:flex;gap:0;margin:14px 0;border-radius:8px;overflow:hidden;border:1px solid var(--bd)}
+.rb-phase{flex:1;padding:10px 12px;background:var(--bg2);border-right:1px solid var(--bd);font-size:12px}
+.rb-phase:last-child{border-right:none}
+.rb-phase-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;margin-bottom:5px}
+.rb-phase-name{font-weight:600;color:var(--tx);font-size:13px;margin-bottom:3px}
+.rb-phase-desc{font-size:11.5px;color:var(--tx2);line-height:1.5}
+
+/* semantic badge */
+.sem-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;vertical-align:middle}
+.sem-amo {color:var(--red);background:var(--red-bg);border:1px solid var(--red-b)}
+.sem-ale {color:var(--yellow);background:var(--yellow-bg);border:1px solid var(--yellow-b)}
+.sem-eo  {color:var(--green);background:var(--green-bg);border:1px solid var(--green-b)}
+
+/* assignor badge */
+.asgn{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b)}
+
+/* lag formula */
+.formula{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:14px 20px;margin:12px 0;color:var(--tx);text-align:center;letter-spacing:.04em}
+
+/* ── Partition 分配示意图 ── */
+.assign-diagram{display:flex;align-items:flex-start;gap:16px;margin:14px 0;overflow-x:auto}
+.assign-topic{border:1px solid var(--bd);border-radius:8px;background:var(--bg2);padding:10px 12px;flex-shrink:0}
+.assign-topic-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;text-align:center}
+.assign-parts{display:flex;flex-direction:column;gap:4px}
+.assign-part{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:5px 10px;border-radius:4px;text-align:center;border:1px solid var(--bd);background:var(--bg);color:var(--tx2)}
+.assign-arrows{display:flex;flex-direction:column;justify-content:space-around;gap:4px;padding-top:28px;flex-shrink:0;color:var(--tx3);font-size:16px}
+.assign-group{border:1.5px solid var(--blue-b);border-radius:10px;background:var(--blue-bg);padding:10px 12px;flex-shrink:0}
+.assign-group-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;text-align:center}
+.assign-consumers{display:flex;flex-direction:column;gap:6px}
+.assign-consumer{background:var(--bg);border:1px solid var(--blue-b);border-radius:6px;padding:6px 10px;display:flex;align-items:center;gap:6px}
+.assign-consumer-name{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx2);min-width:70px;font-weight:600}
+.assign-consumer-parts{display:flex;gap:4px;flex-wrap:wrap}
+.assign-consumer-p{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border-radius:3px;background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue);font-weight:700}
+.assign-idle{opacity:.4;text-decoration:line-through}
+
+/* ── Rebalance 时序图 ── */
+.seq-diagram{margin:14px 0;overflow-x:auto}
+.seq-actors{display:flex;gap:0;margin-bottom:0}
+.seq-actor{flex:1;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;text-align:center;padding:7px 6px;border:1px solid var(--bd);background:var(--bg2);color:var(--tx2)}
+.seq-actor:first-child{border-radius:6px 0 0 0}
+.seq-actor:last-child{border-radius:0 6px 0 0}
+.seq-actor.coord{background:var(--green-bg);border-color:var(--green-b);color:var(--green)}
+.seq-actor.leader{background:var(--yellow-bg);border-color:var(--yellow-b);color:var(--yellow)}
+.seq-body{border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;overflow:hidden}
+.seq-row{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--bd);min-height:36px}
+.seq-row:last-child{border-bottom:none}
+.seq-row.phase{background:var(--bg2)}
+.seq-cell{flex:1;font-size:12px;padding:6px 8px;text-align:center;color:var(--tx2);border-right:1px dashed var(--bd)}
+.seq-cell:last-child{border-right:none}
+.seq-cell.phase-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;background:var(--bg2)}
+.seq-arrow{font-family:'IBM Plex Mono',monospace;font-size:10px;display:flex;align-items:center;gap:4px;justify-content:center}
+.seq-arrow .arr{font-size:14px}
+
+/* ── Offset 提交时机图 ── */
+.timeline{margin:14px 0;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.tl-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.tl-row:last-child{margin-bottom:0}
+.tl-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;width:86px;flex-shrink:0;color:var(--tx2)}
+.tl-track{flex:1;position:relative;height:28px;background:var(--bg);border:1px solid var(--bd);border-radius:4px;overflow:visible}
+.tl-event{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;border-radius:3px;white-space:nowrap;padding:0 6px}
+.tl-point{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;z-index:2}
+.tl-point-lbl{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:9px;white-space:nowrap;color:var(--tx3)}
+.tl-danger{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.tl-ok{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
+.tl-neutral{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+.tl-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.tl-legend-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--tx2)}
+.tl-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-kafka.js"></script>
+
+<header>
+  <div class="htag">KAFKA · 03 · CONSUMER</div>
+  <h1>Consumer 深度解析</h1>
+  <p class="subtitle">消费流程 · Rebalance 机制 · Offset 提交策略 · 分区分配 · Lag 监控与调优</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#flow"><span class="s-link-num">01</span>消费流程</a>
+    <a class="s-link" href="#rebalance"><span class="s-link-num">02</span>Rebalance 机制</a>
+    <a class="s-link" href="#offset"><span class="s-link-num">03</span>Offset 提交策略</a>
+    <a class="s-link" href="#assignor"><span class="s-link-num">04</span>分区分配策略</a>
+    <a class="s-link" href="#monitor"><span class="s-link-num">05</span>Lag 监控与调优</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="kafka-02-producer.html">← 上一章：Producer</a>
+    <a class="s-link" href="kafka-04-reliable.html">→ 下一章：可靠性</a>
+    <a class="s-link" href="kafka-06-interview.html#consumer">→ 面试题 Consumer 章节</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 消费流程 ═══ -->
+    <div class="sec" id="flow"><span class="sec-num">01</span>消费流程</div>
+
+    <div class="card">
+      <div class="card-title">Consumer 基础结构与 poll() 循环</div>
+      <p>Kafka Consumer 是<strong>单线程</strong>设计（非线程安全），通过 <code>poll()</code> 主动向 Broker 拉取消息（Pull 模式）。核心循环结构：</p>
+      <pre>Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("group.id",          "order-consumer-group");
+props.put("key.deserializer",  StringDeserializer.class.getName());
+props.put("value.deserializer",StringDeserializer.class.getName());
+props.put("auto.offset.reset", "earliest"); // 无历史 offset 时从最早开始消费
+props.put("enable.auto.commit","false");    // 关闭自动提交，手动控制
+
+KafkaConsumer&lt;String, String&gt; consumer = new KafkaConsumer&lt;&gt;(props);
+consumer.subscribe(List.of("orders", "payments")); // 订阅 Topic
+
+try {
+    while (true) {
+        // poll() 触发心跳、Rebalance 处理、消息拉取，超时返回空集合
+        ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(500));
+
+        for (ConsumerRecord&lt;String, String&gt; record : records) {
+            processRecord(record); // 业务处理
+        }
+
+        consumer.commitSync(); // 处理完一批后手动提交
+    }
+} finally {
+    consumer.close(); // 触发正常 Rebalance，将 Partition 移交其他 Consumer
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">pull() 核心参数详解</div>
+      <table class="tbl">
+        <tr><th>参数</th><th>默认值</th><th>作用</th></tr>
+        <tr>
+          <td><code>fetch.min.bytes</code></td>
+          <td>1 B</td>
+          <td>Broker 累积到至少这么多数据才返回响应。增大可减少请求次数，但会增加延迟</td>
+        </tr>
+        <tr>
+          <td><code>fetch.max.wait.ms</code></td>
+          <td>500 ms</td>
+          <td>Broker 等待 <code>fetch.min.bytes</code> 满足的最大时间，超时后无论数据量多少都返回</td>
+        </tr>
+        <tr>
+          <td><code>max.poll.records</code></td>
+          <td>500</td>
+          <td>单次 <code>poll()</code> 最多返回的消息条数，控制每批处理量</td>
+        </tr>
+        <tr>
+          <td><code>max.poll.interval.ms</code></td>
+          <td>300,000 ms（5 min）</td>
+          <td>两次 <code>poll()</code> 之间的最大间隔。超过此时间未 poll，Broker 认为 Consumer 已死，触发 Rebalance</td>
+        </tr>
+        <tr>
+          <td><code>fetch.max.bytes</code></td>
+          <td>50 MB</td>
+          <td>单次 Fetch 响应的最大字节数上限</td>
+        </tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ max.poll.interval.ms 踩坑：</strong>若业务处理逻辑耗时较长（如批量写 DB），可能在下次 <code>poll()</code> 前超过此阈值，导致 Consumer 被踢出 Group 并触发 Rebalance。解决方案：减小 <code>max.poll.records</code>（减少单批量）或增大 <code>max.poll.interval.ms</code>，或将耗时处理异步化。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">subscribe() vs assign() — 两种订阅方式</div>
+      <table class="tbl">
+        <tr><th>方式</th><th>API</th><th>特点</th><th>适用场景</th></tr>
+        <tr>
+          <td><strong>自动分配</strong><br>subscribe()</td>
+          <td><code>consumer.subscribe(List.of("topic"))</code></td>
+          <td>加入 Consumer Group，由 GroupCoordinator 自动分配 Partition；支持 Rebalance</td>
+          <td>绝大多数生产场景</td>
+        </tr>
+        <tr>
+          <td><strong>手动指定</strong><br>assign()</td>
+          <td><code>consumer.assign(List.of(new TopicPartition("topic", 0)))</code></td>
+          <td>绕过 Group 机制，直接指定消费哪些 Partition；不触发 Rebalance，没有 Group 概念</td>
+          <td>数据回放、精确消费特定分区、测试</td>
+        </tr>
+      </table>
+      <div class="warn"><strong>⚠</strong> <code>subscribe()</code> 和 <code>assign()</code> 不能混用，否则抛 <code>IllegalStateException</code>。</div>
+    </div>
+
+    <!-- ═══ 02 Rebalance ═══ -->
+    <div class="sec" id="rebalance"><span class="sec-num">02</span>Rebalance 机制</div>
+
+    <div class="card">
+      <div class="card-title">什么是 Rebalance & 触发条件</div>
+      <p>Rebalance 是 Consumer Group 内 Partition 分配关系的重新协商过程。触发后，Group 内<strong>所有 Consumer 暂停消费</strong>，等待分配结果后重新开始（Eager 模式）。</p>
+      <p style="margin-top:10px;font-size:13px;font-weight:600;color:var(--tx2)">触发 Rebalance 的条件：</p>
+      <table class="tbl">
+        <tr><th>触发原因</th><th>说明</th></tr>
+        <tr><td>Consumer 加入 Group</td><td>新 Consumer 启动并 <code>subscribe()</code> 后，向 GroupCoordinator 发送 JoinGroup 请求</td></tr>
+        <tr><td>Consumer 离开 Group</td><td>Consumer 正常调用 <code>close()</code>，或心跳超时（超过 <code>session.timeout.ms</code>）被判定宕机</td></tr>
+        <tr><td>心跳超时</td><td>Consumer 长时间未发送心跳（后台 HeartbeatThread 负责），Broker 移除该成员</td></tr>
+        <tr><td>poll() 超时</td><td>两次 <code>poll()</code> 间隔超过 <code>max.poll.interval.ms</code>，Consumer 主动离开 Group</td></tr>
+        <tr><td>Topic 分区数变更</td><td>增加 Topic 的 Partition 数，触发 Group 重新分配</td></tr>
+        <tr><td>订阅 Topic 变更</td><td>Consumer 修改 <code>subscribe()</code> 的 Topic 列表</td></tr>
+      </table>
+    </div>
+
+    <!-- Partition 分配示意图 -->
+    <div class="card">
+      <div class="card-title">Partition 分配示意图 — 竞争消费 vs 广播消费</div>
+      <div class="assign-diagram">
+        <div class="assign-topic">
+          <div class="assign-topic-lbl">Topic: orders（4 Partitions）</div>
+          <div class="assign-parts">
+            <div class="assign-part">P0</div>
+            <div class="assign-part">P1</div>
+            <div class="assign-part">P2</div>
+            <div class="assign-part">P3</div>
+          </div>
+        </div>
+        <div class="assign-arrows"><span>→</span><span>→</span><span>→</span><span>→</span></div>
+        <div class="assign-group">
+          <div class="assign-group-lbl">Group A（3 Consumer）竞争消费</div>
+          <div class="assign-consumers">
+            <div class="assign-consumer">
+              <span class="assign-consumer-name">Consumer 1</span>
+              <span class="assign-consumer-parts">
+                <span class="assign-consumer-p">P0</span><span class="assign-consumer-p">P1</span>
+              </span>
+            </div>
+            <div class="assign-consumer">
+              <span class="assign-consumer-name">Consumer 2</span>
+              <span class="assign-consumer-parts"><span class="assign-consumer-p">P2</span></span>
+            </div>
+            <div class="assign-consumer">
+              <span class="assign-consumer-name">Consumer 3</span>
+              <span class="assign-consumer-parts"><span class="assign-consumer-p">P3</span></span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:20px;color:var(--tx3);padding-top:28px">→</div>
+        <div class="assign-group" style="border-color:var(--yellow-b);background:var(--yellow-bg)">
+          <div class="assign-group-lbl" style="color:var(--yellow)">Group B（1 Consumer）广播</div>
+          <div class="assign-consumers">
+            <div class="assign-consumer" style="border-color:var(--yellow-b)">
+              <span class="assign-consumer-name">Consumer 1</span>
+              <span class="assign-consumer-parts">
+                <span class="assign-consumer-p" style="background:var(--yellow-bg);border-color:var(--yellow-b);color:var(--yellow)">P0</span>
+                <span class="assign-consumer-p" style="background:var(--yellow-bg);border-color:var(--yellow-b);color:var(--yellow)">P1</span>
+                <span class="assign-consumer-p" style="background:var(--yellow-bg);border-color:var(--yellow-b);color:var(--yellow)">P2</span>
+                <span class="assign-consumer-p" style="background:var(--yellow-bg);border-color:var(--yellow-b);color:var(--yellow)">P3</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--tx3)">不同 Group 各自维护独立 Offset，互不影响。每新增一个 Consumer Group，Topic 的所有消息都会被该 Group 完整消费一份。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">GroupCoordinator — Rebalance 协调者</div>
+      <p>GroupCoordinator 是 Broker 端负责管理 Consumer Group 的组件，每个 Consumer Group 对应唯一一个 Coordinator（由 <code>__consumer_offsets</code> Topic 的某个 Partition Leader 承担）。</p>
+      <table class="tbl">
+        <tr><th>职责</th><th>说明</th></tr>
+        <tr><td>成员管理</td><td>维护 Group 成员列表，处理加入 / 离开请求</td></tr>
+        <tr><td>Offset 存储</td><td>接收 <code>commitOffset</code> 请求，将 Offset 写入 <code>__consumer_offsets</code></td></tr>
+        <tr><td>Rebalance 协调</td><td>发起 Rebalance，主持 JoinGroup 和 SyncGroup 两阶段流程</td></tr>
+        <tr><td>心跳检测</td><td>接收 Consumer 心跳，超时则移除成员并触发 Rebalance</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Rebalance 协议 — JoinGroup + SyncGroup 两阶段</div>
+      <div class="rb-flow">
+        <div class="rb-phase">
+          <div class="rb-phase-lbl">Phase 1</div>
+          <div class="rb-phase-name">JoinGroup</div>
+          <div class="rb-phase-desc">所有 Consumer 向 Coordinator 发送 JoinGroup 请求。Coordinator 等待所有成员到齐后，选出<strong>Group Leader</strong>（第一个加入的 Consumer），并把成员列表下发给 Leader。</div>
+        </div>
+        <div class="rb-phase">
+          <div class="rb-phase-lbl">Phase 2</div>
+          <div class="rb-phase-name">SyncGroup</div>
+          <div class="rb-phase-desc"><strong>Group Leader</strong>（不是 Coordinator）根据分配策略计算出每个成员的 Partition 分配方案，通过 SyncGroup 请求上报给 Coordinator。Coordinator 再将各成员的分配结果下发给对应 Consumer。</div>
+        </div>
+      </div>
+      <!-- Rebalance 时序图 -->
+      <div class="seq-diagram">
+        <div class="seq-actors">
+          <div class="seq-actor">Consumer 1<br><span style="font-weight:400;color:var(--yellow)">(Group Leader)</span></div>
+          <div class="seq-actor">Consumer 2</div>
+          <div class="seq-actor">Consumer 3</div>
+          <div class="seq-actor coord">Coordinator<br>(Broker)</div>
+        </div>
+        <div class="seq-body">
+          <div class="seq-row phase">
+            <div class="seq-cell phase-lbl" style="grid-column:span 4;flex:4">Phase 1 · JoinGroup — 所有成员上报并等待</div>
+          </div>
+          <div class="seq-row">
+            <div class="seq-cell"><div class="seq-arrow"><span>JoinGroup →</span><span class="arr">→→→</span></div></div>
+            <div class="seq-cell"><div class="seq-arrow"><span>JoinGroup →</span><span class="arr">→→</span></div></div>
+            <div class="seq-cell"><div class="seq-arrow"><span>JoinGroup →</span><span class="arr">→</span></div></div>
+            <div class="seq-cell coord" style="background:var(--green-bg);color:var(--tx2)">收集所有成员<br>选 C1 为 Leader<br>下发成员列表</div>
+          </div>
+          <div class="seq-row">
+            <div class="seq-cell" style="background:var(--yellow-bg);color:var(--tx2)">收到成员列表<br>计算分配方案<br>(P0→C1, P1→C2…)</div>
+            <div class="seq-cell"></div>
+            <div class="seq-cell"></div>
+            <div class="seq-cell"></div>
+          </div>
+          <div class="seq-row phase">
+            <div class="seq-cell phase-lbl" style="flex:4">Phase 2 · SyncGroup — Leader 上报方案，Coordinator 下发结果</div>
+          </div>
+          <div class="seq-row">
+            <div class="seq-cell"><div class="seq-arrow"><span>SyncGroup(方案) →</span><span class="arr">→→→</span></div></div>
+            <div class="seq-cell"><div class="seq-arrow"><span>SyncGroup →</span><span class="arr">→→</span></div></div>
+            <div class="seq-cell"><div class="seq-arrow"><span>SyncGroup →</span><span class="arr">→</span></div></div>
+            <div class="seq-cell coord" style="background:var(--green-bg);color:var(--tx2)">存储分配结果<br>逐一下发</div>
+          </div>
+          <div class="seq-row">
+            <div class="seq-cell" style="color:var(--green);font-weight:600">← 收到 P0，开始消费</div>
+            <div class="seq-cell" style="color:var(--green);font-weight:600">← 收到 P1，开始消费</div>
+            <div class="seq-cell" style="color:var(--green);font-weight:600">← 收到 P2，开始消费</div>
+            <div class="seq-cell"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip">
+        <strong>Group Leader ≠ Coordinator：</strong>分区分配计算由 Consumer 端的 Group Leader 完成，Coordinator 只是中转站。这样设计的好处是分配算法可以在客户端扩展，Broker 不需要感知具体算法。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Eager vs Cooperative — 两种 Rebalance 协议</div>
+      <table class="tbl">
+        <tr><th>协议</th><th>行为</th><th>停顿时长</th><th>代表分配策略</th></tr>
+        <tr>
+          <td><strong>Eager（激进）</strong></td>
+          <td>Rebalance 开始时，所有 Consumer <strong>立即撤销全部 Partition</strong>，停止消费，等待新分配结果后重新开始</td>
+          <td>全量停顿（短则几秒，长则十几秒）</td>
+          <td>RangeAssignor、RoundRobinAssignor、StickyAssignor</td>
+        </tr>
+        <tr>
+          <td><strong>Cooperative（协作）</strong></td>
+          <td>只撤销需要移交的 Partition，其余 Partition <strong>继续消费不中断</strong>，通过多轮 Rebalance 增量调整</td>
+          <td>极短（仅移交的 Partition 短暂停顿）</td>
+          <td>CooperativeStickyAssignor（Kafka 2.4+ 推荐）</td>
+        </tr>
+      </table>
+      <div class="tip">
+        <strong>生产推荐：</strong>Kafka 3.x 中将 <code>CooperativeStickyAssignor</code> 设为默认分配策略，新项目应直接使用。存量项目从 Eager 迁移到 Cooperative 需要经过一次中间态 Rebalance（先配 <code>StickyAssignor,CooperativeStickyAssignor</code> 双策略滚动升级）。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">减少 Rebalance 的实践</div>
+      <table class="tbl">
+        <tr><th>手段</th><th>配置 / 做法</th><th>原理</th></tr>
+        <tr>
+          <td>调大心跳超时</td>
+          <td><code>session.timeout.ms=45000</code><br><code>heartbeat.interval.ms=15000</code>（约为 session 的 1/3）</td>
+          <td>给网络抖动更多容忍空间，避免短暂延迟被误判为宕机</td>
+        </tr>
+        <tr>
+          <td>调大 poll 间隔</td>
+          <td><code>max.poll.interval.ms=600000</code></td>
+          <td>业务处理耗时较长时，避免 poll() 超时触发主动离组</td>
+        </tr>
+        <tr>
+          <td>减小单批处理量</td>
+          <td><code>max.poll.records=100</code></td>
+          <td>减少单次处理耗时，更容易在 max.poll.interval.ms 内完成</td>
+        </tr>
+        <tr>
+          <td>使用 Cooperative 协议</td>
+          <td><code>partition.assignment.strategy=CooperativeStickyAssignor</code></td>
+          <td>增量分配，减少因 Rebalance 导致的消费停顿影响面</td>
+        </tr>
+        <tr>
+          <td>避免频繁重启</td>
+          <td>滚动升级时控制节奏，避免短时间内大量 Consumer 反复加入/离开</td>
+          <td>每次成员变更都会触发 Rebalance</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ═══ 03 Offset 提交策略 ═══ -->
+    <div class="sec" id="offset"><span class="sec-num">03</span>Offset 提交策略</div>
+
+    <div class="card">
+      <div class="card-title">三种消费语义</div>
+      <p>Offset 提交的时机决定了消费语义，理解语义是选择提交策略的前提：</p>
+
+      <!-- Offset 提交时机对比图 -->
+      <div class="timeline">
+        <div class="tl-row">
+          <span class="tl-label" style="color:var(--red)">at-most-once</span>
+          <div class="tl-track">
+            <div class="tl-event tl-neutral" style="left:0;width:28%">poll()</div>
+            <div class="tl-event tl-danger"  style="left:30%;width:24%">先提交 Offset</div>
+            <div class="tl-event tl-neutral" style="left:56%;width:30%">处理消息…</div>
+            <div class="tl-point" style="left:78%;background:var(--red)" title="宕机"></div>
+            <div class="tl-point-lbl" style="left:78%">宕机→消息丢失</div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <span class="tl-label" style="color:var(--yellow)">at-least-once</span>
+          <div class="tl-track">
+            <div class="tl-event tl-neutral" style="left:0;width:22%">poll()</div>
+            <div class="tl-event tl-neutral" style="left:24%;width:36%">处理消息…</div>
+            <div class="tl-event tl-ok"      style="left:62%;width:24%">再提交 Offset</div>
+            <div class="tl-point" style="left:52%;background:var(--yellow)"></div>
+            <div class="tl-point-lbl" style="left:52%">宕机→重新消费</div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <span class="tl-label" style="color:var(--green)">exactly-once</span>
+          <div class="tl-track">
+            <div class="tl-event tl-neutral" style="left:0;width:22%">poll()</div>
+            <div class="tl-event tl-neutral" style="left:24%;width:36%">处理消息…</div>
+            <div class="tl-event tl-ok"      style="left:62%;width:34%">原子：写DB + 提交Offset</div>
+          </div>
+        </div>
+        <div class="tl-legend">
+          <div class="tl-legend-item"><div class="tl-legend-dot" style="background:var(--red)"></div>宕机点（未提交 Offset，消息丢失）</div>
+          <div class="tl-legend-item"><div class="tl-legend-dot" style="background:var(--yellow)"></div>宕机点（已处理，重启后重复消费）</div>
+          <div class="tl-legend-item"><div class="tl-legend-dot" style="background:var(--green)"></div>原子提交（处理与提交不可分割）</div>
+        </div>
+      </div>
+      <table class="tbl">
+        <tr><th>语义</th><th>含义</th><th>实现方式</th></tr>
+        <tr>
+          <td><span class="sem-badge sem-amo">at-most-once</span></td>
+          <td>最多消费一次，可能丢消息</td>
+          <td>拉到消息后<strong>先提交 Offset，再处理</strong>。若处理失败，消息不会重新消费</td>
+        </tr>
+        <tr>
+          <td><span class="sem-badge sem-ale">at-least-once</span></td>
+          <td>至少消费一次，可能重复</td>
+          <td>处理完成后<strong>再提交 Offset</strong>。若提交前 Consumer 宕机，重启后重新消费，需业务幂等</td>
+        </tr>
+        <tr>
+          <td><span class="sem-badge sem-eo">exactly-once</span></td>
+          <td>精确消费一次</td>
+          <td>Kafka 事务（<code>sendOffsetsToTransaction</code>）+ 幂等消费，或外部存储原子提交 Offset</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">自动提交 — enable.auto.commit=true</div>
+      <p>Consumer 后台线程每隔 <code>auto.commit.interval.ms</code>（默认 5000 ms）自动提交当前已拉取的最大 Offset。</p>
+      <pre>props.put("enable.auto.commit",      "true");
+props.put("auto.commit.interval.ms", "5000");</pre>
+      <table class="tbl">
+        <tr><th>优点</th><th>缺点</th></tr>
+        <tr>
+          <td>代码简单，无需手动管理</td>
+          <td>
+            · 语义是 <span class="sem-badge sem-ale">at-least-once</span>：poll() 后、处理完成前宕机，重启后会重复消费<br>
+            · 5s 内消费的消息，若 Consumer 宕机则全部重新消费<br>
+            · 无法精确控制提交时机
+          </td>
+        </tr>
+      </table>
+      <div class="warn"><strong>生产环境建议关闭自动提交</strong>，改用手动提交以精确控制消费语义，避免消息处理中途宕机后的大范围重复消费。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">手动提交 — 三种粒度</div>
+      <pre>// ① 同步提交 — 阻塞等待 Broker 确认，可靠但影响吞吐
+// 每批处理完后提交
+consumer.commitSync();
+
+// 带重试的同步提交（异常时手动重试）
+try {
+    consumer.commitSync();
+} catch (CommitFailedException e) {
+    log.error("Commit failed", e);
+    // Rebalance 期间提交会失败，通常忽略或告警
+}
+
+// ② 异步提交 — 不阻塞，回调中感知结果，吞吐高
+// 不要在异步回调中重试（可能因乱序导致回退 Offset）
+consumer.commitAsync((offsets, exception) -> {
+    if (exception != null) {
+        log.error("Async commit failed: {}", offsets, exception);
+    }
+});
+
+// ③ 精确提交指定 Offset — 按 Partition 精细控制
+// 适合消费到一半时需要定点提交的场景
+Map&lt;TopicPartition, OffsetAndMetadata&gt; offsets = new HashMap&lt;&gt;();
+for (ConsumerRecord&lt;String, String&gt; record : records) {
+    processRecord(record);
+    // 提交当前消息的下一个 Offset（已消费的 +1）
+    offsets.put(
+        new TopicPartition(record.topic(), record.partition()),
+        new OffsetAndMetadata(record.offset() + 1)
+    );
+}
+consumer.commitSync(offsets);</pre>
+      <table class="tbl" style="margin-top:12px">
+        <tr><th>提交方式</th><th>语义</th><th>吞吐</th><th>适用场景</th></tr>
+        <tr><td>commitSync()</td><td><span class="sem-badge sem-ale">at-least-once</span></td><td>低</td><td>强可靠，每批必须确认提交</td></tr>
+        <tr><td>commitAsync()</td><td><span class="sem-badge sem-ale">at-least-once</span></td><td>高</td><td>正常消费链路，关闭时补一次 commitSync</td></tr>
+        <tr><td>commitSync(offsets)</td><td><span class="sem-badge sem-ale">at-least-once</span></td><td>低</td><td>精确到消息级别的 Offset 控制</td></tr>
+      </table>
+      <div class="tip">
+        <strong>最佳实践 — 混合提交：</strong>正常循环用 <code>commitAsync()</code> 保证吞吐；在 <code>finally</code> 块或 <code>ConsumerRebalanceListener.onPartitionsRevoked()</code> 中用 <code>commitSync()</code> 兜底，确保 Rebalance 或关闭时 Offset 不丢失。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">auto.offset.reset — 无历史 Offset 时的起点</div>
+      <table class="tbl">
+        <tr><th>值</th><th>行为</th><th>适用场景</th></tr>
+        <tr><td><code>earliest</code></td><td>从 Partition 最早可用消息开始消费（等同于 <code>--from-beginning</code>）</td><td>新 Group 第一次接入，需要处理全量历史数据</td></tr>
+        <tr><td><code>latest</code>（默认）</td><td>从 Partition 末尾开始，只消费启动后新写入的消息</td><td>只关心实时消息，不需要历史数据</td></tr>
+        <tr><td><code>none</code></td><td>找不到 Offset 时直接抛出异常</td><td>明确要求 Offset 必须已存在，防止意外从头消费</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 04 分区分配策略 ═══ -->
+    <div class="sec" id="assignor"><span class="sec-num">04</span>分区分配策略</div>
+
+    <div class="card">
+      <div class="card-title">四种内置分配策略对比</div>
+      <p>Consumer Group 成员如何瓜分 Topic 的 Partition，由 <code>partition.assignment.strategy</code> 决定（Group Leader 执行具体计算）：</p>
+      <table class="tbl">
+        <tr><th>策略</th><th>算法</th><th>优点</th><th>缺点</th><th>Rebalance 协议</th></tr>
+        <tr>
+          <td><span class="asgn">Range</span><br>（旧默认）</td>
+          <td>按 Partition 序号范围切分，每个 Consumer 分到连续的一段</td>
+          <td>同一 Consumer 能得到多 Topic 相同编号的 Partition（便于 Topic 联合消费）</td>
+          <td>Topic 多时前几个 Consumer 分到的 Partition 更多，负载不均</td>
+          <td>Eager</td>
+        </tr>
+        <tr>
+          <td><span class="asgn">RoundRobin</span></td>
+          <td>将所有 Topic 的所有 Partition 排成一列，依次轮询分给各 Consumer</td>
+          <td>分配最均匀</td>
+          <td>要求 Group 内所有 Consumer 订阅相同的 Topic 列表</td>
+          <td>Eager</td>
+        </tr>
+        <tr>
+          <td><span class="asgn">Sticky</span></td>
+          <td>尽量保持上次 Rebalance 的分配结果，只移动必须移动的 Partition</td>
+          <td>减少 Rebalance 后的 Partition 迁移量，降低重复消费</td>
+          <td>实现复杂，首次分配与 RoundRobin 相同</td>
+          <td>Eager</td>
+        </tr>
+        <tr>
+          <td><span class="asgn">CooperativeSticky</span><br>（新默认，推荐）</td>
+          <td>在 Sticky 基础上改用 Cooperative 协议，增量分配</td>
+          <td>Rebalance 期间大部分 Partition 可继续消费，停顿影响最小</td>
+          <td>需 Kafka 2.4+；多轮 Rebalance 才能完成调整</td>
+          <td>Cooperative</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">示例：3 Consumer 消费 7 Partition 的分配结果</div>
+      <pre>Topic: orders，Partition: P0 P1 P2 P3 P4 P5 P6
+Consumer: C0  C1  C2
+
+── RangeAssignor ──────────────────────────────────────
+C0 → P0 P1 P2   (7/3=2余1，第一个多分1个)
+C1 → P3 P4
+C2 → P5 P6
+
+── RoundRobinAssignor ─────────────────────────────────
+C0 → P0 P3 P6
+C1 → P1 P4
+C2 → P2 P5
+
+── StickyAssignor (首次，等同 RoundRobin) ──────────────
+C0 → P0 P3 P6
+C1 → P1 P4
+C2 → P2 P5
+
+  若 C1 宕机，Sticky 重新分配（尽量保留已有分配）：
+C0 → P0 P3 P6 P1   (从 C1 接管 P1)
+C2 → P2 P5 P4      (从 C1 接管 P4)</pre>
+    </div>
+
+    <!-- ═══ 05 Lag 监控与调优 ═══ -->
+    <div class="sec" id="monitor"><span class="sec-num">05</span>Lag 监控与调优</div>
+
+    <div class="card">
+      <div class="card-title">Consumer Lag — 消息积压的核心指标</div>
+      <div class="formula">Lag = HW（Partition 末尾）− CurrentOffset（Consumer 当前消费位置）</div>
+      <p>Lag 代表 Consumer 落后 Broker 多少条消息。Lag 持续增长说明消费速度跟不上生产速度，需要扩容或优化。</p>
+      <table class="tbl">
+        <tr><th>查看 Lag 的方式</th><th>命令 / 工具</th></tr>
+        <tr>
+          <td>命令行（实时查看）</td>
+          <td><code>kafka-consumer-groups.sh --bootstrap-server host:9092 --describe --group my-group</code></td>
+        </tr>
+        <tr>
+          <td>JMX 指标</td>
+          <td><code>kafka.consumer:type=consumer-fetch-manager-metrics,client-id=xxx</code> 中的 <code>records-lag-max</code></td>
+        </tr>
+        <tr>
+          <td>Kafka Manager / CMAK</td>
+          <td>图形化展示各 Group 各 Partition 的 Lag 趋势</td>
+        </tr>
+        <tr>
+          <td>Prometheus + kafka-exporter</td>
+          <td>采集 <code>kafka_consumergroup_lag</code> 指标，配合 Grafana 告警</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">消费积压处理方案</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">紧急扩容 Consumer（最快见效）</div>
+            <div class="step-desc">增加 Consumer 实例数（不超过 Partition 数），触发 Rebalance 后新实例立即分担消费。注意：Consumer 数超过 Partition 数的部分会闲置，没有意义。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">增大 max.poll.records + 批量入库</div>
+            <div class="step-desc">将 <code>max.poll.records</code> 从 500 调大到 1000~2000，配合数据库批量写入（<code>batchInsert</code>），减少 IO 次数，显著提升消费吞吐。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">扩 Partition（需停写或新建 Topic）</div>
+            <div class="step-desc">若 Consumer 已达 Partition 数上限，需先扩 Partition 再加 Consumer。注意扩分区后有 Key 哈希路由变化问题。若不能停写，可新建一个多分区 Topic，将原 Topic 的积压消息用临时 Consumer 转发过去，再切流量。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">异步化消费（解耦 IO 密集型处理）</div>
+            <div class="step-desc">poll() 主线程快速拉取，将消息投递到内存队列（如 <code>LinkedBlockingQueue</code>），线程池异步处理。注意此时 Offset 提交需要协调机制，防止处理未完成就提交。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">多线程消费模式对比</div>
+      <p>Kafka Consumer 本身非线程安全，多线程消费需在 Consumer 层面或处理层面做设计：</p>
+      <table class="tbl">
+        <tr><th>模式</th><th>结构</th><th>优点</th><th>注意点</th></tr>
+        <tr>
+          <td><strong>多 Consumer 实例</strong></td>
+          <td>每个线程独立持有一个 KafkaConsumer，各自 poll()</td>
+          <td>隔离性好，Offset 提交独立，实现简单</td>
+          <td>线程数受 Partition 数限制；每个实例都有独立 TCP 连接开销</td>
+        </tr>
+        <tr>
+          <td><strong>单线程 poll + 线程池处理</strong></td>
+          <td>主线程 poll()，消息投入线程池异步处理</td>
+          <td>单 Consumer 可充分利用多核，处理吞吐高</td>
+          <td>Offset 提交需等所有处理线程完成才能提交，否则可能丢消息；实现复杂</td>
+        </tr>
+      </table>
+      <pre>// 单线程 poll + 线程池处理（简化版）
+ExecutorService pool = Executors.newFixedThreadPool(8);
+
+while (true) {
+    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(500));
+    List&lt;Future&lt;?&gt;&gt; futures = new ArrayList&lt;&gt;();
+
+    for (ConsumerRecord&lt;String, String&gt; record : records) {
+        futures.add(pool.submit(() -> processRecord(record)));
+    }
+
+    // 等待本批所有任务完成后再提交 Offset
+    for (Future&lt;?&gt; f : futures) f.get();
+    consumer.commitSync();
+}</pre>
+      <div class="warn">
+        <strong>⚠ 异步处理 + Offset 提交的陷阱：</strong>若不等线程池完成就提交 Offset，Consumer 宕机时已提交但未处理的消息会丢失（变为 at-most-once）。必须在所有处理线程完成后再提交，或使用精确位置提交跟踪每条消息的处理状态。
+      </div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

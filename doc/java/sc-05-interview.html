@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Cloud 05 · 高频面试题 32 道</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'SC'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-sc.js"></script>
+<header>
+  <div class="htag">Spring Cloud · 05 · INTERVIEW</div>
+  <h1>Spring Cloud 高频面试题</h1>
+  <p class="sub">面试官视角 · 口语化回答 · 知识点跳转 — 32 道真题</p>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">题目分类</span>
+    <div class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">全展开</button>
+      <button class="s-btn" onclick="toggleAll(false)">全收起</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/32</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+
+  <div class="scat open" id="sc1">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">01</span>
+      <span class="scat-label">架构与注册中心</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">微服务 vs 单体，什么时候拆</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">Spring Cloud 组件全家桶</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">Nacos 注册中心原理</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">Nacos AP vs CP 模式</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">Nacos vs Eureka 区别</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">Nacos 配置动态刷新原理</span></a>
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">注册中心挂了服务还能调吗</span></a>
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">服务实例下线如何优雅处理</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="sc2">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">02</span>
+      <span class="scat-label">网关与服务调用</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">Gateway vs Zuul 区别</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">Gateway 请求处理流程</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">Gateway 如何实现认证鉴权</span></a>
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">OpenFeign 底层原理</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">Feign 调用超时怎么配</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">负载均衡策略有哪些</span></a>
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">如何实现灰度发布</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">Feign 传递 Header/Token</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="sc3">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">03</span>
+      <span class="scat-label">Sentinel 限流熔断</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">服务雪崩是什么，怎么防</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">Sentinel 限流算法</span></a>
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">Sentinel 熔断三种策略</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">Sentinel vs Hystrix</span></a>
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">熔断器三种状态</span></a>
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">Fallback 降级怎么写</span></a>
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">Sentinel 规则如何持久化</span></a>
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">热点参数限流</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="sc4">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">04</span>
+      <span class="scat-label">分布式事务与其他</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q25"><span class="scat-item-num">Q25</span><span class="scat-item-txt">分布式事务的挑战</span></a>
+      <a class="scat-item" href="#q26"><span class="scat-item-num">Q26</span><span class="scat-item-txt">Seata AT 模式原理</span></a>
+      <a class="scat-item" href="#q27"><span class="scat-item-num">Q27</span><span class="scat-item-txt">AT vs TCC vs Saga</span></a>
+      <a class="scat-item" href="#q28"><span class="scat-item-num">Q28</span><span class="scat-item-txt">如何不用 Seata 保证一致性</span></a>
+      <a class="scat-item" href="#q29"><span class="scat-item-num">Q29</span><span class="scat-item-txt">链路追踪如何实现</span></a>
+      <a class="scat-item" href="#q30"><span class="scat-item-num">Q30</span><span class="scat-item-txt">微服务如何做日志聚合</span></a>
+      <a class="scat-item" href="#q31"><span class="scat-item-num">Q31</span><span class="scat-item-txt">微服务接口版本管理</span></a>
+      <a class="scat-item" href="#q32"><span class="scat-item-num">Q32</span><span class="scat-item-txt">微服务拆分的原则</span></a>
+    </div>
+  </div>
+</aside>
+
+<div class="mc">
+
+<!-- ══════════════════════ cat1 架构与注册中心 -->
+<div class="sec" id="cat1"><span class="sn">01</span> 架构与注册中心 <span class="q-count">Q1–Q8</span></div>
+
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">微服务和单体架构各自适合什么场景？什么时候应该做微服务拆分？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>考察对微服务价值和代价的理性认识，能说出"不是所有系统都适合微服务"是成熟工程师的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>微服务不是银弹，选型要看实际情况：</p>
+      <ul>
+        <li><span class="b">适合单体</span><span>团队人数少（&lt;10人）、业务还在探索期、QPS 低、功能模块没有明显差异化扩容需求。此时单体开发快、部署简单、调试方便，微服务的收益远小于引入的复杂度。</span></li>
+        <li><span class="b">适合微服务</span><span>团队规模较大（20人以上）、各模块发布频率和资源需求差异明显（如订单服务 QPS 高需要扩容，用户服务低）、需要技术栈灵活性、故障隔离要求高的场景。</span></li>
+      </ul>
+      <p>拆分时机判断：当单体出现以下信号时，可以考虑拆分：1）频繁发布冲突（多团队改同一仓库）；2）某模块性能瓶颈需要独立扩容；3）不同模块对技术栈有不同要求；4）系统规模导致构建/启动速度不可接受。</p>
+      <p>拆分原则：按业务域（DDD 限界上下文）拆分，每个服务独享数据库，不要按技术层（DAO/Service/Controller）拆分。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-01-arch.html#mono-vs-micro">单体 vs 微服务</a>
+      <a class="qa-link" href="sc-05-interview.html#q32">微服务拆分原则</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">Spring Cloud 有哪些核心组件？各自的作用是什么？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Spring Cloud 全景是必问开篇题，能快速说清各组件职责并说出现在用 Alibaba 套件而非 Netflix 是基本要求。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>目前主流是 <strong>Spring Cloud Alibaba</strong> 技术栈，对应组件：</p>
+      <table class="tbl">
+        <tr><th>功能</th><th>组件</th><th>一句话说明</th></tr>
+        <tr><td>注册中心 + 配置中心</td><td>Nacos</td><td>服务注册发现 + 集中配置管理，一个组件搞定两件事</td></tr>
+        <tr><td>API 网关</td><td>Spring Cloud Gateway</td><td>统一入口，负责路由、认证、限流、灰度</td></tr>
+        <tr><td>服务调用</td><td>OpenFeign</td><td>声明式 HTTP 客户端，像调本地方法一样调远程服务</td></tr>
+        <tr><td>客户端负载均衡</td><td>Spring Cloud LoadBalancer</td><td>消费方本地根据策略（轮询/权重）选实例</td></tr>
+        <tr><td>限流 &amp; 熔断</td><td>Sentinel</td><td>防止服务雪崩，支持流量控制、熔断降级</td></tr>
+        <tr><td>分布式事务</td><td>Seata</td><td>跨服务数据一致性，AT/TCC/Saga 多模式</td></tr>
+        <tr><td>消息总线</td><td>RocketMQ（Spring Cloud Stream）</td><td>统一消息编程模型，屏蔽底层 MQ 差异</td></tr>
+        <tr><td>链路追踪</td><td>SkyWalking</td><td>分布式调用链可视化，无侵入 Agent 探针</td></tr>
+      </table>
+      <p style="margin-top:8px">已废弃（不要再用）：Hystrix（→ Sentinel）、Ribbon（→ LoadBalancer）、Zuul（→ Gateway）、Eureka（→ Nacos）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-01-arch.html#landscape">组件全景图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">Nacos 注册中心的原理是什么？服务是如何注册和发现的？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>注册中心原理是微服务必问，能说清注册/心跳/推送/本地缓存四个环节是完整回答。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>分四个阶段：</p>
+      <ul>
+        <li><span class="b">① 服务注册</span><span>服务启动时，客户端（Nacos SDK）向 Nacos Server 发送 HTTP 请求，把自己的 IP、端口、服务名、集群名注册到注册中心。</span></li>
+        <li><span class="b">② 心跳保活</span><span>客户端每 5 秒向 Nacos 发一次心跳。Nacos 15 秒未收到心跳标记实例为不健康，30 秒删除实例（临时实例/AP 模式）。</span></li>
+        <li><span class="b">③ 服务发现</span><span>消费方启动时订阅目标服务，本地缓存实例列表。Nacos 2.x 通过 gRPC 长连接主动推送实例变更（毫秒级），同时消费方每 30 秒定时拉取一次兜底。</span></li>
+        <li><span class="b">④ 调用时</span><span>OpenFeign/LoadBalancer 从本地缓存取实例列表，按负载均衡策略选一个实例直接发 HTTP 请求（不经过 Nacos）。</span></li>
+      </ul>
+      <p>Nacos 的数据模型：Namespace（环境隔离）→ Group（业务分组）→ Service（服务名）→ Cluster（机房）→ Instance（具体实例）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-02-register.html#nacos-arch">Nacos 架构原理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">Nacos 的 AP 模式和 CP 模式有什么区别？如何选择？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>AP/CP 是 CAP 定理的落地，能结合 Nacos 临时实例/永久实例说清区别是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Nacos 独特之处在于<span class="kw">同一集群内可以同时支持 AP 和 CP</span>，按实例类型区分：</p>
+      <ul>
+        <li><span class="b">AP 模式（临时实例，默认）</span><span>使用自研 Distro 协议（最终一致性）。服务实例宕机后，Nacos 在心跳超时后自动删除，其他节点仍然可以正常注册和发现服务（优先可用性）。Spring Boot 微服务默认用此模式（<code>ephemeral: true</code>）。</span></li>
+        <li><span class="b">CP 模式（永久实例）</span><span>使用 Raft 协议（强一致性）。Leader 宕机时，整个集群暂停写操作（新注册/注销），直到选出新 Leader，但已有服务列表仍可读。适合需要强一致性的场景（<code>ephemeral: false</code>）。</span></li>
+      </ul>
+      <p><strong>选择建议：</strong>Spring Cloud 微服务选 AP（默认），服务上下线高频，允许短暂不一致（最终会同步），可用性更重要。需要强一致的场景（如底层 DNS 服务注册）选 CP。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-02-register.html#ap-cp">AP vs CP 模式详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">Nacos 和 Eureka 有什么区别？为什么选 Nacos？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>选型对比题，能说出 Nacos 的核心优势（配置中心一体、gRPC 推送、AP/CP 可选）即可。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Nacos</th><th>Eureka</th></tr>
+        <tr><td>配置中心</td><td>✅ 内置，无需额外组件</td><td>❌ 不支持，需单独部署 Spring Cloud Config</td></tr>
+        <tr><td>一致性协议</td><td>AP（Distro）/ CP（Raft）可切换</td><td>AP 仅（最终一致性）</td></tr>
+        <tr><td>推送机制</td><td>gRPC 长连接（Nacos 2.x），毫秒级</td><td>HTTP 长轮询，秒级延迟</td></tr>
+        <tr><td>健康检查</td><td>客户端心跳 + 服务端主动探测</td><td>仅客户端心跳</td></tr>
+        <tr><td>权重/集群</td><td>✅ 支持实例权重、集群就近路由</td><td>❌ 不支持</td></tr>
+        <tr><td>维护状态</td><td>✅ 阿里持续维护</td><td>⚠ Netflix 已停止维护（2022）</td></tr>
+      </table>
+      <p style="margin-top:8px">结论：新项目无脑选 Nacos，Eureka 已经停止维护，且功能远不如 Nacos 丰富。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-02-register.html#compare">Nacos vs Eureka 对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">Nacos 配置中心的动态刷新是如何实现的？@RefreshScope 的原理是什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>配置动态刷新是生产环境常用特性，能说清 @RefreshScope 的原理（Bean 重建）是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>动态刷新的全流程：</strong></p>
+      <ul>
+        <li><span class="b">① 监听</span><span>Nacos 客户端通过长轮询（每 30 秒）向 Nacos Server 检查配置是否变更，Nacos Server 有变更时提前返回响应（Long Polling），客户端立即感知</span></li>
+        <li><span class="b">② 拉取</span><span>客户端收到变更通知后，重新拉取最新配置内容</span></li>
+        <li><span class="b">③ 发布事件</span><span>Nacos SDK 发布 <code>RefreshEvent</code> 到 Spring 的事件总线</span></li>
+        <li><span class="b">④ 刷新上下文</span><span>Spring 的 <code>ContextRefresher</code> 监听到 <code>RefreshEvent</code>，重新加载 <code>Environment</code>，刷新所有 <code>@RefreshScope</code> 标注的 Bean</span></li>
+      </ul>
+      <p><strong>@RefreshScope 原理：</strong>被标注的 Bean 实际上是一个代理对象（Scoped Proxy）。每次访问该 Bean 的方法时，代理会检查 Bean 是否被标记为"需要刷新"。刷新事件触发后，代理会销毁旧的 Bean 实例，下次访问时重新创建（重新注入配置属性）。</p>
+      <pre>@Bean
+@RefreshScope   // 缺少这个注解，配置变更后不会生效
+public SomeService someService(@Value("${some.config}") String config) {
+    return new SomeService(config);
+}</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-02-register.html#config">Nacos 配置中心</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">注册中心挂了，服务还能正常互相调用吗？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>这是考察对注册中心和客户端缓存理解的经典题，很多人不知道"缓存还在、可以继续调用"。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>已有的服务调用不受影响，但有限制。</strong></p>
+      <p>原因：消费方本地有实例列表的缓存（内存中）。注册中心挂了之后：</p>
+      <ul>
+        <li><span class="b">已有调用</span><span>继续正常工作，消费方从本地缓存取实例列表，继续发请求，完全不依赖注册中心</span></li>
+        <li><span class="b">新实例注册</span><span>新服务实例无法注册，注册中心挂了无法接收注册请求</span></li>
+        <li><span class="b">实例下线感知</span><span>注册中心挂了期间，某个实例宕机后消费方无法感知（Nacos 不能推送变更），会继续调用已宕机的实例，导致请求失败（需要重试/熔断兜底）</span></li>
+        <li><span class="b">配置刷新</span><span>Nacos 配置中心也无法推送配置变更，但已有配置不受影响</span></li>
+      </ul>
+      <p>结论：注册中心挂了对正在运行的服务影响有限，但新服务无法接入、故障实例无法快速剔除。所以生产 Nacos 需要集群部署（3 节点）保证高可用。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-02-register.html#health">健康检查机制</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">服务实例如何优雅下线？怎么防止流量丢失？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>优雅下线是生产运维必备，考察对整个发布流程的理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>服务下线如果处理不当，会导致请求发到正在关闭的实例，返回连接拒绝或处理到一半的错误。优雅下线分三步：</p>
+      <ul>
+        <li><span class="b">① 摘除流量</span><span>先通知注册中心（Nacos）下线该实例，Nacos 推送变更给所有消费方，消费方更新本地缓存不再路由到这个实例。等待一个推送传播周期（约 2~5 秒）。</span></li>
+        <li><span class="b">② 等待处理中的请求</span><span>实例继续处理已经到达的请求，等待所有正在处理的请求完成（Spring Boot Graceful Shutdown，配置 <code>server.shutdown=graceful</code>，超时时间 30s）。</span></li>
+        <li><span class="b">③ 关闭进程</span><span>所有请求处理完毕后，正常关闭 JVM 进程，释放数据库连接、消息队列连接等资源。</span></li>
+      </ul>
+      <pre>server:
+  shutdown: graceful   # 开启优雅关闭（Spring Boot 2.3+）
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s   # 等待处理中请求最多 30 秒</pre>
+      <p>消费方侧：配置重试（Retry Filter / Feign 重试），即使遇到瞬间连接失败，能自动切换到其他健康实例重试。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-02-register.html#health">健康检查与下线</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ cat2 网关与服务调用 -->
+<div class="sec" id="cat2"><span class="sn">02</span> 网关与服务调用 <span class="q-count">Q9–Q16</span></div>
+
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">Spring Cloud Gateway 和 Zuul 有什么区别？Gateway 为什么性能更好？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>框架选型对比，核心是理解同步 Servlet 和异步 Reactor 的本质区别。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>核心区别在于<span class="kw">线程模型</span>：</p>
+      <ul>
+        <li><span class="b">Zuul 1.x</span><span>基于 Servlet，同步阻塞模型。每个请求占用一个线程，线程等待 IO 时阻塞。高并发下线程数快速耗尽，吞吐受限于线程池大小。</span></li>
+        <li><span class="b">Gateway</span><span>基于 Spring WebFlux + Project Reactor + Netty，<strong>全异步非阻塞</strong>。少量线程（CPU 核数 × 2）用事件循环处理大量并发请求。IO 等待时线程不阻塞，立即处理其他请求。理论上吞吐是 Zuul 的几倍。</span></li>
+      </ul>
+      <p>另一个区别：Gateway 天然集成 Spring Cloud 生态（负载均衡、Sentinel、Nacos），而 Zuul 2.x 虽然也改成异步，但 Spring 官方未集成，实际上 Zuul 在 Spring Cloud 生态中已经没有位置了。</p>
+      <p><strong>注意</strong>：Gateway 基于响应式编程，Filter 中不能有同步阻塞操作（如同步调 Redis、DB），必须用 Mono/Flux API，否则会阻塞事件循环线程，反而变慢。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#gateway-arch">Gateway 架构详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">Gateway 一次请求的处理流程是什么？Pre Filter 和 Post Filter 的执行顺序？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Gateway Filter 链的执行顺序是面试必问，Pre/Post 是同一 Filter 的两个阶段，很多人答错。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Gateway 处理流程：<strong>请求 → HttpWebHandlerAdapter → DispatcherHandler → RoutePredicateHandlerMapping → FilteringWebHandler（Filter 链）→ 目标服务 → Filter 链（逆向）→ 响应</strong></p>
+      <p>Filter 链的执行顺序：</p>
+      <ul>
+        <li><span class="b">Pre 阶段</span><span>按 <code>@Order</code> 从小到大（优先级高到低）依次执行各 Filter 的 <code>chain.filter(exchange)</code> 之前的逻辑。典型：认证 → 限流 → 日志记录请求</span></li>
+        <li><span class="b">转发请求</span><span>最终的 NettyRoutingFilter 把请求转发到目标服务</span></li>
+        <li><span class="b">Post 阶段</span><span>目标服务响应后，Filter 链<strong>逆向</strong>（Order 从大到小）执行 <code>chain.filter(exchange)</code> 之后的逻辑。典型：添加响应 Header → 记录响应日志</span></li>
+      </ul>
+      <pre>// Pre Filter + Post Filter 在同一个 filter 方法里
+public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    // === Pre 阶段 ===
+    long startTime = System.currentTimeMillis();
+
+    return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+        // === Post 阶段（请求完成后执行）===
+        long elapsed = System.currentTimeMillis() - startTime;
+        log.info("请求耗时: {}ms", elapsed);
+    }));
+}</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#filter">Filter 过滤器链</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">Gateway 如何做统一认证鉴权？JWT 放在哪里验证？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>认证鉴权是每家公司都有的需求，能给出完整的 JWT 在网关验证的方案是工程实践加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>推荐在 Gateway 层做统一认证，而不是每个微服务都做，避免重复代码：</p>
+      <ul>
+        <li><span class="b">认证（Authentication）</span><span>在 Gateway 的全局 Filter（最高优先级）中解析请求的 <code>Authorization: Bearer &lt;jwt&gt;</code>，用公钥验证签名，解析用户 ID、角色等信息，把用户信息写入 Header（如 <code>X-User-Id</code>）传给下游服务。下游服务直接从 Header 读取，不再验证 Token。</span></li>
+        <li><span class="b">鉴权（Authorization）</span><span>粗粒度权限（角色判断：是否是管理员）可以在 Gateway Filter 中做；细粒度权限（是否有权访问某个业务资源）必须在业务服务内部做（Gateway 不了解业务语义）。</span></li>
+        <li><span class="b">白名单</span><span>登录、注册等不需要认证的接口在 Filter 中配置白名单放行。</span></li>
+      </ul>
+      <p>Token 刷新：JWT 通常有较短的过期时间（15 分钟~2 小时），配合 Refresh Token（存 Redis，较长过期）实现无感刷新。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#filter">认证 Filter 示例代码</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">OpenFeign 的底层原理是什么？它和 RestTemplate 有什么区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Feign 底层使用动态代理是必答点，能说出整合 LoadBalancer 和 Sentinel 的过程是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>OpenFeign 核心是<span class="kw">JDK 动态代理</span>：</p>
+      <ul>
+        <li><span class="b">①</span><span>Spring Boot 启动扫描 <code>@FeignClient</code> 接口，为每个接口创建 JDK 动态代理，注册到 Spring 容器</span></li>
+        <li><span class="b">②</span><span>调用 Feign 接口方法时，代理的 invoke 方法执行，解析方法上的注解（<code>@GetMapping</code> 等）构建 HTTP 请求</span></li>
+        <li><span class="b">③</span><span>通过 Spring Cloud LoadBalancer 从 Nacos 获取目标服务实例列表，按负载均衡策略选一个 IP:Port</span></li>
+        <li><span class="b">④</span><span>经过 Sentinel 检查（流控/熔断规则），通过则用 HTTP Client（默认 JDK，推荐 OkHttp3）发起真实请求</span></li>
+        <li><span class="b">⑤</span><span>响应 JSON 由 Jackson 反序列化为返回类型，异常情况进入 fallback</span></li>
+      </ul>
+      <p>与 RestTemplate 的区别：RestTemplate 需要手动拼 URL、手动序列化/反序列化、手动处理异常；Feign 只需写接口声明，代码更简洁，且原生整合 LoadBalancer、Sentinel，无需额外配置。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#feign">OpenFeign 原理详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">Feign 调用超时如何配置？超时和重试有什么需要注意的？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>超时和重试配置是生产必备，能说出非幂等接口不能随意配重试是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <pre>spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:              # 全局默认配置
+            connect-timeout: 2000   # 连接超时 2 秒
+            read-timeout: 5000      # 读超时 5 秒
+          user-service:         # 针对 user-service 单独配置
+            read-timeout: 3000      # user-service 要求 3 秒内返回</pre>
+      <p><strong>重试注意事项：</strong></p>
+      <ul>
+        <li><span class="b">GET 可以重试</span><span>查询类接口是幂等的，失败后重试另一个实例不会有副作用。配置 Feign 的 <code>Retryer</code> 或 Gateway 的 Retry Filter。</span></li>
+        <li><span class="b" style="color:var(--red)">POST/PUT 不能随意重试</span><span>创建订单、支付等操作是非幂等的，重试会产生重复提交。必须先实现幂等性（请求 ID 去重）再考虑重试。</span></li>
+        <li><span class="b">超时 &gt; 链路所有超时之和</span><span>上游超时要大于下游所有超时之和，否则上游超时已触发但下游请求还在执行，浪费资源。</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#retry">超时与重试配置</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">Spring Cloud 的客户端负载均衡有哪些策略？和服务端负载均衡有什么区别？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>客户端负载均衡是 Spring Cloud 区别于传统架构的重要特性，能说清客户端 vs 服务端的区别是基础。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>客户端 vs 服务端负载均衡：</strong></p>
+      <ul>
+        <li><span class="b">服务端负载均衡（Nginx/SLB）</span><span>请求先到负载均衡服务器，由它转发到后端实例。消费方只知道负载均衡的 IP，不知道后端实例列表。引入了一个中间节点，有额外网络 RTT。</span></li>
+        <li><span class="b">客户端负载均衡（LoadBalancer）</span><span>消费方本地持有实例列表，自己选一个实例直接调用。没有中间节点，延迟更低，且可以实现更灵活的策略（如同集群优先）。</span></li>
+      </ul>
+      <p><strong>Spring Cloud LoadBalancer 内置策略：</strong></p>
+      <ul>
+        <li><span class="b">轮询（默认）</span><span>RoundRobinLoadBalancer，依次轮流选实例，适合实例配置相同的场景</span></li>
+        <li><span class="b">随机</span><span>RandomLoadBalancer，随机选一个</span></li>
+        <li><span class="b">Nacos 权重</span><span>NacosLoadBalancer（引入 spring-cloud-starter-alibaba-nacos-discovery），按 Nacos 控制台配置的实例权重分流，权重 0 = 不接收流量（优雅下线）</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#lb">负载均衡策略详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">微服务如何实现灰度发布（金丝雀发布）？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>灰度发布是生产必备的发布策略，能给出两种方案（权重/Header 定向）是工程实践能力的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>灰度发布让新版本先接收少量流量，验证功能和性能，逐步扩大比例。两种常见方案：</p>
+      <ul>
+        <li><span class="b">方案1：比例分流</span><span>Gateway 使用 Weight 断言，旧版本实例注册为 <code>old-group</code>（权重90），新版本实例注册为 <code>new-group</code>（权重10），90% 流量走旧版本，10% 走新版本。通过调整权重逐步放量。</span></li>
+        <li><span class="b">方案2：Header 定向灰度</span><span>Gateway 根据请求 Header（如 <code>X-Version: v2</code> 或 Cookie 中的灰度标识）将特定用户路由到新版本实例。适合内测用户、员工验证场景，精确控制灰度人群。</span></li>
+        <li><span class="b">方案3：Nacos 实例元数据</span><span>新版本实例在 Nacos 注册时打标签（<code>metadata: {version: v2}</code>），自定义 LoadBalancer 根据请求上下文（ThreadLocal 传递的灰度标）选择对应版本实例，实现全链路灰度（Gateway → 服务 A → 服务 B 都走新版本）。</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#retry">灰度发布方案</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">微服务间调用如何传递认证信息（Token/Header）？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>服务间传递 Token 是实际开发高频场景，Feign 拦截器是标准解法。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Gateway 解析 Token 后把用户信息写入 Header（如 <code>X-User-Id</code>），下游服务通过 Feign 调用其他服务时，需要把这些 Header 透传过去。</p>
+      <p>最优雅的方式是实现 Feign 的 <strong>RequestInterceptor</strong>：</p>
+      <pre>@Component
+public class FeignTokenInterceptor implements RequestInterceptor {
+
+    @Override
+    public void apply(RequestTemplate template) {
+        // 从当前请求的 Header 中取出用户 ID，附加到 Feign 请求
+        ServletRequestAttributes attrs = (ServletRequestAttributes)
+            RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            HttpServletRequest request = attrs.getRequest();
+            String userId = request.getHeader("X-User-Id");
+            if (userId != null) {
+                template.header("X-User-Id", userId);
+            }
+            // 也可以传递 Token 本身（如果下游服务需要鉴权）
+            String token = request.getHeader("Authorization");
+            if (token != null) {
+                template.header("Authorization", token);
+            }
+        }
+    }
+}</pre>
+      <p>注意：如果是异步调用（CompletableFuture），<code>RequestContextHolder</code> 是基于 ThreadLocal 的，需要手动传递到子线程（<code>RequestContextHolder.setRequestAttributes(attrs, true)</code>）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-03-gateway.html#feign">OpenFeign 使用</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ cat3 Sentinel -->
+<div class="sec" id="cat3"><span class="sn">03</span> Sentinel 限流熔断 <span class="q-count">Q17–Q24</span></div>
+
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext">什么是服务雪崩？如何防止？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>服务雪崩是微服务最核心的稳定性问题，能给出超时+熔断+限流三层防御是完整回答。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">服务雪崩</span>：在调用链 A→B→C 中，C 响应变慢，B 等待 C 的线程阻塞，线程池耗尽，B 无法处理新请求，A 等待 B 的线程也阻塞……最终整个系统级联崩溃。</p>
+      <p><strong>三层防御体系：</strong></p>
+      <ul>
+        <li><span class="b">超时</span><span>所有远程调用必须设置超时时间（connectTimeout + readTimeout），避免线程无限等待。这是最基础的防御，成本最低。</span></li>
+        <li><span class="b">熔断</span><span>通过 Sentinel 监控调用的错误率/慢调用比例，超过阈值触发熔断，后续请求直接走 fallback 降级，不再真正调用下游。避免大量线程阻塞在下游。经过熔断时间窗口后尝试恢复（Half-Open）。</span></li>
+        <li><span class="b">限流</span><span>通过 Sentinel 对入口 QPS/并发数限流，把超出系统承载能力的请求提前拒绝，防止过载。</span></li>
+      </ul>
+      <p>此外，<strong>仓壁模式（Bulkhead）</strong>：为不同下游服务分配独立线程池，一个下游慢不影响其他下游的线程资源。Sentinel 的并发线程数限制可以实现类似效果。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#avalanche">服务雪崩详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext">Sentinel 的限流算法有哪些？滑动窗口和令牌桶有什么区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>四种限流算法的原理和适用场景是算法 + 工程双重考点，高频出现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>算法</th><th>原理</th><th>优点</th><th>缺点</th><th>适用</th></tr>
+        <tr><td><strong>固定窗口</strong></td><td>统计固定时间窗口（如1秒）内的请求数，超阈值拒绝</td><td>实现简单</td><td>窗口边界突刺（两个窗口交界处可能2倍流量通过）</td><td>精度要求不高</td></tr>
+        <tr><td><strong>滑动窗口（Sentinel默认）</strong></td><td>把时间窗口分成多个小格，统计最近N格的总请求数，平滑统计</td><td>解决边界突刺</td><td>实现较复杂，内存占用略多</td><td>精确流控（Sentinel 默认）</td></tr>
+        <tr><td><strong>令牌桶</strong></td><td>桶以固定速率产生令牌，请求取令牌，桶满则丢弃新令牌，请求取不到令牌则等待或拒绝</td><td>允许突发流量（桶内有积累令牌）</td><td>参数需调优</td><td>允许短时突发（Gateway 限流）</td></tr>
+        <tr><td><strong>漏桶</strong></td><td>请求先进桶，桶以固定速率漏出处理，桶满则拒绝</td><td>强制匀速输出，保护下游</td><td>不允许突发，响应时间增加</td><td>流量整形，均匀输出</td></tr>
+      </table>
+      <p style="margin-top:8px">Sentinel 的"排队等待"效果本质上是漏桶（匀速处理），"快速失败"基于滑动窗口计数。Gateway 的 RequestRateLimiter 使用 Redis 令牌桶（允许一定突发）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#flow">流量控制规则</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext">Sentinel 熔断有哪三种策略？各自的触发条件是什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>三种熔断策略的触发条件和适用场景是必答内容。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">慢调用比例</span><span>在统计时间窗口内，响应时间超过设定 RT（如 500ms）的请求比例超过阈值（如 50%），且请求数达到最小触发数，触发熔断。适合下游服务响应变慢的场景。</span></li>
+        <li><span class="b">异常比例</span><span>在统计时间窗口内，异常请求数占总请求数的比例超过阈值（如 50%），且请求数达到最小触发数，触发熔断。适合下游大量报错的场景。</span></li>
+        <li><span class="b">异常数</span><span>在统计时间窗口内，异常总数超过设定阈值，触发熔断。不按比例，是绝对数量控制。适合流量很低时（比例计算不准），几个异常就应该熔断的场景。</span></li>
+      </ul>
+      <p>熔断后进入 OPEN 状态，经过熔断时间窗口（如 10 秒）后变为 HALF-OPEN，放行一个探测请求：成功则恢复（CLOSED），失败则继续熔断（OPEN）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#degrade">熔断降级规则</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">Sentinel 和 Hystrix 有什么区别？为什么选 Sentinel？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>选型对比题，Hystrix 已经被废弃，能说清 Sentinel 的核心优势即可。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Sentinel</th><th>Hystrix</th></tr>
+        <tr><td>隔离策略</td><td>信号量隔离（并发线程数限制）</td><td>线程池隔离（为每个 Command 开独立线程池）</td></tr>
+        <tr><td>限流</td><td>✅ QPS/并发数限流，支持多种流控效果</td><td>❌ 不支持，只有熔断</td></tr>
+        <tr><td>流控效果</td><td>快速失败 / Warm Up 冷启动 / 排队等待</td><td>仅快速失败</td></tr>
+        <tr><td>熔断策略</td><td>慢调用比例 / 异常比例 / 异常数</td><td>仅异常比例</td></tr>
+        <tr><td>规则动态推送</td><td>✅ 支持（Nacos/ZK/Apollo）</td><td>需要配合 Archaius</td></tr>
+        <tr><td>控制台</td><td>✅ 实时监控，实时下发规则</td><td>Hystrix Dashboard 功能较弱</td></tr>
+        <tr><td>维护状态</td><td>✅ 阿里持续维护，社区活跃</td><td>❌ Netflix 2018 年停止维护</td></tr>
+      </table>
+      <p style="margin-top:8px">结论：Hystrix 已停维，新项目不要用，直接选 Sentinel。Sentinel 功能远比 Hystrix 丰富（多了限流功能），且有配套的 Dashboard 实时管控。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#sentinel-arch">Sentinel 架构原理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">熔断器的三种状态（Closed/Open/Half-Open）是如何转换的？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>熔断器状态机是必答题，是最常见的面试考点之一。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">CLOSED（关闭）</span><span>正常状态，请求正常通过，Sentinel 实时统计指标（错误率/慢调用比例）</span></li>
+        <li><span class="b">CLOSED → OPEN</span><span>统计窗口内，指标超过熔断阈值 → 触发熔断，进入 OPEN 状态</span></li>
+        <li><span class="b">OPEN（断开）</span><span>熔断状态，所有请求直接拒绝（走 fallback），不发起真实调用，保护下游</span></li>
+        <li><span class="b">OPEN → HALF-OPEN</span><span>经过熔断时间窗口（熔断持续时间），进入 HALF-OPEN 状态</span></li>
+        <li><span class="b">HALF-OPEN（半开）</span><span>放行一个探测请求：若成功 → CLOSED（恢复正常）；若失败 → 重新 OPEN（继续熔断）</span></li>
+      </ul>
+      <p>核心设计思路：OPEN 状态防止雪崩（不再请求下游），HALF-OPEN 实现自动恢复（不需要人工介入）。熔断时间窗口设置要合理：太短频繁切换 OPEN/HALF-OPEN，太长恢复太慢影响可用性。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#degrade">熔断器状态机图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">Sentinel 的 Fallback 降级怎么实现？和限流拒绝怎么区分处理？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Fallback 实现和异常区分是开发中实际会遇到的问题，能说清 FlowException/DegradeException 和业务异常的区别是加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>两种方式：</p>
+      <p><strong>方式1：OpenFeign + Sentinel（推荐）</strong></p>
+      <pre>@FeignClient(name = "user-service",
+             fallbackFactory = UserFallbackFactory.class)
+public interface UserFeignClient {
+    @GetMapping("/user/{id}")
+    UserDTO getUser(@PathVariable Long id);
+}
+
+@Component
+public class UserFallbackFactory implements FallbackFactory&lt;UserFeignClient&gt; {
+    @Override
+    public UserFeignClient create(Throwable cause) {
+        if (cause instanceof FlowException) {
+            log.warn("user-service 被限流");
+        } else if (cause instanceof DegradeException) {
+            log.warn("user-service 触发熔断");
+        } else {
+            log.error("user-service 调用异常", cause);
+        }
+        // 返回降级数据
+        return id -> UserDTO.defaultUser(id);
+    }
+}</pre>
+      <p><strong>方式2：@SentinelResource 注解</strong></p>
+      <pre>@SentinelResource(value = "getUserById",
+                  blockHandler = "handleBlock",  // 限流/熔断处理
+                  fallback = "handleFallback")    // 其他异常处理
+public UserDTO getUserById(Long id) { ... }
+
+// 限流/熔断时调用（必须是同类的静态或非静态方法，参数加 BlockException）
+public UserDTO handleBlock(Long id, BlockException e) {
+    return UserDTO.defaultUser(id);
+}
+
+// 业务异常时调用
+public UserDTO handleFallback(Long id, Throwable t) {
+    return UserDTO.defaultUser(id);
+}</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#degrade">Fallback 实现示例</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">Sentinel 的规则如何持久化？重启后规则丢失怎么解决？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>规则持久化是生产必须解决的问题，能说出 Nacos 持久化方案是标准答案。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Sentinel 默认规则存在内存中，重启丢失。生产环境必须配置持久化，主流方案是<span class="kw">整合 Nacos 持久化</span>：</p>
+      <p>架构：规则配置在 Nacos Config → Sentinel Dashboard 读取 Nacos 展示 → Dashboard 修改规则同步回 Nacos → Sentinel 客户端订阅 Nacos 实时更新规则。</p>
+      <pre>spring:
+  cloud:
+    sentinel:
+      datasource:
+        flow:                          # 流控规则
+          nacos:
+            server-addr: localhost:8848
+            namespace: prod
+            group-id: SENTINEL_GROUP
+            data-id: ${spring.application.name}-flow-rules
+            data-type: json
+            rule-type: flow
+        degrade:                       # 熔断规则
+          nacos:
+            server-addr: localhost:8848
+            namespace: prod
+            group-id: SENTINEL_GROUP
+            data-id: ${spring.application.name}-degrade-rules
+            data-type: json
+            rule-type: degrade</pre>
+      <p>规则以 JSON 格式存储在 Nacos，服务订阅监听，有变更自动拉取。即使服务重启，启动时从 Nacos 加载规则，不会丢失。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#sentinel-arch">Sentinel Dashboard 配置</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">什么是热点参数限流？适合什么场景？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>热点参数限流是 Sentinel 的特色功能，能给出秒杀商品的具体场景是工程实践的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">热点参数限流</span>：对同一接口，针对某个<strong>参数的特定值</strong>单独限流，而不是对整个接口 QPS 统一限流。</p>
+      <p><strong>典型场景</strong>：秒杀商品查询接口 <code>GET /product/{productId}</code>。秒杀开始时，某几个热门商品（如 productId = 100, 200）的 QPS 极高，而普通商品 QPS 很低。</p>
+      <p>如果对整个接口限流 1000 QPS，热门商品可能超限被拒绝，但普通商品其实没有压力；如果不限流，热门商品 QPS 可能达到几万把系统打垮。</p>
+      <p>热点参数限流：对 productId = 100 单独限流 5000 QPS，对 productId = 200 单独限流 3000 QPS，对其他 productId 默认限流 200 QPS。精确控制，不影响普通商品的正常访问。</p>
+      <pre>@SentinelResource(value = "getProduct",
+                  blockHandler = "handleHotBlock")
+@GetMapping("/product/{productId}")
+public Product getProduct(@PathVariable Long productId) { ... }
+
+// 在 Sentinel Dashboard 配置：
+// 资源名: getProduct
+// 参数索引: 0 (第一个参数 productId)
+// 单机阈值: 200 QPS
+// 例外项: productId=100 阈值 5000，productId=200 阈值 3000</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#flow">流量控制规则</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ cat4 分布式事务 -->
+<div class="sec" id="cat4"><span class="sn">04</span> 分布式事务与其他 <span class="q-count">Q25–Q32</span></div>
+
+<div class="qa-card" id="q25">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q25</span>
+    <span class="qa-qtext">微服务中为什么需要分布式事务？本地事务为什么解决不了？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>理解分布式事务的必要性是回答 Seata 等方案的基础，能给出具体场景是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>本地事务（数据库 ACID 事务）只能保证单个数据库内的原子性。微服务每个服务有独立的数据库，跨服务的操作分散在不同数据库，数据库事务管理器无法跨越数据库边界。</p>
+      <p><strong>典型场景</strong>：电商下单 = 创建订单（order_db）+ 扣减库存（stock_db）+ 扣减余额（account_db）。三个操作在三个数据库：</p>
+      <ul>
+        <li><span class="b">→</span><span>订单创建成功，库存扣减成功，扣余额时账户不足失败 → 库存被扣了但订单应该回滚 → 数据不一致</span></li>
+        <li><span class="b">→</span><span>订单创建成功，扣库存时网络超时（不知道成功还是失败）→ 是重试还是回滚？无法判断</span></li>
+      </ul>
+      <p>解决方案：Seata（强一致）/ 消息最终一致性（本地消息表 + MQ）/ TCC（柔性事务）。选哪种取决于业务对一致性的要求和对性能的权衡。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#seata">Seata 分布式事务</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q26">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q26</span>
+    <span class="qa-qtext">Seata AT 模式的原理是什么？如何实现回滚？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>AT 模式是 Seata 最常用的模式，能说清 TC/TM/RM 三角色和 undo_log 回滚机制是必答内容。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>三个角色：</strong></p>
+      <ul>
+        <li><span class="b">TC（Transaction Coordinator）</span><span>Seata Server，维护全局事务状态，收集所有 RM 的分支事务结果，决定全局提交或回滚</span></li>
+        <li><span class="b">TM（Transaction Manager）</span><span>事务发起方（加了 <code>@GlobalTransactional</code> 的服务），向 TC 注册全局事务，最终触发提交/回滚</span></li>
+        <li><span class="b">RM（Resource Manager）</span><span>各参与服务，向 TC 注册分支事务，执行本地事务，上报结果</span></li>
+      </ul>
+      <p><strong>AT 模式两阶段：</strong></p>
+      <ul>
+        <li><span class="b">Phase 1</span><span>各服务执行本地事务前，Seata 的 DataSourceProxy 解析 SQL，查询前镜像（before image），执行 SQL，查询后镜像（after image），将前后镜像写入 undo_log 表，提交本地事务，向 TC 注册分支事务</span></li>
+        <li><span class="b">Phase 2（提交）</span><span>所有分支成功，TC 通知各 RM 异步删除 undo_log，全局提交完成</span></li>
+        <li><span class="b">Phase 2（回滚）</span><span>任一分支失败，TC 通知各 RM 用 undo_log 生成逆向 SQL（将数据恢复为 before image）执行，回滚本地事务，删除 undo_log</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#seata">Seata AT 模式详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q27">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q27</span>
+    <span class="qa-qtext">Seata 的 AT、TCC、Saga 三种模式怎么选？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>三种模式的选型判断是实战能力的体现，核心是侵入性 vs 性能的权衡。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>模式</th><th>侵入性</th><th>性能</th><th>一致性</th><th>适用场景</th></tr>
+        <tr><td>AT（默认）</td><td>极低（只加注解）</td><td>中（有全局锁）</td><td>最终一致</td><td>普通数据库操作，大多数业务场景</td></tr>
+        <tr><td>TCC</td><td>高（实现 Try/Confirm/Cancel）</td><td>高（无全局锁）</td><td>最终一致</td><td>性能要求高，可以容忍代码侵入</td></tr>
+        <tr><td>Saga</td><td>高（实现补偿逻辑）</td><td>高</td><td>最终一致</td><td>长流程业务，跨组织事务</td></tr>
+        <tr><td>XA</td><td>低</td><td>低（锁资源时间长）</td><td>强一致</td><td>追求强一致，允许性能损失</td></tr>
+      </table>
+      <p style="margin-top:8px"><strong>选型建议：</strong></p>
+      <ul>
+        <li><span class="b">通常选 AT</span><span>代码侵入最小，大多数场景够用。性能瓶颈出现前不要过度优化。</span></li>
+        <li><span class="b">高并发热点选 TCC</span><span>如秒杀扣减库存，AT 的全局锁竞争严重，TCC 的 Try 阶段预留资源（冻结库存），无全局锁，并发能力更强。</span></li>
+        <li><span class="b">长流程选 Saga</span><span>业务步骤多（5步以上）且每步耗时长，AT 长时间持有全局锁不合适，Saga 每步操作后立即提交，有失败再触发补偿。</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#seata">四种事务模式对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q28">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q28</span>
+    <span class="qa-qtext">不用 Seata，如何保证跨服务的数据最终一致性？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>消息最终一致性是比 Seata 更轻量的方案，在很多场景下是更好的选择，能说清本地消息表模式是高分回答。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>最常用的方案是<span class="kw">消息最终一致性（本地消息表 + 消息队列）</span>：</p>
+      <ul>
+        <li><span class="b">① 本地事务</span><span>在同一数据库事务中，写业务数据 + 写消息表（message_outbox），保证两者原子性</span></li>
+        <li><span class="b">② 轮询发送</span><span>独立的消息发送线程/定时任务，扫描 message_outbox 中未发送的消息，发送到 MQ，发送成功后更新状态为"已发送"</span></li>
+        <li><span class="b">③ 消费者处理</span><span>下游服务消费 MQ 消息，执行对应业务操作，需要保证幂等（消息可能重复投递）</span></li>
+        <li><span class="b">④ 失败重试</span><span>发送失败或消费失败，MQ 重试机制保证最终投递成功</span></li>
+      </ul>
+      <p>适用场景：对一致性要求是"最终一致"（允许秒级延迟），而不是"强一致"（立即一致）。如订单支付成功后通知发货系统、积分系统，不需要实时强一致，用消息异步解耦更合适。</p>
+      <p><strong>优点 vs Seata</strong>：无分布式事务的性能开销，系统解耦，吞吐更高。<br><strong>缺点</strong>：有延迟，不能保证立即一致，业务逻辑要处理幂等。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#seata">分布式事务方案对比</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q29">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q29</span>
+    <span class="qa-qtext">微服务链路追踪是如何实现的？Trace ID 如何在服务间传递？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>链路追踪是微服务可观测性的核心，能说清 Trace ID 传递机制是关键。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>链路追踪核心概念：</p>
+      <ul>
+        <li><span class="b">Trace</span><span>一次完整请求的全链路，由全局唯一 TraceId 标识</span></li>
+        <li><span class="b">Span</span><span>链路中的一个操作单元（一次服务调用、一次 DB 查询），记录开始/结束时间、操作名、结果</span></li>
+      </ul>
+      <p>TraceId 在服务间传递：SkyWalking Agent 通过字节码增强自动拦截 HTTP 调用（Feign、RestTemplate），在请求 Header 中注入 <code>sw8</code> Header（包含 TraceId、SpanId 等），下游 Agent 从 Header 解析，自动关联到同一 Trace。</p>
+      <p>这一切对业务代码透明，只需在启动时挂载 <code>-javaagent:skywalking-agent.jar</code> 即可。</p>
+      <p>日志中打印 TraceId（方便日志查询）：SkyWalking 自动把 TraceId 注入到 MDC（<code>tid</code> 字段），在 logback.xml 的 pattern 中加 <code>%X{tid}</code> 即可。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#tracing">SkyWalking 链路追踪</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q30">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q30</span>
+    <span class="qa-qtext">微服务日志怎么做聚合？分散在各服务的日志如何统一查询？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>日志聚合是运维必备，ELK/EFK 是业界标准方案，考察工程实践经验。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>微服务部署几十个实例，日志分散在各服务器上，必须用日志聚合方案统一查询。主流方案：</p>
+      <p><strong>ELK Stack：</strong>Elasticsearch（存储）+ Logstash（采集/处理）+ Kibana（可视化）</p>
+      <p><strong>EFK Stack（轻量化替代）：</strong>Elasticsearch + Fluentd/Filebeat + Kibana，Filebeat 比 Logstash 资源占用少，适合 K8s 场景。</p>
+      <ul>
+        <li><span class="b">采集</span><span>每个服务节点部署 Filebeat（Sidecar 或 DaemonSet），采集服务日志文件，发送到 Logstash 或直接到 Elasticsearch</span></li>
+        <li><span class="b">处理</span><span>Logstash 解析日志格式（JSON 或正则提取），提取 TraceId、ServiceName、Level 等字段</span></li>
+        <li><span class="b">存储</span><span>结构化日志存入 Elasticsearch，按天/周索引管理，设置 ILM 策略自动清理旧数据</span></li>
+        <li><span class="b">查询</span><span>通过 Kibana 按 TraceId 查全链路日志，按 ServiceName 查特定服务，按 Level=ERROR 查错误日志</span></li>
+      </ul>
+      <p>最佳实践：日志使用 JSON 格式输出，包含 <code>traceId</code>、<code>service</code>、<code>level</code>、<code>timestamp</code>、<code>message</code> 字段，Elasticsearch 自动解析，无需 Logstash 额外处理。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-04-reliability.html#tracing">可观测性体系</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q31">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q31</span>
+    <span class="qa-qtext">微服务接口升级时如何保证向后兼容？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>接口版本管理是多服务协作的必备能力，能给出具体实践规范是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>微服务各服务独立部署，不能假设所有消费方都同时升级。接口升级必须向后兼容：</p>
+      <ul>
+        <li><span class="b">① 新增字段</span><span>请求/响应新增可选字段时，旧消费方不会传/解析这个字段，完全兼容。JSON 序列化天然容忍多余字段（<code>@JsonIgnoreProperties(ignoreUnknown=true)</code>）</span></li>
+        <li><span class="b">② 废弃字段</span><span>先标注 <code>@Deprecated</code>，保留至少一个版本（或一个发布周期），给消费方足够时间升级，再删除</span></li>
+        <li><span class="b">③ 不兼容变更</span><span>修改字段类型、删除字段、修改接口语义这类不兼容变更，必须新建接口版本（<code>/v2/user/{id}</code>），旧接口保留一段时间并行运行，等消费方迁移完毕后下线旧接口</span></li>
+        <li><span class="b">④ 接口契约测试</span><span>引入 Pact 等契约测试框架，消费方和提供方都维护接口契约，CI 中自动验证接口兼容性，防止意外破坏</span></li>
+      </ul>
+      <p>原则：宁可保留废弃接口多一个版本，也不要强制所有消费方同时升级（分布式系统中这是不可能的）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-01-arch.html#design">微服务设计原则</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q32">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q32</span>
+    <span class="qa-qtext">微服务拆分有哪些原则？如何避免拆得太细（过度微服务化）？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>拆分原则是架构设计终极题，能说出"两个披萨原则"和过度拆分的反模式是成熟架构师的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>拆分六大原则：</strong></p>
+      <ul>
+        <li><span class="b">单一职责</span><span>每个服务只负责一个业务域，一个服务被频繁修改多个不相关功能说明职责混乱</span></li>
+        <li><span class="b">DDD 限界上下文</span><span>按业务边界拆，而不是按技术层拆。订单、用户、库存是天然边界</span></li>
+        <li><span class="b">数据库独立</span><span>每个服务只能操作自己的数据库，不允许跨库直接访问</span></li>
+        <li><span class="b">团队自治</span><span>一个服务由一个团队负责。"两个披萨原则"：两个大披萨能喂饱负责这个服务的团队（约 5~8 人）</span></li>
+        <li><span class="b">高内聚低耦合</span><span>服务内部功能紧密相关；服务间只通过 API 交互，不共享代码库</span></li>
+        <li><span class="b">可独立部署</span><span>每个服务能独立构建、测试、部署，不依赖其他服务一起发布</span></li>
+      </ul>
+      <p><strong>过度拆分的反模式（避免）：</strong></p>
+      <ul>
+        <li><span class="b">NanoService</span><span>每个方法一个服务，网络调用比业务逻辑还多，大量分布式事务，维护地狱</span></li>
+        <li><span class="b">技术层拆分</span><span>拆成 DAO 服务、Service 服务、Controller 服务——每次业务操作要跨 3 个服务调用</span></li>
+        <li><span class="b">共享数据库</span><span>多个服务共享同一个库——这是单体数据库，不是微服务</span></li>
+      </ul>
+      <p><strong>拆分的时机判断</strong>：当一个模块的 QPS/资源需求与整体差异明显、多团队频繁在同一模块冲突、需要独立技术栈时，才是拆分的时机。不要提前过度设计。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="sc-01-arch.html#design">微服务设计原则</a>
+    </div></div>
+  </div>
+</div>
+
+</div><!-- /mc -->
+</div><!-- /layout -->
+
+<script>
+function toggleQA(el) {
+  var card = el.closest('.qa-card');
+  card.classList.toggle('open', !card.classList.contains('open'));
+  updateProgress();
+}
+function toggleScat(el) {
+  el.closest('.scat').classList.toggle('open');
+}
+function toggleAll(open) {
+  document.querySelectorAll('.qa-card').forEach(function(c){ c.classList.toggle('open', open); });
+  updateProgress();
+}
+function updateProgress() {
+  var all = document.querySelectorAll('.qa-card').length;
+  var opened = document.querySelectorAll('.qa-card.open').length;
+  var pct = all ? Math.round(opened / all * 100) : 0;
+  document.getElementById('pfill').style.width = pct + '%';
+  document.getElementById('ptxt').textContent = opened + '/' + all;
+}
+function filterByBadge(type) {
+  document.querySelectorAll('.fbtn').forEach(function(b){ b.classList.toggle('active', b.dataset.filter === type); });
+  document.querySelectorAll('.qa-card').forEach(function(card){
+    if (!type) { card.style.display = ''; return; }
+    card.style.display = card.querySelector('.qa-badge.' + type) ? '' : 'none';
+  });
+}
+(function(){
+  var items = document.querySelectorAll('.scat-item');
+  var cards = Array.from(items).map(function(i){ return document.querySelector(i.getAttribute('href')); }).filter(Boolean);
+  function spy(){
+    var top = window.scrollY + 100, cur = cards[0];
+    cards.forEach(function(c){ if(c && c.offsetTop <= top) cur = c; });
+    items.forEach(function(i){ i.classList.toggle('active', i.getAttribute('href') === '#' + (cur && cur.id)); });
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  updateProgress();
+})();
+</script>
+</body>
+</html>

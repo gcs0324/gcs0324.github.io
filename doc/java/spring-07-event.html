@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring 07 · 事件机制 · TransactionSynchronizationManager</title>
+<style>
+header::before{content:'EVENT'}
+
+/* phase badge */
+.phase{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:2px 9px;border-radius:4px;letter-spacing:.04em}
+.phase-commit  {color:var(--green);background:var(--green-bg);border:1px solid var(--green-b)}
+.phase-before  {color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b)}
+.phase-rollback{color:var(--red);background:var(--red-bg);border:1px solid var(--red-b)}
+.phase-after   {color:var(--yellow);background:var(--yellow-bg);border:1px solid var(--yellow-b)}
+
+/* flow steps */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+
+/* warn / tip card */
+.warn{background:var(--yellow-bg);border:1px solid var(--yellow-b);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--tx2);margin:12px 0}
+.warn strong{color:var(--yellow)}
+.tip {background:var(--green-bg);border:1px solid var(--green-b);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--tx2);margin:12px 0}
+.tip  strong{color:var(--green)}
+
+/* comparison grid */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.cmp-col{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:14px}
+.cmp-col-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase}
+.cmp-col-title.blue{color:var(--blue)}
+.cmp-col-title.green{color:var(--green)}
+.cmp-col ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.cmp-col li{font-size:13px;color:var(--tx2);display:flex;gap:6px}
+.cmp-col li::before{content:'·';color:var(--bd);flex-shrink:0;font-size:16px;line-height:1.2}
+
+/* phase table rows */
+.phase-row{padding:10px 0;border-bottom:1px solid var(--bd);display:grid;grid-template-columns:170px 1fr;gap:16px;align-items:start}
+.phase-row:last-child{border-bottom:none}
+.phase-row-desc{font-size:13px;color:var(--tx2)}
+.phase-row-desc strong{color:var(--tx);display:block;margin-bottom:3px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-spring.js"></script>
+
+<header>
+  <div class="htag">SPRING · 07 · EVENT</div>
+  <h1>Spring 事件机制</h1>
+  <p class="subtitle">ApplicationEvent · @EventListener · TransactionSynchronizationManager · @TransactionalEventListener</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#why"><span class="s-link-num">01</span>为什么需要事件机制</a>
+    <a class="s-link" href="#core"><span class="s-link-num">02</span>核心组件与原理</a>
+    <a class="s-link" href="#eventlistener"><span class="s-link-num">03</span>@EventListener 注解</a>
+    <a class="s-link" href="#async"><span class="s-link-num">04</span>异步事件</a>
+    <a class="s-link" href="#tsm"><span class="s-link-num">05</span>TransactionSynchronizationManager</a>
+    <a class="s-link" href="#tel"><span class="s-link-num">06</span>@TransactionalEventListener</a>
+    <a class="s-link" href="#practice"><span class="s-link-num">07</span>实战：业务解耦</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="spring-06-interview.html#event">→ 面试题 Event 章节</a>
+    <a class="s-link" href="spring-01-ioc.html">→ 01 IoC 容器</a>
+    <a class="s-link" href="spring-03-tx.html">→ 03 事务管理</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 为什么需要事件机制 ═══ -->
+    <div class="sec" id="why"><span class="sec-num">01</span>为什么需要事件机制</div>
+
+    <div class="card">
+      <div class="card-title">问题：强耦合的业务代码</div>
+      <p>假设用户注册成功后，需要：发送欢迎邮件、初始化积分账户、推送欢迎消息。直接写在 <code>UserService.register()</code> 里：</p>
+      <pre>public void register(User user) {
+    userDao.save(user);         // 核心业务
+    mailService.sendWelcome();  // 耦合 ①
+    pointService.initAccount(); // 耦合 ②
+    pushService.sendMessage();  // 耦合 ③
+}</pre>
+      <p>问题：每增加一个后续动作都要改 <code>UserService</code>，违反开闭原则；某个下游服务异常会影响注册主流程；无法按需异步执行。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">解决：观察者模式 + Spring Event</div>
+      <p><span class="kw">Spring 事件机制</span>基于观察者模式，将"发生了什么"（Event）和"做什么响应"（Listener）彻底分离：</p>
+      <pre>// 发布者只关心"注册完成"这个事实
+public void register(User user) {
+    userDao.save(user);
+    eventPublisher.publishEvent(new UserRegisteredEvent(user)); // 解耦
+}
+
+// 各模块各自监听，互不感知
+@EventListener
+public void onRegister(UserRegisteredEvent event) { mailService.sendWelcome(); }
+
+@EventListener
+public void onRegister(UserRegisteredEvent event) { pointService.initAccount(); }</pre>
+      <p>核心价值：<span class="kw">发布者不依赖任何监听者</span>；新增功能只需新增 Listener，无需改动发布方。</p>
+    </div>
+
+    <!-- ═══ 02 核心组件与原理 ═══ -->
+    <div class="sec" id="core"><span class="sec-num">02</span>核心组件与原理</div>
+
+    <div class="card">
+      <div class="card-title">四个核心角色</div>
+      <table class="tbl">
+        <tr><th>角色</th><th>接口 / 类</th><th>职责</th></tr>
+        <tr><td>事件</td><td><code>ApplicationEvent</code></td><td>携带事件数据的载体，继承自 <code>EventObject</code>；Spring 4.2+ 支持任意 POJO 作为事件</td></tr>
+        <tr><td>发布者</td><td><code>ApplicationEventPublisher</code></td><td>调用 <code>publishEvent()</code> 发布事件；<code>ApplicationContext</code> 实现了此接口</td></tr>
+        <tr><td>多播器</td><td><code>ApplicationEventMulticaster</code></td><td>容器内部组件，负责将事件路由到所有匹配的监听器；默认实现 <code>SimpleApplicationEventMulticaster</code></td></tr>
+        <tr><td>监听器</td><td><code>ApplicationListener&lt;E&gt;</code> / <code>@EventListener</code></td><td>响应特定类型事件；支持接口和注解两种方式</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">publishEvent() 内部调用链</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">①</div>
+          <div><div class="step-title">调用 publishEvent(event)</div><div class="step-desc"><code>AbstractApplicationContext.publishEvent()</code> 将 POJO 自动包装为 <code>PayloadApplicationEvent</code>（若不是 <code>ApplicationEvent</code> 子类）</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">②</div>
+          <div><div class="step-title">交给 ApplicationEventMulticaster</div><div class="step-desc">调用 <code>multicastEvent(event)</code>，获取所有匹配该事件类型的监听器列表</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">③</div>
+          <div><div class="step-title">判断是否异步</div><div class="step-desc">若多播器配置了 <code>Executor</code>，则每个监听器在线程池中异步调用；否则在调用线程中同步顺序执行</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">④</div>
+          <div><div class="step-title">逐一调用 Listener</div><div class="step-desc">对每个 <code>ApplicationListener</code> 调用 <code>onApplicationEvent()</code>；<code>@EventListener</code> 方法由 <code>EventListenerMethodProcessor</code> 在 Bean 初始化时包装为 <code>ApplicationListenerMethodAdapter</code></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">两种监听方式</div>
+      <pre>// ── 方式一：实现接口（传统，泛型明确类型）──
+@Component
+public class WelcomeMailListener implements ApplicationListener&lt;UserRegisteredEvent&gt; {
+    @Override
+    public void onApplicationEvent(UserRegisteredEvent event) {
+        mailService.sendWelcome(event.getUser());
+    }
+}
+
+// ── 方式二：@EventListener（Spring 4.2+，推荐）──
+@Component
+public class PointListener {
+    @EventListener
+    public void onRegister(UserRegisteredEvent event) {
+        pointService.initAccount(event.getUser());
+    }
+
+    // 同一个方法监听多种事件
+    @EventListener({OrderCreatedEvent.class, OrderPaidEvent.class})
+    public void onOrder(ApplicationEvent event) { ... }
+}</pre>
+    </div>
+
+    <!-- ═══ 03 @EventListener 注解 ═══ -->
+    <div class="sec" id="eventlistener"><span class="sec-num">03</span>@EventListener 注解</div>
+
+    <div class="card">
+      <div class="card-title">条件过滤：condition</div>
+      <p>用 SpEL 表达式过滤，只在特定条件下响应：</p>
+      <pre>@EventListener(condition = "#event.user.vip == true")
+public void onVipRegister(UserRegisteredEvent event) {
+    // 只有 VIP 用户注册时才触发
+    vipService.initVipBenefits(event.getUser());
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">返回值：触发链式事件</div>
+      <p><code>@EventListener</code> 方法可以有返回值，Spring 会将返回值自动发布为新事件，实现事件链：</p>
+      <pre>@EventListener
+public PointInitializedEvent onRegister(UserRegisteredEvent event) {
+    pointService.initAccount(event.getUser());
+    return new PointInitializedEvent(event.getUser()); // 自动发布
+}
+
+@EventListener
+public void onPointInitialized(PointInitializedEvent event) {
+    // 接收链式事件
+    couponService.grantWelcomeCoupon(event.getUser());
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">监听器排序：@Order</div>
+      <p>同一事件有多个监听器时，用 <code>@Order</code> 控制执行顺序（数值越小越先执行）：</p>
+      <pre>@EventListener
+@Order(1)
+public void saveAuditLog(UserRegisteredEvent event) { ... }   // 先执行
+
+@EventListener
+@Order(2)
+public void sendWelcomeMail(UserRegisteredEvent event) { ... } // 后执行</pre>
+      <div class="warn"><strong>⚠ 注意</strong>：<code>@Order</code> 只在同步事件下有意义；异步场景中执行顺序由线程调度决定，无法保证。</div>
+    </div>
+
+    <!-- ═══ 04 异步事件 ═══ -->
+    <div class="sec" id="async"><span class="sec-num">04</span>异步事件</div>
+
+    <div class="card">
+      <div class="card-title">两种异步实现方式</div>
+      <div class="cmp-grid">
+        <div class="cmp-col">
+          <div class="cmp-col-title blue">方式一：@Async + @EventListener</div>
+          <ul>
+            <li>单个监听器异步，其他监听器不受影响</li>
+            <li>需要 <code>@EnableAsync</code> 启用</li>
+            <li>线程池隔离，主线程不阻塞</li>
+            <li>推荐：细粒度控制哪个监听器异步</li>
+          </ul>
+        </div>
+        <div class="cmp-col">
+          <div class="cmp-col-title green">方式二：配置全局异步多播器</div>
+          <ul>
+            <li>所有事件都走异步</li>
+            <li>配置 <code>SimpleApplicationEventMulticaster</code> 的 <code>Executor</code></li>
+            <li>影响 Spring 内置事件（如 Boot 启动事件）</li>
+            <li>慎用：可能破坏框架内部事件顺序</li>
+          </ul>
+        </div>
+      </div>
+
+      <pre>// ── 方式一（推荐）：@Async 修饰单个 Listener ──
+@Component
+public class AsyncMailListener {
+    @Async
+    @EventListener
+    public void onRegister(UserRegisteredEvent event) {
+        // 在独立线程池中执行，不阻塞注册流程
+        mailService.sendWelcome(event.getUser());
+    }
+}
+
+// ── 方式二：全局异步多播器（谨慎使用）──
+@Bean(name = "applicationEventMulticaster")
+public ApplicationEventMulticaster eventMulticaster() {
+    SimpleApplicationEventMulticaster m = new SimpleApplicationEventMulticaster();
+    m.setTaskExecutor(Executors.newFixedThreadPool(4));
+    return m;
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">异步事件的异常处理</div>
+      <div class="warn"><strong>⚠ 陷阱</strong>：<code>@Async</code> 方法中抛出的异常不会传播到调用方，必须配置 <code>AsyncUncaughtExceptionHandler</code>，否则异常会被默默吞掉。</div>
+      <pre>@Configuration
+@EnableAsync
+public class AsyncConfig implements AsyncConfigurer {
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (ex, method, params) -&gt;
+            log.error("Async listener [{}] threw: {}", method.getName(), ex.getMessage(), ex);
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 05 TransactionSynchronizationManager ═══ -->
+    <div class="sec" id="tsm"><span class="sec-num">05</span>TransactionSynchronizationManager</div>
+
+    <div class="card">
+      <div class="card-title">TSM 与事件机制的关系</div>
+      <p><span class="kw">TransactionSynchronizationManager（TSM）</span> 是 Spring 事务体系的 <strong>ThreadLocal 存储中枢</strong>，提供 <code>registerSynchronization()</code> API，允许向当前事务注册生命周期回调——<code>@TransactionalEventListener</code> 的底层正是自动调用此 API 完成的。</p>
+      <pre>// 手动写法（@TransactionalEventListener 的等价底层）
+TransactionSynchronizationManager.registerSynchronization(
+    new TransactionSynchronizationAdapter() {
+        @Override
+        public void afterCommit() {
+            mqProducer.sendOrderCreated(order); // 事务提交后才执行
+        }
+    }
+);</pre>
+      <div class="tip"><strong>完整原理 →</strong> TSM 的 ThreadLocal 内容、全部四个回调时机（beforeCommit / beforeCompletion / afterCommit / afterCompletion）及注意事项，详见
+        <a href="spring-03-tx.html#tsm" style="color:var(--blue)">03 · 事务管理 · §08 TransactionSynchronizationManager</a>。
+      </div>
+    </div>
+
+    <!-- ═══ 06 @TransactionalEventListener ═══ -->
+    <div class="sec" id="tel"><span class="sec-num">06</span>@TransactionalEventListener</div>
+
+    <div class="card">
+      <div class="card-title">什么是 @TransactionalEventListener</div>
+      <p><span class="kw">@TransactionalEventListener</span>（Spring 4.2+）是 <code>@EventListener</code> 的增强版，它将<strong>事件监听与事务生命周期绑定</strong>：只在特定的事务阶段才真正触发监听器，是 TSM 手动注册 <code>TransactionSynchronization</code> 的声明式替代方案。</p>
+      <p>本质：底层仍然调用 <code>TransactionSynchronizationManager.registerSynchronization()</code>，只是由框架自动完成。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">四个 phase 详解</div>
+      <div class="phase-row">
+        <div><span class="phase phase-commit">AFTER_COMMIT</span></div>
+        <div class="phase-row-desc">
+          <strong>事务成功提交后触发（默认值）</strong>
+          最常用。典型场景：发 MQ 消息、清除 Redis 缓存、发送通知邮件。确保只有数据真正落库才执行后续动作，避免数据不一致。
+        </div>
+      </div>
+      <div class="phase-row">
+        <div><span class="phase phase-before">BEFORE_COMMIT</span></div>
+        <div class="phase-row-desc">
+          <strong>事务提交前触发</strong>
+          此时数据尚未提交，仍在事务中。可以在此阶段做额外的校验，或把内存中的数据 flush 到数据库。若抛出异常，事务会回滚。
+        </div>
+      </div>
+      <div class="phase-row">
+        <div><span class="phase phase-rollback">AFTER_ROLLBACK</span></div>
+        <div class="phase-row-desc">
+          <strong>事务回滚后触发</strong>
+          用于补偿操作或告警。例如：订单创建事务回滚后，释放已占用的库存锁、记录失败日志。
+        </div>
+      </div>
+      <div class="phase-row">
+        <div><span class="phase phase-after">AFTER_COMPLETION</span></div>
+        <div class="phase-row-desc">
+          <strong>事务完成后触发（无论提交还是回滚）</strong>
+          用于统一资源清理，如关闭文件句柄、清理临时数据。不关心事务成功与否的场景。
+        </div>
+      </div>
+
+      <pre>// AFTER_COMMIT（默认）：提交成功后发 MQ
+@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+public void onOrderCreated(OrderCreatedEvent event) {
+    mqProducer.sendOrderCreated(event.getOrder());
+}
+
+// BEFORE_COMMIT：提交前校验
+@TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+public void validateBeforeCommit(OrderCreatedEvent event) {
+    if (!inventoryService.checkStock(event.getOrder())) {
+        throw new InsufficientStockException(); // 触发回滚
+    }
+}
+
+// AFTER_ROLLBACK：回滚后补偿
+@TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+public void onOrderFailed(OrderCreatedEvent event) {
+    inventoryService.releaseReservation(event.getOrder());
+    alertService.notifyOrderFailure(event.getOrder().getId());
+}
+
+// AFTER_COMPLETION：统一清理
+@TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+public void cleanup(OrderCreatedEvent event) {
+    tempStorage.remove(event.getOrder().getId());
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">fallbackExecution：无事务时也执行</div>
+      <p>默认情况下，若发布事件时没有激活的事务，<code>@TransactionalEventListener</code> 的监听器<strong>不会被调用</strong>（事件被丢弃）。设置 <code>fallbackExecution = true</code> 可改变此行为：</p>
+      <pre>@TransactionalEventListener(
+    phase = TransactionPhase.AFTER_COMMIT,
+    fallbackExecution = true   // 无事务时也立即执行
+)
+public void onUserRegistered(UserRegisteredEvent event) {
+    mailService.sendWelcome(event.getUser());
+}</pre>
+      <div class="warn"><strong>⚠ 谨慎使用 fallbackExecution</strong>：若方法设计上依赖"数据已提交"这个前提，无事务时立即执行可能读不到预期数据（数据还未写入）。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">@TransactionalEventListener vs TSM 手动注册 对比</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>@TransactionalEventListener</th><th>TSM.registerSynchronization()</th></tr>
+        <tr><td>代码量</td><td>注解声明，极简</td><td>匿名类/Lambda，稍繁琐</td></tr>
+        <tr><td>与业务代码耦合</td><td>Listener 与 Service 完全解耦</td><td>回调代码写在 Service 方法内，有耦合</td></tr>
+        <tr><td>可复用性</td><td>可被多个发布者触发</td><td>每次需要手动注册</td></tr>
+        <tr><td>fallback 支持</td><td>有 <code>fallbackExecution</code> 参数</td><td>需自行判断 <code>isActualTransactionActive()</code></td></tr>
+        <tr><td>适用场景</td><td>通用优先选择</td><td>动态决定是否注册回调、需要细粒度控制时</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 07 实战：业务解耦 ═══ -->
+    <div class="sec" id="practice"><span class="sec-num">07</span>实战：业务解耦</div>
+
+    <div class="card">
+      <div class="card-title">完整示例：用户注册后触发多个动作</div>
+      <pre>// ── 1. 定义事件（POJO 即可，Spring 4.2+ 无需继承 ApplicationEvent）──
+public record UserRegisteredEvent(User user, Instant registeredAt) {}
+
+// ── 2. 发布者：只关心核心业务 ──
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserDao userDao;
+    private final ApplicationEventPublisher publisher;
+
+    @Transactional
+    public void register(UserRegisterDTO dto) {
+        User user = userDao.save(dto.toUser());
+        publisher.publishEvent(new UserRegisteredEvent(user, Instant.now()));
+        // 发布后立即返回，不等待任何监听器
+    }
+}
+
+// ── 3. 监听器们（各自独立，互不感知）──
+
+// 同步监听：积分初始化（需要在同一事务中）
+@Component
+public class PointListener {
+    @EventListener
+    @Order(1)
+    public void initPoint(UserRegisteredEvent e) {
+        pointService.initAccount(e.user().getId());
+    }
+}
+
+// 事务提交后发 MQ（避免事务回滚导致消息误发）
+@Component
+public class MqListener {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async  // 异步，不阻塞
+    public void sendMq(UserRegisteredEvent e) {
+        mqProducer.send("user.registered", e.user().getId());
+    }
+}
+
+// 事务提交后发邮件（异步，容忍延迟）
+@Component
+public class MailListener {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
+    @Order(2)
+    public void sendWelcomeMail(UserRegisteredEvent e) {
+        mailService.sendWelcome(e.user().getEmail());
+    }
+}</pre>
+      <div class="tip"><strong>✅ 最佳实践</strong>：需要在同一事务中执行的操作 → 用 <code>@EventListener</code>（同步）；需要确保数据提交后再执行的操作 → 用 <code>@TransactionalEventListener(AFTER_COMMIT)</code>；耗时操作（邮件、MQ）→ 额外加 <code>@Async</code>。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">常见陷阱汇总</div>
+      <table class="tbl">
+        <tr><th>陷阱</th><th>原因</th><th>解决</th></tr>
+        <tr><td>@TransactionalEventListener 没触发</td><td>发布时没有激活的事务</td><td>加 <code>fallbackExecution=true</code> 或确保在 <code>@Transactional</code> 方法中发布</td></tr>
+        <tr><td>AFTER_COMMIT 里读不到刚写的数据</td><td>在同一事务中读，事务已提交但新连接缓存</td><td>加 <code>@Async</code> 换新线程，或用新事务 <code>REQUIRES_NEW</code></td></tr>
+        <tr><td>@Async 异常被吞掉</td><td>异步线程异常不传播到主线程</td><td>配置 <code>AsyncUncaughtExceptionHandler</code></td></tr>
+        <tr><td>同一 Bean 内 publishEvent 无法触发本 Bean 的 @EventListener</td><td>事件是同步的，不存在代理问题；但若 publishEvent 和 listener 在同一方法调用栈中可能导致栈溢出</td><td>避免在 listener 中再发布同类型事件</td></tr>
+        <tr><td>TSM.registerSynchronization 报 IllegalStateException</td><td>当前线程没有激活的事务</td><td>先调用 <code>isActualTransactionActive()</code> 判断</td></tr>
+      </table>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

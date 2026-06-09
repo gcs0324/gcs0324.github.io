@@ -31,7 +31,7 @@ header::before{content:'SPRING'}
 <header>
   <div class="htag">SPRING · 06 · INTERVIEW</div>
   <h1>Spring 高频面试题</h1>
-  <p class="subtitle">面试官视角 · 口语化回答 · 知识点跳转 — 30 道真题</p>
+  <p class="subtitle">面试官视角 · 口语化回答 · 知识点跳转 — 33 道真题</p>
 </header>
 
 <!-- ── Layout ── -->
@@ -50,7 +50,7 @@ header::before{content:'SPRING'}
     </div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
-      <div class="progress-txt" id="ptxt">0/30</div>
+      <div class="progress-txt" id="ptxt">0/33</div>
     </div>
     <div class="filter-row">
       <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
@@ -241,12 +241,36 @@ header::before{content:'SPRING'}
     </div>
 
 
+    <!-- 分类 06: Event -->
+    <div class="scat" id="scat-event">
+      <div class="scat-head" onclick="toggleScat('scat-event')">
+        <span class="scat-icon">06</span>
+        <span class="scat-label">Event 事件</span>
+        <span class="scat-count">3题</span>
+        <span class="scat-arrow">›</span>
+      </div>
+      <div class="scat-items">
+        <a class="scat-item" href="#q31">
+          <span class="scat-item-num">Q31</span>
+          <span class="scat-item-txt">Spring 事件机制原理</span>
+        </a>
+        <a class="scat-item" href="#q32">
+          <span class="scat-item-num">Q32</span>
+          <span class="scat-item-txt">TransactionSynchronizationManager</span>
+        </a>
+        <a class="scat-item" href="#q33">
+          <span class="scat-item-num">Q33</span>
+          <span class="scat-item-txt">@TransactionalEventListener 四个 phase</span>
+        </a>
+      </div>
+    </div>
+
   </aside><!-- /sidebar -->
 
   <!-- ════════════════════════════════════════ -->
   <!--  MAIN CONTENT — 面试题卡片               -->
   <!-- ════════════════════════════════════════ -->
-  <div class="mcontent">
+  <div class="mc">
 
     <!-- ═══════════════ SECTION 01 IoC/DI ═══════════════ -->
     <div class="sec" id="ioc"><span class="sec-num">01</span> IoC / DI 必背题 <span class="q-count">Q1 – Q8</span></div>
@@ -1087,7 +1111,120 @@ Order1.before → Order2.before → [目标方法] → Order2.after → Order1.a
       </div>
     </div>
 
-  </div><!-- /mcontent -->
+    <!-- ═══════════════ SECTION 06 EVENT ═══════════════ -->
+    <div class="sec" id="event"><span class="sec-num">06</span> Event 事件机制 <span class="q-count">Q31 – Q33</span></div>
+
+    <!-- Q31 -->
+    <div class="qa-card" id="q31">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q31</span>
+        <span class="qa-qtext">Spring 事件机制的原理是什么？@EventListener 和 ApplicationListener 有什么区别？</span>
+        <span class="qa-badge key">重点</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>考察观察者模式的落地理解，以及 Spring 事件驱动解耦的实际应用能力。加分点：说出 <code>ApplicationEventMulticaster</code> 的路由机制，以及 <code>@EventListener</code> 注解的底层实现。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p>Spring 事件机制基于<strong>观察者模式</strong>，核心四角色：</p>
+          <ul>
+            <li><strong>ApplicationEvent</strong>：事件载体，Spring 4.2+ 支持任意 POJO</li>
+            <li><strong>ApplicationEventPublisher</strong>：发布者接口，<code>ApplicationContext</code> 实现了它</li>
+            <li><strong>ApplicationEventMulticaster</strong>：多播器，内部维护所有监听器列表，将事件路由给匹配的监听器；默认实现 <code>SimpleApplicationEventMulticaster</code></li>
+            <li><strong>ApplicationListener / @EventListener</strong>：监听器，响应特定事件</li>
+          </ul>
+          <p><strong>publishEvent() 调用链</strong>：<code>publishEvent()</code> → <code>multicastEvent()</code> → 遍历匹配监听器 → 同步/异步调用 <code>onApplicationEvent()</code>。</p>
+          <p><strong>两种监听方式对比</strong>：</p>
+          <table class="cmp-table">
+            <tr><th>维度</th><th>ApplicationListener 接口</th><th>@EventListener 注解</th></tr>
+            <tr><td>版本</td><td>Spring 早期</td><td>Spring 4.2+</td></tr>
+            <tr><td>写法</td><td>实现接口，泛型指定事件类型</td><td>注解方法，参数类型即事件类型</td></tr>
+            <tr><td>灵活性</td><td>一个类只能监听一种事件</td><td>一个方法可监听多种事件；支持 SpEL 条件过滤</td></tr>
+            <tr><td>返回值</td><td>void</td><td>可返回对象，自动发布为新事件（事件链）</td></tr>
+            <tr><td>推荐</td><td>需要 Spring 3.x 兼容时</td><td>✅ 日常首选</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q32 -->
+    <div class="qa-card" id="q32">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q32</span>
+        <span class="qa-qtext">TransactionSynchronizationManager 是什么？如何用它在事务提交后安全执行操作？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>高频实战题。考察你是否真正理解事务与后续操作（发 MQ、清缓存）的先后关系。能说出 <code>afterCommit()</code> 和 <code>afterCompletion(status)</code> 的区别，是有实际项目经验的体现。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><code>TransactionSynchronizationManager</code> 是 Spring 事务的 <strong>ThreadLocal 存储中枢</strong>，管理当前线程的事务上下文，包括：当前线程绑定的 Connection、是否只读、事务名，以及最关键的——<strong>TransactionSynchronization 回调集合</strong>。</p>
+          <p><strong>核心场景</strong>：在 <code>@Transactional</code> 方法中直接发 MQ 消息，若事务最终回滚，消息已发出，造成数据不一致。正确做法是注册事务同步回调，<strong>确保数据库提交成功后</strong>再发消息：</p>
+          <pre>TransactionSynchronizationManager.registerSynchronization(
+    new TransactionSynchronizationAdapter() {
+        @Override
+        public void afterCommit() {
+            // 此时事务已成功提交，安全发送 MQ
+            mqProducer.send(message);
+        }
+        @Override
+        public void afterCompletion(int status) {
+            if (status == STATUS_ROLLED_BACK) {
+                log.warn("Transaction rolled back, MQ not sent");
+            }
+        }
+    }
+);</pre>
+          <p><strong>四个回调节点</strong>：<code>beforeCommit()</code> → <code>beforeCompletion()</code> → 提交/回滚 → <code>afterCommit()</code>（仅提交时）→ <code>afterCompletion(status)</code>（总是）。</p>
+          <p><strong>注意</strong>：必须先检查 <code>isActualTransactionActive()</code>，否则在无事务上下文时调用 <code>registerSynchronization()</code> 会抛 <code>IllegalStateException</code>。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q33 -->
+    <div class="qa-card" id="q33">
+      <div class="qa-q" onclick="toggleQA(this)">
+        <span class="qa-qnum">Q33</span>
+        <span class="qa-qtext">@TransactionalEventListener 的四个 phase 分别是什么？和直接用 @EventListener 有什么本质区别？</span>
+        <span class="qa-badge hot">高频</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="qa-body">
+        <div class="qa-intent">
+          <div class="qa-intent-lbl">面试官视角</div>
+          <p>考察对事务 + 事件结合的深度理解。能说出默认 phase 是 <code>AFTER_COMMIT</code>、以及 <code>fallbackExecution</code> 参数的含义，属于加分项。</p>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-lbl">参考回答</div>
+          <p><strong>本质区别</strong>：<code>@EventListener</code> 是发布即执行（同步，在同一调用栈中）；<code>@TransactionalEventListener</code> 会将执行时机推迟到<strong>事务的特定生命周期阶段</strong>，底层自动调用 <code>TransactionSynchronizationManager.registerSynchronization()</code>。</p>
+          <p><strong>四个 phase</strong>：</p>
+          <table class="cmp-table">
+            <tr><th>phase</th><th>触发时机</th><th>典型场景</th></tr>
+            <tr><td><code>AFTER_COMMIT</code>（默认）</td><td>事务成功提交后</td><td>发 MQ 消息、清 Redis 缓存、发通知邮件</td></tr>
+            <tr><td><code>BEFORE_COMMIT</code></td><td>事务提交前（数据仍在事务中）</td><td>额外校验、flush 操作；抛异常可触发回滚</td></tr>
+            <tr><td><code>AFTER_ROLLBACK</code></td><td>事务回滚后</td><td>补偿操作、释放预留资源、告警</td></tr>
+            <tr><td><code>AFTER_COMPLETION</code></td><td>事务完成后（提交或回滚都触发）</td><td>统一资源清理，不关心结果</td></tr>
+          </table>
+          <pre>// 最常用：事务提交后发 MQ
+@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+@Async  // 额外加异步，避免阻塞
+public void onOrderCreated(OrderCreatedEvent event) {
+    mqProducer.send("order.created", event.getOrder());
+}</pre>
+          <p><strong>fallbackExecution</strong>：默认为 <code>false</code>——若发布事件时没有激活的事务，监听器<strong>不会执行</strong>（事件被丢弃）。设为 <code>true</code> 则无事务时立即执行，但需注意此时数据库可能尚未持久化。</p>
+          <p>详细原理 →&nbsp;<a href="spring-07-event.html#tel">spring-07-event.html · @TransactionalEventListener</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mc -->
 
 </div><!-- /layout -->
 

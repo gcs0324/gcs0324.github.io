@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Cloud 03 · 网关与服务调用</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'GATEWAY'}
+.note.tip {background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--tx2)}
+.note.good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr}}
+.comp-card{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:13px 15px}
+.comp-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--green);margin-bottom:5px}
+.comp-name.blue{color:var(--blue)}.comp-name.orange{color:var(--orange)}
+.comp-name.purple{color:var(--purple)}.comp-name.red{color:var(--red)}
+.comp-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blue-bg);stroke:var(--blue-b);stroke-width:1.5}
+.dg-box-g{fill:var(--green-bg);stroke:var(--green-b);stroke-width:1.5}
+.dg-box-o{fill:var(--orange-bg);stroke:var(--orange-b);stroke-width:1.5}
+.dg-box-p{fill:var(--purple-bg);stroke:var(--purple-b);stroke-width:1.5}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5}
+.dg-t {fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace}
+.dg-ln   {stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-b {stroke:var(--blue);stroke-width:1.8;fill:none}
+.dg-ln-g {stroke:var(--green);stroke-width:1.8;fill:none}
+.dg-ln-o {stroke:var(--orange);stroke-width:1.8;fill:none}
+.dg-ln-r {stroke:var(--red);stroke-width:1.8;fill:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <marker id="arr"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="rgba(120,140,170,0.7)"/></marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--blue)"/></marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--green)"/></marker>
+    <marker id="arr-o" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--orange)"/></marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--red)"/></marker>
+  </defs>
+</svg>
+<script src="../../shared/nav-sc.js"></script>
+<header>
+  <div class="htag">Spring Cloud · 03 · GATEWAY</div>
+  <h1>网关与服务调用</h1>
+  <p class="sub">Spring Cloud Gateway · 路由与过滤器 · OpenFeign · 负载均衡 · 超时与重试 · 灰度发布</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#gateway-arch"><span class="s-num">01</span>Gateway 核心架构</a>
+    <a class="s-link" href="#route"><span class="s-num">02</span>路由与断言</a>
+    <a class="s-link" href="#filter"><span class="s-num">03</span>Filter 过滤器链</a>
+    <a class="s-link" href="#feign"><span class="s-num">04</span>OpenFeign 原理</a>
+    <a class="s-link" href="#lb"><span class="s-num">05</span>负载均衡策略</a>
+    <a class="s-link" href="#retry"><span class="s-num">06</span>超时、重试与灰度</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="sc-02-register.html">← 上一章：注册中心</a>
+    <a class="s-link" href="sc-04-reliability.html">→ 下一章：可靠性</a>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ══ 01 Gateway 核心架构 -->
+    <div class="sec" id="gateway-arch"><span class="sn">01</span>Spring Cloud Gateway 核心架构</div>
+
+    <div class="card">
+      <div class="ct">Gateway 是什么，解决什么问题</div>
+      <p>API 网关是所有外部请求的<span class="kw">统一入口</span>，把原本各服务自己处理的横切关注点（认证、限流、日志、监控、路由）统一在网关层处理，服务内部只专注业务逻辑。</p>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">网关承担的职责</div>
+          <div class="comp-desc">· 路由转发（按规则转发到对应服务）<br>· 身份认证（JWT 解析 / Token 验证）<br>· 权限校验（角色/资源权限）<br>· 限流（防止服务被打垮）<br>· 请求日志 / 链路 Trace ID 注入<br>· 协议转换（HTTP → gRPC）<br>· 灰度发布 / 金丝雀路由</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">Gateway vs Zuul</div>
+          <div class="comp-desc">Gateway 基于 <strong>Spring WebFlux + Reactor + Netty</strong>，全异步非阻塞，一个线程可以处理大量并发请求，吞吐远高于 Zuul（同步 Servlet 模型）。<br><br>Zuul 2.x 虽然也改用异步，但 Spring 官方未集成，实际生产中 Gateway 已是默认选择。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diag-wrap">
+      <div class="diag-cap">Spring Cloud Gateway 请求处理流程</div>
+      <div class="diag-body">
+        <svg width="660" height="180" viewBox="0 0 660 180">
+          <!-- Client -->
+          <rect x="10" y="70" width="80" height="40" rx="4" class="dg-box"/>
+          <text x="50" y="86" class="dg-t3" font-size="8.5" text-anchor="middle">CLIENT</text>
+          <text x="50" y="100" class="dg-t" font-size="9" text-anchor="middle" font-weight="600">请求</text>
+          <line x1="90" y1="90" x2="110" y2="90" class="dg-ln" marker-end="url(#arr)"/>
+
+          <!-- HttpWebHandlerAdapter -->
+          <rect x="110" y="60" width="120" height="60" rx="4" class="dg-box-b"/>
+          <text x="170" y="82" class="dg-t3" font-size="8" text-anchor="middle">WEB HANDLER</text>
+          <text x="170" y="96" class="dg-blue" font-size="9" text-anchor="middle" font-weight="600">HttpWebHandler</text>
+          <text x="170" y="110" class="dg-t3" font-size="7.5" text-anchor="middle">Adapter</text>
+          <line x1="230" y1="90" x2="250" y2="90" class="dg-ln-b" marker-end="url(#arr-b)"/>
+
+          <!-- Filter Chain -->
+          <rect x="250" y="40" width="240" height="100" rx="4" class="dg-box-g"/>
+          <text x="370" y="58" class="dg-t3" font-size="8.5" text-anchor="middle" letter-spacing=".06em">GLOBAL FILTER CHAIN</text>
+          <!-- filters inside -->
+          <rect x="260" y="65" width="60" height="22" rx="3" class="dg-box"/>
+          <text x="290" y="80" class="dg-t3" font-size="7.5" text-anchor="middle">Auth</text>
+          <rect x="328" y="65" width="60" height="22" rx="3" class="dg-box"/>
+          <text x="358" y="80" class="dg-t3" font-size="7.5" text-anchor="middle">RateLimit</text>
+          <rect x="396" y="65" width="60" height="22" rx="3" class="dg-box"/>
+          <text x="426" y="80" class="dg-t3" font-size="7.5" text-anchor="middle">RouteFilter</text>
+          <line x1="320" y1="76" x2="328" y2="76" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="388" y1="76" x2="396" y2="76" class="dg-ln" marker-end="url(#arr)"/>
+
+          <text x="370" y="108" class="dg-t3" font-size="7.5" text-anchor="middle">路由匹配 → 选目标服务实例</text>
+          <text x="370" y="128" class="dg-green" font-size="8" text-anchor="middle">NettyRoutingFilter（转发）</text>
+          <line x1="490" y1="90" x2="510" y2="90" class="dg-ln-g" marker-end="url(#arr-g)"/>
+
+          <!-- Proxy -->
+          <rect x="510" y="60" width="130" height="60" rx="4" class="dg-box-o"/>
+          <text x="575" y="82" class="dg-t3" font-size="8" text-anchor="middle">HTTP CLIENT</text>
+          <text x="575" y="96" class="dg-orange" font-size="9" text-anchor="middle" font-weight="600">Netty 异步代理</text>
+          <text x="575" y="110" class="dg-t3" font-size="7.5" text-anchor="middle">→ 目标微服务</text>
+
+          <!-- labels -->
+          <text x="170" y="20" class="dg-t3" font-size="7.5" text-anchor="middle">① 接收请求</text>
+          <text x="370" y="20" class="dg-t3" font-size="7.5" text-anchor="middle">② Pre-Filter → 路由匹配 → Post-Filter</text>
+          <text x="575" y="20" class="dg-t3" font-size="7.5" text-anchor="middle">③ 转发 + 响应回写</text>
+          <line x1="170" y1="25" x2="170" y2="60" class="dg-ln-dash"/>
+          <line x1="370" y1="25" x2="370" y2="40" class="dg-ln-dash"/>
+          <line x1="575" y1="25" x2="575" y2="60" class="dg-ln-dash"/>
+
+          <!-- response back -->
+          <line x1="510" y1="105" x2="490" y2="105" class="dg-ln"/>
+          <line x1="250" y1="105" x2="230" y2="105" class="dg-ln"/>
+          <line x1="110" y1="105" x2="90" y2="105" class="dg-ln" marker-end="url(#arr)"/>
+          <text x="340" y="155" class="dg-t3" font-size="8" text-anchor="middle">响应经 Post-Filter 反向处理后返回</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ══ 02 路由与断言 -->
+    <div class="sec" id="route"><span class="sn">02</span>路由配置与断言（Predicate）</div>
+
+    <div class="card">
+      <div class="ct">路由三要素：id / predicates / filters</div>
+      <p>Gateway 的路由配置由三部分组成：<span class="kw">id</span>（唯一标识）、<span class="kw">predicates</span>（断言，决定哪些请求匹配）、<span class="kw">filters</span>（过滤器，对匹配的请求做处理）。</p>
+      <pre>spring:
+  cloud:
+    gateway:
+      routes:
+        - id: order-service-route
+          uri: lb://order-service          # lb:// 表示从 Nacos 负载均衡获取实例
+          predicates:
+            - Path=/api/order/**           # 路径断言：匹配 /api/order/ 开头
+            - Method=GET,POST              # 方法断言
+            - Header=X-Request-Version,v2  # Header 断言
+          filters:
+            - StripPrefix=1                # 去掉路径前缀 /api，转发 /order/**
+            - AddRequestHeader=X-Service-Name, order-service
+            - RequestRateLimiter=...       # 限流过滤器
+
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">常用内置断言（Predicate Factory）</div>
+      <table class="tbl">
+        <tr><th>断言</th><th>示例</th><th>说明</th></tr>
+        <tr><td>Path</td><td><code>- Path=/api/**</code></td><td>最常用，按请求路径匹配（支持 Ant 风格通配符）</td></tr>
+        <tr><td>Method</td><td><code>- Method=GET,POST</code></td><td>按 HTTP 方法匹配</td></tr>
+        <tr><td>Header</td><td><code>- Header=X-Token, \d+</code></td><td>Header 名 + 正则值匹配</td></tr>
+        <tr><td>Query</td><td><code>- Query=version, v2</code></td><td>URL 查询参数匹配（灰度发布常用）</td></tr>
+        <tr><td>Host</td><td><code>- Host=**.example.com</code></td><td>按 Host 域名匹配</td></tr>
+        <tr><td>Weight</td><td><code>- Weight=group1, 80</code></td><td>按权重分流（灰度：80% 旧版 + 20% 新版）</td></tr>
+        <tr><td>Before/After/Between</td><td><code>- After=2024-01-01T00:00:00+08:00</code></td><td>时间范围匹配</td></tr>
+      </table>
+    </div>
+
+    <!-- ══ 03 Filter 链 -->
+    <div class="sec" id="filter"><span class="sn">03</span>Filter 过滤器链</div>
+
+    <div class="card">
+      <div class="ct">Global Filter vs GatewayFilter</div>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">GlobalFilter（全局过滤器）</div>
+          <div class="comp-desc">对所有路由生效，无需在每个路由上配置。通过实现 <code>GlobalFilter</code> 接口自定义：<br><br>
+          · 认证 Filter（解析 JWT，设置用户上下文）<br>
+          · 日志 Filter（记录请求/响应日志）<br>
+          · Trace Filter（注入 TraceId 到 Header）<br><br>
+          用 <code>@Order</code> 或 <code>Ordered</code> 接口控制执行顺序，数字越小优先级越高。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">GatewayFilter（路由过滤器）</div>
+          <div class="comp-desc">只对特定路由生效，在路由配置的 <code>filters</code> 下声明：<br><br>
+          · <code>StripPrefix=1</code>：去掉路径前 1 段<br>
+          · <code>AddRequestHeader</code>：添加请求 Header<br>
+          · <code>AddResponseHeader</code>：添加响应 Header<br>
+          · <code>RewritePath</code>：重写请求路径<br>
+          · <code>RequestRateLimiter</code>：限流（需配 Redis）<br>
+          · <code>Retry</code>：失败重试配置</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">自定义全局认证 Filter 示例</div>
+      <pre>@Component
+@Order(-100)   // 最高优先级，最先执行
+public class AuthGlobalFilter implements GlobalFilter {
+
+    private static final String TOKEN_HEADER = "Authorization";
+    // 白名单：不需要认证的路径
+    private static final List&lt;String&gt; WHITE_LIST = List.of("/api/user/login", "/api/user/register");
+
+    @Override
+    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String path = exchange.getRequest().getPath().value();
+
+        // 白名单放行
+        if (WHITE_LIST.stream().anyMatch(path::startsWith)) {
+            return chain.filter(exchange);
+        }
+
+        // 获取 Token
+        String token = exchange.getRequest().getHeaders().getFirst(TOKEN_HEADER);
+        if (token == null || !token.startsWith("Bearer ")) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        // 解析 JWT，验证合法性
+        try {
+            String userId = JwtUtil.parseUserId(token.substring(7));
+            // 把用户 ID 放入 Header 传给下游服务
+            ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                .header("X-User-Id", userId)
+                .build();
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
+        } catch (Exception e) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+    }
+}</pre>
+    </div>
+
+    <!-- ══ 04 OpenFeign -->
+    <div class="sec" id="feign"><span class="sn">04</span>OpenFeign 原理与使用</div>
+
+    <div class="card">
+      <div class="ct">OpenFeign 是什么？解决了什么痛点？</div>
+      <p>服务间调用最原始的方式是用 <code>RestTemplate</code>，需要手动拼 URL、序列化/反序列化、处理错误。OpenFeign 让你像调用<span class="kw">本地接口一样</span>调用远程服务：</p>
+      <pre>// 1. 定义 Feign 接口（只写接口，不写实现）
+@FeignClient(name = "user-service",   // 对应 Nacos 注册的服务名
+             fallback = UserFeignFallback.class)  // Sentinel 降级
+public interface UserFeignClient {
+
+    @GetMapping("/user/{id}")
+    UserDTO getUserById(@PathVariable("id") Long id);
+
+    @PostMapping("/user/batch")
+    List&lt;UserDTO&gt; getUsersByIds(@RequestBody List&lt;Long&gt; ids);
+}
+
+// 2. 注入使用（像调本地方法）
+@Service
+public class OrderService {
+    @Autowired
+    private UserFeignClient userFeignClient;
+
+    public OrderDetailDTO getOrderDetail(Long orderId) {
+        Order order = orderRepo.findById(orderId).orElseThrow();
+        UserDTO user = userFeignClient.getUserById(order.getUserId()); // 远程调用
+        return OrderDetailDTO.of(order, user);
+    }
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">OpenFeign 的底层原理</div>
+      <p>Feign 的核心是<span class="kw">动态代理</span>：</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">①</div>
+          <div>
+            <div class="step-title">扫描 @FeignClient 接口</div>
+            <div class="step-desc">Spring Boot 启动时，<code>@EnableFeignClients</code> 触发扫描，找到所有 <code>@FeignClient</code> 注解的接口。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">②</div>
+          <div>
+            <div class="step-title">生成动态代理对象</div>
+            <div class="step-desc">Feign 通过 JDK 动态代理为每个接口生成代理类，注册到 Spring IOC 容器。调用接口方法时，实际执行代理的 <code>invoke</code> 方法。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">③</div>
+          <div>
+            <div class="step-title">方法元数据解析</div>
+            <div class="step-desc">代理的 <code>invoke</code> 根据方法上的 <code>@GetMapping</code>/<code>@PostMapping</code> 等注解，构建 HTTP 请求（方法、路径、参数、请求体）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">④</div>
+          <div>
+            <div class="step-title">LoadBalancer 选实例</div>
+            <div class="step-desc">从 Nacos 获取 <code>user-service</code> 的实例列表，Spring Cloud LoadBalancer 按策略（轮询/权重）选一个实例，得到真实的 IP:Port。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">⑤</div>
+          <div>
+            <div class="step-title">发起 HTTP 请求 → 响应反序列化</div>
+            <div class="step-desc">通过 HTTP Client（默认 JDK URLConnection，推荐换成 OkHttp3 或 Apache HttpClient5）发起请求，响应 JSON 通过 Jackson 反序列化成返回类型。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">推荐配置：超时 + OkHttp3 + 日志</div>
+      <pre>spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:                          # 全局配置
+            connect-timeout: 2000           # 连接超时 2s
+            read-timeout: 5000              # 读超时 5s
+            logger-level: BASIC             # NONE/BASIC/HEADERS/FULL
+          user-service:                     # 针对特定服务单独配置
+            read-timeout: 3000
+      httpclient:
+        ok-http:
+          enabled: true                     # 启用 OkHttp3（需引入 feign-okhttp 依赖）
+
+logging:
+  level:
+    com.example.feign: DEBUG                # 开启 Feign 调用日志</pre>
+    </div>
+
+    <!-- ══ 05 负载均衡 -->
+    <div class="sec" id="lb"><span class="sn">05</span>负载均衡策略</div>
+
+    <div class="card">
+      <div class="ct">Spring Cloud LoadBalancer（取代 Ribbon）</div>
+      <p>Spring Cloud 2020.x 起，内置 <span class="kw">Spring Cloud LoadBalancer</span> 作为客户端负载均衡的默认实现，替代了已废弃的 Ribbon。LoadBalancer 从 Nacos 获取服务实例列表后，按策略选择一个实例转发请求。</p>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">RoundRobinLoadBalancer（默认）</div>
+          <div class="comp-desc">轮询策略：按顺序依次选择实例。所有实例权重相同时，流量均匀分布。简单高效，适合实例配置相同的场景。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">RandomLoadBalancer</div>
+          <div class="comp-desc">随机策略：随机选一个实例。在实例数较多时与轮询效果接近，优点是实现简单无状态（轮询需要维护计数器）。</div>
+        </div>
+      </div>
+      <pre>// 自定义负载均衡策略（针对特定服务）
+@Configuration
+@LoadBalancerClient(name = "user-service", configuration = UserLBConfig.class)
+public class GatewayConfig {}
+
+public class UserLBConfig {
+    @Bean
+    public ReactorLoadBalancer&lt;ServiceInstance&gt; randomLB(
+            Environment env, LoadBalancerClientFactory factory) {
+        String name = env.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);
+        return new RandomLoadBalancer(factory.getLazyProvider(name, ServiceInstanceListSupplier.class), name);
+    }
+}</pre>
+      <p style="margin-top:8px">Nacos 的<strong>权重负载均衡</strong>：Nacos 控制台可以调整每个实例的权重（0~1），LoadBalancer 会按权重比例分配流量。权重为 0 时该实例不接收任何流量（优雅下线）。</p>
+    </div>
+
+    <!-- ══ 06 超时重试灰度 -->
+    <div class="sec" id="retry"><span class="sn">06</span>超时、重试与灰度发布</div>
+
+    <div class="card">
+      <div class="ct">Gateway 层的重试配置</div>
+      <pre>spring:
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - name: Retry
+              args:
+                retries: 2                 # 最多重试 2 次（加上首次共 3 次）
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE  # 502/503 时重试
+                methods: GET               # 只对 GET 请求重试（POST 不能轻易重试，可能重复提交）
+                backoff:
+                  firstBackoff: 50ms       # 第一次重试等 50ms
+                  maxBackoff: 500ms        # 最大等待 500ms
+                  factor: 2               # 指数退避倍数</pre>
+      <div class="note warn"><strong>POST/PUT 请求不要配置重试，除非服务实现了幂等性。</strong>非幂等接口重试会导致重复创建订单、重复扣款等严重问题。</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">灰度发布（金丝雀发布）实现方案</div>
+      <p>灰度发布让新版本先接受小比例流量，验证无误后再全量。在 Spring Cloud Gateway 中有两种常见实现：</p>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">Weight 断言分流（简单灰度）</div>
+          <div class="comp-desc">
+            <pre style="margin:8px 0;font-size:11px">routes:
+  - id: order-v1
+    uri: lb://order-service
+    predicates:
+      - Path=/api/order/**
+      - Weight=order-group, 90  # 90% 流量
+  - id: order-v2
+    uri: lb://order-service-v2
+    predicates:
+      - Path=/api/order/**
+      - Weight=order-group, 10  # 10% 灰度</pre>
+          </div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">Header/Cookie 定向灰度</div>
+          <div class="comp-desc">特定用户（内测用户、员工）收到灰度版本：
+            <pre style="margin:8px 0;font-size:11px">routes:
+  - id: order-v2-gray
+    uri: lb://order-service-v2
+    predicates:
+      - Path=/api/order/**
+      - Header=X-Gray-User, true
+    # 灰度用户请求头带 X-Gray-User: true
+    # 其余用户走默认路由（order-v1）</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note good"><strong>Gateway 性能调优要点：</strong><br>
+    · 基于 WebFlux/Netty，不要在 Filter 中做同步阻塞操作（如同步调用 Redis/DB），必须用响应式 API（<code>Mono/Flux</code>）<br>
+    · 限流过滤器（RequestRateLimiter）需要 Redis 支撑，确保 Redis 高可用<br>
+    · 大流量场景下适当调大 Netty 的 workerThreads（默认 CPU 核数 × 2）</div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.s-link[href^="#"]');
+  var secs=Array.from(links).map(function(l){return document.querySelector(l.getAttribute('href'));}).filter(Boolean);
+  function spy(){var top=window.scrollY+80,cur=secs[0];secs.forEach(function(s){if(s.offsetTop<=top)cur=s;});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur.id);});}
+  window.addEventListener('scroll',spy,{passive:true});
+})();
+</script>
+</body>
+</html>

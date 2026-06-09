@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/interview-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MySQL 05 · 高频面试题 32 道</title>
+<style>
+:root{--accent-color:var(--blue);--accent-bg:var(--blue-bg);--accent-b:var(--blue-b)}
+header::before{content:'MYSQL'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-mysql.js"></script>
+<header>
+  <div class="htag">MySQL · 05 · INTERVIEW</div>
+  <h1>MySQL 高频面试题</h1>
+  <p class="sub">面试官视角 · 口语化回答 · 知识点跳转 — 32 道真题</p>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="s-header">
+    <span class="s-title">题目分类</span>
+    <div class="s-actions">
+      <button class="s-btn" onclick="toggleAll(true)">全展开</button>
+      <button class="s-btn" onclick="toggleAll(false)">全收起</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-txt" id="ptxt">0/32</div>
+  </div>
+  <div class="filter-row">
+    <button class="fbtn active" data-filter="" onclick="filterByBadge('')">全部</button>
+    <button class="fbtn" data-filter="hot" onclick="filterByBadge('hot')">🔥 高频</button>
+    <button class="fbtn" data-filter="key" onclick="filterByBadge('key')">⭐ 重点</button>
+  </div>
+  <div class="s-div"></div>
+
+  <div class="scat open" id="sc1">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">01</span>
+      <span class="scat-label">索引原理</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q1"><span class="scat-item-num">Q1</span><span class="scat-item-txt">B+树 vs B树 vs 跳表</span></a>
+      <a class="scat-item" href="#q2"><span class="scat-item-num">Q2</span><span class="scat-item-txt">聚簇索引 vs 非聚簇索引</span></a>
+      <a class="scat-item" href="#q3"><span class="scat-item-num">Q3</span><span class="scat-item-txt">覆盖索引与回表</span></a>
+      <a class="scat-item" href="#q4"><span class="scat-item-num">Q4</span><span class="scat-item-txt">联合索引最左前缀</span></a>
+      <a class="scat-item" href="#q5"><span class="scat-item-num">Q5</span><span class="scat-item-txt">索引失效场景</span></a>
+      <a class="scat-item" href="#q6"><span class="scat-item-num">Q6</span><span class="scat-item-txt">ORDER BY 走不走索引</span></a>
+      <a class="scat-item" href="#q7"><span class="scat-item-num">Q7</span><span class="scat-item-txt">ICP 与 MRR</span></a>
+      <a class="scat-item" href="#q8"><span class="scat-item-num">Q8</span><span class="scat-item-txt">索引设计原则</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="sc2">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">02</span>
+      <span class="scat-label">InnoDB 架构</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q9"><span class="scat-item-num">Q9</span><span class="scat-item-txt">Buffer Pool 结构与 LRU</span></a>
+      <a class="scat-item" href="#q10"><span class="scat-item-num">Q10</span><span class="scat-item-txt">Redo Log 原理与 WAL</span></a>
+      <a class="scat-item" href="#q11"><span class="scat-item-num">Q11</span><span class="scat-item-txt">Binlog vs Redo Log</span></a>
+      <a class="scat-item" href="#q12"><span class="scat-item-num">Q12</span><span class="scat-item-txt">两阶段提交 2PC</span></a>
+      <a class="scat-item" href="#q13"><span class="scat-item-num">Q13</span><span class="scat-item-txt">Undo Log 与 MVCC</span></a>
+      <a class="scat-item" href="#q14"><span class="scat-item-num">Q14</span><span class="scat-item-txt">UPDATE 完整执行流程</span></a>
+      <a class="scat-item" href="#q15"><span class="scat-item-num">Q15</span><span class="scat-item-txt">Doublewrite 解决什么问题</span></a>
+      <a class="scat-item" href="#q16"><span class="scat-item-num">Q16</span><span class="scat-item-txt">Change Buffer 适用场景</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="sc3">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">03</span>
+      <span class="scat-label">事务与锁</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q17"><span class="scat-item-num">Q17</span><span class="scat-item-txt">ACID 各靠什么实现</span></a>
+      <a class="scat-item" href="#q18"><span class="scat-item-num">Q18</span><span class="scat-item-txt">四种隔离级别区别</span></a>
+      <a class="scat-item" href="#q19"><span class="scat-item-num">Q19</span><span class="scat-item-txt">MVCC ReadView 机制</span></a>
+      <a class="scat-item" href="#q20"><span class="scat-item-num">Q20</span><span class="scat-item-txt">RR 下幻读解决了吗</span></a>
+      <a class="scat-item" href="#q21"><span class="scat-item-num">Q21</span><span class="scat-item-txt">快照读 vs 当前读</span></a>
+      <a class="scat-item" href="#q22"><span class="scat-item-num">Q22</span><span class="scat-item-txt">Next-Key Lock 加锁规则</span></a>
+      <a class="scat-item" href="#q23"><span class="scat-item-num">Q23</span><span class="scat-item-txt">死锁原因与排查</span></a>
+      <a class="scat-item" href="#q24"><span class="scat-item-num">Q24</span><span class="scat-item-txt">长事务的危害</span></a>
+    </div>
+  </div>
+
+  <div class="scat open" id="sc4">
+    <div class="scat-head" onclick="toggleScat(this)">
+      <span class="scat-icon">04</span>
+      <span class="scat-label">性能调优</span>
+      <span class="scat-count">8题</span>
+      <span class="scat-arrow">▶</span>
+    </div>
+    <div class="scat-items">
+      <a class="scat-item" href="#q25"><span class="scat-item-num">Q25</span><span class="scat-item-txt">EXPLAIN 关键字段解读</span></a>
+      <a class="scat-item" href="#q26"><span class="scat-item-num">Q26</span><span class="scat-item-txt">慢查询分析流程</span></a>
+      <a class="scat-item" href="#q27"><span class="scat-item-num">Q27</span><span class="scat-item-txt">JOIN 优化思路</span></a>
+      <a class="scat-item" href="#q28"><span class="scat-item-num">Q28</span><span class="scat-item-txt">深分页 LIMIT 优化</span></a>
+      <a class="scat-item" href="#q29"><span class="scat-item-num">Q29</span><span class="scat-item-txt">count(*) 哪种最快</span></a>
+      <a class="scat-item" href="#q30"><span class="scat-item-num">Q30</span><span class="scat-item-txt">主从复制延迟排查</span></a>
+      <a class="scat-item" href="#q31"><span class="scat-item-num">Q31</span><span class="scat-item-txt">分库分表方案选型</span></a>
+      <a class="scat-item" href="#q32"><span class="scat-item-num">Q32</span><span class="scat-item-txt">数据库高可用架构</span></a>
+    </div>
+  </div>
+</aside>
+
+<div class="mc">
+
+<!-- ══════════════════════════════════════ cat1 索引原理 -->
+<div class="sec" id="cat1"><span class="sn">01</span> 索引原理 <span class="q-count">Q1–Q8</span></div>
+
+<div class="qa-card" id="q1">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q1</span>
+    <span class="qa-qtext">MySQL 为什么用 B+树做索引？和 B树、跳表相比有什么优势？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>数据结构基础 + 磁盘 IO 模型的理解，能说出"IO 次数"和"范围查询"两个核心原因就能拿分，再说出为什么非叶节点不存数据会加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>B+树选择的核心原因是<span class="kw">最小化磁盘 IO 次数</span>。</p>
+      <ul>
+        <li><span class="b">vs B树</span><span>B树非叶节点既存 key 又存 data，导致每个节点能存的 key 数少，树更高，IO 次数多。B+树非叶节点只存 key 不存 data，同样 16 KB 的页能放更多 key，树更矮（3 层 B+树能索引千万行），IO 次数更少。此外 B+树所有叶节点用双向链表相连，范围查询只需在叶层顺序扫描，B树要回溯，效率差很多。</span></li>
+        <li><span class="b">vs 跳表</span><span>跳表是链表结构，物理上不连续，磁盘 IO 代价高（每次跳跃可能跨页）。B+树页内连续，一次 IO 读入整页，局部性好。跳表在内存结构（Redis ZSet）中表现优秀，不适合磁盘存储引擎。</span></li>
+        <li><span class="b">vs Hash 索引</span><span>Hash 只支持等值查询，不支持范围查询和 ORDER BY，无法用于 LIKE 'xxx%'，InnoDB 不支持显式 Hash 索引（仅 AHI 是内部自动管理的）。</span></li>
+      </ul>
+      <p>一句话总结：B+树矮胖（减少 IO 层次）+ 叶链表（高效范围扫描），完美契合磁盘数据库的访问模式。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#btree">B+树结构详解</a>
+      <a class="qa-link" href="mysql-01-index.html#cluster">聚簇索引</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q2">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q2</span>
+    <span class="qa-qtext">聚簇索引和非聚簇索引的区别？为什么 InnoDB 建议用自增主键？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>聚簇索引概念本身是基础，能答出为什么用自增主键（页分裂问题）是进阶加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">聚簇索引</span>（Clustered Index）：索引的叶节点直接存放整行数据，数据行的物理顺序和索引顺序一致。InnoDB 每张表必须有且只有一个聚簇索引，默认用主键。</p>
+      <p><span class="kw">二级索引</span>（Secondary Index / 非聚簇索引）：叶节点存的是主键值而非行数据。通过二级索引找到主键后，再去聚簇索引查完整行，这一步叫<strong>回表</strong>。</p>
+      <p><strong>为什么推荐自增主键：</strong></p>
+      <ul>
+        <li><span class="b">①</span><span>自增 ID 顺序插入，新行永远追加到 B+树最右边叶节点，<strong>不会触发页分裂</strong>，写入性能好。</span></li>
+        <li><span class="b">②</span><span>UUID 或随机主键的插入位置随机，频繁导致已满页分裂成两个半满页，浪费空间 + 降低写性能。</span></li>
+        <li><span class="b">③</span><span>自增 ID 占 4~8 字节，二级索引叶节点存储主键值时更紧凑；UUID 36 字节，所有二级索引都变大。</span></li>
+      </ul>
+      <p>如果业务必须用业务 ID（如雪花 ID），选择趋势递增的方案（Snowflake、UUID v7）而非完全随机的 UUID v4。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#cluster">聚簇索引 vs 二级索引</a>
+      <a class="qa-link" href="mysql-01-index.html#split">页分裂问题</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q3">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q3</span>
+    <span class="qa-qtext">什么是覆盖索引？如何用它消除回表？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>覆盖索引是索引优化最常用的手段，面试中能结合 EXPLAIN Extra 字段（Using index）说明识别方法会大加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>当 <code>SELECT</code> 需要的所有列（包括 WHERE、ORDER BY、SELECT 列表中的列）都包含在某个索引里，MySQL 就能直接从索引叶节点返回数据，<strong>不需要回表</strong>，这叫<span class="kw">覆盖索引（Covering Index）</span>。</p>
+      <p>识别方式：EXPLAIN 的 <code>Extra</code> 列显示 <code>Using index</code>（不是 Using index condition）。</p>
+      <pre>-- 表：orders(id PK, user_id, status, amount, created_at)
+-- 索引：idx_user_status(user_id, status)
+
+-- 查询1：需回表（amount 不在索引中）
+SELECT amount FROM orders WHERE user_id=1 AND status=1;
+
+-- 查询2：覆盖索引（只查 user_id 和 status，都在索引里）
+SELECT user_id, status FROM orders WHERE user_id=1 AND status=1;
+-- → Extra: Using index
+
+-- 优化方案：若经常查 amount，可建联合索引覆盖它
+CREATE INDEX idx_cover ON orders(user_id, status, amount);</pre>
+      <p>注意：覆盖索引不是一种特殊索引类型，而是查询能被索引"覆盖"的状态，是联合索引的常见优化技巧。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#cover">覆盖索引详解</a>
+      <a class="qa-link" href="mysql-05-interview.html#q25">EXPLAIN 解读</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q4">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q4</span>
+    <span class="qa-qtext">联合索引的最左前缀原则是什么？哪些情况会导致部分失效？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>高频考点，核心是能说清联合索引的排序方式，以及范围条件之后的列为何失效。能答出"索引跳跃扫描"（MySQL 8.0+）是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>联合索引 <code>(a, b, c)</code> 的 B+树按 a 排序，a 相同时按 b 排序，b 相同时按 c 排序。查询只有从最左列开始，索引才能定位范围。</p>
+      <table class="tbl">
+        <tr><th>查询条件</th><th>索引使用情况</th><th>原因</th></tr>
+        <tr><td>WHERE a=1 AND b=2 AND c=3</td><td>✅ 全部用到</td><td>完整最左前缀</td></tr>
+        <tr><td>WHERE a=1 AND b=2</td><td>✅ 用到 a,b</td><td>前缀匹配</td></tr>
+        <tr><td>WHERE a=1</td><td>✅ 用到 a</td><td>前缀匹配</td></tr>
+        <tr><td>WHERE b=2 AND c=3</td><td>❌ 失效</td><td>跳过 a，无法定位</td></tr>
+        <tr><td>WHERE a=1 AND c=3</td><td>⚠ 仅用 a</td><td>b 中断，c 无法用</td></tr>
+        <tr><td>WHERE a&gt;1 AND b=2</td><td>⚠ a 范围，b 失效</td><td>a 是范围条件，之后的列无序</td></tr>
+        <tr><td>WHERE a=1 AND b LIKE 'x%'</td><td>✅ a,b 均用</td><td>前缀 LIKE 等同范围，b 后无更多列时没影响</td></tr>
+      </table>
+      <p style="margin-top:8px"><strong>关键原则：范围条件（&gt;、&lt;、BETWEEN、LIKE 'x%'）之后的列无法继续走索引。</strong>设计联合索引时，等值条件的列放前面，范围条件的列放最后。</p>
+      <p>MySQL 8.0 新增<strong>索引跳跃扫描（Index Skip Scan）</strong>：在某些情况下可以跳过最左列，但代价较高，有限制条件（最左列 distinct 值少时才触发），不能依赖。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#composite">联合索引详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q5">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q5</span>
+    <span class="qa-qtext">哪些情况会导致索引失效？如何避免？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>索引失效场景是每次 MySQL 面试必问，要能列举 5+ 场景并说明原因。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>失效场景</th><th>示例</th><th>原因</th></tr>
+        <tr><td>对索引列做函数运算</td><td><code>WHERE YEAR(create_time)=2024</code></td><td>函数改变了列值，索引是原始值排序，找不到</td></tr>
+        <tr><td>对索引列做运算</td><td><code>WHERE id + 1 = 10</code></td><td>同上，应写成 <code>id = 9</code></td></tr>
+        <tr><td>隐式类型转换</td><td>phone 是 VARCHAR，<code>WHERE phone=13800000000</code>（数字）</td><td>MySQL 把字符串转数字，相当于对列做了函数</td></tr>
+        <tr><td>LIKE 前缀通配</td><td><code>WHERE name LIKE '%abc'</code></td><td>前缀未知，无法定位，只有 <code>LIKE 'abc%'</code> 能走索引</td></tr>
+        <tr><td>OR 连接非索引列</td><td><code>WHERE a=1 OR b=2</code>（b 无索引）</td><td>b 无法走索引，全表扫描</td></tr>
+        <tr><td>NOT IN / NOT EXISTS</td><td><code>WHERE id NOT IN (1,2,3)</code></td><td>优化器通常不选索引，成本评估问题</td></tr>
+        <tr><td>IS NULL / IS NOT NULL</td><td><code>WHERE col IS NULL</code></td><td>视数据分布而定，NULL 占比高时可能走索引</td></tr>
+        <tr><td>全表扫描代价更低</td><td>返回行数 &gt;30% 时</td><td>优化器基于代价选择，回表代价超过全表扫描</td></tr>
+      </table>
+      <p style="margin-top:8px">避免策略：不对索引列做函数/运算；字段类型与参数类型保持一致；LIKE 尽量走前缀；用 EXPLAIN 验证是否走索引。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#invalid">索引失效场景</a>
+      <a class="qa-link" href="mysql-05-interview.html#q25">EXPLAIN 验证</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q6">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q6</span>
+    <span class="qa-qtext">ORDER BY 一定会走索引吗？什么情况会产生 filesort？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>ORDER BY 与索引是综合考点，很多人只知道"走索引就不排序"，但不知道什么条件下才走。能说出 filesort 的两种算法是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>ORDER BY 能走索引的前提：ORDER BY 的列要<span class="kw">和索引的排序方向完全匹配</span>，且 WHERE 的等值条件要在联合索引中位于 ORDER BY 列之前。</p>
+      <table class="tbl">
+        <tr><th>场景（索引 idx(a,b)）</th><th>是否走索引</th></tr>
+        <tr><td>WHERE a=1 ORDER BY b</td><td>✅ 走，b 在 a 确定后有序</td></tr>
+        <tr><td>WHERE a=1 ORDER BY b DESC</td><td>✅ 走（反向扫描）</td></tr>
+        <tr><td>ORDER BY a, b</td><td>✅ 走，和索引顺序一致</td></tr>
+        <tr><td>WHERE a&gt;1 ORDER BY b</td><td>❌ filesort，a 是范围，b 不连续有序</td></tr>
+        <tr><td>ORDER BY a ASC, b DESC</td><td>❌ filesort，方向不一致（8.0 支持降序索引可解决）</td></tr>
+        <tr><td>ORDER BY 非索引列</td><td>❌ filesort</td></tr>
+      </table>
+      <p style="margin-top:8px"><strong>filesort 两种算法</strong>（EXPLAIN Extra 显示 <code>Using filesort</code>）：</p>
+      <ul>
+        <li><span class="b">单路</span><span>把 SELECT 的所有列都放入 sort_buffer 排序，直接输出，省一次回表，但占内存多</span></li>
+        <li><span class="b">双路</span><span>sort_buffer 只放排序列+主键，排好序后再回表取其他列，内存用量少但多一次 IO</span></li>
+      </ul>
+      <p>当 sort_buffer_size 不够时，MySQL 分批排序后用磁盘归并（<code>Using filesort</code> + 临时文件），性能大幅下降。调大 <code>sort_buffer_size</code> 可缓解，但更根本的是设计合适的联合索引消除 filesort。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#orderby">ORDER BY 与索引</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q7">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q7</span>
+    <span class="qa-qtext">ICP（索引条件下推）和 MRR（多范围回表读）分别解决了什么问题？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>ICP 和 MRR 是 MySQL 5.6 引入的两个重要优化，能说出各自针对的问题场景说明对索引执行过程有深刻理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>ICP（Index Condition Pushdown，索引条件下推）</strong>：</p>
+      <p>原来：引擎只负责定位索引，WHERE 中非定位列的过滤条件由 Server 层在回表取到完整行后才执行，每行都要回表。</p>
+      <p>ICP 后：<span class="kw">把 WHERE 中能用索引列判断的条件下推到引擎层</span>，在读索引叶节点时就先过滤，减少回表次数。EXPLAIN Extra 显示 <code>Using index condition</code>。</p>
+      <pre>-- 索引 idx(age, name)，查询：WHERE age BETWEEN 20 AND 30 AND name LIKE 'a%'
+-- 无 ICP：按 age 范围扫描索引，每条都回表，Server 层再过滤 name
+-- 有 ICP：在索引层就检查 name LIKE 'a%'，不满足的直接跳过，不回表</pre>
+      <p style="margin-top:10px"><strong>MRR（Multi-Range Read Optimization，多范围回表读）</strong>：</p>
+      <p>回表时，二级索引叶节点的主键值顺序和 .ibd 文件中数据的物理顺序不一致，导致大量<span class="kw">随机 IO</span>。MRR 的做法：<strong>先收集所有需要回表的主键值，按主键排序后批量回表</strong>，把随机 IO 变成顺序 IO。EXPLAIN Extra 显示 <code>Using MRR</code>。</p>
+      <p>MRR 在返回行数多时效果显著，少量行时额外排序开销可能得不偿失，MySQL 会根据代价决定是否启用。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#icp">ICP 详解</a>
+      <a class="qa-link" href="mysql-01-index.html#mrr">MRR 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q8">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q8</span>
+    <span class="qa-qtext">如何设计索引？给一个订单表说说你会建哪些索引？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放式实战题，考察对业务理解和索引权衡的综合判断，没有标准答案，重点是说清楚决策依据。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>索引设计五步法：</p>
+      <ul>
+        <li><span class="b">①</span><span><strong>分析查询场景</strong>：梳理高频 SQL 的 WHERE/ORDER BY/GROUP BY 列</span></li>
+        <li><span class="b">②</span><span><strong>选择性优先</strong>：选择区分度高的列建索引（用 <code>SELECT COUNT(DISTINCT col)/COUNT(*)</code> 衡量）</span></li>
+        <li><span class="b">③</span><span><strong>联合索引合并</strong>：多个查询共用字段时建联合索引，遵循最左前缀，等值列靠前，范围列靠后</span></li>
+        <li><span class="b">④</span><span><strong>覆盖索引优先</strong>：高频查询能否不回表？把 SELECT 列加入索引</span></li>
+        <li><span class="b">⑤</span><span><strong>控制索引数量</strong>：每增一个索引，写入时多维护一棵 B+树。索引不是越多越好，通常单表不超过 5 个</span></li>
+      </ul>
+      <p>以订单表 <code>orders(id, user_id, merchant_id, status, amount, created_at)</code> 为例：</p>
+      <pre>-- 场景1：用户查自己的订单列表，按时间倒序，支持状态筛选
+CREATE INDEX idx_user_status_time ON orders(user_id, status, created_at);
+-- WHERE user_id=? AND status=? ORDER BY created_at DESC → 全走索引，无 filesort
+
+-- 场景2：商家查自己店铺的订单
+CREATE INDEX idx_merchant_time ON orders(merchant_id, created_at);
+
+-- 场景3：运营后台按时间范围统计金额（全量分析，少量，不建索引或用分析型 DB）</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-01-index.html#design">索引设计实战</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ cat2 InnoDB 架构 -->
+<div class="sec" id="cat2"><span class="sn">02</span> InnoDB 架构 <span class="q-count">Q9–Q16</span></div>
+
+<div class="qa-card" id="q9">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q9</span>
+    <span class="qa-qtext">Buffer Pool 的作用？LRU 为什么要分成 young/old 两区？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Buffer Pool 是 InnoDB 性能核心，能说清改良 LRU 的"缓存污染"问题是深度理解的标志。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Buffer Pool 是 InnoDB 的内存页缓存，所有读写都先经过内存（默认页 16 KB）。命中率直接决定磁盘 IO 次数，生产环境应保持 &gt;99%。</p>
+      <p><strong>为什么改良 LRU：</strong>全表扫描或 mysqldump 会把大量"只读一次"的冷页塞入 LRU 头部，把真正的热页挤出，叫<span class="kw">缓存污染</span>。</p>
+      <p><strong>解法</strong>：把 LRU 分成 young 区（前 5/8）和 old 区（后 3/8）：</p>
+      <ul>
+        <li><span class="b">新页</span><span>读入时先插到 old 区头部（midpoint insertion），不直接进 young 区</span></li>
+        <li><span class="b">晋升</span><span>只有在 old 区停留超过 1 秒（<code>innodb_old_blocks_time=1000</code>）后再次被访问，才移到 young 区头部</span></li>
+        <li><span class="b">效果</span><span>全表扫描读入的页在 old 区一扫而过，1 秒内没有第二次访问，永远不进 young 区，热数据缓存不受影响</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#bp">Buffer Pool 深度</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q10">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q10</span>
+    <span class="qa-qtext">Redo Log 是什么？WAL 原理是什么？innodb_flush_log_at_trx_commit 三个值怎么选？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>WAL 是 InnoDB 最核心的设计，三个 flush 值的选择是生产配置题，考察对数据安全和性能权衡的理解。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Redo Log 解决的问题：InnoDB 无法在每次写操作后立即把脏页刷回磁盘（随机 IO 慢、写放大严重），所以用<span class="kw">顺序写日志代替随机写磁盘</span>。</p>
+      <p><span class="kw">WAL（Write-Ahead Logging）</span>：先把"做了什么修改"顺序追加到 redo log，再修改内存页。只要 redo log 落盘，事务就算提交成功，脏页可以之后批量刷盘。崩溃后 redo log 重放，数据不丢。</p>
+      <p>Redo log 是<strong>物理日志</strong>（记录某页某偏移量写了什么字节），循环覆盖固定文件，顺序 IO。</p>
+      <table class="tbl">
+        <tr><th>innodb_flush_log_at_trx_commit</th><th>行为</th><th>数据安全</th><th>适用</th></tr>
+        <tr><td>0</td><td>每秒刷一次（后台线程）</td><td>⚠ 崩溃丢 ≤1s</td><td>允许少量丢失的场景</td></tr>
+        <tr><td>1（默认）</td><td>每次提交都 fsync 到磁盘</td><td>✅ 不丢数据</td><td>生产金融/订单类</td></tr>
+        <tr><td>2</td><td>提交写 OS cache，每秒 fsync</td><td>⚠ OS 崩溃丢 ≤1s</td><td>非关键业务</td></tr>
+      </table>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#redo">Redo Log 原理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q11">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q11</span>
+    <span class="qa-qtext">Binlog 和 Redo Log 有什么区别？各自的用途是什么？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>两套日志的对比是面试必问题，核心要说清：所属层、日志类型、写入方式、用途四个维度。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Binlog</th><th>Redo Log</th></tr>
+        <tr><td>所属层</td><td>MySQL Server 层，引擎无关</td><td>InnoDB 存储引擎层</td></tr>
+        <tr><td>日志类型</td><td>逻辑日志（SQL 语句 or 行前后镜像）</td><td>物理日志（页偏移量+字节内容）</td></tr>
+        <tr><td>写入方式</td><td>追加写，不循环，文件 rotate</td><td>循环覆盖，固定大小</td></tr>
+        <tr><td>主要用途</td><td>主从复制 · PITR 时间点恢复 · 数据订阅</td><td>Crash Recovery 崩溃恢复</td></tr>
+        <tr><td>写入时机</td><td>事务提交时统一 flush</td><td>事务执行中持续追加</td></tr>
+      </table>
+      <p style="margin-top:8px">两者通过<strong>两阶段提交（2PC）</strong>协作，保证数据一致性：redo log prepare → binlog flush → redo log commit。</p>
+      <p>Binlog 三种格式：<code>STATEMENT</code>（原始 SQL，可能主从不一致）、<code>ROW</code>（行前后镜像，精确，生产推荐）、<code>MIXED</code>（自动切换）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#binlog">Binlog 日志详解</a>
+      <a class="qa-link" href="mysql-02-innodb.html#redo">Redo Log 原理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q12">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q12</span>
+    <span class="qa-qtext">两阶段提交（2PC）是怎么保证 Redo Log 和 Binlog 一致的？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>2PC 是 InnoDB 最精妙的设计之一，能说清"为什么需要 2PC"和 Crash Recovery 的判断规则，是区分中级和高级的分水岭。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>为什么需要 2PC：</strong>Redo log（InnoDB）和 Binlog（Server）是两套独立系统。若没有协调：写了 redo 但崩溃在写 binlog 前，主库 crash 恢复后有数据，但 binlog 里没记录，从库会丢这次更新 → 主从不一致。</p>
+      <p><strong>2PC 流程：</strong></p>
+      <ul>
+        <li><span class="b">第一阶段</span><span>InnoDB 写 redo log，标记为 <code>prepare</code> 状态，fsync 到磁盘</span></li>
+        <li><span class="b">第二阶段</span><span>Server 层写 binlog 到文件并 fsync</span></li>
+        <li><span class="b">完成</span><span>InnoDB 把 redo log 标记为 <code>commit</code> 状态，释放行锁</span></li>
+      </ul>
+      <p><strong>Crash Recovery 判断规则：</strong>重启时扫描 redo log，找到 prepare 状态的事务，去 binlog 里查对应的 XID 是否存在：</p>
+      <ul>
+        <li><span class="b">存在</span><span>binlog 已写入 → 提交事务（redo log 标记 commit）</span></li>
+        <li><span class="b">不存在</span><span>binlog 未写入 → 回滚事务</span></li>
+      </ul>
+      <p>这保证了无论在哪个时刻崩溃，redo log 和 binlog 最终都是一致的。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#update">UPDATE 流程与 2PC</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q13">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q13</span>
+    <span class="qa-qtext">Undo Log 有什么用？MVCC 是如何实现的？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>MVCC 是 InnoDB 最复杂的特性，能说清版本链和 ReadView 四字段的考生属于上层水平。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Undo Log 是<span class="kw">逻辑日志</span>，记录"如何把修改回滚回去"，有两个独立用途：</p>
+      <ul>
+        <li><span class="b">回滚</span><span>事务执行中每次修改前把原始值写入 undo log，回滚时按 undo log 逆向恢复</span></li>
+        <li><span class="b">MVCC</span><span>每次 UPDATE 产生新版本，旧版本留在 undo log，通过 <code>DB_ROLL_PTR</code> 指针串成<strong>版本链</strong></span></li>
+      </ul>
+      <p><strong>MVCC 读的过程</strong>：快照读时创建（或复用）ReadView，包含四字段：</p>
+      <ul>
+        <li><span class="b">m_ids</span><span>创建时所有活跃事务 ID 列表</span></li>
+        <li><span class="b">min_trx_id</span><span>m_ids 最小值</span></li>
+        <li><span class="b">max_trx_id</span><span>下一个待分配事务 ID</span></li>
+        <li><span class="b">creator_trx_id</span><span>当前事务自身 ID</span></li>
+      </ul>
+      <p>对每行记录的 <code>DB_TRX_ID</code>，按规则判断可见性：小于 min_trx_id 可见；大于等于 max_trx_id 不可见；在中间看是否在 m_ids 里。不可见则沿版本链找上一版本。整个过程<strong>不加锁</strong>。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#undo">Undo Log 原理</a>
+      <a class="qa-link" href="mysql-03-transaction.html#mvcc">MVCC 版本链</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q14">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q14</span>
+    <span class="qa-qtext">一条 UPDATE 语句的完整执行流程是什么？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>这道题能把 InnoDB 所有核心机制串联起来，是综合能力的终极考验。能按步骤完整说出并说清每步的作用即可拿满分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>以 <code>UPDATE orders SET status=2 WHERE id=1001</code> 为例，完整 9 步：</p>
+      <ul>
+        <li><span class="b">①</span><span>Parser 词法/语法分析，Optimizer 生成执行计划（选主键索引）</span></li>
+        <li><span class="b">②</span><span>Executor 权限校验，调用 InnoDB handler API</span></li>
+        <li><span class="b">③</span><span>InnoDB 查 Buffer Pool，命中直接用；未命中从 .ibd 读入 16 KB 页</span></li>
+        <li><span class="b">④</span><span>对该行加 X 锁（Record Lock 或 Next-Key Lock）</span></li>
+        <li><span class="b">⑤</span><span>写 undo log（记录原始值，用于回滚和 MVCC 版本链）</span></li>
+        <li><span class="b">⑥</span><span>修改 Buffer Pool 内存页，标记 dirty，加入 flush 链表</span></li>
+        <li><span class="b">⑦</span><span>写 redo log（prepare 状态），从 log buffer 写入 redo log file 并 fsync，这是 2PC 第一阶段</span></li>
+        <li><span class="b">⑧</span><span>Server 层写 binlog cache，flush 到 binlog 文件并 fsync，2PC 第二阶段</span></li>
+        <li><span class="b">⑨</span><span>redo log 标记 commit，释放行锁；脏页由 Page Cleaner 异步刷盘，与事务提交无关</span></li>
+      </ul>
+      <p>整个流程的安全保证：redo log 保证 crash recovery，binlog 保证主从一致，2PC 保证两者一致，doublewrite 防止刷盘时 partial write。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#update">UPDATE 执行流程图</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q15">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q15</span>
+    <span class="qa-qtext">Doublewrite Buffer 解决了什么问题？为什么 redo log 无法直接解决？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>能说清"partial write 问题"和"为什么 redo log 不够"是真正理解 InnoDB 写路径的标志。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><span class="kw">Partial Write（部分写）</span>问题：InnoDB 页 16 KB，OS 文件系统块 4 KB，刷一个页需要写 4 次。断电发生在中途时，.ibd 里的页会损坏（一半新一半旧）。</p>
+      <p><strong>为什么 redo log 无法单独解决：</strong>redo log 记录的是增量变更（某偏移量写了什么字节），apply 的前提是原始页是完整且正确的。损坏的页无法 apply redo log，会产生错误结果。</p>
+      <p><strong>Doublewrite 的解法：</strong></p>
+      <ul>
+        <li><span class="b">①</span><span>刷脏页前，先把这批页顺序写入 ibdata1 的 doublewrite 区（顺序 IO，代价小），fsync</span></li>
+        <li><span class="b">②</span><span>再把页写入 .ibd 各自的位置（随机 IO）；此时崩溃 .ibd 里页损坏，但 doublewrite 区有完整备份</span></li>
+        <li><span class="b">③</span><span>Crash Recovery 时，发现 .ibd 页损坏（checksum 失败），用 doublewrite 区的备份还原，再 apply redo log</span></li>
+      </ul>
+      <p>代价是约 5%~10% 的写放大，使用 ZFS/Btrfs 等支持原子写的文件系统可以关闭。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#dw">Doublewrite Buffer</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q16">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q16</span>
+    <span class="qa-qtext">Change Buffer 是干什么的？什么场景下适用，什么场景下不适用？</span>
+    <span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>Change Buffer 的适用场景经常被误解，能说清"写后立即读"场景反而有害，是深度理解的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>Change Buffer 缓存对<span class="kw">不在 Buffer Pool 里的非唯一二级索引页</span>的修改，避免写入时把该页从磁盘读入（省一次随机 IO）。等到该页被其他操作读入 Buffer Pool 时，再把缓存的修改合并（merge）进去。</p>
+      <p><strong>只有非唯一二级索引</strong>能用：唯一索引需要立即读入页验证唯一性，无法缓存；主键（聚簇索引）不适用。</p>
+      <p><strong>适用场景：写多读少</strong>，如日志写入、批量数据导入，写入后长时间不读，merge 压力小。</p>
+      <p><strong>不适用场景：写后立即读</strong>，如电商下单后立即查询该订单，merge 频繁触发，change buffer 的好处完全抵消，还增加了 merge 开销，反而不如直接读入页。此时应考虑减小 <code>innodb_change_buffer_max_size</code> 或直接关闭。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-02-innodb.html#cb">Change Buffer 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ cat3 事务与锁 -->
+<div class="sec" id="cat3"><span class="sn">03</span> 事务与锁 <span class="q-count">Q17–Q24</span></div>
+
+<div class="qa-card" id="q17">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q17</span>
+    <span class="qa-qtext">ACID 四个特性在 InnoDB 中分别靠什么实现？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>ACID 是事务面试必问开篇题，能对应到具体机制（undo/redo/mvcc/锁）而不是泛泛而谈，是加分项。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>特性</th><th>含义</th><th>InnoDB 实现机制</th></tr>
+        <tr><td>Atomicity 原子性</td><td>事务要么全成功，要么全回滚</td><td>Undo Log：事务回滚时按 undo log 逆向恢复每条记录</td></tr>
+        <tr><td>Consistency 一致性</td><td>事务前后数据满足所有约束</td><td>是目标，靠其他三者共同保证 + 数据库约束（外键/唯一键）</td></tr>
+        <tr><td>Isolation 隔离性</td><td>并发事务互不干扰</td><td>MVCC（快照读无锁隔离）+ 锁机制（当前读串行化）</td></tr>
+        <tr><td>Durability 持久性</td><td>提交的事务不会因崩溃丢失</td><td>Redo Log + WAL + 两阶段提交</td></tr>
+      </table>
+      <p style="margin-top:8px">记忆口诀：<strong>原子靠 undo，持久靠 redo，隔离靠 MVCC + 锁，一致是结果</strong>。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#acid">ACID 与隔离级别</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q18">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q18</span>
+    <span class="qa-qtext">四种隔离级别分别解决了什么问题？生产中用 RC 还是 RR？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>隔离级别必问，能说清 RC vs RR 的生产选型理由（锁粒度、binlog 格式限制）是高分回答。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>隔离级别</th><th>脏读</th><th>不可重复读</th><th>幻读</th></tr>
+        <tr><td>READ UNCOMMITTED</td><td style="color:var(--red)">✗ 有</td><td style="color:var(--red)">✗ 有</td><td style="color:var(--red)">✗ 有</td></tr>
+        <tr><td>READ COMMITTED（RC）</td><td>✅ 无</td><td style="color:var(--red)">✗ 有</td><td style="color:var(--red)">✗ 有</td></tr>
+        <tr><td>REPEATABLE READ（RR，默认）</td><td>✅ 无</td><td>✅ 无</td><td>⚠ 部分有</td></tr>
+        <tr><td>SERIALIZABLE</td><td>✅ 无</td><td>✅ 无</td><td>✅ 无</td></tr>
+      </table>
+      <p style="margin-top:8px"><strong>RC vs RR 选型：</strong></p>
+      <ul>
+        <li><span class="b">RR</span><span>MySQL 默认，MVCC 保证可重复读，Gap Lock 减少幻读，binlog 三种格式均可。适合大多数场景。</span></li>
+        <li><span class="b">RC</span><span>无 Gap Lock，锁粒度更小，并发更高，死锁概率更低。但<strong>必须配合 ROW 格式 binlog</strong>（RC + STATEMENT 会导致主从不一致，MySQL 会报错）。互联网高并发 OLTP 场景（电商、社交）很多团队选 RC。</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#acid">隔离级别详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q19">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q19</span>
+    <span class="qa-qtext">RC 和 RR 在 MVCC ReadView 上有什么区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>这是 MVCC 最精华的考点，区别就在 ReadView 生成时机，能用一句话说清楚就满分了。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>核心区别只有一条：<span class="kw">ReadView 的创建时机不同</span>。</p>
+      <ul>
+        <li><span class="b">RC</span><span>每次执行 SELECT 都创建一个新的 ReadView。因此每次 SELECT 都能看到该 SELECT 执行前已提交的最新数据，同一事务内两次读同一行可能结果不同（不可重复读）。</span></li>
+        <li><span class="b">RR</span><span>同一事务内第一次执行 SELECT 时创建 ReadView，后续所有 SELECT 都复用这同一个 ReadView，整个事务看到的数据快照不变（可重复读）。</span></li>
+      </ul>
+      <pre>-- RR 可重复读示意
+BEGIN;
+SELECT age FROM t WHERE id=1;  -- 第一次 SELECT，创建 ReadView，得到 age=25
+-- 此时另一事务把 age 改成 30 并提交
+SELECT age FROM t WHERE id=1;  -- 复用同一 ReadView，仍得到 age=25（可重复读）
+
+-- RC 不可重复读示意
+BEGIN;
+SELECT age FROM t WHERE id=1;  -- 创建 ReadView，得到 age=25
+-- 另一事务提交 age=30
+SELECT age FROM t WHERE id=1;  -- 新 ReadView，得到 age=30（不可重复读）</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#mvcc">MVCC 版本链图解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q20">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q20</span>
+    <span class="qa-qtext">RR 隔离级别下幻读真的被完全解决了吗？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>很多人答"RR 用 Gap Lock 解决了幻读"——这个答案只对一半。能说出"快照读 + 当前读混用"仍会产生幻读是真正的加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>没有完全解决。</strong>分三种情况：</p>
+      <ul>
+        <li><span class="b">纯快照读</span><span>同一事务多次普通 SELECT，MVCC 复用同一 ReadView，不会出现幻行 → ✅ 无幻读</span></li>
+        <li><span class="b">纯当前读</span><span>UPDATE/SELECT FOR UPDATE 加 Next-Key Lock 锁住行和间隙，阻止并发插入 → ✅ 无幻读</span></li>
+        <li><span class="b" style="color:var(--red)">快照读+当前读混用</span><span>先普通 SELECT（不加锁），另一事务 INSERT + COMMIT，再 UPDATE（当前读，能看到新行，更新成功）→ <strong>❌ 幻读出现</strong></span></li>
+      </ul>
+      <pre>-- 幻读复现（RR 级别）
+BEGIN;
+SELECT * FROM t WHERE age&gt;20;     -- 快照读，返回 2 行，不加锁
+-- 事务 B: INSERT INTO t VALUES(3,25); COMMIT;
+UPDATE t SET name='x' WHERE age&gt;20;  -- 当前读，扫到 3 行（含 B 插入的行），更新 3 行！
+SELECT * FROM t WHERE age&gt;20;     -- 此时也看到 3 行（自己修改了 B 的行使其可见）</pre>
+      <p><strong>根本防范</strong>：读后写的业务场景，SELECT 就应该用 <code>FOR UPDATE</code>，一开始就加 Next-Key Lock 阻止并发插入。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#snapshot">快照读 vs 当前读</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q21">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q21</span>
+    <span class="qa-qtext">快照读和当前读的区别？哪些操作触发当前读？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>快照读/当前读是理解 MVCC 和锁的基础概念，能列出触发当前读的所有语句是基本要求。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">快照读</span><span>基于 MVCC ReadView 读 undo log 版本链，读<strong>某个历史快照</strong>，不加锁，并发无阻塞。触发：<strong>普通 SELECT</strong>（不加任何锁关键字）。</span></li>
+        <li><span class="b">当前读</span><span>读<strong>最新已提交版本</strong>，加锁阻止其他事务并发修改。触发：
+          <code>SELECT ... FOR UPDATE</code>（加 X 锁）、
+          <code>SELECT ... LOCK IN SHARE MODE</code>（加 S 锁）、
+          <code>UPDATE</code>、<code>DELETE</code>、<code>INSERT</code>（隐式 X 锁）、
+          <code>INSERT ... ON DUPLICATE KEY UPDATE</code>
+        </span></li>
+      </ul>
+      <p>实际影响：同一行，快照读可能看到旧版本，当前读一定看到最新版本。在同一事务中混用两者时要特别注意，可能产生意外的幻读（见 Q20）。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#snapshot">快照读 vs 当前读</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q22">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q22</span>
+    <span class="qa-qtext">Record Lock、Gap Lock、Next-Key Lock 分别是什么？RC 和 RR 加锁有什么区别？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>InnoDB 行锁类型是事务考点必问，能说清 Next-Key Lock 的区间定义和 RC 无 Gap Lock 是核心。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <ul>
+        <li><span class="b">Record Lock</span><span>锁住索引树上的<strong>单个叶节点</strong>（一条具体记录）。精确匹配（<code>WHERE id=5</code>）时加此锁。RC 和 RR 都有。</span></li>
+        <li><span class="b">Gap Lock</span><span>锁住两个索引值之间的<strong>开区间间隙</strong>，只阻止在该间隙内 INSERT，不阻止读。<strong>仅 RR 级别有</strong>，RC 没有 Gap Lock，并发写入能力更强。</span></li>
+        <li><span class="b">Next-Key Lock</span><span>= Record Lock + 左侧 Gap Lock，锁住<strong>左开右闭区间</strong>。InnoDB 的默认行锁类型。例如 id 有值 (3, 7, 10)，对 id=7 的 Next-Key Lock 锁住 (3, 7]。</span></li>
+      </ul>
+      <p><strong>RC vs RR 加锁对比：</strong>RC 只有 Record Lock（仅锁已有行），RR 有完整的 Next-Key Lock（锁行 + 锁间隙），所以 RR 下死锁概率更高但幻读更少。无索引的 UPDATE 在 RC 下锁全表所有行，RR 下锁全表所有行和所有间隙，两者都很危险，需确保 WHERE 命中索引。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#locks">锁的分类体系</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q23">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q23</span>
+    <span class="qa-qtext">死锁是如何产生的？InnoDB 如何检测和处理？如何避免？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>死锁是每家公司都会遇到的生产问题，能给出排查命令和实际避免方案是工程实战加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>死锁产生</strong>：多个事务以<span class="kw">不同顺序</span>请求同一组资源，形成循环等待。典型场景：事务 A 持有 id=1 的锁等 id=2，事务 B 持有 id=2 的锁等 id=1。</p>
+      <p><strong>InnoDB 检测</strong>：维护 wait-for graph（等待图），节点是事务，有向边是等待关系，检测到环即死锁。选代价最小（undo log 最少）的事务作为受害者自动回滚，报错 <code>1213 Deadlock found</code>。</p>
+      <pre>-- 查看最近一次死锁
+SHOW ENGINE INNODB STATUS\G;
+-- 找 LATEST DETECTED DEADLOCK 段，看每个事务 HOLDS 什么锁、等待什么锁</pre>
+      <p><strong>避免策略：</strong></p>
+      <ul>
+        <li><span class="b">①</span><span><strong>固定加锁顺序</strong>：多事务操作同一组行，约定按 id 从小到大顺序，消灭循环等待</span></li>
+        <li><span class="b">②</span><span><strong>缩短事务</strong>：持锁时间越短，与其他事务冲突概率越低</span></li>
+        <li><span class="b">③</span><span><strong>索引优化</strong>：避免全表扫描触发大范围加锁</span></li>
+        <li><span class="b">④</span><span><strong>业务重试</strong>：捕获 1213 错误，自动重试事务（指数退避）</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#deadlock">死锁检测与处理</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q24">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q24</span>
+    <span class="qa-qtext">长事务有什么危害？如何排查和预防？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>长事务是生产环境最常见的隐患，能给出具体排查 SQL 和预防方案是工程能力的体现。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>长事务指持续时间很长（分钟级~小时级）的事务，三大危害：</p>
+      <ul>
+        <li><span class="b">undo 膨胀</span><span>长事务的 ReadView 持续存在，Purge Thread 无法清理该时刻之后产生的所有旧版本，undo tablespace 持续增长，可能占用数 GB 磁盘</span></li>
+        <li><span class="b">锁资源</span><span>长事务持有的行锁、Gap Lock 长时间不释放，阻塞其他事务，QPS 下降</span></li>
+        <li><span class="b">主从延迟</span><span>长事务 binlog 大（ROW 格式），从库回放耗时，加剧主从延迟</span></li>
+      </ul>
+      <pre>-- 排查超过 60 秒的长事务
+SELECT trx_id, trx_started,
+       TIMESTAMPDIFF(SECOND, trx_started, NOW()) AS sec,
+       trx_mysql_thread_id, trx_query
+FROM information_schema.INNODB_TRX
+WHERE TIMESTAMPDIFF(SECOND, trx_started, NOW()) > 60
+ORDER BY sec DESC;
+
+-- 配置超时自动回滚（秒）
+SET GLOBAL interactive_timeout = 600;
+SET GLOBAL wait_timeout = 600;</pre>
+      <p><strong>预防</strong>：避免在事务中做网络请求或慢操作；批量 DML 拆成小批次；框架层配置事务超时；监控告警 INNODB_TRX。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-03-transaction.html#pitfall">事务常见大坑</a>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ cat4 性能调优 -->
+<div class="sec" id="cat4"><span class="sn">04</span> 性能调优 <span class="q-count">Q25–Q32</span></div>
+
+<div class="qa-card" id="q25">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q25</span>
+    <span class="qa-qtext">EXPLAIN 的关键字段怎么看？type 和 Extra 字段最重要的值是什么？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>EXPLAIN 是所有 SQL 优化的第一工具，能快速指出危险信号（ALL、Using filesort + temporary）是工程必备技能。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>type 字段（访问类型，从差到好）：</strong></p>
+      <table class="tbl">
+        <tr><th>type</th><th>含义</th><th>优先级</th></tr>
+        <tr><td>ALL</td><td>全表扫描，每行都读，必须优化</td><td style="color:var(--red)">❌ 最差</td></tr>
+        <tr><td>index</td><td>全索引扫描，比 ALL 好（顺序 IO），但仍扫全部</td><td style="color:var(--orange)">⚠ 差</td></tr>
+        <tr><td>range</td><td>索引范围扫描（BETWEEN/&gt;/LIKE 'x%'）</td><td>一般</td></tr>
+        <tr><td>ref</td><td>非唯一索引等值匹配，可能返回多行</td><td>较好</td></tr>
+        <tr><td>eq_ref</td><td>唯一索引等值匹配，最多一行（JOIN 中常见）</td><td>好</td></tr>
+        <tr><td>const / system</td><td>主键或唯一索引常量匹配，一行，最快</td><td style="color:var(--green)">✅ 最好</td></tr>
+      </table>
+      <p style="margin-top:10px"><strong>Extra 字段关键值：</strong></p>
+      <ul>
+        <li><span class="b">Using index</span><span>覆盖索引，不回表，性能很好</span></li>
+        <li><span class="b">Using index condition</span><span>ICP，在引擎层过滤，减少回表</span></li>
+        <li><span class="b">Using where</span><span>Server 层过滤，引擎没过滤完，说明索引选择性不够</span></li>
+        <li><span class="b" style="color:var(--red)">Using filesort</span><span>ORDER BY 没走索引，内存/磁盘排序，需优化</span></li>
+        <li><span class="b" style="color:var(--red)">Using temporary</span><span>使用临时表（通常在 GROUP BY / DISTINCT），必须优化</span></li>
+      </ul>
+      <p>最危险组合：<code>type=ALL</code> + <code>Using temporary; Using filesort</code> — 全表扫描 + 临时表 + 排序，三重 IO 放大。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#explain">EXPLAIN 详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q26">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q26</span>
+    <span class="qa-qtext">生产环境出现慢查询，你的排查流程是什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>开放性实战题，考察系统性解决问题的能力，回答要有层次感（从发现到定位到修复）。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>五步排查法：</p>
+      <ul>
+        <li><span class="b">① 发现</span><span>开启慢查询日志（<code>slow_query_log=ON, long_query_time=1</code>），用 <code>pt-query-digest</code> 或 <code>mysqldumpslow</code> 分析，找出执行次数多且耗时高的 SQL</span></li>
+        <li><span class="b">② 确认</span><span>在测试库重现慢 SQL，加 <code>EXPLAIN</code> 分析执行计划，重点看 type/rows/Extra 字段</span></li>
+        <li><span class="b">③ 定位</span><span>type=ALL → 缺索引或索引失效；rows 很大 → 扫描行数过多；Using filesort/temporary → 排序/分组问题；key_len 比预期小 → 联合索引被截断</span></li>
+        <li><span class="b">④ 修复</span><span>加/改索引；重写 SQL（消除函数计算、隐式转换）；大查询拆分；分页方式改为游标分页；缓存热点数据</span></li>
+        <li><span class="b">⑤ 验证</span><span>对比修复前后 EXPLAIN 和实际执行时间，上线后监控慢查询日志不再出现该 SQL</span></li>
+      </ul>
+      <pre>-- 查看慢查询配置
+SHOW VARIABLES LIKE 'slow_query%';
+SHOW VARIABLES LIKE 'long_query_time';
+
+-- 实时监控正在执行的 SQL（超过 5 秒的）
+SELECT * FROM information_schema.PROCESSLIST
+WHERE COMMAND != 'Sleep' AND TIME > 5
+ORDER BY TIME DESC;</pre>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#slowquery">慢查询分析</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q27">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q27</span>
+    <span class="qa-qtext">多表 JOIN 如何优化？驱动表选择有什么原则？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>JOIN 优化是后端必备知识，能说清 NLJ/BNLJ 原理和小表驱动大表的原因是加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>InnoDB JOIN 两种算法：</p>
+      <ul>
+        <li><span class="b">NLJ</span><span>Nested-Loop Join：驱动表每一行，去被驱动表用索引查匹配行。被驱动表有索引时高效。EXPLAIN 的 Extra 显示 <code>Using join buffer</code> 说明没用 NLJ，而是 BNLJ。</span></li>
+        <li><span class="b">BNLJ</span><span>Block Nested-Loop Join：驱动表分批读入 join_buffer，被驱动表全扫，和 buffer 里所有行匹配。被驱动表无索引时使用，效率差。</span></li>
+      </ul>
+      <p><strong>优化原则：</strong></p>
+      <ul>
+        <li><span class="b">①</span><span><strong>小表驱动大表</strong>：驱动表扫描一次，被驱动表扫描 N 次（N=驱动表行数）。驱动表越小，外层循环越少。MySQL 优化器通常自动选，也可用 <code>STRAIGHT_JOIN</code> 强制指定。</span></li>
+        <li><span class="b">②</span><span><strong>被驱动表 JOIN 列必须有索引</strong>：无索引 → BNLJ → 全表扫描 × 驱动表行数，性能极差</span></li>
+        <li><span class="b">③</span><span>超过 3 张表的 JOIN 要慎重，考虑拆成多次查询后在应用层组合</span></li>
+        <li><span class="b">④</span><span>调大 <code>join_buffer_size</code> 可缓解 BNLJ，但根本是加索引</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#join">JOIN 优化详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q28">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q28</span>
+    <span class="qa-qtext">LIMIT 10000, 10 为什么慢？有哪些优化方案？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>深分页是高频实战题，游标分页是最优解，但很多候选人只知道"延迟关联"。能给出三种方案并分析各自适用场景是高分回答。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p>原因：<code>LIMIT offset, n</code> 需要扫描并<strong>丢弃前 offset 行</strong>，offset 越大，扫描越多，二级索引还要逐行回表，性能随 offset 线性劣化。</p>
+      <p><strong>三种优化方案：</strong></p>
+      <ul>
+        <li><span class="b">方案1<br>延迟关联</span><span>先用覆盖索引查出主键，再 JOIN 回原表取完整行，避免大量回表：
+          <pre>SELECT t.* FROM orders t
+INNER JOIN (
+  SELECT id FROM orders WHERE user_id=1 ORDER BY created_at DESC LIMIT 10000, 10
+) tmp ON t.id = tmp.id;</pre>
+          适用：能用覆盖索引定位 id 的场景。
+        </span></li>
+        <li><span class="b">方案2<br>游标分页</span><span>记录上一页最后一条的游标值（如 id 或 created_at），下一页从游标之后开始查，<strong>完全消灭深 offset</strong>：
+          <pre>-- 上一页最后一条 id = 9999
+SELECT * FROM orders WHERE user_id=1 AND id &lt; 9999
+ORDER BY id DESC LIMIT 10;</pre>
+          适用：分页方向固定（上/下翻页），不需要跳到任意页。移动端信息流首选。
+        </span></li>
+        <li><span class="b">方案3<br>业务限制</span><span>限制最大分页深度（如最多翻到第 100 页），引导用户用搜索代替翻页，避免从根本上产生深分页问题。</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#pagination">深分页优化</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q29">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q29</span>
+    <span class="qa-qtext">count(*)、count(1)、count(id)、count(列名) 有什么区别？哪个最快？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>这是高频认知题，很多人有错误认知（以为 count(1) 最快），能说清各自的行为和性能差异是加分点。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>写法</th><th>统计内容</th><th>NULL 处理</th><th>性能</th></tr>
+        <tr><td>count(*)</td><td>统计所有行（包含 NULL 行）</td><td>不过滤 NULL</td><td>MySQL 专门优化，<strong>最推荐</strong></td></tr>
+        <tr><td>count(1)</td><td>每行用常量 1 替代，统计所有行</td><td>不过滤 NULL</td><td>与 count(*) 基本相同</td></tr>
+        <tr><td>count(主键 id)</td><td>统计所有行（主键不为 NULL）</td><td>主键不含 NULL</td><td>走聚簇索引，略慢于 count(*)</td></tr>
+        <tr><td>count(非主键列)</td><td>统计该列非 NULL 的行数</td><td>跳过 NULL 行</td><td>最慢，需逐行判断是否 NULL</td></tr>
+      </table>
+      <p style="margin-top:8px"><strong>结论：用 <code>count(*)</code>。</strong>MySQL 8.0 对 count(*) 做了专门优化，会选最小的二级索引（或主键索引）扫描，不需要回表，且 SQL 标准明确规定 count(*) 统计行数，语义最清晰。count(1) 性能一样，但没必要写。</p>
+      <p>对于超大表（亿级）的 count，真正的优化是：维护计数器表（写入时 +1，删除时 -1）；或使用 SHOW TABLE STATUS（不精确）；或引入 Elasticsearch 等方案。</p>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#count">count 优化</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q30">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q30</span>
+    <span class="qa-qtext">MySQL 主从复制的原理是什么？主从延迟如何排查和解决？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>主从复制原理是必问题，主从延迟排查是区分 3 年和 5 年工程师的分水岭，能说出并行复制和延迟来源加分。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>复制原理（异步三线程模型）：</strong></p>
+      <ul>
+        <li><span class="b">Dump Thread</span><span>主库上的线程，监控 binlog 变化，把 binlog event 推送给从库</span></li>
+        <li><span class="b">IO Thread</span><span>从库上的线程，接收主库 Dump Thread 推来的 binlog，写入本地 relay log</span></li>
+        <li><span class="b">SQL Thread</span><span>从库上的线程，读取 relay log，重放 SQL 执行，应用到从库数据</span></li>
+      </ul>
+      <p><strong>主从延迟排查：</strong></p>
+      <pre>-- 从库执行，查看延迟秒数
+SHOW SLAVE STATUS\G;
+-- 关键字段：Seconds_Behind_Master（延迟秒数，0 表示无延迟）
+-- IO 延迟：Master_Log_File vs Relay_Master_Log_File 不一致
+-- SQL 延迟：Relay_Log_File vs Exec_Master_Log_Pos 不一致</pre>
+      <p><strong>常见延迟原因和解法：</strong></p>
+      <ul>
+        <li><span class="b">大事务</span><span>主库大事务 binlog 大，从库 SQL Thread 单线程顺序执行，耗时长 → 拆小事务</span></li>
+        <li><span class="b">单线程回放</span><span>MySQL 5.6 之前 SQL Thread 只有一个线程 → 升级 5.7+ 开启并行复制（<code>slave_parallel_workers=8</code>）</span></li>
+        <li><span class="b">从库压力过大</span><span>从库承担大量读请求，IO/CPU 竞争 → 读写分离 + 增加只读从库</span></li>
+        <li><span class="b">网络问题</span><span>主从网络延迟 → 检查网络，确保在同一机房</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#replication">主从复制详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q31">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q31</span>
+    <span class="qa-qtext">分库分表的方案如何选择？分片键怎么设计？有哪些坑？</span>
+    <span class="qa-badge hot">高频</span><span class="qa-badge key">重点</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>分库分表是架构必问，能说出分片键选择标准和跨分片问题（跨库 JOIN、分布式事务）是高分回答。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <p><strong>两种策略对比：</strong></p>
+      <table class="tbl">
+        <tr><th>策略</th><th>方式</th><th>优点</th><th>缺点</th></tr>
+        <tr><td>Range 范围分片</td><td>按 id/时间范围切分（1~100w，100w~200w…）</td><td>范围查询高效，扩容简单</td><td>热点问题（新数据集中在最新片）</td></tr>
+        <tr><td>Hash 取模分片</td><td>id % N 决定落哪个库/表</td><td>数据均匀分布，无热点</td><td>扩容需迁移数据（一致性 Hash 可缓解）</td></tr>
+      </table>
+      <p><strong>分片键设计原则：</strong></p>
+      <ul>
+        <li><span class="b">①</span><span>选查询最高频的维度（电商用 user_id，SaaS 用 tenant_id），避免跨分片查询</span></li>
+        <li><span class="b">②</span><span>分片键不能是随机 UUID（热点均匀但排序困难），趋势递增 ID（雪花 ID）是更好选择</span></li>
+      </ul>
+      <p><strong>主要坑：</strong></p>
+      <ul>
+        <li><span class="b">跨库 JOIN</span><span>禁止，改为应用层组合（多次查询 + 内存 join）或数据冗余</span></li>
+        <li><span class="b">分布式事务</span><span>跨库事务需要 Seata/TCC 等方案，复杂度剧增</span></li>
+        <li><span class="b">跨分片分页/排序</span><span>需要从所有分片取数据后在内存里汇总排序，性能差</span></li>
+        <li><span class="b">全局唯一 ID</span><span>不能用数据库自增，需要雪花算法、Segment 号段、Redis 原子递增等方案</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#sharding">分库分表详解</a>
+    </div></div>
+  </div>
+</div>
+
+<div class="qa-card" id="q32">
+  <div class="qa-q" onclick="toggleQA(this)">
+    <span class="qa-qnum">Q32</span>
+    <span class="qa-qtext">MySQL 高可用方案有哪些？各自的优缺点和适用场景是什么？</span>
+    <span class="qa-badge hot">高频</span>
+    <span class="chevron">▾</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-intent"><div class="qa-intent-lbl">考察点</div><p>高可用是架构必问，核心是能对比 MHA/MGR/InnoDB Cluster 的 RTO/RPO 差异，以及云 RDS 时代的选型考量。</p></div>
+    <div class="qa-ans">
+      <div class="qa-ans-lbl">参考回答</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>原理</th><th>故障切换</th><th>数据丢失风险</th><th>适用</th></tr>
+        <tr><td>主从 + MHA</td><td>异步主从，MHA 监控主库，故障时选最新从库提升为主</td><td>手动或自动（30s~60s）</td><td>⚠ 可能丢失 binlog</td><td>传统自建 MySQL，RTO 中等</td></tr>
+        <tr><td>MGR（MySQL Group Replication）</td><td>Paxos 协议多主复制，事务提交需多数节点确认</td><td>自动（&lt;10s）</td><td>✅ 强一致，不丢</td><td>要求强一致 + 自动切换</td></tr>
+        <tr><td>InnoDB Cluster（MGR + MySQL Shell）</td><td>MGR + 路由 + 管理工具，官方高可用套件</td><td>自动</td><td>✅ 强一致</td><td>官方推荐，生产友好</td></tr>
+        <tr><td>云 RDS 高可用版</td><td>云厂商托管，底层各异（腾讯 TDSQL、阿里 PolarDB）</td><td>自动（秒级~分钟级）</td><td>取决于云厂商</td><td>云原生业务，运维省力</td></tr>
+      </table>
+      <p style="margin-top:8px"><strong>选型建议：</strong></p>
+      <ul>
+        <li><span class="b">新业务</span><span>优先考虑云 RDS（PolarDB / RDS 高可用版），开箱即用，省去运维负担</span></li>
+        <li><span class="b">强一致要求</span><span>选 MGR 或 InnoDB Cluster，异步主从在主库 crash 时存在数据丢失风险</span></li>
+        <li><span class="b">自建传统架构</span><span>MHA + 半同步复制（<code>rpl_semi_sync</code>），减少异步时的数据丢失风险</span></li>
+      </ul>
+    </div>
+    <div class="qa-links"><div class="qa-links-lbl">相关知识点</div><div class="qa-links-row">
+      <a class="qa-link" href="mysql-04-optimize.html#ha">高可用架构</a>
+    </div></div>
+  </div>
+</div>
+
+</div><!-- /mc -->
+</div><!-- /layout -->
+
+<script>
+// ── toggle QA card ──
+function toggleQA(el) {
+  var card = el.closest('.qa-card');
+  var wasOpen = card.classList.contains('open');
+  card.classList.toggle('open', !wasOpen);
+  updateProgress();
+  // open parent scat if needed
+  var sec = card.closest('.mc').previousElementSibling;
+}
+// ── toggle sidebar category ──
+function toggleScat(el) {
+  el.closest('.scat').classList.toggle('open');
+}
+// ── toggle all ──
+function toggleAll(open) {
+  document.querySelectorAll('.qa-card').forEach(function(c){ c.classList.toggle('open', open); });
+  updateProgress();
+}
+// ── progress ──
+function updateProgress() {
+  var all = document.querySelectorAll('.qa-card').length;
+  var opened = document.querySelectorAll('.qa-card.open').length;
+  var pct = all ? Math.round(opened / all * 100) : 0;
+  document.getElementById('pfill').style.width = pct + '%';
+  document.getElementById('ptxt').textContent = opened + '/' + all;
+}
+// ── filter by badge ──
+function filterByBadge(type) {
+  document.querySelectorAll('.fbtn').forEach(function(b){ b.classList.toggle('active', b.dataset.filter === type); });
+  document.querySelectorAll('.qa-card').forEach(function(card){
+    if (!type) { card.style.display = ''; return; }
+    var has = card.querySelector('.qa-badge.' + type);
+    card.style.display = has ? '' : 'none';
+  });
+}
+// ── scroll spy: sidebar scat-item active ──
+(function(){
+  var items = document.querySelectorAll('.scat-item');
+  var cards = Array.from(items).map(function(i){
+    return document.querySelector(i.getAttribute('href'));
+  }).filter(Boolean);
+  function spy(){
+    var top = window.scrollY + 100;
+    var cur = cards[0];
+    cards.forEach(function(c){ if(c && c.offsetTop <= top) cur = c; });
+    items.forEach(function(i){
+      i.classList.toggle('active', i.getAttribute('href') === '#' + (cur && cur.id));
+    });
+  }
+  window.addEventListener('scroll', spy, {passive:true});
+  updateProgress();
+})();
+</script>
+</body>
+</html>

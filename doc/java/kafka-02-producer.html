@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafka 02 · Producer 深度解析</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'PRODUCER'}
+
+/* step flow */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+
+/* warn / tip */
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.tip {background:var(--green-bg);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* pipeline arrow row */
+.pipeline{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:14px 0;font-family:'IBM Plex Mono',monospace;font-size:12px}
+.pipe-box{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green);border-radius:5px;padding:5px 12px;font-weight:700;white-space:nowrap}
+.pipe-box.grey{background:var(--bg2);border-color:var(--bd);color:var(--tx2)}
+.pipe-arr{color:var(--tx3);font-size:14px;flex-shrink:0}
+
+/* acks badge */
+.ack0{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b)}
+.ack1{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;color:var(--yellow);background:var(--yellow-bg);border:1px solid var(--yellow-b)}
+.ackA{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b)}
+
+/* tx state badge */
+.tx-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);background:var(--bg2);color:var(--tx2);margin:2px 0}
+
+/* ── 发送链路线程边界图 ── */
+.thread-diagram{margin:16px 0;overflow-x:auto}
+.thread-section{border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.thread-section.biz{background:var(--green-bg);border:1.5px solid var(--green-b)}
+.thread-section.io {background:var(--bg2);border:1.5px solid var(--bd)}
+.thread-section-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+.thread-section.biz .thread-section-lbl{color:var(--green)}
+.thread-section.io  .thread-section-lbl{color:var(--tx3)}
+.thread-steps{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow-x:auto}
+.thread-box{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;padding:6px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+.thread-box.biz{background:var(--green);color:#fff}
+.thread-box.io {background:var(--tx3);color:var(--bg)}
+.thread-box.acc{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+.thread-step-arr{color:var(--tx3);font-size:16px;flex-shrink:0}
+.thread-bridge{display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0;font-size:12px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.thread-bridge-line{flex:1;height:1px;border-top:2px dashed var(--bd2)}
+.thread-bridge-lbl{font-size:10px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 7px;white-space:nowrap}
+
+/* ── acks 确认路径图 ── */
+.acks-diagram{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.acks-box{border-radius:8px;padding:12px 14px;border:1.5px solid}
+.acks-box.a0{background:var(--red-bg);border-color:var(--red-b)}
+.acks-box.a1{background:var(--yellow-bg);border-color:var(--yellow-b)}
+.acks-box.aA{background:var(--green-bg);border-color:var(--green-b)}
+.acks-box-title{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;margin-bottom:8px}
+.acks-box.a0 .acks-box-title{color:var(--red)}
+.acks-box.a1 .acks-box-title{color:var(--yellow)}
+.acks-box.aA .acks-box-title{color:var(--green)}
+.acks-nodes{display:flex;flex-direction:column;gap:4px}
+.acks-node{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 8px;border-radius:4px;display:flex;align-items:center;gap:6px}
+.acks-node.checked{background:rgba(255,255,255,.12);font-weight:600}
+.acks-node.skip{opacity:.35}
+.acks-check{font-size:12px;flex-shrink:0}
+.acks-note{font-size:11.5px;margin-top:8px;padding-top:6px;border-top:1px solid rgba(128,128,128,.2);color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-kafka.js"></script>
+
+<header>
+  <div class="htag">KAFKA · 02 · PRODUCER</div>
+  <h1>Producer 深度解析</h1>
+  <p class="subtitle">发送全流程 · 分区策略 · acks 可靠性 · 幂等 Producer · 事务 Exactly-Once</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#pipeline"><span class="s-link-num">01</span>发送全流程</a>
+    <a class="s-link" href="#partition"><span class="s-link-num">02</span>分区策略</a>
+    <a class="s-link" href="#acks"><span class="s-link-num">03</span>acks 与可靠性</a>
+    <a class="s-link" href="#idempotence"><span class="s-link-num">04</span>幂等 Producer</a>
+    <a class="s-link" href="#transaction"><span class="s-link-num">05</span>事务 Exactly-Once</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="kafka-01-arch.html">← 上一章：架构</a>
+    <a class="s-link" href="kafka-03-consumer.html">→ 下一章：Consumer</a>
+    <a class="s-link" href="kafka-06-interview.html#producer">→ 面试题 Producer 章节</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 发送全流程 ═══ -->
+    <div class="sec" id="pipeline"><span class="sec-num">01</span>发送全流程</div>
+
+    <div class="card">
+      <div class="card-title">Producer 发送链路总览</div>
+      <p>调用 <code>producer.send(record)</code> 后，消息并非直接发往 Broker，而是经过一条完整的本地处理链路：</p>
+      <!-- 发送链路线程边界图 -->
+      <div class="thread-diagram">
+        <div class="thread-section biz">
+          <div class="thread-section-lbl">🟢 业务线程（调用 send() 的线程）</div>
+          <div class="thread-steps">
+            <div class="thread-box biz">send(record)</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box biz">拦截器链</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box biz">序列化器</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box biz">分区器</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box acc">RecordAccumulator</div>
+            <div class="thread-step-arr" style="color:var(--blue)">⇄</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue)">buffer.memory<br>32 MB 限额</div>
+          </div>
+        </div>
+        <div class="thread-bridge">
+          <div class="thread-bridge-line"></div>
+          <div class="thread-bridge-lbl">Sender 线程轮询 RecordAccumulator，取出就绪批次</div>
+          <div class="thread-bridge-line"></div>
+        </div>
+        <div class="thread-section io">
+          <div class="thread-section-lbl">⚙ Sender 线程（后台守护线程，独立 I/O 循环）</div>
+          <div class="thread-steps">
+            <div class="thread-box io">Sender</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box io">NetworkClient</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box io">NIO Selector</div>
+            <div class="thread-step-arr">→</div>
+            <div class="thread-box io">TCP → Broker</div>
+            <div class="thread-step-arr">←</div>
+            <div class="thread-box io">ACK / 回调</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:12.5px;color:var(--tx3);margin-top:4px">业务线程只负责把消息放入缓冲区即返回；Sender 线程异步批量发送，两者通过 RecordAccumulator 解耦，互不阻塞。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">各环节详解</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">拦截器链（ProducerInterceptor）</div>
+            <div class="step-desc">按配置顺序依次执行 <code>onSend(record)</code>，可修改消息内容或做埋点统计。发送完成（成功或失败）后触发 <code>onAcknowledgement()</code>。拦截器链中任意一个抛出异常不会中断后续拦截器的执行。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">序列化器（Serializer）</div>
+            <div class="step-desc">将 Key 和 Value 从 Java 对象转换为字节数组。内置 <code>StringSerializer</code>、<code>ByteArraySerializer</code>；业务常用 <code>JsonSerializer</code>（spring-kafka 提供）或 Avro（配合 Schema Registry）。Key 和 Value 可分别配置不同的序列化器。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">分区器（Partitioner）</div>
+            <div class="step-desc">决定消息写入哪个 Partition。详见下一节。分区确定后，消息被路由到 RecordAccumulator 中对应 Partition 的 Deque（双端队列）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">RecordAccumulator — 消息缓冲区</div>
+            <div class="step-desc">每个 Partition 对应一个 Deque&lt;ProducerBatch&gt;。新消息被追加到队尾最新的 ProducerBatch；若当前 Batch 已满（超过 <code>batch.size</code>）或等待时间超过 <code>linger.ms</code>，Sender 线程将其取出发送。缓冲区总大小受 <code>buffer.memory</code>（默认 32 MB）限制。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-title">Sender 线程 — 后台 I/O 线程</div>
+            <div class="step-desc">独立于业务线程的守护线程，不断轮询 RecordAccumulator，将就绪的 ProducerBatch 按目标 Broker 归组，封装为 <code>ProduceRequest</code> 交给 NetworkClient 发送。同时负责处理响应、触发重试和回调。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div>
+            <div class="step-title">NetworkClient — NIO 网络层</div>
+            <div class="step-desc">基于 Java NIO Selector 管理与各 Broker 的 TCP 长连接池。维护 in-flight 请求队列（<code>max.in.flight.requests.per.connection</code> 控制每个连接的最大未响应请求数，默认 5）。收到 Broker 响应后触发 Sender 处理。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">三种发送模式</div>
+      <table class="tbl">
+        <tr><th>模式</th><th>写法</th><th>特点</th><th>适用场景</th></tr>
+        <tr>
+          <td><strong>发后即忘</strong><br>Fire-and-Forget</td>
+          <td><code>producer.send(record)</code></td>
+          <td>不关心结果，最高吞吐，可能丢消息</td>
+          <td>日志采集、可丢弃的统计埋点</td>
+        </tr>
+        <tr>
+          <td><strong>异步发送</strong><br>Async</td>
+          <td><code>producer.send(record, callback)</code></td>
+          <td>Callback 在 Sender 线程回调，不阻塞业务线程；可感知成功/失败</td>
+          <td>绝大多数业务场景推荐写法</td>
+        </tr>
+        <tr>
+          <td><strong>同步发送</strong><br>Sync</td>
+          <td><code>producer.send(record).get()</code></td>
+          <td>阻塞等待 Broker 确认，延迟最高，吞吐最低</td>
+          <td>强一致要求的支付/核心交易</td>
+        </tr>
+      </table>
+      <pre>// 异步发送（推荐）
+producer.send(record, (metadata, exception) -> {
+    if (exception != null) {
+        log.error("Send failed: topic={} partition={}", metadata.topic(), metadata.partition(), exception);
+    } else {
+        log.info("Send ok: offset={}", metadata.offset());
+    }
+});
+
+// 同步发送（强一致）
+try {
+    RecordMetadata meta = producer.send(record).get(3, TimeUnit.SECONDS);
+    log.info("Delivered to partition={} offset={}", meta.partition(), meta.offset());
+} catch (TimeoutException e) {
+    // 超时，可重试
+} catch (ExecutionException e) {
+    // 发送失败，处理异常
+}</pre>
+    </div>
+
+    <!-- ═══ 02 分区策略 ═══ -->
+    <div class="sec" id="partition"><span class="sec-num">02</span>分区策略</div>
+
+    <div class="card">
+      <div class="card-title">内置分区策略</div>
+      <table class="tbl">
+        <tr><th>场景</th><th>策略</th><th>算法</th><th>特点</th></tr>
+        <tr>
+          <td>指定 Partition</td>
+          <td>直接写入</td>
+          <td><code>new ProducerRecord(topic, partition, key, value)</code></td>
+          <td>最高优先级，绕过分区器</td>
+        </tr>
+        <tr>
+          <td>有 Key，未指定 Partition</td>
+          <td>Key 哈希取模</td>
+          <td><code>murmur2(keyBytes) % numPartitions</code></td>
+          <td>相同 Key 必落同一 Partition，保证局部有序</td>
+        </tr>
+        <tr>
+          <td>无 Key，未指定 Partition<br>（Kafka 2.4+）</td>
+          <td>粘性分区<br>Sticky Partitioner</td>
+          <td>同一批次内所有消息发往同一 Partition，批次发完后随机换一个</td>
+          <td>凑满 batch 后再换分区，减少小批次，显著提升吞吐</td>
+        </tr>
+        <tr>
+          <td>无 Key，未指定 Partition<br>（Kafka 2.3 及以前）</td>
+          <td>轮询<br>Round Robin</td>
+          <td>每条消息依次轮询到下一个 Partition</td>
+          <td>分区均衡但每条消息单独成批，效率低</td>
+        </tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ 扩 Partition 后 Key 路由失效</strong>：若后期增加 Partition 数量，<code>murmur2(key) % newNumPartitions</code> 的结果会改变，导致同一 Key 的历史消息与新消息落到不同 Partition，打破顺序性。业务上需提前规划好 Partition 数量，或在应用层处理路由。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">自定义分区器</div>
+      <p>实现 <code>Partitioner</code> 接口，按业务规则控制路由，例如按 VIP 等级优先写入低序号 Partition（消费者优先消费）：</p>
+      <pre>public class VipFirstPartitioner implements Partitioner {
+
+    @Override
+    public int partition(String topic, Object key, byte[] keyBytes,
+                         Object value, byte[] valueBytes, Cluster cluster) {
+        int numPartitions = cluster.partitionCountForTopic(topic);
+        // VIP 用户写 partition 0，普通用户轮询其余分区
+        if (key != null && key.toString().startsWith("VIP_")) {
+            return 0;
+        }
+        // murmur2 哈希兜底，保证其余 Key 均匀分布
+        return (Utils.murmur2(keyBytes) & Integer.MAX_VALUE) % (numPartitions - 1) + 1;
+    }
+
+    @Override public void close() {}
+    @Override public void configure(Map&lt;String, ?&gt; configs) {}
+}
+
+// 配置使用
+props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, VipFirstPartitioner.class.getName());</pre>
+    </div>
+
+    <!-- ═══ 03 acks 与可靠性 ═══ -->
+    <div class="sec" id="acks"><span class="sec-num">03</span>acks 与可靠性配置</div>
+
+    <div class="card">
+      <div class="card-title">acks — 消息确认级别</div>
+      <p><code>acks</code> 控制 Producer 认为消息发送成功的条件，是可靠性与吞吐量权衡的核心参数：</p>
+
+      <!-- acks 确认路径图 -->
+      <div class="acks-diagram">
+        <div class="acks-box a0">
+          <div class="acks-box-title">acks = 0</div>
+          <div class="acks-nodes">
+            <div class="acks-node skip"><span class="acks-check">○</span> Leader 写入</div>
+            <div class="acks-node skip"><span class="acks-check">○</span> Follower 1 同步</div>
+            <div class="acks-node skip"><span class="acks-check">○</span> Follower 2 同步</div>
+          </div>
+          <div class="acks-note">发完即认为成功，不等任何确认<br>丢消息风险最高 / 吞吐最高</div>
+        </div>
+        <div class="acks-box a1">
+          <div class="acks-box-title">acks = 1</div>
+          <div class="acks-nodes">
+            <div class="acks-node checked"><span class="acks-check">✓</span> Leader 写入</div>
+            <div class="acks-node skip"><span class="acks-check">○</span> Follower 1 同步</div>
+            <div class="acks-node skip"><span class="acks-check">○</span> Follower 2 同步</div>
+          </div>
+          <div class="acks-note">Leader 落盘后返回确认<br>Leader 宕机时 Follower 未同步则丢</div>
+        </div>
+        <div class="acks-box aA">
+          <div class="acks-box-title">acks = all（-1）</div>
+          <div class="acks-nodes">
+            <div class="acks-node checked"><span class="acks-check">✓</span> Leader 写入</div>
+            <div class="acks-node checked"><span class="acks-check">✓</span> Follower 1 同步</div>
+            <div class="acks-node checked"><span class="acks-check">✓</span> Follower 2 同步</div>
+          </div>
+          <div class="acks-note">ISR 全部写入后返回确认<br>最可靠 / 需配合 min.insync.replicas</div>
+        </div>
+      </div>
+
+      <table class="tbl">
+        <tr><th>值</th><th>含义</th><th>丢消息风险</th><th>吞吐</th><th>适用场景</th></tr>
+        <tr>
+          <td><span class="ack0">acks=0</span></td>
+          <td>不等待任何确认，发完即认为成功</td>
+          <td>最高（Broker 未收到就可能丢）</td>
+          <td>最高</td>
+          <td>日志采集、可接受丢失的监控埋点</td>
+        </tr>
+        <tr>
+          <td><span class="ack1">acks=1</span></td>
+          <td>Leader 写入本地日志后确认</td>
+          <td>中（Leader 写入后宕机，Follower 未同步则丢）</td>
+          <td>高</td>
+          <td>允许极少量丢失的一般业务</td>
+        </tr>
+        <tr>
+          <td><span class="ackA">acks=all<br>（-1）</span></td>
+          <td>ISR 中所有副本写入后确认</td>
+          <td>最低（需配合 min.insync.replicas）</td>
+          <td>低</td>
+          <td>订单、支付、核心业务</td>
+        </tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ acks=1 的隐患：</strong>Leader 收到消息并返回确认后立刻宕机，而此时 Follower 还未同步。新选出的 Leader（原 Follower）没有这条消息，Producer 也不会重发（已收到确认），消息就此丢失。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">重试参数三件套</div>
+      <p>网络抖动、Leader 切换等临时错误可通过重试恢复，三个参数协同控制重试行为：</p>
+      <table class="tbl">
+        <tr><th>参数</th><th>默认值</th><th>作用</th></tr>
+        <tr>
+          <td><code>retries</code></td>
+          <td><code>Integer.MAX_VALUE</code></td>
+          <td>最大重试次数。实际由 <code>delivery.timeout.ms</code> 兜底，超时后不再重试</td>
+        </tr>
+        <tr>
+          <td><code>retry.backoff.ms</code></td>
+          <td>100 ms</td>
+          <td>两次重试之间的等待时间，避免立即重试加剧 Broker 压力</td>
+        </tr>
+        <tr>
+          <td><code>delivery.timeout.ms</code></td>
+          <td>120,000 ms（2 min）</td>
+          <td>消息从 <code>send()</code> 调用到最终确认（或放弃）的最大总时间，含重试时间。超过后触发回调并抛出 <code>TimeoutException</code></td>
+        </tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ 重试与消息顺序：</strong>当 <code>max.in.flight.requests.per.connection &gt; 1</code>（默认 5）时，若批次 A 发送失败触发重试，批次 B 已成功写入，A 重试后将排在 B 之后，造成乱序。<br>
+        解决方案：<strong>开启幂等（<code>enable.idempotence=true</code>）</strong>，框架会自动将 in-flight 限制为 1，同时提供去重保证。
+      </div>
+    </div>
+
+    <!-- ═══ 04 幂等 Producer ═══ -->
+    <div class="sec" id="idempotence"><span class="sec-num">04</span>幂等 Producer</div>
+
+    <div class="card">
+      <div class="card-title">为什么需要幂等 — 重试导致的重复写入</div>
+      <p>网络超时时，Broker 可能已写入消息但 ACK 丢失，Producer 误以为失败进行重试，导致同一条消息被写入两次。幂等 Producer 解决这个问题。</p>
+      <pre>// 开启幂等，一行配置
+props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+// 开启幂等后框架自动设置：
+// acks = all
+// max.in.flight.requests.per.connection = 5（幂等下允许最多 5 个 in-flight）
+// retries = Integer.MAX_VALUE</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">幂等实现原理 — PID + Sequence Number</div>
+      <p>Broker 端通过两个标识符识别重复消息并丢弃：</p>
+      <table class="tbl">
+        <tr><th>标识</th><th>全称</th><th>生命周期</th><th>作用</th></tr>
+        <tr>
+          <td><strong>PID</strong></td>
+          <td>Producer ID</td>
+          <td>每次 Producer 实例启动时由 Broker 分配，重启后重新分配</td>
+          <td>唯一标识一个 Producer 会话</td>
+        </tr>
+        <tr>
+          <td><strong>Seq</strong></td>
+          <td>Sequence Number</td>
+          <td>每个 &lt;PID, Partition&gt; 维护独立的单调递增序列号，从 0 开始</td>
+          <td>标识同一 Producer 会话内的消息顺序</td>
+        </tr>
+      </table>
+      <p style="margin-top:10px">Broker 对每个 &lt;PID, Partition&gt; 记录最近写入的 Seq。收到消息时：</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div>
+            <div class="step-title">Seq == lastSeq + 1 → 正常写入</div>
+            <div class="step-desc">符合预期，接受消息并更新 lastSeq。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✓</div>
+          <div>
+            <div class="step-title">Seq ≤ lastSeq → 重复，直接丢弃</div>
+            <div class="step-desc">Broker 已写过此消息，判定为重试重复，丢弃并返回成功（Producer 认为正常）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">✗</div>
+          <div>
+            <div class="step-title">Seq > lastSeq + 1 → 乱序，拒绝</div>
+            <div class="step-desc">消息乱序到达，返回 <code>OutOfOrderSequenceException</code>，Producer 需重建连接。</div>
+          </div>
+        </div>
+      </div>
+      <div class="warn">
+        <strong>⚠ 幂等的局限性：</strong><br>
+        · 仅保证<strong>单个 Partition 内</strong>的幂等（PID + Partition 维度）<br>
+        · 仅保证<strong>单次会话（单次 Producer 实例生命周期）</strong>内幂等，Producer 重启后 PID 改变，Broker 无法识别为同一 Producer<br>
+        · 跨多个 Partition 的原子写入需使用<strong>事务</strong>
+      </div>
+    </div>
+
+    <!-- ═══ 05 事务 ═══ -->
+    <div class="sec" id="transaction"><span class="sec-num">05</span>事务 Producer — Exactly-Once</div>
+
+    <div class="card">
+      <div class="card-title">什么是 Kafka 事务</div>
+      <p>Kafka 事务（Kafka 0.11+）提供跨多个 Partition、跨多个 Topic 的<strong>原子写入</strong>能力：要么全部写入成功，要么全部回滚，消费者只能看到已提交的事务消息（需设置 <code>isolation.level=read_committed</code>）。</p>
+      <p style="margin-top:8px">典型场景：<strong>Consume-Transform-Produce</strong> 模式（从 Topic A 消费 → 处理 → 写入 Topic B + 提交 Offset），三个动作要么全成功要么全回滚，实现 Exactly-Once 语义。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">事务 API 完整用法</div>
+      <pre>// 1. 配置 transactional.id（全局唯一，跨 Producer 实例标识同一业务逻辑）
+props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "order-producer-001");
+props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true); // 事务依赖幂等，自动开启
+
+KafkaProducer&lt;String, String&gt; producer = new KafkaProducer&lt;&gt;(props);
+
+// 2. 初始化事务（仅调用一次）
+producer.initTransactions();
+
+try {
+    // 3. 开启事务
+    producer.beginTransaction();
+
+    // 4. 正常发送消息（可跨多个 Topic / Partition）
+    producer.send(new ProducerRecord&lt;&gt;("orders", orderId, orderJson));
+    producer.send(new ProducerRecord&lt;&gt;("inventory", itemId, decreaseJson));
+
+    // 5. 若结合消费，原子提交 Offset（代替 consumer.commitSync()）
+    producer.sendOffsetsToTransaction(offsetsMap, consumerGroupMetadata);
+
+    // 6. 提交事务
+    producer.commitTransaction();
+
+} catch (ProducerFencedException | OutOfOrderSequenceException e) {
+    // 不可恢复异常，直接关闭 Producer
+    producer.close();
+} catch (KafkaException e) {
+    // 可恢复异常，回滚事务后可继续
+    producer.abortTransaction();
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">事务实现原理 — 事务协调器</div>
+      <p>Kafka 事务由<strong>事务协调器（Transaction Coordinator）</strong>管理，每个 Broker 都可充当协调器角色，由 <code>transactional.id</code> 哈希到 <code>__transaction_state</code> Topic 的某个 Partition 的 Leader 担任。</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">initTransactions() — 获取 PID 并注册事务</div>
+            <div class="step-desc">Producer 向 Transaction Coordinator 注册 <code>transactional.id</code>，Coordinator 分配 PID（事务 PID，跨重启保持）并返回 epoch 值，使旧版 Producer 失效（<strong>Fencing</strong>）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">beginTransaction() — 本地标记</div>
+            <div class="step-desc">仅在 Producer 本地标记事务开始，Coordinator 此时不感知。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">send() — 写入消息并注册参与 Partition</div>
+            <div class="step-desc">每次向新的 Partition 发消息时，Producer 通知 Coordinator 将该 Partition 加入事务参与列表（写入 <code>__transaction_state</code>）。消息本身带有事务标记，消费者持有 <code>read_committed</code> 时跳过未提交消息。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">commitTransaction() — 两阶段提交</div>
+            <div class="step-desc">
+              Phase 1：Producer 通知 Coordinator 准备提交，Coordinator 将状态写入 <code>__transaction_state</code>（<span class="tx-badge">PREPARE_COMMIT</span>）。<br>
+              Phase 2：Coordinator 向所有参与 Partition 写入 <code>Transaction Marker</code>（提交标记），通知 Broker 此事务已提交，最后将状态更新为 <span class="tx-badge">COMPLETE_COMMIT</span>。
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-title">abortTransaction() — 回滚</div>
+            <div class="step-desc">写入 <span class="tx-badge">PREPARE_ABORT</span> → 向各 Partition 写入 Abort Marker → 更新为 <span class="tx-badge">COMPLETE_ABORT</span>。消费者收到 Abort Marker 后丢弃该事务内的所有消息。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">幂等 vs 事务 vs Exactly-Once 对比</div>
+      <table class="tbl">
+        <tr><th>能力</th><th>幂等 Producer</th><th>事务 Producer</th></tr>
+        <tr><td>去重范围</td><td>单 Partition、单 Session</td><td>跨多 Partition、跨 Session（靠 transactional.id）</td></tr>
+        <tr><td>原子写入</td><td>✗ 不支持</td><td>✓ 多 Partition 原子提交或回滚</td></tr>
+        <tr><td>消费者隔离</td><td>无隔离，消息即时可见</td><td>需 <code>isolation.level=read_committed</code> 才可见已提交消息</td></tr>
+        <tr><td>性能开销</td><td>小（仅序列号校验）</td><td>大（两阶段提交，延迟增加）</td></tr>
+        <tr><td>Exactly-Once</td><td>单 Partition 内可实现</td><td>配合 <code>sendOffsetsToTransaction</code> 实现端到端 Exactly-Once</td></tr>
+        <tr><td>配置</td><td><code>enable.idempotence=true</code></td><td><code>transactional.id=xxx</code>（自动开启幂等）</td></tr>
+      </table>
+      <div class="tip">
+        <strong>实践建议：</strong>绝大多数业务用 <code>acks=all + enable.idempotence=true + 业务层幂等</code> 即可满足需求，性能损耗小。只有 Consume-Transform-Produce 模式下需要端到端 Exactly-Once 时才引入事务，权衡好延迟代价。
+      </div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

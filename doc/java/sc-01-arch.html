@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Cloud 01 · 微服务架构总览</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'ARCH'}
+.note.tip {background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--tx2)}
+.note.good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr}}
+.comp-card{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:13px 15px}
+.comp-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--green);margin-bottom:5px}
+.comp-name.blue{color:var(--blue)}
+.comp-name.orange{color:var(--orange)}
+.comp-name.purple{color:var(--purple)}
+.comp-name.red{color:var(--red)}
+.comp-name.yellow{color:var(--yellow)}
+.comp-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blue-bg);stroke:var(--blue-b);stroke-width:1.5}
+.dg-box-g{fill:var(--green-bg);stroke:var(--green-b);stroke-width:1.5}
+.dg-box-o{fill:var(--orange-bg);stroke:var(--orange-b);stroke-width:1.5}
+.dg-box-p{fill:var(--purple-bg);stroke:var(--purple-b);stroke-width:1.5}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5}
+.dg-box-y{fill:var(--yellow-bg);stroke:var(--yellow-b);stroke-width:1.5}
+.dg-t {fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t2{fill:var(--tx2);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace}
+.dg-ln   {stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-b {stroke:var(--blue);stroke-width:1.8;fill:none}
+.dg-ln-g {stroke:var(--green);stroke-width:1.8;fill:none}
+.dg-ln-o {stroke:var(--orange);stroke-width:1.8;fill:none}
+.dg-ln-dash{stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;fill:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <marker id="arr"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="rgba(120,140,170,0.7)"/></marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--blue)"/></marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--green)"/></marker>
+    <marker id="arr-o" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--orange)"/></marker>
+  </defs>
+</svg>
+<script src="../../shared/nav-sc.js"></script>
+<header>
+  <div class="htag">Spring Cloud · 01 · ARCH</div>
+  <h1>微服务架构总览</h1>
+  <p class="sub">单体 vs 微服务 · Spring Cloud 组件全景 · 版本体系 · 服务调用链路 · 核心设计原则</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#mono-vs-micro"><span class="s-num">01</span>单体 vs 微服务</a>
+    <a class="s-link" href="#landscape"><span class="s-num">02</span>Spring Cloud 组件全景</a>
+    <a class="s-link" href="#version"><span class="s-num">03</span>版本体系与选型</a>
+    <a class="s-link" href="#callchain"><span class="s-num">04</span>服务调用完整链路</a>
+    <a class="s-link" href="#design"><span class="s-num">05</span>核心设计原则</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="sc-05-interview.html#cat1">→ 面试题 · 架构篇</a>
+    <a class="s-link" href="sc-02-register.html">→ 下一章：注册中心</a>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ══════════════════════ 01 单体 vs 微服务 -->
+    <div class="sec" id="mono-vs-micro"><span class="sn">01</span>单体架构 vs 微服务架构</div>
+
+    <div class="card">
+      <div class="ct">为什么需要微服务？单体的痛点</div>
+      <p>单体架构（Monolith）把所有业务模块打成一个 WAR/JAR 部署，早期简单易用，但随着业务增长会暴露出一系列问题：</p>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name red">单体架构的痛点</div>
+          <div class="comp-desc">
+            · <strong>部署耦合</strong>：改一个模块要重新部署整个应用，发布风险高<br>
+            · <strong>扩容粗粒度</strong>：只有订单模块高峰，却要扩整个应用<br>
+            · <strong>技术栈固化</strong>：全局只能用一套语言/框架<br>
+            · <strong>团队瓶颈</strong>：代码库庞大，多团队改同一仓库冲突频繁<br>
+            · <strong>可用性连带</strong>：一个模块 OOM 拖垮整个进程
+          </div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">微服务的收益</div>
+          <div class="comp-desc">
+            · <strong>独立部署</strong>：各服务独立发布，互不影响<br>
+            · <strong>精细扩容</strong>：哪个服务有压力就扩哪个<br>
+            · <strong>技术异构</strong>：各服务可选不同语言/框架<br>
+            · <strong>故障隔离</strong>：一个服务挂了不影响其他服务<br>
+            · <strong>团队自治</strong>：按业务域划分团队，各自负责
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">微服务的代价——不是银弹</div>
+      <p>微服务解决了单体的扩展性问题，但引入了新的复杂度：</p>
+      <ul class="dl">
+        <li><span class="b">分布式复杂度</span><span>网络调用代替本地调用，延迟变高、失败概率增加，需要超时/重试/熔断等机制</span></li>
+        <li><span class="b">分布式事务</span><span>跨服务修改数据无法用数据库本地事务，需要 Seata/TCC/Saga 等复杂方案</span></li>
+        <li><span class="b">运维复杂度</span><span>部署几十个微服务需要 CI/CD、容器化（Docker/K8s）、统一日志、链路追踪等配套设施</span></li>
+        <li><span class="b">服务间通信</span><span>服务发现、负载均衡、接口版本管理都需要额外设计</span></li>
+      </ul>
+      <div class="note warn"><strong>微服务不是默认选项。</strong>团队规模小、业务还不复杂时，单体 + 模块化分层是更好的选择。微服务适合：团队 20 人以上、服务模块 QPS/资源需求差异大、发布频率高且希望独立发布的场景。</div>
+    </div>
+
+    <!-- ══════════════════════ 02 组件全景 -->
+    <div class="sec" id="landscape"><span class="sn">02</span>Spring Cloud 组件全景图</div>
+
+    <div class="card">
+      <div class="ct">Spring Cloud 是一个微服务工具集，而不是单一框架</div>
+      <p>Spring Cloud 本身是一组规范（接口 + 抽象），各功能领域有多套可替换的实现。理解这一点比记住每个组件名字更重要。</p>
+    </div>
+
+    <div class="diag-wrap">
+      <div class="diag-cap">Spring Cloud Alibaba 全景图（主流技术栈）</div>
+      <div class="diag-body">
+        <svg width="720" height="350" viewBox="0 0 720 350">
+          <!-- 客户端 -->
+          <rect x="10" y="10" width="100" height="36" rx="5" class="dg-box"/>
+          <text x="60" y="24" class="dg-t3" font-size="9" text-anchor="middle">CLIENT</text>
+          <text x="60" y="38" class="dg-t" font-size="10" text-anchor="middle" font-weight="600">浏览器/App</text>
+          <line x1="110" y1="28" x2="140" y2="28" class="dg-ln" marker-end="url(#arr)"/>
+
+          <!-- Gateway -->
+          <rect x="140" y="10" width="120" height="36" rx="5" class="dg-box-g"/>
+          <text x="200" y="24" class="dg-t3" font-size="9" text-anchor="middle">GATEWAY</text>
+          <text x="200" y="38" class="dg-green" font-size="10" text-anchor="middle" font-weight="600">Spring Cloud Gateway</text>
+
+          <!-- arrow to services -->
+          <line x1="260" y1="28" x2="310" y2="28" class="dg-ln-g" marker-end="url(#arr-g)"/>
+
+          <!-- Services area -->
+          <rect x="310" y="4" width="390" height="100" rx="6" class="dg-box" style="stroke-dasharray:5 3"/>
+          <text x="505" y="18" class="dg-t3" font-size="8.5" text-anchor="middle" letter-spacing=".08em">MICROSERVICES</text>
+
+          <rect x="322" y="24" width="110" height="34" rx="4" class="dg-box-b"/>
+          <text x="377" y="37" class="dg-t3" font-size="8.5" text-anchor="middle">ORDER-SERVICE</text>
+          <text x="377" y="50" class="dg-blue" font-size="9" text-anchor="middle">:8081</text>
+
+          <rect x="446" y="24" width="110" height="34" rx="4" class="dg-box-b"/>
+          <text x="501" y="37" class="dg-t3" font-size="8.5" text-anchor="middle">USER-SERVICE</text>
+          <text x="501" y="50" class="dg-blue" font-size="9" text-anchor="middle">:8082</text>
+
+          <rect x="570" y="24" width="120" height="34" rx="4" class="dg-box-b"/>
+          <text x="630" y="37" class="dg-t3" font-size="8.5" text-anchor="middle">STOCK-SERVICE</text>
+          <text x="630" y="50" class="dg-blue" font-size="9" text-anchor="middle">:8083</text>
+
+          <!-- feign calls between services -->
+          <line x1="432" y1="41" x2="446" y2="41" class="dg-ln-b" marker-end="url(#arr-b)"/>
+          <line x1="556" y1="41" x2="570" y2="41" class="dg-ln-b" marker-end="url(#arr-b)"/>
+
+          <!-- Feign label -->
+          <text x="439" y="38" class="dg-t3" font-size="7.5" text-anchor="middle" fill="var(--blue)">Feign</text>
+          <text x="563" y="38" class="dg-t3" font-size="7.5" text-anchor="middle" fill="var(--blue)">Feign</text>
+
+          <!-- bottom row: 注册中心 / 配置中心 / 流控 / 链路 -->
+          <!-- Nacos 注册+配置 -->
+          <rect x="10" y="130" width="160" height="60" rx="6" class="dg-box-g"/>
+          <text x="90" y="148" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">NACOS</text>
+          <text x="90" y="162" class="dg-green" font-size="10" text-anchor="middle" font-weight="600">注册中心</text>
+          <text x="90" y="176" class="dg-green" font-size="10" text-anchor="middle" font-weight="600">配置中心</text>
+
+          <!-- Sentinel -->
+          <rect x="185" y="130" width="160" height="60" rx="6" class="dg-box-r"/>
+          <text x="265" y="148" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">SENTINEL</text>
+          <text x="265" y="162" class="dg-red" font-size="10" text-anchor="middle" font-weight="600">限流 · 熔断</text>
+          <text x="265" y="176" class="dg-red" font-size="10" text-anchor="middle" font-weight="600">降级 · 热点</text>
+
+          <!-- Seata -->
+          <rect x="360" y="130" width="160" height="60" rx="6" class="dg-box-o"/>
+          <text x="440" y="148" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">SEATA</text>
+          <text x="440" y="162" class="dg-orange" font-size="10" text-anchor="middle" font-weight="600">分布式事务</text>
+          <text x="440" y="176" class="dg-orange" font-size="10" text-anchor="middle" font-weight="600">AT / TCC / Saga</text>
+
+          <!-- SkyWalking -->
+          <rect x="535" y="130" width="175" height="60" rx="6" class="dg-box-p"/>
+          <text x="622" y="148" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">SKYWALKING</text>
+          <text x="622" y="162" class="dg-purple" font-size="10" text-anchor="middle" font-weight="600">链路追踪</text>
+          <text x="622" y="176" class="dg-purple" font-size="10" text-anchor="middle" font-weight="600">性能监控</text>
+
+          <!-- arrows services → infra -->
+          <line x1="90" y1="108" x2="90" y2="130" class="dg-ln-g" marker-end="url(#arr-g)"/>
+          <line x1="377" y1="108" x2="377" y2="120" class="dg-ln"/>
+          <line x1="377" y1="120" x2="90" y2="120" class="dg-ln"/>
+          <line x1="377" y1="120" x2="265" y2="120" class="dg-ln"/>
+          <line x1="265" y1="120" x2="265" y2="130" class="dg-ln-r" marker-end="url(#arr)"/>
+          <line x1="440" y1="120" x2="440" y2="130" class="dg-ln-o" marker-end="url(#arr-o)"/>
+          <line x1="622" y1="120" x2="622" y2="130" class="dg-ln" marker-end="url(#arr)"/>
+
+          <!-- 消息总线 RocketMQ -->
+          <rect x="10" y="220" width="700" height="50" rx="6" class="dg-box-y"/>
+          <text x="360" y="240" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".08em">MESSAGE BUS</text>
+          <text x="360" y="256" class="dg-t" font-size="11" text-anchor="middle" font-weight="600">RocketMQ / Kafka（Spring Cloud Stream 统一编程模型）</text>
+
+          <!-- 监控告警 -->
+          <rect x="10" y="290" width="340" height="50" rx="6" class="dg-box"/>
+          <text x="175" y="310" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".08em">MONITOR &amp; ALERT</text>
+          <text x="175" y="326" class="dg-t" font-size="11" text-anchor="middle" font-weight="600">Prometheus + Grafana + AlertManager</text>
+
+          <!-- 日志 -->
+          <rect x="370" y="290" width="340" height="50" rx="6" class="dg-box"/>
+          <text x="540" y="310" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".08em">LOG AGGREGATION</text>
+          <text x="540" y="326" class="dg-t" font-size="11" text-anchor="middle" font-weight="600">ELK / EFK（Elasticsearch + Logstash/Fluentd + Kibana）</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">六大核心能力对应组件</div>
+      <div class="three-col">
+        <div class="comp-card">
+          <div class="comp-name">服务注册 &amp; 发现</div>
+          <div class="comp-desc">Nacos（主流）/ Eureka（旧）/ Consul<br>服务启动时注册地址，消费方通过注册中心查找提供方实例列表</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">配置中心</div>
+          <div class="comp-desc">Nacos Config / Spring Cloud Config<br>统一管理各服务的配置文件，支持动态刷新（不重启生效）</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">API 网关</div>
+          <div class="comp-desc">Spring Cloud Gateway（主流）/ Zuul<br>路由转发、认证鉴权、限流、灰度发布的统一入口</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">服务调用</div>
+          <div class="comp-desc">OpenFeign（声明式 HTTP）+ LoadBalancer<br>像调本地方法一样调远程服务，自动整合负载均衡</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name red">限流 &amp; 熔断</div>
+          <div class="comp-desc">Sentinel（主流）/ Resilience4j / Hystrix（已停维护）<br>防止服务雪崩，流量保护和故障隔离</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">分布式事务</div>
+          <div class="comp-desc">Seata<br>跨服务数据一致性，支持 AT/TCC/Saga/XA 四种模式</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ 03 版本体系 -->
+    <div class="sec" id="version"><span class="sn">03</span>版本体系与技术选型</div>
+
+    <div class="card">
+      <div class="ct">Spring Cloud 版本与 Spring Boot 的对应关系</div>
+      <p>Spring Cloud 版本命名经历了两次变化：早期用英国地铁站名（Hoxton、Greenwich）；2020 年起改为年份格式（2020.x、2021.x、2022.x），与 Spring Boot 版本更清晰对应。</p>
+      <table class="tbl">
+        <tr><th>Spring Cloud 版本</th><th>Spring Boot 版本</th><th>Java 最低版本</th><th>维护状态</th></tr>
+        <tr><td>2022.x（Kilburn）</td><td>3.0.x / 3.1.x</td><td>Java 17</td><td>✅ 当前主线</td></tr>
+        <tr><td>2021.x（Jubilee）</td><td>2.6.x / 2.7.x</td><td>Java 8/11</td><td>⚠ 维护中</td></tr>
+        <tr><td>2020.x（Ilford）</td><td>2.4.x / 2.5.x</td><td>Java 8</td><td>❌ EOL</td></tr>
+        <tr><td>Hoxton</td><td>2.2.x / 2.3.x</td><td>Java 8</td><td>❌ EOL</td></tr>
+      </table>
+      <pre><!-- pom.xml 版本管理 -->
+&lt;properties&gt;
+  &lt;java.version&gt;17&lt;/java.version&gt;
+  &lt;spring-boot.version&gt;3.1.5&lt;/spring-boot.version&gt;
+  &lt;spring-cloud.version&gt;2022.0.4&lt;/spring-cloud.version&gt;
+  &lt;spring-cloud-alibaba.version&gt;2022.0.0.0&lt;/spring-cloud-alibaba.version&gt;
+&lt;/properties&gt;</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">Netflix OSS 组件的替代方案（重要！）</div>
+      <p>Spring Cloud Netflix 的多个组件已停止维护，生产中应全面切换到替代方案：</p>
+      <table class="tbl">
+        <tr><th>Netflix 组件（已废弃）</th><th>官方替代</th><th>说明</th></tr>
+        <tr><td>Eureka（注册中心）</td><td>Nacos / Consul</td><td>Nacos 是国内事实标准，同时支持配置中心</td></tr>
+        <tr><td>Ribbon（客户端负载均衡）</td><td>Spring Cloud LoadBalancer</td><td>2020 年后内置于 Spring Cloud，取代 Ribbon</td></tr>
+        <tr><td>Hystrix（熔断器）</td><td>Sentinel / Resilience4j</td><td>Sentinel 功能更丰富，Resilience4j 更轻量</td></tr>
+        <tr><td>Zuul（网关）</td><td>Spring Cloud Gateway</td><td>Gateway 基于 WebFlux 异步，吞吐更高</td></tr>
+        <tr><td>Feign（HTTP 客户端）</td><td>OpenFeign（仍活跃维护）</td><td>OpenFeign 是 Feign 的进化版，Spring Boot 直接集成</td></tr>
+      </table>
+    </div>
+
+    <!-- ══════════════════════ 04 调用链路 -->
+    <div class="sec" id="callchain"><span class="sn">04</span>服务调用完整链路</div>
+
+    <div class="card">
+      <div class="ct">从客户端请求到服务响应的完整路径</div>
+      <p>理解这条链路，是调优 Spring Cloud 应用的基础。每个环节都可能成为性能瓶颈或故障点。</p>
+    </div>
+
+    <div class="step-flow">
+      <div class="step">
+        <div class="step-num">①</div>
+        <div>
+          <div class="step-title">客户端发请求 → Gateway 路由匹配</div>
+          <div class="step-desc">客户端请求到达 Spring Cloud Gateway。Gateway 按路由规则匹配（Path/Header/Method），在全局 Filter 链中依次处理：认证（JWT 解析）→ 鉴权 → 限流（Redis 令牌桶）→ 请求日志。路由匹配成功后，从 Nacos 注册中心获取目标服务实例列表。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">②</div>
+        <div>
+          <div class="step-title">Gateway 负载均衡 → 目标服务实例</div>
+          <div class="step-desc">Gateway 集成 Spring Cloud LoadBalancer，从服务实例列表中按策略（轮询/权重）选择一个实例，转发请求。如果目标实例不可达，LoadBalancer 会剔除该实例并重试其他实例（重试次数由配置控制）。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">③</div>
+        <div>
+          <div class="step-title">服务内部处理 → Feign 调用下游服务</div>
+          <div class="step-desc">请求到达目标服务（如 order-service）后，正常处理业务逻辑。若需要调用其他服务（如 user-service），通过 OpenFeign 发起 HTTP 调用。Feign 自动从 Nacos 查找 user-service 实例，LoadBalancer 选择实例，Sentinel 检查是否限流/熔断，通过则发起 HTTP 请求。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">④</div>
+        <div>
+          <div class="step-title">Sentinel 限流 &amp; 熔断保护</div>
+          <div class="step-desc">每次服务调用经过 Sentinel 的 SlotChain（责任链）：统计 QPS/并发数 → 检查流控规则 → 检查熔断规则（错误率/慢调用比例）。触发限流 → 抛出 FlowException；触发熔断 → 抛出 DegradeException，进入 fallback 降级逻辑。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">⑤</div>
+        <div>
+          <div class="step-title">SkyWalking 透明链路追踪</div>
+          <div class="step-desc">SkyWalking Agent（Java Agent 字节码增强）在每次服务调用时自动注入 Trace ID，通过 HTTP Header（sw8）传递到下游服务。全链路的调用时序、每个 Span 的耗时、异常信息都会异步上报到 SkyWalking OAP，不影响业务逻辑。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">⑥</div>
+        <div>
+          <div class="step-title">结果返回 → Gateway 响应过滤</div>
+          <div class="step-desc">下游服务响应经 Gateway 后置 Filter 处理（如添加响应头、统一响应格式）后返回客户端。Gateway 记录完整请求日志（请求耗时、响应状态码、目标实例 IP）。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ 05 设计原则 -->
+    <div class="sec" id="design"><span class="sn">05</span>核心设计原则</div>
+
+    <div class="card">
+      <div class="ct">微服务拆分的六个原则</div>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">单一职责</div>
+          <div class="comp-desc">每个服务只负责一个业务域（用户、订单、库存）。一个服务出现需要频繁修改不相关功能的情况，说明职责不清晰，应该继续拆分。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name">高内聚低耦合</div>
+          <div class="comp-desc">服务内部的功能紧密相关（高内聚），服务之间仅通过定义清晰的 API 交互（低耦合）。避免服务间直接操作对方数据库。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">围绕业务域</div>
+          <div class="comp-desc">按 DDD（领域驱动设计）的限界上下文划分，而不是按技术层（DAO/Service/Controller）拆分。技术层拆分会导致大量网络调用。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">数据库隔离</div>
+          <div class="comp-desc">每个微服务独享自己的数据库（Database per Service）。多服务共享数据库是微服务的反模式，会导致耦合和数据库成为单点瓶颈。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">服务自治</div>
+          <div class="comp-desc">每个服务能独立部署、独立扩容、独立失败。依赖第三方服务时，要做好降级：对方不可用时，用降级数据返回，而不是让自己也挂掉。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">接口向后兼容</div>
+          <div class="comp-desc">服务升级时 API 不能破坏已有消费方。新增字段用默认值；废弃字段先标注 @Deprecated 保留一个版本再删除；主版本不兼容时新建接口路径（/v2/）。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note good"><strong>Spring Cloud Alibaba 是国内生产环境的主流选择。</strong>Nacos（注册 + 配置）+ Gateway + OpenFeign + Sentinel + Seata 的组合，覆盖了微服务的全部核心需求，且都有阿里巴巴在超大规模场景下的验证。文档中文友好，社区活跃。</div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.s-link[href^="#"]');
+  var secs=Array.from(links).map(function(l){return document.querySelector(l.getAttribute('href'));}).filter(Boolean);
+  function spy(){var top=window.scrollY+80,cur=secs[0];secs.forEach(function(s){if(s.offsetTop<=top)cur=s;});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur.id);});}
+  window.addEventListener('scroll',spy,{passive:true});
+})();
+</script>
+</body>
+</html>

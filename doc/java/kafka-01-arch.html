@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafka 01 · 整体架构与存储原理</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'ARCH'}
+
+/* flow / step */
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+
+/* warn / tip */
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.tip {background:var(--green-bg);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* badge row inside table */
+.badge-isr {display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b)}
+.badge-osr {display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b)}
+.badge-ar  {display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;color:var(--tx2);background:var(--bg2);border:1px solid var(--bd)}
+
+/* architecture diagram */
+.arch-diagram{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+.arch-box{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:14px 16px}
+.arch-box-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--accent-color,var(--green));text-transform:uppercase;margin-bottom:8px}
+.arch-box ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.arch-box li{font-size:12.5px;color:var(--tx2);display:flex;gap:6px;align-items:flex-start}
+.arch-box li::before{content:'·';color:var(--bd2);flex-shrink:0;font-size:16px;line-height:1.2}
+
+/* ── 集群拓扑图 ── */
+.topo-wrap{overflow-x:auto;margin:16px 0}
+.topo{display:flex;align-items:center;gap:0;min-width:580px}
+.topo-arr{font-size:22px;color:var(--tx3);padding:0 8px;flex-shrink:0}
+.topo-node{border:2px solid var(--green-b);background:var(--green-bg);border-radius:10px;padding:11px 14px;flex-shrink:0;text-align:center}
+.topo-node-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--green);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.topo-node-sub{font-size:11.5px;color:var(--tx2);line-height:1.5}
+.topo-cluster{border:2px dashed var(--bd2);border-radius:12px;padding:10px 12px;flex-shrink:0;background:var(--bg2)}
+.topo-cluster-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;text-align:center;margin-bottom:8px}
+.topo-brokers{display:flex;gap:8px}
+.topo-broker{border:1px solid var(--bd);border-radius:8px;padding:8px 10px;background:var(--bg);min-width:88px}
+.topo-broker-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--tx2);text-align:center;padding-bottom:5px;border-bottom:1px solid var(--bd);margin-bottom:5px}
+.topo-p{font-family:'IBM Plex Mono',monospace;font-size:10px;display:flex;justify-content:space-between;align-items:center;padding:2px 5px;border-radius:3px;margin-bottom:3px}
+.topo-p:last-child{margin-bottom:0}
+.topo-p.L{background:var(--green-bg);border:1px solid var(--green-b);color:var(--green)}
+.topo-p.F{background:var(--bg2);border:1px solid var(--bd);color:var(--tx3)}
+.topo-p-tag{font-size:9px;font-weight:700;padding:0 3px;border-radius:2px}
+.topo-p.L .topo-p-tag{background:var(--green);color:#fff}
+.topo-p.F .topo-p-tag{background:var(--bd2);color:var(--bg)}
+.topo-cg{border:2px solid var(--blue-b);background:var(--blue-bg);border-radius:10px;padding:11px 14px;flex-shrink:0}
+.topo-cg-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:var(--blue);letter-spacing:.07em;text-transform:uppercase;text-align:center;margin-bottom:8px}
+.topo-consumer{background:var(--bg);border:1px solid var(--blue-b);border-radius:6px;padding:5px 9px;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.topo-consumer:last-child{margin-bottom:0}
+.topo-consumer-name{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx2);min-width:68px}
+.topo-consumer-p{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--blue)}
+
+/* ── LogSegment 结构图 ── */
+.seg-diagram{display:flex;gap:12px;margin:14px 0;overflow-x:auto}
+.seg-dir{border:1px solid var(--bd);border-radius:8px;background:var(--bg2);padding:10px 14px;min-width:240px;flex:1}
+.seg-dir-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.seg-group{margin-bottom:10px}
+.seg-group:last-child{margin-bottom:0}
+.seg-group-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:4px}
+.seg-file{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:4px;margin-bottom:3px;border:1px solid var(--bd)}
+.seg-file:last-child{margin-bottom:0}
+.seg-file-icon{font-size:11px;flex-shrink:0}
+.seg-file-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;flex:1}
+.seg-file-desc{font-size:11px;color:var(--tx3)}
+.seg-file.log {background:var(--green-bg);border-color:var(--green-b)}
+.seg-file.log .seg-file-name{color:var(--green)}
+.seg-file.idx {background:var(--blue-bg);border-color:var(--blue-b)}
+.seg-file.idx .seg-file-name{color:var(--blue)}
+.seg-file.tidx{background:var(--yellow-bg);border-color:var(--yellow-b)}
+.seg-file.tidx .seg-file-name{color:var(--yellow)}
+
+/* ── HW / LEO 条形图 ── */
+.leo-vis{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:16px 20px;margin:12px 0}
+.leo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.leo-row:last-child{margin-bottom:0}
+.leo-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;width:76px;flex-shrink:0;color:var(--tx2)}
+.leo-track{flex:1;background:var(--bg);border:1px solid var(--bd);border-radius:4px;height:24px;position:relative;overflow:visible}
+.leo-bar{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;position:relative}
+.leo-bar.leader  {background:var(--green-bg);color:var(--green);border:1px solid var(--green-b);width:100%}
+.leo-bar.follow1 {background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-b); width:80%}
+.leo-bar.follow2 {background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-b);width:90%}
+.leo-val{font-family:'IBM Plex Mono',monospace;font-size:11px;width:54px;flex-shrink:0;text-align:right;color:var(--tx3)}
+.hw-row{display:flex;align-items:center;gap:10px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--bd)}
+.hw-row-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;width:76px;flex-shrink:0;color:var(--red)}
+.hw-track{flex:1;position:relative;height:20px}
+.hw-marker{position:absolute;left:80%;top:0;bottom:0;border-left:2px dashed var(--red);display:flex;align-items:center}
+.hw-marker-txt{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--red);white-space:nowrap;margin-left:5px}
+.hw-visible{position:absolute;left:0;top:4px;height:12px;background:var(--red-bg);border:1px solid var(--red-b);border-radius:3px;width:80%}
+.hw-val{font-family:'IBM Plex Mono',monospace;font-size:11px;width:54px;flex-shrink:0;text-align:right;color:var(--red)}
+.leo-caption{font-size:12px;color:var(--tx2);margin-top:10px;padding-top:8px;border-top:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-kafka.js"></script>
+
+<header>
+  <div class="htag">KAFKA · 01 · ARCHITECTURE</div>
+  <h1>整体架构与存储原理</h1>
+  <p class="subtitle">核心概念 · 消息存储 · 副本 ISR/HW/LEO · Controller 选举 · KRaft · 压缩与批量</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#concept"><span class="s-link-num">01</span>核心概念</a>
+    <a class="s-link" href="#storage"><span class="s-link-num">02</span>消息存储原理</a>
+    <a class="s-link" href="#replica"><span class="s-link-num">03</span>副本 ISR · HW · LEO</a>
+    <a class="s-link" href="#controller"><span class="s-link-num">04</span>Controller 与元数据</a>
+    <a class="s-link" href="#compress"><span class="s-link-num">05</span>压缩与批量发送</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="kafka-02-producer.html">→ 下一章：Producer</a>
+    <a class="s-link" href="kafka-06-interview.html#arch">→ 面试题 架构章节</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 核心概念 ═══ -->
+    <div class="sec" id="concept"><span class="sec-num">01</span>核心概念</div>
+
+    <div class="card">
+      <div class="card-title">Kafka 是什么</div>
+      <p>Kafka 是由 LinkedIn 开源的<strong>分布式流处理平台</strong>，本质是一个基于发布/订阅模型的<strong>持久化消息队列</strong>。核心设计目标：高吞吐（单机百万级 TPS）、低延迟、持久化、水平扩展。</p>
+
+      <!-- 集群拓扑图 -->
+      <div class="topo-wrap">
+        <div class="topo">
+          <!-- Producer -->
+          <div class="topo-node">
+            <div class="topo-node-lbl">Producer</div>
+            <div class="topo-node-sub">send(record)<br>指定 Topic / Key</div>
+          </div>
+          <div class="topo-arr">→</div>
+          <!-- Kafka Cluster -->
+          <div class="topo-cluster">
+            <div class="topo-cluster-lbl">Kafka Cluster · Topic: orders（Partition=2, RF=2）</div>
+            <div class="topo-brokers">
+              <div class="topo-broker">
+                <div class="topo-broker-lbl">Broker 1</div>
+                <div class="topo-p L"><span>orders-P0</span><span class="topo-p-tag">L</span></div>
+                <div class="topo-p F"><span>orders-P1</span><span class="topo-p-tag">F</span></div>
+              </div>
+              <div class="topo-broker">
+                <div class="topo-broker-lbl">Broker 2</div>
+                <div class="topo-p L"><span>orders-P1</span><span class="topo-p-tag">L</span></div>
+                <div class="topo-p F"><span>orders-P0</span><span class="topo-p-tag">F</span></div>
+              </div>
+              <div class="topo-broker">
+                <div class="topo-broker-lbl">Broker 3</div>
+                <div class="topo-p F"><span>orders-P0</span><span class="topo-p-tag">F</span></div>
+                <div class="topo-p F"><span>orders-P1</span><span class="topo-p-tag">F</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="topo-arr">→</div>
+          <!-- Consumer Group -->
+          <div class="topo-cg">
+            <div class="topo-cg-lbl">Consumer Group A</div>
+            <div class="topo-consumer">
+              <span class="topo-consumer-name">Consumer 1</span>
+              <span class="topo-consumer-p">P0</span>
+            </div>
+            <div class="topo-consumer">
+              <span class="topo-consumer-name">Consumer 2</span>
+              <span class="topo-consumer-p">P1</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11.5px;color:var(--tx3);margin-top:6px">L = Leader（负责读写），F = Follower（只同步），RF=2 表示每个 Partition 有 2 个副本</p>
+      </div>
+
+      <div class="arch-diagram">
+        <div class="arch-box">
+          <div class="arch-box-title">Producer</div>
+          <ul>
+            <li>消息生产者，向指定 Topic 发送消息</li>
+            <li>可指定 Partition 或由分区器决定</li>
+            <li>支持同步、异步、发后即忘三种发送模式</li>
+          </ul>
+        </div>
+        <div class="arch-box">
+          <div class="arch-box-title">Broker / Cluster</div>
+          <ul>
+            <li>Kafka 服务节点称为 Broker</li>
+            <li>多个 Broker 组成 Cluster，共享元数据</li>
+            <li>每个 Broker 承载若干 Partition 的 Leader / Follower</li>
+          </ul>
+        </div>
+        <div class="arch-box">
+          <div class="arch-box-title">Consumer</div>
+          <ul>
+            <li>消费者，从 Topic 拉取消息（Pull 模式）</li>
+            <li>同一 Consumer Group 内，一个 Partition 只能被一个成员消费</li>
+            <li>不同 Group 之间互不影响，各自维护 Offset</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Topic · Partition · Offset — 三个最重要的概念</div>
+      <table class="tbl">
+        <tr><th>概念</th><th>定义</th><th>关键点</th></tr>
+        <tr>
+          <td><strong>Topic</strong></td>
+          <td>消息的逻辑分类，类似数据库中的表</td>
+          <td>一个 Topic 由多个 Partition 组成，分散存储在不同 Broker 上</td>
+        </tr>
+        <tr>
+          <td><strong>Partition</strong></td>
+          <td>Topic 的物理分片，每个 Partition 是一个有序、不可变的消息序列</td>
+          <td>Partition 是 Kafka 并行消费和水平扩展的基础单元；Partition 内有序，Partition 间无序</td>
+        </tr>
+        <tr>
+          <td><strong>Offset</strong></td>
+          <td>消息在 Partition 内的唯一递增编号，从 0 开始</td>
+          <td>Consumer 通过 Offset 标记消费进度，存储在 <code>__consumer_offsets</code> Topic 中</td>
+        </tr>
+      </table>
+      <div class="tip">
+        <strong>Partition 数量设计原则：</strong>分区数越多，并行度越高，但也会增加 Leader 选举开销和文件句柄消耗。经验值：吞吐目标 / 单 Partition 吞吐上限（通常 10~50 MB/s），结合 Consumer 实例数来定，一般不超过 100 个分区。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Consumer Group — 并行消费模型</div>
+      <p>Consumer Group 是 Kafka 实现<strong>消息队列语义</strong>（竞争消费）和<strong>发布订阅语义</strong>（广播）的核心机制：</p>
+      <table class="tbl">
+        <tr><th>场景</th><th>做法</th><th>效果</th></tr>
+        <tr><td>消息队列（竞争消费）</td><td>多个 Consumer 属于同一 Group</td><td>每条消息只被 Group 内一个 Consumer 处理</td></tr>
+        <tr><td>发布订阅（广播）</td><td>每个 Consumer 属于不同 Group</td><td>每条消息被所有 Group 各消费一次</td></tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ Consumer 数量上限</strong>：同一 Group 内有效 Consumer 数不能超过 Topic 的 Partition 数，多出的 Consumer 会闲置无法分配到 Partition。
+      </div>
+    </div>
+
+    <!-- ═══ 02 消息存储原理 ═══ -->
+    <div class="sec" id="storage"><span class="sec-num">02</span>消息存储原理</div>
+
+    <div class="card">
+      <div class="card-title">日志文件结构 — LogSegment 三件套</div>
+      <p>每个 Partition 对应磁盘上的一个目录（如 <code>topic-0/</code>），目录内由多个 <strong>LogSegment</strong> 组成，每个 Segment 包含三个文件：</p>
+      <table class="tbl">
+        <tr><th>文件</th><th>作用</th><th>说明</th></tr>
+        <tr>
+          <td><code>.log</code></td>
+          <td>消息数据文件</td>
+          <td>顺序追加写入，消息按 Offset 顺序存储，文件名即该 Segment 起始 Offset</td>
+        </tr>
+        <tr>
+          <td><code>.index</code></td>
+          <td>偏移量索引（稀疏索引）</td>
+          <td>记录 Offset → 物理位置的映射，每隔 <code>log.index.interval.bytes</code>（默认 4KB）写一条，通过二分查找定位消息</td>
+        </tr>
+        <tr>
+          <td><code>.timeindex</code></td>
+          <td>时间戳索引</td>
+          <td>记录时间戳 → Offset 的映射，支持按时间回溯消费（<code>--reset-offsets --to-datetime</code>）</td>
+        </tr>
+      </table>
+      <pre>topic-orders-0/
+├── 00000000000000000000.log        ← Segment 1，起始 offset=0
+├── 00000000000000000000.index
+├── 00000000000000000000.timeindex
+├── 00000000000001000000.log        ← Segment 2，起始 offset=1000000
+├── 00000000000001000000.index
+└── 00000000000001000000.timeindex</pre>
+      <!-- LogSegment 结构图 -->
+      <div class="seg-diagram">
+        <div class="seg-dir">
+          <div class="seg-dir-lbl">📁 topic-orders-0/（Partition 目录）</div>
+          <div class="seg-group">
+            <div class="seg-group-lbl">Segment 1 · 起始 offset=0</div>
+            <div class="seg-file log">
+              <span class="seg-file-icon">📄</span>
+              <span class="seg-file-name">00000000000000000000.log</span>
+              <span class="seg-file-desc">消息数据</span>
+            </div>
+            <div class="seg-file idx">
+              <span class="seg-file-icon">🔍</span>
+              <span class="seg-file-name">00000000000000000000.index</span>
+              <span class="seg-file-desc">稀疏偏移索引</span>
+            </div>
+            <div class="seg-file tidx">
+              <span class="seg-file-icon">🕐</span>
+              <span class="seg-file-name">00000000000000000000.timeindex</span>
+              <span class="seg-file-desc">时间戳索引</span>
+            </div>
+          </div>
+          <div class="seg-group">
+            <div class="seg-group-lbl">Segment 2 · 起始 offset=1,000,000（活跃写入）</div>
+            <div class="seg-file log">
+              <span class="seg-file-icon">📄</span>
+              <span class="seg-file-name">00000000000001000000.log</span>
+              <span class="seg-file-desc">顺序追加写</span>
+            </div>
+            <div class="seg-file idx">
+              <span class="seg-file-icon">🔍</span>
+              <span class="seg-file-name">00000000000001000000.index</span>
+              <span class="seg-file-desc">每 4KB 一条</span>
+            </div>
+            <div class="seg-file tidx">
+              <span class="seg-file-icon">🕐</span>
+              <span class="seg-file-name">00000000000001000000.timeindex</span>
+              <span class="seg-file-desc">支持按时间回溯</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:8px;font-size:13px;color:var(--tx2)">Segment 滚动条件（满足其一即新建）：大小超过 <code>log.segment.bytes</code>（默认 1 GB）或时间超过 <code>log.roll.hours</code>（默认 168h / 7 天）。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">为什么 Kafka 这么快 — 顺序写 + Page Cache + 零拷贝</div>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">顺序写磁盘</div>
+            <div class="step-desc">Kafka 只追加写（Append-Only），磁盘顺序写速度接近内存随机写（600 MB/s vs 100 MB/s），远超随机写（~100 MB/s vs 数据库 B+Tree 随机写几十 MB/s）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Page Cache — 操作系统级缓存</div>
+            <div class="step-desc">Kafka 写消息时直接写 OS Page Cache，由操作系统异步刷盘（<code>pdflush</code>），读消息时优先从 Page Cache 命中。即使 Kafka 进程重启，Page Cache 依然有效，不像 JVM 堆内存会被清空。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">零拷贝 — sendfile() 系统调用</div>
+            <div class="step-desc">消费者拉取消息时，Kafka 使用 <code>sendfile()</code> 将数据从 Page Cache 直接通过 DMA 传输到网卡，跳过「内核→用户态→内核」的两次拷贝，减少 CPU 上下文切换。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">批量处理 + 压缩</div>
+            <div class="step-desc">Producer 端将多条消息打包成 RecordBatch 发送，Broker 端批量写入，Consumer 端批量拉取，极大减少网络往返次数和序列化开销。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">消息查找流程 — 二分查找 + 顺序扫描</div>
+      <p>Consumer 通过 Offset 查找消息的完整路径：</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">定位 Segment</div>
+            <div class="step-desc">根据目标 Offset，在 Segment 文件列表（按起始 Offset 命名）中<strong>二分查找</strong>，找到包含该 Offset 的 Segment。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">查 .index 稀疏索引</div>
+            <div class="step-desc">在该 Segment 的 <code>.index</code> 文件中二分查找，找到不超过目标 Offset 的最近索引条目，得到对应的物理文件位置（position）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">顺序扫描 .log</div>
+            <div class="step-desc">从第 2 步得到的 position 开始，在 <code>.log</code> 文件中顺序扫描，直到找到目标 Offset 的消息。由于稀疏索引间距不大，扫描量极小。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 03 副本机制 ═══ -->
+    <div class="sec" id="replica"><span class="sec-num">03</span>副本机制 — ISR · HW · LEO</div>
+
+    <div class="card">
+      <div class="card-title">AR / ISR / OSR — 三个副本集合</div>
+      <table class="tbl">
+        <tr><th>集合</th><th>全称</th><th>含义</th></tr>
+        <tr>
+          <td><span class="badge-ar">AR</span></td>
+          <td>Assigned Replicas</td>
+          <td>该 Partition 的<strong>全部副本集合</strong>，包括 Leader 和所有 Follower</td>
+        </tr>
+        <tr>
+          <td><span class="badge-isr">ISR</span></td>
+          <td>In-Sync Replicas</td>
+          <td><strong>与 Leader 保持同步的副本集合</strong>。Follower 若在 <code>replica.lag.time.max.ms</code>（默认 30s）内没有跟上 Leader，会被移出 ISR</td>
+        </tr>
+        <tr>
+          <td><span class="badge-osr">OSR</span></td>
+          <td>Out-of-Sync Replicas</td>
+          <td>落后于 Leader 的副本集合，<code>AR = ISR + OSR</code>。OSR 中的副本正在追赶，追上后重新加入 ISR</td>
+        </tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ unclean.leader.election.enable</strong>：默认 false，禁止 OSR 中的副本在 ISR 为空时成为 Leader。若设为 true，可提升可用性但会丢失数据，生产环境不建议开启。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">HW 与 LEO — 消费边界与副本进度</div>
+      <table class="tbl">
+        <tr><th>概念</th><th>全称</th><th>定义</th></tr>
+        <tr>
+          <td><strong>LEO</strong></td>
+          <td>Log End Offset</td>
+          <td>每个副本<strong>自己的</strong>下一条待写入消息的 Offset，即当前日志末尾位置 + 1。每个副本各有自己的 LEO。</td>
+        </tr>
+        <tr>
+          <td><strong>HW</strong></td>
+          <td>High Watermark</td>
+          <td>消费者<strong>可见的最大 Offset</strong>，等于 ISR 中<strong>所有副本 LEO 的最小值</strong>。HW 以下的消息才能被消费者读取。</td>
+        </tr>
+      </table>
+
+      <!-- HW/LEO 条形图 -->
+      <div class="leo-vis">
+        <div class="leo-row">
+          <span class="leo-label">Leader</span>
+          <div class="leo-track"><div class="leo-bar leader">LEO = 10</div></div>
+          <span class="leo-val">offset 0~9</span>
+        </div>
+        <div class="leo-row">
+          <span class="leo-label">Follower 1</span>
+          <div class="leo-track"><div class="leo-bar follow1">LEO = 8</div></div>
+          <span class="leo-val">offset 0~7</span>
+        </div>
+        <div class="leo-row">
+          <span class="leo-label">Follower 2</span>
+          <div class="leo-track"><div class="leo-bar follow2">LEO = 9</div></div>
+          <span class="leo-val">offset 0~8</span>
+        </div>
+        <div class="hw-row">
+          <span class="hw-row-label">HW 边界</span>
+          <div class="hw-track">
+            <div class="hw-visible"></div>
+            <div class="hw-marker">
+              <span class="hw-marker-txt">HW = min(10,8,9) = 8</span>
+            </div>
+          </div>
+          <span class="hw-val">可见: 0~7</span>
+        </div>
+        <div class="leo-caption">
+          offset 8、9 虽已写入 Leader，但 Follower 1 尚未同步 → HW=8 → 消费者<strong>看不到</strong>这两条消息，直到 Follower 1 追上后 HW 才推进
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--tx2)">上图中 offset 8、9 虽然 Leader 已写入，但 ISR 中最慢的 Follow1 还没同步，所以这两条消息对消费者<strong>不可见</strong>，等 Follow1 同步后 HW 才会推进。</p>
+
+      <div class="tip">
+        <strong>HW 推进时机：</strong>Follower 向 Leader 发送 Fetch 请求时，会带上自己的 LEO。Leader 收到后更新该 Follower 的 LEO 记录，重新计算 ISR 中的最小 LEO，更新 HW 并在下次 Fetch 响应中告知 Follower。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">min.insync.replicas — 可用性与持久性的权衡</div>
+      <p>当 <code>acks=all</code> 时，Broker 要求 ISR 中至少有 <code>min.insync.replicas</code> 个副本写入才算成功。</p>
+      <table class="tbl">
+        <tr><th>配置组合</th><th>效果</th></tr>
+        <tr><td><code>replication.factor=3</code><br><code>min.insync.replicas=2</code><br><code>acks=all</code></td><td>允许 1 个副本宕机仍可写入；若同时 2 个副本不可用，Producer 会收到 <code>NotEnoughReplicasException</code>，写入阻塞</td></tr>
+        <tr><td><code>min.insync.replicas=1</code></td><td>退化为只需 Leader 写入，等同于 <code>acks=1</code>，不推荐</td></tr>
+        <tr><td><code>min.insync.replicas=replication.factor</code></td><td>最强持久性，任何一个副本宕机都会导致写入失败，可用性最低</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 04 Controller ═══ -->
+    <div class="sec" id="controller"><span class="sec-num">04</span>Controller 与元数据</div>
+
+    <div class="card">
+      <div class="card-title">Kafka Controller — 集群大脑</div>
+      <p>Controller 是 Kafka 集群中一个特殊的 Broker，负责集群级别的管理工作：</p>
+      <table class="tbl">
+        <tr><th>职责</th><th>说明</th></tr>
+        <tr><td>Partition Leader 选举</td><td>当 Leader 副本所在 Broker 宕机时，从 ISR 中选出新 Leader</td></tr>
+        <tr><td>ISR 变更</td><td>监控 Follower 同步进度，将落后副本移出 ISR，追上后重新加入</td></tr>
+        <tr><td>Topic / Partition 管理</td><td>处理 Topic 创建/删除、分区数变更，向各 Broker 下发元数据变更</td></tr>
+        <tr><td>Broker 上下线</td><td>监听 Broker 的加入与退出，触发相应的 Leader 重新选举和副本再分配</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Controller 选举 — ZooKeeper 模式</div>
+      <p>在传统 ZooKeeper 模式下，Controller 通过<strong>抢占临时节点</strong>的方式选出：</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">所有 Broker 启动时竞争注册</div>
+            <div class="step-desc">每个 Broker 启动后尝试在 ZooKeeper 的 <code>/controller</code> 路径创建<strong>临时节点（Ephemeral ZNode）</strong>，写入自己的 broker.id。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">第一个创建成功的 Broker 成为 Controller</div>
+            <div class="step-desc">ZooKeeper 保证只有一个 Broker 能创建成功，其余 Broker 注册 Watch 监听 <code>/controller</code> 节点。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Controller 宕机后重新选举</div>
+            <div class="step-desc">Controller Broker 宕机时，<code>/controller</code> 临时节点自动删除，其余 Broker 通过 Watch 感知，再次竞争创建节点，第一个成功的成为新 Controller。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">KRaft 模式 — Kafka 3.x 去除 ZooKeeper</div>
+      <p>Kafka 3.3 起 KRaft 模式正式 GA，Kafka 4.0 完全移除 ZooKeeper 依赖。KRaft 将元数据管理内置到 Kafka 自身，通过 <strong>Raft 协议</strong>在专用的 Controller 节点之间同步：</p>
+      <table class="tbl">
+        <tr><th>对比维度</th><th>ZooKeeper 模式</th><th>KRaft 模式</th></tr>
+        <tr><td>元数据存储</td><td>存在 ZooKeeper 中</td><td>存在 Kafka 内部 <code>@metadata</code> Topic 中</td></tr>
+        <tr><td>Controller 角色</td><td>1 个 Active Controller + ZooKeeper</td><td>多个 Controller 节点组成 Raft 组（奇数个，如 3）</td></tr>
+        <tr><td>选举机制</td><td>ZooKeeper 临时节点抢占</td><td>Raft 协议 Leader 选举（多数派投票）</td></tr>
+        <tr><td>扩展性</td><td>ZooKeeper 节点数限制，百万 Partition 有瓶颈</td><td>元数据处理能力大幅提升，支持百万级 Partition</td></tr>
+        <tr><td>运维复杂度</td><td>需额外维护 ZooKeeper 集群</td><td>只需部署 Kafka，架构更简单</td></tr>
+        <tr><td>启动速度</td><td>慢（需与 ZooKeeper 同步大量元数据）</td><td>快（Controller 直接持有最新元数据快照）</td></tr>
+      </table>
+      <div class="tip"><strong>生产建议：</strong>新项目直接用 Kafka 3.x KRaft 模式；存量项目按官方迁移工具逐步切换（<code>kafka-storage.sh</code> 支持在线迁移）。</div>
+    </div>
+
+    <!-- ═══ 05 压缩与批量 ═══ -->
+    <div class="sec" id="compress"><span class="sec-num">05</span>压缩与批量发送</div>
+
+    <div class="card">
+      <div class="card-title">压缩算法对比</div>
+      <p>Kafka 支持对消息批次（RecordBatch）进行压缩，Producer 端压缩后发送，Broker 直接存储压缩数据，Consumer 端解压：</p>
+      <table class="tbl">
+        <tr><th>算法</th><th>压缩比</th><th>CPU 开销</th><th>速度</th><th>推荐场景</th></tr>
+        <tr><td><code>GZIP</code></td><td>高</td><td>高</td><td>慢</td><td>带宽极贵、对延迟不敏感的批量归档场景</td></tr>
+        <tr><td><code>Snappy</code></td><td>中</td><td>低</td><td>快</td><td>平衡压缩比与速度，Google 内部广泛使用</td></tr>
+        <tr><td><code>LZ4</code></td><td>中</td><td>极低</td><td>极快</td><td>延迟敏感场景，Kafka 官方推荐默认选择</td></tr>
+        <tr><td><code>ZSTD</code></td><td>高</td><td>低</td><td>快</td><td>Kafka 2.1+ 支持，压缩比接近 GZIP，速度接近 LZ4，综合最优</td></tr>
+        <tr><td><code>NONE</code></td><td>无</td><td>无</td><td>最快</td><td>消息本身已压缩（如图片/视频二进制），或内网带宽充裕</td></tr>
+      </table>
+      <div class="warn">
+        <strong>⚠ Broker 端重压缩</strong>：若 Producer 压缩算法与 Broker 的 <code>compression.type</code> 配置不一致，Broker 会先解压再重新压缩，消耗额外 CPU。建议 Producer、Broker 配置保持一致，或 Broker 设置为 <code>producer</code>（透传 Producer 的压缩格式）。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">batch.size 与 linger.ms — 吞吐与延迟的平衡</div>
+      <p>Producer 端的批量发送由两个参数共同控制，两者满足其一即触发发送：</p>
+      <table class="tbl">
+        <tr><th>参数</th><th>默认值</th><th>作用</th></tr>
+        <tr><td><code>batch.size</code></td><td>16 KB</td><td>单个批次的最大字节数。批次凑满后立即发送，不等待 linger.ms 超时</td></tr>
+        <tr><td><code>linger.ms</code></td><td>0</td><td>批次等待时间。0 表示消息到达即发送（低延迟），增大后允许更多消息凑批（高吞吐）</td></tr>
+      </table>
+      <pre>// 高吞吐场景推荐配置（日志采集、埋点上报）
+props.put("batch.size",   65536);    // 64 KB，加大批次
+props.put("linger.ms",    10);       // 等待最多 10ms 凑批
+props.put("compression.type", "lz4"); // 开启压缩
+
+// 低延迟场景推荐配置（支付、交易类）
+props.put("batch.size",   16384);    // 默认 16 KB
+props.put("linger.ms",    0);        // 立即发送
+props.put("acks",         "1");      // 适当降低可靠性换延迟</pre>
+      <div class="tip">
+        <strong>buffer.memory（默认 32 MB）</strong>：Producer 端消息缓冲区总大小。若消息发送速度超过发送速度，缓冲区满后 <code>send()</code> 会阻塞，超过 <code>max.block.ms</code>（默认 60s）则抛出异常。高吞吐场景可适当调大。
+      </div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

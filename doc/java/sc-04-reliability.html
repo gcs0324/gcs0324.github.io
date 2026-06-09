@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Cloud 04 · 可靠性：Sentinel · Seata · 链路追踪</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'RELIABLE'}
+.note.tip {background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--tx2)}
+.note.good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr}}
+.comp-card{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:13px 15px}
+.comp-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--green);margin-bottom:5px}
+.comp-name.blue{color:var(--blue)}.comp-name.orange{color:var(--orange)}
+.comp-name.purple{color:var(--purple)}.comp-name.red{color:var(--red)}
+.comp-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blue-bg);stroke:var(--blue-b);stroke-width:1.5}
+.dg-box-g{fill:var(--green-bg);stroke:var(--green-b);stroke-width:1.5}
+.dg-box-o{fill:var(--orange-bg);stroke:var(--orange-b);stroke-width:1.5}
+.dg-box-p{fill:var(--purple-bg);stroke:var(--purple-b);stroke-width:1.5}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5}
+.dg-box-y{fill:var(--yellow-bg);stroke:var(--yellow-b);stroke-width:1.5}
+.dg-t {fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-red   {fill:var(--red);   font-family:'IBM Plex Mono',monospace}
+.dg-ln   {stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-b {stroke:var(--blue);stroke-width:1.8;fill:none}
+.dg-ln-g {stroke:var(--green);stroke-width:1.8;fill:none}
+.dg-ln-r {stroke:var(--red);stroke-width:1.8;fill:none}
+.dg-ln-o {stroke:var(--orange);stroke-width:1.8;fill:none}
+.dg-ln-dash{stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;fill:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <marker id="arr"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="rgba(120,140,170,0.7)"/></marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--blue)"/></marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--green)"/></marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--red)"/></marker>
+    <marker id="arr-o" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--orange)"/></marker>
+  </defs>
+</svg>
+<script src="../../shared/nav-sc.js"></script>
+<header>
+  <div class="htag">Spring Cloud · 04 · RELIABILITY</div>
+  <h1>可靠性：Sentinel · Seata · 链路追踪</h1>
+  <p class="sub">服务雪崩 · Sentinel 限流熔断 · 降级策略 · Seata 分布式事务 · SkyWalking 链路追踪</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#avalanche"><span class="s-num">01</span>服务雪崩与隔离</a>
+    <a class="s-link" href="#sentinel-arch"><span class="s-num">02</span>Sentinel 架构原理</a>
+    <a class="s-link" href="#flow"><span class="s-num">03</span>流量控制规则</a>
+    <a class="s-link" href="#degrade"><span class="s-num">04</span>熔断降级规则</a>
+    <a class="s-link" href="#seata"><span class="s-num">05</span>Seata 分布式事务</a>
+    <a class="s-link" href="#tracing"><span class="s-num">06</span>链路追踪 SkyWalking</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="sc-03-gateway.html">← 上一章：网关&调用</a>
+    <a class="s-link" href="sc-05-interview.html">→ 下一章：面试题</a>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ══ 01 服务雪崩 -->
+    <div class="sec" id="avalanche"><span class="sn">01</span>服务雪崩与容错设计</div>
+
+    <div class="card">
+      <div class="ct">服务雪崩：一个服务慢，拖垮所有服务</div>
+      <p>在微服务调用链 A → B → C → D 中，如果 D 响应变慢，C 等待 D 的线程被阻塞，C 的线程池耗尽，C 变慢，B 等待 C 的线程耗尽，B 变慢……最终整个系统级联崩溃，这就是<span class="kw">服务雪崩（Cascading Failure）</span>。</p>
+      <p style="margin-top:8px">根本原因：微服务调用是跨网络的，网络调用比本地调用慢 N 倍，且随时可能超时、失败。</p>
+      <p>三种容错手段：</p>
+      <div class="three-col">
+        <div class="comp-card">
+          <div class="comp-name red">超时（Timeout）</div>
+          <div class="comp-desc">调用下游服务设置超时时间，超时直接失败，避免线程无限等待。是最基本的容错手段，所有 Feign 调用都必须设置超时。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name red">熔断（Circuit Breaker）</div>
+          <div class="comp-desc">当下游服务错误率超过阈值，触发熔断，后续请求直接走降级逻辑，不再真正调用下游，避免大量线程阻塞。等一段时间后尝试半开（Half-Open）。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">限流（Rate Limiting）</div>
+          <div class="comp-desc">限制进入服务的请求 QPS/并发数，把超出能力范围的请求拒绝在外，防止系统过载。不是等服务崩了才保护，而是提前防止崩溃。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 02 Sentinel 架构 -->
+    <div class="sec" id="sentinel-arch"><span class="sn">02</span>Sentinel 架构原理</div>
+
+    <div class="card">
+      <div class="ct">Sentinel 的核心：资源（Resource）+ 规则（Rule）</div>
+      <p>Sentinel 把保护的对象抽象为<span class="kw">资源</span>（Resource），可以是一个接口方法、一个 Feign 调用、一个 URL，也可以是任意代码块。对资源配置<span class="kw">规则</span>，Sentinel 在调用资源时检查规则并执行对应动作。</p>
+      <p>Sentinel 的 SlotChain（责任链）是核心执行引擎，每次资源调用都要经过所有 Slot：</p>
+      <ul class="dl">
+        <li><span class="b">NodeSelectorSlot</span><span>构建资源调用树（哪个接口被哪个接口调用），用于流量统计</span></li>
+        <li><span class="b">StatisticSlot</span><span>统计实时数据（QPS、并发线程数、响应时间、错误率），滑动窗口计数</span></li>
+        <li><span class="b">FlowSlot</span><span>检查流控规则，超出则拒绝（抛 FlowException）</span></li>
+        <li><span class="b">DegradeSlot</span><span>检查熔断规则，触发熔断则抛 DegradeException</span></li>
+        <li><span class="b">AuthoritySlot</span><span>黑白名单检查</span></li>
+        <li><span class="b">SystemSlot</span><span>系统自适应保护（CPU 使用率、系统负载等）</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="ct">Sentinel Dashboard 动态规则推送</div>
+      <p>规则不写死在代码里，而是通过 Sentinel Dashboard 下发，并持久化到 Nacos，服务重启后规则仍然有效：</p>
+      <pre><!-- Sentinel 整合 Nacos 持久化规则 -->
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8080       # Sentinel Dashboard 地址
+      datasource:
+        flow-rules:                    # 流控规则数据源
+          nacos:
+            server-addr: localhost:8848
+            namespace: prod-namespace-id
+            group-id: SENTINEL_GROUP
+            data-id: order-service-flow-rules
+            data-type: json
+            rule-type: flow</pre>
+    </div>
+
+    <!-- ══ 03 流控规则 -->
+    <div class="sec" id="flow"><span class="sn">03</span>流量控制规则</div>
+
+    <div class="card">
+      <div class="ct">流控规则四个维度</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>选项</th><th>说明</th></tr>
+        <tr><td>阈值类型</td><td>QPS / 并发线程数</td><td>QPS：每秒请求数；线程数：当前正在处理该资源的线程数</td></tr>
+        <tr><td>流控模式</td><td>直接 / 关联 / 链路</td><td>直接：达阈值就限流；关联：关联资源超阈值时限流本资源；链路：只统计指定入口的流量</td></tr>
+        <tr><td>流控效果</td><td>快速失败 / Warm Up / 排队等待</td><td>见下方详解</td></tr>
+        <tr><td>针对来源</td><td>default / 指定调用方</td><td>只限流特定调用方（如只限流 order-service 对 user-service 的调用）</td></tr>
+      </table>
+      <p style="margin-top:10px"><strong>三种流控效果：</strong></p>
+      <div class="three-col">
+        <div class="comp-card">
+          <div class="comp-name red">快速失败（默认）</div>
+          <div class="comp-desc">超过阈值立即抛出 <code>FlowException</code>，直接失败。适合对延迟敏感的场景，不接受排队等待。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name orange">Warm Up（冷启动）</div>
+          <div class="comp-desc">系统启动初期容量低，流量阈值从 <code>阈值/冷加载因子（默认3）</code> 开始，经过预热时长逐步达到设定阈值。防止启动瞬间流量打垮冷机器。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">排队等待</div>
+          <div class="comp-desc">超过 QPS 阈值的请求排队等待而不是立即失败，按匀速速率处理。需设置最大等待时间，超出等待时间才失败。适合流量整形/削峰填谷。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 04 熔断降级 -->
+    <div class="sec" id="degrade"><span class="sn">04</span>熔断降级规则</div>
+
+    <div class="card">
+      <div class="ct">三种熔断策略</div>
+      <div class="three-col">
+        <div class="comp-card">
+          <div class="comp-name red">慢调用比例</div>
+          <div class="comp-desc">统计时间窗口内，响应时间超过阈值（RT）的请求比例达到设定比例，触发熔断。<br><br>例：最大 RT=500ms，比例阈值=50%，窗口=10s → 10秒内50%请求超过500ms，熔断。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name red">异常比例</div>
+          <div class="comp-desc">统计时间窗口内，异常请求数占总请求数的比例超过阈值，触发熔断。<br><br>例：异常比例阈值=50%，窗口=10s → 10秒内50%以上请求抛异常，熔断。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name red">异常数</div>
+          <div class="comp-desc">统计时间窗口内，异常总数超过阈值，触发熔断。<br><br>适合绝对数量控制（而非比例），例如流量很低时，5个异常就应触发熔断。</div>
+        </div>
+      </div>
+      <p style="margin-top:12px"><strong>熔断器状态机（三态）：</strong></p>
+      <div class="diag-wrap" style="margin-top:0">
+        <div class="diag-body" style="padding:16px">
+          <svg width="500" height="100" viewBox="0 0 500 100">
+            <rect x="10" y="30" width="100" height="40" rx="5" class="dg-box-g"/>
+            <text x="60" y="48" class="dg-green" font-size="10" text-anchor="middle" font-weight="700">CLOSED</text>
+            <text x="60" y="62" class="dg-t3" font-size="8" text-anchor="middle">正常</text>
+
+            <rect x="200" y="30" width="100" height="40" rx="5" class="dg-box-r"/>
+            <text x="250" y="48" class="dg-red" font-size="10" text-anchor="middle" font-weight="700">OPEN</text>
+            <text x="250" y="62" class="dg-t3" font-size="8" text-anchor="middle">熔断中</text>
+
+            <rect x="390" y="30" width="100" height="40" rx="5" class="dg-box-y"/>
+            <text x="440" y="48" class="dg-t" font-size="10" text-anchor="middle" font-weight="700">HALF-OPEN</text>
+            <text x="440" y="62" class="dg-t3" font-size="8" text-anchor="middle">探测中</text>
+
+            <!-- CLOSED → OPEN -->
+            <line x1="110" y1="45" x2="200" y2="45" class="dg-ln-r" marker-end="url(#arr-r)"/>
+            <text x="155" y="40" class="dg-t3" font-size="7.5" text-anchor="middle" fill="var(--red)">规则触发</text>
+
+            <!-- OPEN → HALF-OPEN -->
+            <line x1="300" y1="55" x2="390" y2="55" class="dg-ln-o" marker-end="url(#arr-o)"/>
+            <text x="345" y="68" class="dg-t3" font-size="7.5" text-anchor="middle" fill="var(--orange)">熔断窗口结束</text>
+
+            <!-- HALF-OPEN → CLOSED (success) -->
+            <path d="M 440,30 Q 440,10 250,10 Q 60,10 60,30" fill="none" class="dg-ln-g" marker-end="url(#arr-g)"/>
+            <text x="250" y="8" class="dg-t3" font-size="7.5" text-anchor="middle" fill="var(--green)">探测请求成功 → 恢复</text>
+
+            <!-- HALF-OPEN → OPEN (fail) -->
+            <path d="M 440,70 Q 440,90 250,90" fill="none" class="dg-ln-r"/>
+            <line x1="250" y1="90" x2="250" y2="70" class="dg-ln-r" marker-end="url(#arr-r)"/>
+            <text x="345" y="86" class="dg-t3" font-size="7.5" text-anchor="middle" fill="var(--red)">探测请求失败 → 继续熔断</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Fallback 降级实现（整合 OpenFeign）</div>
+      <pre>// 1. Feign 接口定义 fallback
+@FeignClient(name = "user-service", fallback = UserFeignFallback.class)
+public interface UserFeignClient {
+    @GetMapping("/user/{id}")
+    UserDTO getUserById(@PathVariable Long id);
+}
+
+// 2. 实现 fallback（降级逻辑）
+@Component
+public class UserFeignFallback implements UserFeignClient {
+    @Override
+    public UserDTO getUserById(Long id) {
+        // 降级：返回默认值，不抛异常
+        return UserDTO.builder()
+            .id(id)
+            .name("未知用户")    // 降级数据
+            .build();
+    }
+}
+
+// 3. 若需要获取异常信息，用 FallbackFactory
+@Component
+public class UserFeignFallbackFactory implements FallbackFactory&lt;UserFeignClient&gt; {
+    @Override
+    public UserFeignClient create(Throwable cause) {
+        log.error("user-service 调用失败: {}", cause.getMessage());
+        return id -&gt; UserDTO.builder().id(id).name("未知用户").build();
+    }
+}
+
+// application.yml
+feign:
+  sentinel:
+    enabled: true   # 开启 Sentinel 对 Feign 的支持</pre>
+    </div>
+
+    <!-- ══ 05 Seata -->
+    <div class="sec" id="seata"><span class="sn">05</span>Seata 分布式事务</div>
+
+    <div class="card">
+      <div class="ct">为什么需要 Seata？本地事务解决不了跨服务问题</div>
+      <p>电商下单场景：order-service 创建订单 + stock-service 扣减库存 + account-service 扣减余额，三个操作分属三个服务、三个数据库，数据库本地事务无法跨数据库保证原子性。如果创建订单成功但扣库存失败，就产生数据不一致。</p>
+      <p>Seata 是阿里开源的<span class="kw">分布式事务框架</span>，支持四种模式：</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">四种事务模式对比</div>
+      <table class="tbl">
+        <tr><th>模式</th><th>原理</th><th>侵入性</th><th>适用场景</th></tr>
+        <tr><td><strong>AT 模式（默认）</strong></td><td>自动分析 SQL，生成前镜像/后镜像（undo_log），全局事务失败时自动回滚</td><td>低（只加 @GlobalTransactional）</td><td>数据库操作场景，大多数电商业务</td></tr>
+        <tr><td>TCC 模式</td><td>业务自己实现 Try / Confirm / Cancel 三个方法，Seata 框架编排</td><td>高（要实现三个方法）</td><td>对性能要求高，无法依赖 undo_log 的场景</td></tr>
+        <tr><td>Saga 模式</td><td>长事务，每步操作有对应补偿操作，失败时逆向补偿</td><td>高</td><td>长流程业务（保险理赔、供应链）</td></tr>
+        <tr><td>XA 模式</td><td>基于数据库的 XA 协议，两阶段提交</td><td>低</td><td>需要强一致性，支持 XA 的数据库</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">AT 模式原理详解</div>
+      <p>AT 模式是 Seata 的默认模式，对业务代码几乎无侵入：只需在入口方法加 <code>@GlobalTransactional</code>，Seata 自动处理所有事务协调。</p>
+      <p><strong>三个角色：</strong></p>
+      <ul class="dl">
+        <li><span class="b">TC（Transaction Coordinator）</span><span>事务协调者，即 Seata Server，维护全局事务状态，负责全局提交/回滚的决策</span></li>
+        <li><span class="b">TM（Transaction Manager）</span><span>事务管理者，即业务发起方（加了 <code>@GlobalTransactional</code> 的服务），向 TC 注册全局事务、发起提交/回滚</span></li>
+        <li><span class="b">RM（Resource Manager）</span><span>资源管理者，即参与事务的各个服务，向 TC 注册分支事务，执行本地事务后上报结果</span></li>
+      </ul>
+      <pre>// order-service：事务发起方
+@GlobalTransactional(timeoutMills = 30000, name = "create-order-tx")
+public void createOrder(OrderDTO dto) {
+    // 1. 创建订单（本地事务）
+    orderMapper.insert(Order.from(dto));
+
+    // 2. 扣减库存（Feign 调用 stock-service）
+    stockFeignClient.deduct(dto.getStockId(), dto.getCount());
+
+    // 3. 扣减余额（Feign 调用 account-service）
+    accountFeignClient.deduct(dto.getUserId(), dto.getAmount());
+    // 以上任一步失败，Seata 自动回滚全部操作
+}</pre>
+      <p style="margin-top:8px">AT 模式的回滚机制：Seata 的 DataSourceProxy 拦截所有 SQL，执行前记录"前镜像"（数据原始值），执行后记录"后镜像"（新值），存入 <code>undo_log</code> 表。全局事务失败时，TC 通知各 RM 用 undo_log 生成逆向 SQL 并执行回滚。</p>
+      <div class="note warn"><strong>AT 模式的全局锁机制可能导致性能问题。</strong>AT 模式在全局事务期间对修改的行加全局锁（写入 <code>lock_table</code>），其他全局事务修改同一行时需等待。高并发场景下全局锁竞争可能成为瓶颈，此时应考虑 TCC 模式。</div>
+    </div>
+
+    <!-- ══ 06 链路追踪 -->
+    <div class="sec" id="tracing"><span class="sn">06</span>链路追踪 SkyWalking</div>
+
+    <div class="card">
+      <div class="ct">为什么需要链路追踪</div>
+      <p>一次用户请求经过 Gateway → order-service → user-service → stock-service，如果响应慢或报错，靠日志很难定位是哪个服务出了问题（日志分散在各个服务）。</p>
+      <p>链路追踪的核心思路：给每次请求分配一个全局唯一的 <span class="kw">Trace ID</span>，所有服务处理这个请求时都带上这个 Trace ID 记录日志，就能把分散在各服务的日志串成一条完整的调用链。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">SkyWalking 核心概念</div>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name purple">Trace（链路）</div>
+          <div class="comp-desc">一次完整请求的全局标识，由全局唯一的 <code>Trace ID</code> 标识。一个 Trace 包含多个 Span。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name purple">Span（操作单元）</div>
+          <div class="comp-desc">Trace 中的一个原子操作，记录操作的开始时间、结束时间、操作名、结果（成功/失败）。Span 之间有父子关系，形成树状结构。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">Agent（探针）</div>
+          <div class="comp-desc">Java Agent 字节码增强，通过 JVM 参数挂载：<code>-javaagent:/skywalking/agent.jar</code>，无需修改代码，自动采集 HTTP/Feign/JDBC/Redis 等调用信息。</div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">OAP（分析平台）</div>
+          <div class="comp-desc">SkyWalking 后端服务，接收 Agent 上报的数据，存储到 Elasticsearch，提供查询 API。默认 gRPC 端口 11800，HTTP 端口 12800。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">SkyWalking Agent 接入与自定义追踪</div>
+      <pre># 启动时挂载 Agent（无需改代码）
+java -javaagent:/opt/skywalking/agent/skywalking-agent.jar \
+     -Dskywalking.agent.service_name=order-service \
+     -Dskywalking.collector.backend_service=oap-server:11800 \
+     -jar order-service.jar
+
+# 或在 Dockerfile/K8s 中配置
+ENV JAVA_TOOL_OPTIONS="-javaagent:/skywalking/skywalking-agent.jar"
+ENV SW_AGENT_NAME="order-service"
+ENV SW_AGENT_COLLECTOR_BACKEND_SERVICES="oap:11800"</pre>
+      <pre>// 自定义追踪（标注关键业务方法）
+import org.apache.skywalking.apm.toolkit.trace.Trace;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
+
+@Service
+public class OrderService {
+
+    @Trace(operationName = "createOrder")
+    @Tag(key = "orderId", value = "returnedObj.id")
+    public Order createOrder(OrderDTO dto) {
+        // 业务逻辑...
+    }
+
+    // 在任意位置添加自定义信息到当前 Span
+    public void doSomething() {
+        ActiveSpan.tag("userId", userId.toString());
+        ActiveSpan.error("出现错误了");
+    }
+}</pre>
+    </div>
+
+    <div class="note good"><strong>可靠性建设 Checklist：</strong><br>
+    ① 所有 Feign 调用设置超时（connectTimeout + readTimeout）<br>
+    ② 关键服务接口配置 Sentinel 流控规则，防止被打垮<br>
+    ③ Feign 调用下游服务时配置 fallback，下游挂了不影响自己<br>
+    ④ 跨服务写操作使用 Seata @GlobalTransactional 保证数据一致<br>
+    ⑤ 接入 SkyWalking，确保每个服务都能被链路追踪覆盖<br>
+    ⑥ 所有服务日志输出 TraceId（SkyWalking 自动注入到 MDC，配置 logback 打印即可）</div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.s-link[href^="#"]');
+  var secs=Array.from(links).map(function(l){return document.querySelector(l.getAttribute('href'));}).filter(Boolean);
+  function spy(){var top=window.scrollY+80,cur=secs[0];secs.forEach(function(s){if(s.offsetTop<=top)cur=s;});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur.id);});}
+  window.addEventListener('scroll',spy,{passive:true});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafka 05 · Spring Kafka 实战</title>
+<style>
+:root{--accent-color:var(--blue);--accent-bg:var(--blue-bg);--accent-b:var(--blue-b)}
+header::before{content:'SPRING'}
+
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.tip {background:var(--green-bg);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* ── Spring Kafka 架构分层图 ── */
+.sk-arch{display:flex;gap:0;margin:14px 0;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.sk-layer{flex:1;padding:14px 16px;border-right:1px solid var(--bd)}
+.sk-layer:last-child{border-right:none}
+.sk-layer-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.sk-layer.app    .sk-layer-title{color:var(--blue)}
+.sk-layer.fw     .sk-layer-title{color:var(--green)}
+.sk-layer.native .sk-layer-title{color:var(--tx3)}
+.sk-item{font-size:12.5px;color:var(--tx2);margin-bottom:5px;padding:5px 9px;border-radius:4px;border:1px solid var(--bd)}
+.sk-item.hi{background:var(--blue-bg);border-color:var(--blue-b);color:var(--tx);font-weight:500}
+
+/* ── DLT 流转图 ── */
+.dlt-flow{display:flex;align-items:center;gap:8px;margin:14px 0;flex-wrap:wrap}
+.dlt-box{border:1px solid var(--bd);border-radius:6px;padding:10px 16px;font-size:12.5px;text-align:center;min-width:110px}
+.dlt-box-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.dlt-box.topic   {background:var(--green-bg);border-color:var(--green-b)}
+.dlt-box.topic   .dlt-box-lbl{color:var(--green)}
+.dlt-box.consumer{background:var(--blue-bg);border-color:var(--blue-b)}
+.dlt-box.consumer .dlt-box-lbl{color:var(--blue)}
+.dlt-box.dlt     {background:var(--red-bg);border-color:var(--red-b)}
+.dlt-box.dlt     .dlt-box-lbl{color:var(--red)}
+.dlt-box.alert   {background:var(--yellow-bg);border-color:var(--yellow-b)}
+.dlt-box.alert   .dlt-box-lbl{color:var(--yellow)}
+.dlt-arr{font-size:18px;color:var(--tx3);flex-shrink:0}
+.dlt-fail{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.dlt-fail-label{font-size:11px;color:var(--red);font-weight:600}
+.dlt-fail-sub{font-size:10px;color:var(--tx3)}
+.dlt-fail-arr{font-size:16px;color:var(--red)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-kafka.js"></script>
+
+<header>
+  <div class="htag">KAFKA · 05 · SPRING</div>
+  <h1>Spring Kafka 实战</h1>
+  <p class="subtitle">快速集成 · KafkaTemplate · @KafkaListener · 错误处理与 DLT · 事务集成</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#setup"><span class="s-link-num">01</span>快速集成</a>
+    <a class="s-link" href="#template"><span class="s-link-num">02</span>KafkaTemplate 发消息</a>
+    <a class="s-link" href="#listener"><span class="s-link-num">03</span>@KafkaListener 消费</a>
+    <a class="s-link" href="#error"><span class="s-link-num">04</span>错误处理与死信队列</a>
+    <a class="s-link" href="#tx"><span class="s-link-num">05</span>事务与 Spring 集成</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="kafka-04-reliable.html">← 上一章：可靠性</a>
+    <a class="s-link" href="kafka-06-interview.html">→ 下一章：面试题</a>
+    <a class="s-link" href="kafka-06-interview.html#spring">→ 面试题：Spring Kafka</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 快速集成 ═══ -->
+    <div class="sec" id="setup"><span class="sec-num">01</span>快速集成</div>
+
+    <div class="card">
+      <div class="card-title">Spring Kafka 分层架构</div>
+      <div class="sk-arch">
+        <div class="sk-layer app">
+          <div class="sk-layer-title">🔵 应用层（你写的代码）</div>
+          <div class="sk-item hi">@KafkaListener 消费方法</div>
+          <div class="sk-item hi">KafkaTemplate.send()</div>
+          <div class="sk-item hi">@EnableKafka · @Configuration</div>
+        </div>
+        <div class="sk-layer fw">
+          <div class="sk-layer-title">🟢 Spring Kafka 框架层</div>
+          <div class="sk-item">KafkaMessageListenerContainer</div>
+          <div class="sk-item">ConcurrentMessageListenerContainer</div>
+          <div class="sk-item">DefaultErrorHandler + BackOff</div>
+          <div class="sk-item">KafkaTransactionManager</div>
+          <div class="sk-item">DeadLetterPublishingRecoverer</div>
+        </div>
+        <div class="sk-layer native">
+          <div class="sk-layer-title">⚪ 原生 Kafka Client</div>
+          <div class="sk-item">KafkaProducer</div>
+          <div class="sk-item">KafkaConsumer</div>
+          <div class="sk-item">ProducerFactory</div>
+          <div class="sk-item">ConsumerFactory</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--tx2)">Spring Kafka 是对原生 Kafka Client 的封装，核心价值：自动装配、声明式消费（@KafkaListener）、与 Spring 事务体系集成，以及完善的错误处理与重试机制。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">依赖 + application.yml 最小配置</div>
+      <pre>&lt;!-- pom.xml —— Spring Boot 3.x 自动管理版本 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre>
+      <pre># application.yml — 最小配置
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true       # 开启幂等（自动设置 acks=all、retries=MAX）
+
+    consumer:
+      group-id: my-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: false         # 关闭自动提交
+      properties:
+        spring.json.trusted.packages: "com.example.dto"  # JsonDeserializer 信任包
+
+    listener:
+      ack-mode: manual_immediate        # 手动即时提交
+      concurrency: 3                    # 并发消费线程数（建议 = Partition 数）</pre>
+      <div class="tip">
+        <strong>Spring Boot 自动装配：</strong><code>KafkaAutoConfiguration</code> 根据 <code>spring.kafka.*</code> 自动创建 <code>KafkaTemplate</code>、<code>ConsumerFactory</code>、<code>ProducerFactory</code> Bean。如需自定义（多集群、特殊序列化），手动定义这些 Bean 即可覆盖。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">自定义 Factory — 多集群 / 自定义序列化</div>
+      <pre>@Configuration
+public class KafkaConfig {
+
+    // 主集群 Producer（高可靠配置）
+    @Bean
+    public ProducerFactory&lt;String, Object&gt; producerFactory() {
+        Map&lt;String, Object&gt; cfg = new HashMap&lt;&gt;();
+        cfg.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "broker1:9092,broker2:9092");
+        cfg.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        cfg.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        cfg.put(ProducerConfig.ACKS_CONFIG, "all");
+        cfg.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        cfg.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false); // 不在 Header 中写类型信息
+        return new DefaultKafkaProducerFactory&lt;&gt;(cfg);
+    }
+
+    @Bean
+    public KafkaTemplate&lt;String, Object&gt; kafkaTemplate() {
+        return new KafkaTemplate&lt;&gt;(producerFactory());
+    }
+
+    // 从集群 Consumer（不同 bootstrap-servers）
+    @Bean("secondaryConsumerFactory")
+    public ConsumerFactory&lt;String, Object&gt; secondaryConsumerFactory() {
+        Map&lt;String, Object&gt; cfg = new HashMap&lt;&gt;();
+        cfg.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "broker3:9092");
+        cfg.put(ConsumerConfig.GROUP_ID_CONFIG, "secondary-group");
+        cfg.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        cfg.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        cfg.put(JsonDeserializer.TRUSTED_PACKAGES, "com.example.dto");
+        return new DefaultKafkaConsumerFactory&lt;&gt;(cfg);
+    }
+}</pre>
+    </div>
+
+    <!-- ═══ 02 KafkaTemplate ═══ -->
+    <div class="sec" id="template"><span class="sec-num">02</span>KafkaTemplate 发消息</div>
+
+    <div class="card">
+      <div class="card-title">三种发送模式</div>
+      <pre>@Service
+@RequiredArgsConstructor
+public class OrderMessageService {
+
+    private final KafkaTemplate&lt;String, OrderEvent&gt; kafkaTemplate;
+
+    // ① 发后即忘（fire-and-forget）— 不关心结果，吞吐最高
+    public void sendFireAndForget(OrderEvent event) {
+        kafkaTemplate.send("order-topic", event.getOrderId(), event);
+    }
+
+    // ② 异步回调（Spring 3.x+ 返回 CompletableFuture）— 推荐
+    public void sendAsync(OrderEvent event) {
+        kafkaTemplate.send("order-topic", event.getOrderId(), event)
+            .whenComplete((result, ex) -&gt; {
+                if (ex != null) {
+                    log.error("消息发送失败 orderId={}", event.getOrderId(), ex);
+                    alertService.sendAlert("Kafka 发送失败: " + event.getOrderId());
+                } else {
+                    log.debug("发送成功 partition={} offset={}",
+                        result.getRecordMetadata().partition(),
+                        result.getRecordMetadata().offset());
+                }
+            });
+    }
+
+    // ③ 同步发送 — 强可靠场景，会阻塞当前线程
+    public void sendSync(OrderEvent event) throws Exception {
+        SendResult&lt;String, OrderEvent&gt; result =
+            kafkaTemplate.send("order-topic", event.getOrderId(), event)
+                .get(10, TimeUnit.SECONDS);  // 最多阻塞 10s
+        log.info("同步发送成功 partition={} offset={}",
+            result.getRecordMetadata().partition(),
+            result.getRecordMetadata().offset());
+    }
+}</pre>
+      <div class="warn">
+        <strong>⚠ 同步发送注意：</strong><code>.get()</code> 会阻塞当前线程，在 Broker 繁忙或网络波动时会显著降低吞吐量，仅在强一致性要求的场景（如支付确认）使用。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ProducerListener — 全局发送钩子</div>
+      <pre>@Bean
+public KafkaTemplate&lt;String, Object&gt; kafkaTemplate(ProducerFactory&lt;String, Object&gt; pf) {
+    KafkaTemplate&lt;String, Object&gt; template = new KafkaTemplate&lt;&gt;(pf);
+    template.setProducerListener(new ProducerListener&lt;&gt;() {
+        @Override
+        public void onSuccess(ProducerRecord&lt;String, Object&gt; record, RecordMetadata metadata) {
+            // 统计发送成功计数（可接入 Micrometer Metrics）
+            meterRegistry.counter("kafka.send.success",
+                "topic", record.topic()).increment();
+        }
+
+        @Override
+        public void onError(ProducerRecord&lt;String, Object&gt; record,
+                            RecordMetadata metadata, Exception ex) {
+            log.error("Kafka 全局发送失败 topic={} key={}", record.topic(), record.key(), ex);
+            alertService.sendAlert("Kafka 发送失败！topic=" + record.topic());
+        }
+    });
+    return template;
+}</pre>
+      <div class="tip">
+        <strong>携带 Headers：</strong>通过 <code>new ProducerRecord&lt;&gt;(topic, partition, key, value, headers)</code> 传递自定义 Header，常用于传递链路追踪 TraceId（<code>X-Trace-Id</code>）实现跨服务追踪。
+      </div>
+    </div>
+
+    <!-- ═══ 03 @KafkaListener ═══ -->
+    <div class="sec" id="listener"><span class="sec-num">03</span>@KafkaListener 消费</div>
+
+    <div class="card">
+      <div class="card-title">基础用法 — 常用参数一览</div>
+      <pre>@Component
+public class OrderConsumer {
+
+    // 最简单：监听 Topic，使用配置文件中的 group-id
+    @KafkaListener(topics = "order-topic")
+    public void consume(OrderEvent event) {
+        process(event);
+    }
+
+    // 完整参数版：手动 ack + 获取元数据
+    @KafkaListener(
+        topics       = "order-topic",
+        groupId      = "order-service",
+        concurrency  = "3",   // 等价于 3 个 Consumer 实例，Rebalance 后各自分到不同 Partition
+        containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void consumeWithMeta(
+            OrderEvent event,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET)             long offset,
+            Acknowledgment ack) {
+        try {
+            process(event);
+            ack.acknowledge();   // 处理成功，手动提交 Offset
+        } catch (Exception e) {
+            log.error("消费失败 partition={} offset={}", partition, offset, e);
+            throw e;  // 抛出异常，交给 ErrorHandler 处理（重试 or DLT）
+        }
+    }
+
+    // 监听多 Topic
+    @KafkaListener(topics = {"order-topic", "payment-topic"}, groupId = "audit-group")
+    public void multiTopic(ConsumerRecord&lt;String, String&gt; record) {
+        log.info("topic={} partition={} key={}",
+            record.topic(), record.partition(), record.key());
+    }
+}</pre>
+      <div class="warn">
+        <strong>⚠ concurrency ≤ Partition 数：</strong>超出 Partition 数的线程无法分到任何 Partition，空转浪费资源。建议 concurrency 设置为 Partition 数，让每个线程独占一个 Partition。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">批量消费 — 高吞吐入库场景</div>
+      <pre># application.yml — 开启批量监听
+spring:
+  kafka:
+    listener:
+      type: batch</pre>
+      <pre>// 批量消费，一次处理一批 records
+@KafkaListener(topics = "order-topic")
+public void consumeBatch(
+        List&lt;ConsumerRecord&lt;String, OrderEvent&gt;&gt; records,
+        Acknowledgment ack) {
+
+    List&lt;OrderEvent&gt; events = records.stream()
+        .map(ConsumerRecord::value)
+        .collect(Collectors.toList());
+
+    orderRepository.saveAll(events);  // 批量入库，1 次 IO 代替 N 次
+
+    ack.acknowledge();  // 提交整批 Offset
+    log.info("批量消费 {} 条", events.size());
+}
+
+// 更简洁写法（直接接收 List&lt;T&gt;）
+@KafkaListener(topics = "order-topic")
+public void consumeSimple(List&lt;OrderEvent&gt; events) {
+    orderRepository.saveAll(events);
+}</pre>
+      <div class="tip">批量消费需配合 <code>max.poll.records</code>（默认 500）控制批次大小。若单批处理时间过长超过 <code>max.poll.interval.ms</code>，会触发 Rebalance。高峰期可临时调小 <code>max.poll.records</code>。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">消息过滤 — RecordFilterStrategy</div>
+      <pre>@Bean
+public ConcurrentKafkaListenerContainerFactory&lt;String, OrderEvent&gt;
+        kafkaListenerContainerFactory(ConsumerFactory&lt;String, OrderEvent&gt; cf) {
+
+    var factory = new ConcurrentKafkaListenerContainerFactory&lt;String, OrderEvent&gt;();
+    factory.setConsumerFactory(cf);
+
+    // 过滤策略：只处理 status=CREATED 的订单
+    // 返回 true = 过滤掉，不传给 @KafkaListener 方法
+    factory.setRecordFilterStrategy(record -&gt;
+        !"CREATED".equals(record.value().getStatus()));
+
+    factory.setAckDiscarded(true);  // 过滤的消息自动提交 Offset
+    return factory;
+}</pre>
+    </div>
+
+    <!-- ═══ 04 错误处理 ═══ -->
+    <div class="sec" id="error"><span class="sec-num">04</span>错误处理与死信队列</div>
+
+    <div class="card">
+      <div class="card-title">DefaultErrorHandler + ExponentialBackOff</div>
+      <p>Spring Kafka 2.8+ 统一用 <code>DefaultErrorHandler</code> 处理所有消费异常（替代旧版 <code>SeekToCurrentErrorHandler</code>）：</p>
+      <pre>@Bean
+public DefaultErrorHandler errorHandler(KafkaTemplate&lt;String, Object&gt; kafkaTemplate) {
+
+    // 指数退避：1s → 2s → 4s → ... 最大 30s，总超时 2min
+    ExponentialBackOff backOff = new ExponentialBackOff();
+    backOff.setInitialInterval(1_000L);
+    backOff.setMultiplier(2.0);
+    backOff.setMaxInterval(30_000L);
+    backOff.setMaxElapsedTime(120_000L);
+
+    // 失败消息转发到 {topic}.DLT（Partition 保持一致）
+    DeadLetterPublishingRecoverer recoverer =
+        new DeadLetterPublishingRecoverer(kafkaTemplate);
+
+    DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
+
+    // 不重试的异常（重试也没意义，直接进 DLT）
+    handler.addNotRetryableExceptions(
+        DeserializationException.class,
+        ClassCastException.class,
+        IllegalArgumentException.class
+    );
+
+    return handler;
+}
+
+@Bean
+public ConcurrentKafkaListenerContainerFactory&lt;?, ?&gt; kafkaListenerContainerFactory(
+        ConsumerFactory&lt;String, Object&gt; cf,
+        DefaultErrorHandler errorHandler) {
+    var factory = new ConcurrentKafkaListenerContainerFactory&lt;String, Object&gt;();
+    factory.setConsumerFactory(cf);
+    factory.setCommonErrorHandler(errorHandler);
+    return factory;
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dead Letter Topic 完整流转图</div>
+      <div class="dlt-flow">
+        <div class="dlt-box topic">
+          <div class="dlt-box-lbl">Topic</div>
+          order-topic
+        </div>
+        <div class="dlt-arr">→</div>
+        <div class="dlt-box consumer">
+          <div class="dlt-box-lbl">Consumer</div>
+          @KafkaListener
+        </div>
+        <div class="dlt-fail">
+          <span class="dlt-fail-label">✗ 失败</span>
+          <span class="dlt-fail-sub">重试 N 次</span>
+          <span class="dlt-fail-arr">↓</span>
+        </div>
+        <div class="dlt-box dlt">
+          <div class="dlt-box-lbl">Dead Letter</div>
+          order-topic.DLT
+        </div>
+        <div class="dlt-arr">→</div>
+        <div class="dlt-box alert">
+          <div class="dlt-box-lbl">Monitor</div>
+          告警 + 人工处理
+        </div>
+      </div>
+      <pre>// DLT 消费者：监听死信，告警 + 持久化供人工查看
+@KafkaListener(topics = "order-topic.DLT", groupId = "order-dlt-group")
+public void consumeDlt(
+        ConsumerRecord&lt;String, OrderEvent&gt; record,
+        @Header(KafkaHeaders.EXCEPTION_MESSAGE)  String errorMsg,
+        @Header(KafkaHeaders.ORIGINAL_TOPIC)     String originalTopic,
+        @Header(KafkaHeaders.ORIGINAL_PARTITION) int originalPartition,
+        @Header(KafkaHeaders.ORIGINAL_OFFSET)    long originalOffset) {
+
+    log.error("💀 DLT 消息 topic={} partition={} offset={} error={}",
+        originalTopic, originalPartition, originalOffset, errorMsg);
+
+    // 写入数据库，供运营人员查看和手动重投
+    dltRepository.save(DltRecord.of(
+        originalTopic, originalOffset, record.value(), errorMsg));
+
+    alertService.send("❗ 死信消息告警 topic=" + originalTopic);
+}</pre>
+      <div class="tip">DLT Header 包含完整上下文：<code>ORIGINAL_TOPIC</code>、<code>ORIGINAL_PARTITION</code>、<code>ORIGINAL_OFFSET</code>、<code>EXCEPTION_MESSAGE</code>、<code>EXCEPTION_STACKTRACE</code>，可精确定位问题消息。</div>
+    </div>
+
+    <!-- ═══ 05 事务 ═══ -->
+    <div class="sec" id="tx"><span class="sec-num">05</span>事务与 Spring 集成</div>
+
+    <div class="card">
+      <div class="card-title">KafkaTransactionManager — 与 @Transactional 集成</div>
+      <pre>// 配置 KafkaTransactionManager
+@Bean
+public KafkaTransactionManager&lt;String, Object&gt; kafkaTxManager(
+        DefaultKafkaProducerFactory&lt;String, Object&gt; pf) {
+    pf.setTransactionIdPrefix("tx-order-");  // 设置 transactional.id 前缀
+    return new KafkaTransactionManager&lt;&gt;(pf);
+}</pre>
+      <pre>// 发消息 + 写 DB 原子性（注意：需使用 ChainedTxManager 才能真正绑定 DB 事务）
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final KafkaTemplate&lt;String, OrderEvent&gt; kafkaTemplate;
+
+    @Transactional("kafkaTxManager")
+    public void createOrder(Order order) {
+        // 1. 保存到 DB（若 DB 回滚，Kafka 事务也会 abort）
+        orderRepository.save(order);
+
+        // 2. 发送 Kafka 消息（在同一 Kafka 事务内）
+        kafkaTemplate.send("order-topic", order.getId(),
+            new OrderCreatedEvent(order.getId(), order.getAmount()));
+
+        // 抛出异常时：
+        // Kafka：Producer.abortTransaction() —— 消息不可见
+        // DB：Spring 事务回滚
+    }
+}</pre>
+      <div class="warn">
+        <strong>⚠ Kafka 事务 ≠ 分布式事务：</strong><code>KafkaTransactionManager</code> 只管理 Kafka Producer 事务，与数据库事务<strong>不绑定</strong>。要实现 Kafka + DB 原子提交，需要 <code>ChainedKafkaDatabaseTransactionManager</code> 或<strong>本地消息表方案</strong>（推荐，实现更简单可靠）。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Consume-Transform-Produce（CTP）— Exactly-Once 管道</div>
+      <p>消费一个 Topic → 处理 → 发送到另一个 Topic，整个过程在同一 Kafka 事务内：</p>
+      <pre>// Consumer 端开启事务支持
+@Bean
+public ConcurrentKafkaListenerContainerFactory&lt;?, ?&gt; transactionalFactory(
+        ConsumerFactory&lt;String, Object&gt; cf,
+        KafkaTransactionManager&lt;String, Object&gt; txManager) {
+    var factory = new ConcurrentKafkaListenerContainerFactory&lt;String, Object&gt;();
+    factory.setConsumerFactory(cf);
+    factory.getContainerProperties().setTransactionManager(txManager);
+    return factory;
+}</pre>
+      <pre>// CTP：消费 raw-orders → 加工 → 发布到 enriched-orders，Exactly-Once
+@KafkaListener(topics = "raw-orders", containerFactory = "transactionalFactory")
+@Transactional("kafkaTxManager")
+public void processAndForward(OrderEvent raw) {
+    OrderEvent enriched = enrich(raw);  // 业务加工
+
+    kafkaTemplate.send("enriched-orders", enriched.getOrderId(), enriched);
+    // 事务提交时：
+    // ① enriched-orders 消息对消费者可见
+    // ② raw-orders 的 Offset 被提交
+    // 任何步骤失败 → 两者同时回滚，raw-orders 消息重新被消费
+}</pre>
+      <pre># Consumer 需要 read_committed 隔离级别，过滤未提交事务的消息
+spring:
+  kafka:
+    consumer:
+      properties:
+        isolation.level: read_committed</pre>
+      <div class="tip">
+        CTP 是 Kafka Streams 的核心语义。纯业务项目中，若复杂度不高，<strong>本地消息表 + 定时重发</strong>是更易维护的最终一致性方案，不需要引入 Kafka 事务。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">常用配置速查</div>
+      <table class="tbl">
+        <tr><th>配置项</th><th>推荐值</th><th>说明</th></tr>
+        <tr><td><code>spring.kafka.listener.ack-mode</code></td><td><code>MANUAL_IMMEDIATE</code></td><td>调用 ack.acknowledge() 立即提交，最精细控制</td></tr>
+        <tr><td><code>spring.kafka.listener.concurrency</code></td><td>= Partition 数</td><td>并发消费线程数，超出 Partition 数无效</td></tr>
+        <tr><td><code>spring.kafka.listener.poll-timeout</code></td><td><code>3000</code></td><td>poll() 超时（ms），影响 Consumer 关闭速度</td></tr>
+        <tr><td><code>spring.kafka.consumer.max-poll-records</code></td><td>500（批量调大）</td><td>每次 poll 最大拉取数，控制批处理大小</td></tr>
+        <tr><td><code>spring.kafka.producer.transaction-id-prefix</code></td><td><code>tx-${appName}-</code></td><td>开启事务时设置，保证跨 Session 唯一</td></tr>
+        <tr><td><code>spring.kafka.listener.missing-topics-fatal</code></td><td><code>false</code></td><td>启动时 Topic 不存在是否报错（开发环境 false）</td></tr>
+        <tr><td><code>spring.kafka.consumer.isolation-level</code></td><td><code>read_committed</code></td><td>使用 Kafka 事务时，过滤未提交事务消息</td></tr>
+      </table>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

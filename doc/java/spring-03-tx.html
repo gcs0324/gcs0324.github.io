@@ -9,6 +9,17 @@
 <title>Spring 03 · 事务管理</title>
 <style>
 header::before{content:'TX'}
+
+/* warn / tip inline cards */
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.tip {background:var(--blue-bg);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* danger / ok badge inline */
+.danger-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:3px;padding:1px 6px;vertical-align:middle;margin-left:4px}
+.ok-tag    {display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b);border-radius:3px;padding:1px 6px;vertical-align:middle;margin-left:4px}
+
+/* TSM section — class name must not be uppercased */
+#tsm{text-transform:none}
 </style>
 </head>
 <body>
@@ -30,9 +41,11 @@ header::before{content:'TX'}
     <a class="s-link" href="#fail"><span class="s-link-num">05</span>事务失效场景</a>
     <a class="s-link" href="#programmatic"><span class="s-link-num">06</span>编程式事务</a>
     <a class="s-link" href="#distributed"><span class="s-link-num">07</span>分布式事务</a>
+    <a class="s-link" href="#tsm"><span class="s-link-num">08</span>TransactionSynchronizationManager</a>
     <div class="s-divider"></div>
     <div class="s-section-lbl">快速导航</div>
     <a class="s-link" href="spring-06-interview.html#tx">→ 面试题 事务章节</a>
+    <a class="s-link" href="spring-07-event.html#tel">→ Event：@TransactionalEventListener</a>
     <a class="s-link" href="spring-04-mvc.html">→ 下一章：MVC</a>
   </aside>
 
@@ -197,6 +210,124 @@ public void batchProcess(List&lt;Item&gt; items) {
         <tr><td>Seata AT</td><td>最终一致</td><td>中</td><td>极低（@GlobalTransactional）</td><td>微服务通用场景推荐</td></tr>
       </table>
       <div class="note info"><strong>Seata AT 原理</strong>：AT 模式在业务 SQL 执行前后自动记录 undo_log（回滚日志），通过全局事务协调器（TC）管理提交/回滚，对业务代码几乎无侵入。适合不追求极致性能的普通微服务场景。</div>
+    </div>
+
+    <!-- ═══ 08 TransactionSynchronizationManager ═══ -->
+    <div class="sec" id="tsm"><span class="sec-num">08</span>TransactionSynchronizationManager</div>
+
+    <!-- card 1: 概览 + 工具方法 -->
+    <div class="card">
+      <div class="card-title">TSM 是什么 & 工具方法速查</div>
+      <p><span class="kw">TransactionSynchronizationManager（TSM）</span> 是 Spring 事务体系的 <strong>ThreadLocal 存储中枢</strong>，所有事务管理器在开启 / 提交 / 回滚事务时都通过 TSM 读写当前线程的事务上下文。</p>
+
+      <p style="margin:10px 0 6px;font-size:13px;color:var(--tx2);font-weight:600">ThreadLocal 存储内容：</p>
+      <table class="tbl">
+        <tr><th>字段</th><th>作用</th></tr>
+        <tr><td><code>resources</code>（Map）</td><td>DataSource → Connection 映射，保证同一事务内复用同一连接</td></tr>
+        <tr><td><code>synchronizations</code>（Set）</td><td>注册的 <code>TransactionSynchronization</code> 回调集合</td></tr>
+        <tr><td><code>currentTransactionName</code></td><td>当前事务名（格式 <code>类名.方法名</code>），用于日志 / APM 监控</td></tr>
+        <tr><td><code>currentTransactionReadOnly</code></td><td>是否只读事务，<strong>读写分离路由</strong>的核心判断依据</td></tr>
+        <tr><td><code>currentTransactionIsolationLevel</code></td><td>当前隔离级别（<code>Connection.TRANSACTION_*</code> 常量值）</td></tr>
+        <tr><td><code>actualTransactionActive</code></td><td>当前线程是否真正激活了物理事务</td></tr>
+      </table>
+
+      <p style="margin:14px 0 6px;font-size:13px;color:var(--tx2);font-weight:600">常用静态工具方法：</p>
+      <table class="tbl">
+        <tr><th>方法</th><th>返回值</th><th>说明</th></tr>
+        <tr><td><code>isActualTransactionActive()</code></td><td>boolean</td><td>是否有<strong>物理事务</strong>激活，注册回调前必须先判断</td></tr>
+        <tr><td><code>isSynchronizationActive()</code></td><td>boolean</td><td>同步上下文是否激活（弱于上面：SUPPORTS 传播下有差异）</td></tr>
+        <tr><td><code>isCurrentTransactionReadOnly()</code></td><td>boolean</td><td>是否只读事务，AbstractRoutingDataSource 路由从库时常用</td></tr>
+        <tr><td><code>getCurrentTransactionName()</code></td><td>String</td><td>获取当前事务名，用于日志追踪</td></tr>
+        <tr><td><code>getCurrentTransactionIsolationLevel()</code></td><td>Integer</td><td>获取当前隔离级别</td></tr>
+        <tr><td><code>getResource(key)</code> / <code>hasResource(key)</code></td><td>Object / boolean</td><td>读取 / 判断线程绑定的资源（多数据源场景）</td></tr>
+        <tr><td><code>bindResource(key,val)</code> / <code>unbindResource(key)</code></td><td>void / Object</td><td>手动绑定 / 解绑资源（框架级用法，业务代码慎用）</td></tr>
+      </table>
+    </div>
+
+    <!-- card 2: 回调接口 + 代码示例 -->
+    <div class="card">
+      <div class="card-title">TransactionSynchronization 回调接口 & 注册写法</div>
+      <p>通过 <code>TSM.registerSynchronization()</code> 向当前事务注册生命周期回调：</p>
+      <table class="tbl">
+        <tr><th>回调方法</th><th>触发时机</th><th>典型用途</th></tr>
+        <tr><td><code>beforeCommit(readOnly)</code></td><td>提交前（数据已修改，未提交）</td><td>额外校验、flush 缓存到 DB</td></tr>
+        <tr><td><code>beforeCompletion()</code></td><td>提交或回滚之前（含异常场景）</td><td>关闭资源、释放锁</td></tr>
+        <tr><td><code>afterCommit()</code></td><td>事务成功提交后</td><td>发 MQ 消息、清除 Redis 缓存、发邮件</td></tr>
+        <tr><td><code>afterCompletion(status)</code></td><td>事务完成后（提交 / 回滚均触发）<br>status: 0=committed 1=rolled_back 2=unknown</td><td>统一清理资源、失败告警</td></tr>
+      </table>
+
+      <pre>// Spring 5.3+：TransactionSynchronization 接口方法均有 default 空实现
+// 直接匿名实现，只重写需要的方法即可
+if (TransactionSynchronizationManager.isActualTransactionActive()) {
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                // 事务已成功提交，消息不会误发
+                mqProducer.sendOrderCreated(order);
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    log.warn("Order {} rolled back, MQ not sent", order.getId());
+                }
+            }
+        }
+    );
+}</pre>
+      <div class="warn"><strong>⚠ 前提</strong>：<code>registerSynchronization()</code> 必须在激活的事务上下文中调用，否则抛 <code>IllegalStateException</code>。始终先用 <code>isActualTransactionActive()</code> 判断，或确保调用方带有 <code>@Transactional</code>。</div>
+    </div>
+
+    <!-- card 3: afterCommit 操作 DB + 对比表 -->
+    <div class="card">
+      <div class="card-title">afterCommit() 操作 DB 的正确姿势 & 与 @TransactionalEventListener 对比</div>
+      <p><code>afterCommit()</code> 执行时原事务已关闭，直接调用默认传播行为（REQUIRED）的 Service 方法会以<strong>无事务方式</strong>执行，是高频踩坑点：</p>
+
+      <table class="tbl">
+        <tr><th>场景</th><th>结果</th><th>风险</th></tr>
+        <tr>
+          <td>调用 <code>@Transactional</code>（REQUIRED）方法</td>
+          <td>无事务可加入，非事务执行</td>
+          <td><span class="danger-tag">危险</span> SQL 无保护，异常不回滚</td>
+        </tr>
+        <tr>
+          <td>调用 <code>REQUIRES_NEW</code> 方法</td>
+          <td>开启全新独立事务</td>
+          <td><span class="ok-tag">安全</span> 推荐，注意新事务异常处理</td>
+        </tr>
+        <tr>
+          <td>用 <code>@Async</code> 切换线程</td>
+          <td>子线程无事务上下文，自行开事务</td>
+          <td><span class="ok-tag">安全</span> 异步场景首选</td>
+        </tr>
+      </table>
+
+      <pre><span style="color:var(--red)">// ✗ 危险：REQUIRED 方法在 afterCommit 中实际无事务保护</span>
+public void afterCommit() {
+    auditService.log(order);  // @Transactional(REQUIRED) — 无事务！
+}
+
+<span style="color:var(--green)">// ✓ 方案一：显式用 REQUIRES_NEW 开新事务</span>
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void log(Order order) { ... }
+
+<span style="color:var(--green)">// ✓ 方案二：@Async 切新线程，线程内自行开事务</span>
+public void afterCommit() {
+    asyncService.doAfterCommit(order); // 子线程：@Async + @Transactional
+}</pre>
+
+      <div class="warn" style="margin-bottom:14px"><strong>⚠ ThreadLocal 不跨线程</strong>：<code>@Async</code> 切换后，子线程 <code>isActualTransactionActive()</code> 必然为 false，不要期望子线程能访问父线程的事务上下文。</div>
+
+      <p style="font-size:13px;color:var(--tx2);font-weight:600;margin-bottom:6px">TSM 手动注册 vs @TransactionalEventListener：</p>
+      <table class="tbl">
+        <tr><th>维度</th><th>TSM.registerSynchronization()</th><th>@TransactionalEventListener</th></tr>
+        <tr><td>代码量</td><td>匿名类，稍繁琐</td><td>注解声明，极简</td></tr>
+        <tr><td>与业务耦合</td><td>回调写在 Service 方法内</td><td>Listener 与 Service 完全解耦</td></tr>
+        <tr><td>无事务 fallback</td><td>自行判断 <code>isActualTransactionActive()</code></td><td>有 <code>fallbackExecution</code> 参数</td></tr>
+        <tr><td>适用场景</td><td>动态决定是否注册、细粒度控制</td><td>通用场景优先选择</td></tr>
+      </table>
+      <div class="tip">→ <code>@TransactionalEventListener</code> 四个 phase、fallbackExecution 及实战示例见 <a href="spring-07-event.html#tel">07 · 事件机制 · §06 @TransactionalEventListener</a>。</div>
     </div>
 
   </div><!-- /mcontent -->

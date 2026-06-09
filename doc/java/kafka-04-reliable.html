@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafka 04 · 消息可靠性保障</title>
+<style>
+:root{--accent-color:var(--red);--accent-bg:var(--red-bg);--accent-b:var(--red-b)}
+header::before{content:'RELIABLE'}
+
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.tip {background:var(--green-bg);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.danger{background:var(--red-bg);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+
+/* ── 三端配置图 ── */
+.three-side{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+.side-box{border:1px solid var(--bd);border-radius:8px;padding:14px 16px;background:var(--bg2)}
+.side-box-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.07em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+.side-box.producer .side-box-title{color:var(--green)}
+.side-box.broker   .side-box-title{color:var(--blue)}
+.side-box.consumer .side-box-title{color:var(--yellow)}
+.side-cfg{display:flex;flex-direction:column;gap:6px}
+.cfg-item{font-size:12.5px;color:var(--tx2);display:flex;gap:7px;align-items:flex-start;line-height:1.5}
+.cfg-item::before{content:'✓';flex-shrink:0;font-size:12px;margin-top:2px}
+.side-box.producer .cfg-item::before{color:var(--green)}
+.side-box.broker   .cfg-item::before{color:var(--blue)}
+.side-box.consumer .cfg-item::before{color:var(--yellow)}
+
+/* ── 幂等流程图 ── */
+.idem-flow{display:flex;flex-direction:column;gap:0;margin:14px 0;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.idem-row{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--bd)}
+.idem-row:last-child{border-bottom:none}
+.idem-idx{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;width:34px;flex-shrink:0;text-align:center;padding:12px 0;border-right:1px solid var(--bd);color:var(--tx3)}
+.idem-content{flex:1;padding:10px 14px;font-size:12.5px;color:var(--tx2)}
+.idem-content strong{color:var(--tx)}
+.idem-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;margin-left:10px;flex-shrink:0}
+.idem-badge.ok  {background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.idem-badge.skip{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-b)}
+.idem-badge.fail{background:var(--red-bg);color:var(--red);border:1px solid var(--red-b)}
+.idem-row.highlight{background:var(--bg2)}
+
+/* ── 顺序消费对比图 ── */
+.order-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.order-box{border:1px solid var(--bd);border-radius:8px;padding:14px 16px}
+.order-box-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;text-align:center;margin-bottom:10px;padding:5px;border-radius:4px}
+.order-box.global .order-box-title{background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.order-box.local  .order-box-title{background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-b)}
+.order-parts{display:flex;flex-direction:column;gap:5px}
+.order-part{border:1px solid var(--bd);border-radius:4px;padding:7px 10px;font-size:12.5px;color:var(--tx2);line-height:1.5}
+.order-part strong{color:var(--tx)}
+.order-part.g{background:var(--green-bg);border-color:var(--green-b)}
+.order-part.b{background:var(--blue-bg);border-color:var(--blue-b)}
+
+/* ── 积压四步图 ── */
+.backlog-flow{display:flex;align-items:stretch;gap:0;margin:14px 0;overflow-x:auto;border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.backlog-step{flex:1;padding:14px 16px;background:var(--bg2);min-width:130px;border-right:1px solid var(--bd)}
+.backlog-step:last-child{border-right:none}
+.backlog-num{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:.05em}
+.backlog-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px}
+.backlog-desc{font-size:11.5px;color:var(--tx2);line-height:1.5}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-kafka.js"></script>
+
+<header>
+  <div class="htag">KAFKA · 04 · RELIABILITY</div>
+  <h1>消息可靠性保障</h1>
+  <p class="subtitle">消息不丢失 · 幂等消费 · 顺序消费 · 消息积压处理 · 延迟消息与回溯</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#nodrop"><span class="s-link-num">01</span>消息不丢失</a>
+    <a class="s-link" href="#idempotent"><span class="s-link-num">02</span>幂等消费（不重复）</a>
+    <a class="s-link" href="#ordered"><span class="s-link-num">03</span>消息顺序消费</a>
+    <a class="s-link" href="#backlog"><span class="s-link-num">04</span>消息积压处理</a>
+    <a class="s-link" href="#delay"><span class="s-link-num">05</span>延迟消息与回溯</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="kafka-03-consumer.html">← 上一章：Consumer</a>
+    <a class="s-link" href="kafka-05-spring.html">→ 下一章：Spring Kafka</a>
+    <a class="s-link" href="kafka-06-interview.html#reliable">→ 面试题：可靠性章节</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 消息不丢失 ═══ -->
+    <div class="sec" id="nodrop"><span class="sec-num">01</span>消息不丢失</div>
+
+    <div class="card">
+      <div class="card-title">消息丢失的三个环节</div>
+      <p>Kafka 消息从 Producer 发出到 Consumer 处理完，任何一环都可能丢失消息，必须三端联动配置：</p>
+      <div class="step-flow">
+        <div class="step">
+          <div class="step-num">P</div>
+          <div>
+            <div class="step-title">生产者侧丢失</div>
+            <div class="step-desc">发送消息后 Leader 宕机，或 <code>acks=0/1</code> 配置过低，Leader 确认后 Follower 还未同步即宕机，消息丢失。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">B</div>
+          <div>
+            <div class="step-title">Broker 侧丢失</div>
+            <div class="step-desc">Leader 宕机后，<code>unclean.leader.election=true</code> 导致落后的 OSR 副本成为新 Leader，已确认的消息被覆盖丢失。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">C</div>
+          <div>
+            <div class="step-title">消费者侧丢失</div>
+            <div class="step-desc">自动提交或处理前提交 Offset，消费者拉取消息后宕机，Offset 已提交但消息实际未处理完，下次重启不再消费该消息。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">三端联动 — 最强可靠性配置清单</div>
+      <div class="three-side">
+        <div class="side-box producer">
+          <div class="side-box-title">🟢 PRODUCER 端</div>
+          <div class="side-cfg">
+            <div class="cfg-item"><code>acks=all</code> — 等全部 ISR 副本写入确认</div>
+            <div class="cfg-item"><code>retries=Integer.MAX_VALUE</code> — 无限重试，配合超时兜底</div>
+            <div class="cfg-item"><code>enable.idempotence=true</code> — 避免重试导致重复</div>
+            <div class="cfg-item"><code>delivery.timeout.ms=120000</code> — 整体 2min 超时兜底</div>
+            <div class="cfg-item">捕获 send() 回调异常，失败时告警或写重发队列</div>
+          </div>
+        </div>
+        <div class="side-box broker">
+          <div class="side-box-title">🔵 BROKER 端</div>
+          <div class="side-cfg">
+            <div class="cfg-item"><code>replication.factor≥3</code> — 至少 3 副本，容忍单节点宕机</div>
+            <div class="cfg-item"><code>min.insync.replicas=2</code> — ISR 至少 2 副本写入才确认</div>
+            <div class="cfg-item"><code>unclean.leader.election=false</code> — 禁止 OSR 副本成 Leader</div>
+            <div class="cfg-item"><code>log.flush.interval.messages</code> — 一般不配（依赖副本，强刷盘性能差）</div>
+          </div>
+        </div>
+        <div class="side-box consumer">
+          <div class="side-box-title">🟡 CONSUMER 端</div>
+          <div class="side-cfg">
+            <div class="cfg-item"><code>enable.auto.commit=false</code> — 关闭自动提交</div>
+            <div class="cfg-item">业务处理完成后手动 <code>commitSync()</code></div>
+            <div class="cfg-item">处理失败时<strong>不提交</strong> Offset，允许重消费</div>
+            <div class="cfg-item">结合幂等设计，消除重消费带来的副作用</div>
+          </div>
+        </div>
+      </div>
+      <div class="tip">
+        <strong>黄金三件套：</strong><code>acks=all</code> + <code>min.insync.replicas=2</code> + <code>unclean.leader.election.enable=false</code>，生产环境必须同时配置这三项。
+      </div>
+      <div class="warn">
+        <strong>⚠ 强刷盘的代价：</strong><code>log.flush.interval.messages=1</code> 每条消息强制 fsync，吞吐量骤降 10x+。绝大多数场景依靠副本机制保证持久性即可，无需强刷盘。
+      </div>
+    </div>
+
+    <!-- ═══ 02 幂等消费 ═══ -->
+    <div class="sec" id="idempotent"><span class="sec-num">02</span>幂等消费（不重复）</div>
+
+    <div class="card">
+      <div class="card-title">为什么会重复消费</div>
+      <table class="tbl">
+        <tr><th>场景</th><th>原因</th></tr>
+        <tr><td>消费者处理中宕机</td><td>Offset 未提交，重启后重新消费同一批消息</td></tr>
+        <tr><td>Rebalance 触发</td><td>新 Consumer 从上次提交的 Offset 开始，与上一消费者有重叠</td></tr>
+        <tr><td><code>commitSync()</code> 异常</td><td>提交失败未处理，下次 poll 重新消费</td></tr>
+        <tr><td>处理超过 <code>max.poll.interval.ms</code></td><td>Consumer 被踢出 Group，Partition 被重分配，消息再次消费</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">业务层幂等方案对比</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>原理</th><th>适用场景</th><th>注意点</th></tr>
+        <tr>
+          <td>数据库唯一键</td>
+          <td>以消息 ID / 业务唯一键作 UNIQUE KEY，重复 INSERT 触发唯一键冲突，忽略异常</td>
+          <td>Insert 类操作，数据量不大</td>
+          <td>需捕获 <code>DuplicateKeyException</code>，UPDATE 场景不适用</td>
+        </tr>
+        <tr>
+          <td>Redis SETNX</td>
+          <td>消费前 <code>SET msgId NX EX 86400</code>，已存在则跳过</td>
+          <td>高并发去重，Redis 可用性高</td>
+          <td>Redis 与 DB 操作非原子，极端情况下仍可能重复，需配合 DB 幂等</td>
+        </tr>
+        <tr>
+          <td>状态机判断</td>
+          <td>只在允许状态下执行变更（订单只能从 CREATED → PAID），重复操作被状态拦截</td>
+          <td>有明确状态流转的业务（订单、审批）</td>
+          <td>需在事务内"查状态 + 变状态"，防止并发下多次执行</td>
+        </tr>
+        <tr>
+          <td>乐观锁版本号</td>
+          <td><code>UPDATE … WHERE id=? AND version=?</code>，重复操作版本号不匹配自动失败</td>
+          <td>UPDATE 类操作，业务对象有 version 字段</td>
+          <td>更新失败需判断是幂等（已处理）还是真正冲突</td>
+        </tr>
+      </table>
+
+      <!-- 幂等消费流程图 -->
+      <div class="idem-flow">
+        <div class="idem-row">
+          <div class="idem-idx">①</div>
+          <div class="idem-content">Consumer 拉到消息 <strong>msgId = abc123</strong></div>
+        </div>
+        <div class="idem-row highlight">
+          <div class="idem-idx">②</div>
+          <div class="idem-content" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Redis.get(<strong>"processed:abc123"</strong>) — 是否已处理？</span>
+            <span class="idem-badge skip">已存在 → 跳过，提交 Offset</span>
+          </div>
+        </div>
+        <div class="idem-row">
+          <div class="idem-idx">③</div>
+          <div class="idem-content">↓ 不存在 — 执行业务逻辑（写 DB）</div>
+        </div>
+        <div class="idem-row highlight">
+          <div class="idem-idx">④</div>
+          <div class="idem-content" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Redis.set(<strong>"processed:abc123"</strong>, 1, EX 86400)</span>
+            <span class="idem-badge ok">成功</span>
+          </div>
+        </div>
+        <div class="idem-row">
+          <div class="idem-idx">⑤</div>
+          <div class="idem-content"><strong>commitSync()</strong> 提交 Offset</div>
+        </div>
+      </div>
+      <div class="warn">
+        <strong>⚠ ③④ 非原子性：</strong>若步骤 ③ 写库成功，步骤 ④ Redis 写入前宕机，下次 Redis 中无记录会再次执行 ③。因此写库本身也需保证幂等（如唯一键），不能单纯依赖 Redis 去重。
+      </div>
+    </div>
+
+    <!-- ═══ 03 顺序消费 ═══ -->
+    <div class="sec" id="ordered"><span class="sec-num">03</span>消息顺序消费</div>
+
+    <div class="card">
+      <div class="card-title">全局顺序 vs 局部顺序（Key 级别）</div>
+      <div class="order-compare">
+        <div class="order-box global">
+          <div class="order-box-title">🌐 全局顺序</div>
+          <div class="order-parts">
+            <div class="order-part g"><strong>Topic 只有 1 个 Partition</strong><br>Consumer Group 内只有 1 个 Consumer</div>
+            <div class="order-part">✅ 所有消息严格按发送顺序消费</div>
+            <div class="order-part">❌ 吞吐量受单 Partition 限制<br>❌ Consumer 宕机时不可用</div>
+          </div>
+        </div>
+        <div class="order-box local">
+          <div class="order-box-title">🔑 局部顺序（Key 级别）</div>
+          <div class="order-parts">
+            <div class="order-part b"><strong>按业务 Key 路由到固定 Partition</strong><br>相同 Key 的消息保证有序</div>
+            <div class="order-part">✅ 高吞吐，不同 Key 可并行消费</div>
+            <div class="order-part">⚠️ 同一 Partition 内 Consumer 单线程处理<br>⚠️ 扩分区后 Key 路由结果改变</div>
+          </div>
+        </div>
+      </div>
+      <div class="warn">
+        <strong>⚠ 扩分区破坏 Key 路由一致性：</strong>Partition 数变化后，<code>murmur2(key) % partitionCount</code> 结果改变，相同 Key 可能落不同 Partition 导致顺序混乱。扩分区应在业务低峰期操作，并处理迁移期间的顺序问题。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">多线程消费与顺序保证</div>
+      <table class="tbl">
+        <tr><th>模式</th><th>顺序保证</th><th>吞吐量</th><th>说明</th></tr>
+        <tr>
+          <td>单线程 poll + 单线程处理</td>
+          <td>✅ 严格顺序</td><td>低</td>
+          <td>默认模式，一个 Consumer 单线程顺序处理 Partition</td>
+        </tr>
+        <tr>
+          <td>单线程 poll + 线程池处理</td>
+          <td>❌ 无法保证</td><td>高</td>
+          <td>线程调度导致乱序，不推荐顺序敏感场景</td>
+        </tr>
+        <tr>
+          <td>按 Key 路由线程</td>
+          <td>✅ 相同 Key 有序</td><td>中高</td>
+          <td>poll 后按 <code>key.hashCode() % poolSize</code> 路由到固定线程，相同 Key 始终同一线程</td>
+        </tr>
+        <tr>
+          <td>多 Consumer 实例（数量=Partition 数）</td>
+          <td>✅ Partition 内严格顺序</td><td>高</td>
+          <td>每个 Consumer 独占一个 Partition，最常用方案</td>
+        </tr>
+      </table>
+      <pre>// 按 Key 路由到固定线程 — 保证相同 Key 有序
+ExecutorService[] workers = new ExecutorService[THREAD_NUM];
+for (int i = 0; i &lt; THREAD_NUM; i++) {
+    workers[i] = Executors.newSingleThreadExecutor();
+}
+
+for (ConsumerRecord&lt;String, String&gt; record : records) {
+    int idx = Math.abs(record.key().hashCode()) % THREAD_NUM;
+    workers[idx].submit(() -&gt; process(record)); // 相同 key → 相同线程 → 顺序保证
+}
+// 注意：提交 Offset 时需等待对应线程处理完毕，否则可能丢失</pre>
+    </div>
+
+    <!-- ═══ 04 消息积压 ═══ -->
+    <div class="sec" id="backlog"><span class="sec-num">04</span>消息积压处理</div>
+
+    <div class="card">
+      <div class="card-title">积压应急处理 — 四步方案</div>
+      <div class="backlog-flow">
+        <div class="backlog-step">
+          <div class="backlog-num">STEP 01</div>
+          <div class="backlog-title">确认根因</div>
+          <div class="backlog-desc">检查 Consumer Lag 趋势、消费速率、业务处理耗时、下游 DB/Redis 响应时间</div>
+        </div>
+        <div class="backlog-step">
+          <div class="backlog-num">STEP 02</div>
+          <div class="backlog-title">快速扩容</div>
+          <div class="backlog-desc">新增 Consumer 实例（≤ Partition 数），触发 Rebalance，立即提升并行消费能力</div>
+        </div>
+        <div class="backlog-step">
+          <div class="backlog-num">STEP 03</div>
+          <div class="backlog-title">批量消费</div>
+          <div class="backlog-desc">增大 <code>max.poll.records</code>，批量入库代替逐条处理，大幅减少数据库 IO 次数</div>
+        </div>
+        <div class="backlog-step">
+          <div class="backlog-num">STEP 04</div>
+          <div class="backlog-title">临时扩分区</div>
+          <div class="backlog-desc">极端情况：停止原 Topic 写入，消费后转发到多分区新 Topic，用更多 Consumer 处理</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">积压根因排查与对策</div>
+      <table class="tbl">
+        <tr><th>现象</th><th>可能原因</th><th>解决方向</th></tr>
+        <tr><td>消费速率持续低于生产速率</td><td>业务处理耗时长（DB 慢查询、外部服务超时）</td><td>优化处理逻辑，引入异步化、批量、连接池</td></tr>
+        <tr><td>Lag 突然暴增</td><td>流量突发（大促、秒杀活动）</td><td>Consumer 扩容，对非核心逻辑降级</td></tr>
+        <tr><td>部分 Partition 积压，其他正常</td><td>热点 Key 导致单 Partition 消息量远高于其他</td><td>打散热点 Key（加随机后缀），热点 Topic 单独处理</td></tr>
+        <tr><td>Consumer 频繁 Rebalance</td><td>处理耗时超过 <code>max.poll.interval.ms</code>，Consumer 被踢出 Group</td><td>调大 <code>max.poll.interval.ms</code>，减小 <code>max.poll.records</code>，异步化处理</td></tr>
+        <tr><td>Consumer 已达 Partition 数上限</td><td>无法再增加 Consumer 实例</td><td>先增加 Partition 数（注意 Key 路由一致性），再增加 Consumer</td></tr>
+      </table>
+      <div class="tip">
+        <strong>监控命令：</strong><code>kafka-consumer-groups.sh --bootstrap-server xxx --describe --group my-group</code><br>
+        重点关注 <code>LAG</code> 列（= HW − CurrentOffset），以及 <code>CONSUMER-ID</code> 是否有空行（有 Partition 没有 Consumer 分配）。
+      </div>
+    </div>
+
+    <!-- ═══ 05 延迟与回溯 ═══ -->
+    <div class="sec" id="delay"><span class="sec-num">05</span>延迟消息与消息回溯</div>
+
+    <div class="card">
+      <div class="card-title">延迟消息 — Kafka 原生不支持，替代方案</div>
+      <table class="tbl">
+        <tr><th>方案</th><th>原理</th><th>优点</th><th>缺点</th></tr>
+        <tr>
+          <td>延迟 Topic 分级</td>
+          <td>预建多个延迟 Topic（delay_1s / delay_5s / delay_30s），消息先发到对应 Topic，延迟 Consumer 到期后转发到目标 Topic</td>
+          <td>纯 Kafka 实现，无外部依赖</td>
+          <td>延迟精度粗，时间级别有限，Consumer 持续 poll</td>
+        </tr>
+        <tr>
+          <td>Redis Sorted Set</td>
+          <td>消息存入 ZSet（score = 执行时间戳），定时任务扫描到期消息发到 Kafka</td>
+          <td>实现简单，精度取决于扫描频率</td>
+          <td>Redis 容量限制，扫描间隔有误差</td>
+        </tr>
+        <tr>
+          <td>时间轮（HashedWheelTimer）</td>
+          <td>消息持久化 + 内存时间轮定时调度，到期后发 Kafka</td>
+          <td>延迟精度高（毫秒级）</td>
+          <td>需持久化支持宕机恢复，内存占用</td>
+        </tr>
+        <tr>
+          <td>使用 RocketMQ</td>
+          <td>原生支持 18 个延迟级别（1s ~ 2h），复杂延迟场景更合适</td>
+          <td>开箱即用，语义完整</td>
+          <td>引入新 MQ 组件，运维成本增加</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">消息回溯 — 重置消费位置</div>
+      <p>Kafka 数据在 <code>retention.ms</code>（默认 7 天）内可随时重新消费：</p>
+      <pre>// 代码方式：seek 到指定位置
+consumer.subscribe(Arrays.asList("my-topic"));
+consumer.poll(Duration.ofMillis(0));  // 触发 partition 分配
+
+// 回溯到 Partition 起始
+consumer.seekToBeginning(consumer.assignment());
+
+// 回溯到指定 Offset
+TopicPartition tp = new TopicPartition("my-topic", 0);
+consumer.seek(tp, 12345L);
+
+// 按时间戳回溯（找指定时间之后的第一条消息）
+Map&lt;TopicPartition, Long&gt; tsMap = new HashMap&lt;&gt;();
+tsMap.put(tp, Instant.parse("2024-06-01T00:00:00Z").toEpochMilli());
+Map&lt;TopicPartition, OffsetAndTimestamp&gt; result = consumer.offsetsForTimes(tsMap);
+consumer.seek(tp, result.get(tp).offset());</pre>
+      <pre># 命令行方式：重置整个 Consumer Group 的 Offset
+# 回到最早 Offset
+kafka-consumer-groups.sh --bootstrap-server xxx \
+  --group my-group --reset-offsets --to-earliest \
+  --topic my-topic --execute
+
+# 按时间戳回溯
+kafka-consumer-groups.sh --bootstrap-server xxx \
+  --group my-group --reset-offsets \
+  --to-datetime 2024-06-01T00:00:00.000 \
+  --topic my-topic --execute</pre>
+      <div class="warn">
+        <strong>⚠ 重置前必须停止 Consumer：</strong>Consumer Group 中有活跃成员时无法重置 Offset，需先停止所有实例，再执行重置，最后重启 Consumer。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dead Letter Topic — 失败消息兜底</div>
+      <p>消息多次重试仍失败时，不应无限重试阻塞后续消息，应转入死信队列：</p>
+      <table class="tbl">
+        <tr><th>步骤</th><th>说明</th></tr>
+        <tr><td>1. 记录重试次数</td><td>Redis 记录 <code>retry:${msgId}</code> 计数器，每次失败 +1</td></tr>
+        <tr><td>2. 超阈值转发 DLT</td><td>重试 ≥ N 次（通常 3~5 次），将消息发送到 <code>${topic}.DLT</code></td></tr>
+        <tr><td>3. 提交 Offset</td><td>提交当前消息的 Offset，不阻塞后续消息的消费</td></tr>
+        <tr><td>4. 告警 + 人工介入</td><td>DLT Consumer 触发告警，人工分析修复后可重新消费 DLT</td></tr>
+      </table>
+      <pre>try {
+    process(record);
+} catch (Exception e) {
+    long retryCount = redisTemplate.opsForValue()
+        .increment("retry:" + record.key());
+    if (retryCount &gt;= 3) {
+        // 转入死信队列
+        kafkaTemplate.send(record.topic() + ".DLT", record.key(), record.value());
+        log.error("消息已转入死信队列 key={}", record.key(), e);
+        // 不再抛出异常，让 Offset 正常提交
+    } else {
+        throw e;  // 重新抛出，不提交 Offset，下次重试
+    }
+}</pre>
+      <div class="tip">
+        Spring Kafka 内置了 <code>DeadLetterPublishingRecoverer</code>，配合 <code>DefaultErrorHandler</code> 可自动实现上述逻辑，详见 → <a href="kafka-05-spring.html#error">05 · Spring Kafka · §04 错误处理</a>
+      </div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

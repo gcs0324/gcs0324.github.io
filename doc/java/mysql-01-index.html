@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MySQL 01 · 索引原理与实战</title>
+<style>
+:root{--accent-color:var(--blue);--accent-bg:var(--blue-bg);--accent-b:var(--blue-b)}
+header::before{content:'INDEX'}
+/* note.tip / note.good */
+.note.tip{background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--tx2)}
+.note.good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+/* two-column grid */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media(max-width:640px){.two-col{grid-template-columns:1fr}}
+/* fail list */
+.fail-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.fail-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:6px}
+.fail-icon{font-size:14px;flex-shrink:0;margin-top:2px}
+.fail-body{flex:1;min-width:0}
+.fail-title{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:700;color:var(--tx);margin-bottom:5px}
+.fail-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+/* filesort cards */
+.sort-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.sort-card{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:14px 16px}
+.sort-ttl{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;margin-bottom:8px}
+.sort-ttl.blue{color:var(--blue)}
+.sort-ttl.green{color:var(--green)}
+.sort-card p{font-size:13px;color:var(--tx2);line-height:1.65;margin:0}
+@media(max-width:640px){.sort-grid{grid-template-columns:1fr}}
+/* SVG diagram wrapper */
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+/* SVG element classes */
+.dg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blue-bg);stroke:var(--blue-b);stroke-width:1.5}
+.dg-box-g{fill:var(--green-bg);stroke:var(--green-b);stroke-width:1.5}
+.dg-box-o{fill:var(--orange-bg);stroke:var(--orange-b);stroke-width:1.5}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5}
+.dg-t{fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t2{fill:var(--tx2);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue{fill:var(--blue);font-family:'IBM Plex Mono',monospace}
+.dg-green{fill:var(--green);font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-ln{stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-b{stroke:var(--blue);stroke-width:1.8;fill:none}
+.dg-ln-g{stroke:var(--green);stroke-width:1.8;fill:none}
+.dg-ln-dash{stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+</style>
+</head>
+<body>
+<!-- global SVG defs for arrow markers, referenced from all inline SVGs -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="rgba(120,140,170,0.7)"/>
+    </marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--blue)"/>
+    </marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--green)"/>
+    </marker>
+  </defs>
+</svg>
+
+<script src="../../shared/nav-mysql.js"></script>
+<header>
+  <div class="htag">MySQL · 01 · INDEX</div>
+  <h1>索引原理与实战</h1>
+  <p class="sub">B+树结构 · 聚簇索引 · 覆盖索引 · 联合索引 · ORDER BY 排序 · 索引失效 · ICP · MRR · 页分裂 · 设计实战</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#btree"><span class="s-num">01</span>B+树索引结构</a>
+    <a class="s-link" href="#cluster"><span class="s-num">02</span>聚簇索引 vs 非聚簇</a>
+    <a class="s-link" href="#covering"><span class="s-num">03</span>覆盖索引</a>
+    <a class="s-link" href="#composite"><span class="s-num">04</span>联合索引与最左前缀</a>
+    <a class="s-link" href="#orderby"><span class="s-num">05</span>ORDER BY 与索引排序</a>
+    <a class="s-link" href="#invalid"><span class="s-num">06</span>索引失效场景</a>
+    <a class="s-link" href="#icp"><span class="s-num">07</span>索引下推 ICP</a>
+    <a class="s-link" href="#mrr"><span class="s-num">08</span>MRR 优化</a>
+    <a class="s-link" href="#split"><span class="s-num">09</span>页分裂与碎片</a>
+    <a class="s-link" href="#design"><span class="s-num">10</span>索引设计实战</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="mysql-05-interview.html#cat1">→ 面试题 · 索引篇</a>
+    <a class="s-link" href="mysql-02-innodb.html">→ 下一章：InnoDB 架构</a>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ═══════════════════════════════════════════════════ 01 B+树 -->
+    <div class="sec" id="btree"><span class="sn">01</span>B+树索引结构</div>
+
+    <div class="card">
+      <div class="ct">为什么 InnoDB 选 B+树</div>
+      <p>索引的本质是预先把数据排好，让查找从 O(n) 变成 O(log n)。但在数据库场景下，核心矛盾不是 CPU 比较次数，而是<span class="kw">磁盘 IO 次数</span>——每次 IO 读一个 16 KB 的页，IO 层数越少，查询越快。衡量树形索引的关键指标是树高，树高由<span class="kw">扇出（branching factor）</span>决定：一个节点能放多少个 key+pointer。</p>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th>数据结构</th><th>100 万行时树高</th><th>范围查询</th><th>为什么不选</th></tr>
+        <tr><td>红黑树</td><td>≈ 20 层（log₂ 1M）</td><td>中序遍历，需跨节点回溯</td><td>层高太大，20 次 IO</td></tr>
+        <tr><td>B树（B-树）</td><td>≈ 3~4 层</td><td>数据在内部节点，范围扫要回溯父节点</td><td>非叶存数据占空间，扇出比 B+树低；范围扫回溯成本高</td></tr>
+        <tr><td>Hash</td><td>O(1) 点查</td><td>完全不支持</td><td>无序，不支持 &gt; / &lt; / BETWEEN / ORDER BY / LIKE 前缀</td></tr>
+        <tr><td><strong>B+树</strong></td><td>≈ 3 层（log₁₁₇₀ 1M）</td><td>叶节点双向链表，顺序扫</td><td>——（最优解）</td></tr>
+      </table>
+      <p style="margin-top:12px"><strong>B树 vs B+树的关键差异</strong>：B树的非叶节点也存真实行数据，每个节点能放的 key 数因此减少，扇出降低，层高增加。B+树非叶节点只存 key + 指针，一个 16 KB 的页能放约 <span class="kw">1170 个指针</span>（key≈8 字节 + pointer≈6 字节 = 14 字节，16384 ÷ 14 ≈ 1170）。叶节点存实际行数据（假设行均 1 KB，每页约 16 行），三层即可覆盖 1170 × 1170 × 16 ≈ <span class="kw">2200 万行</span>，最多 3 次 IO 定位任意一行。</p>
+    </div>
+
+    <div class="diag-wrap">
+      <div class="diag-cap">B+树三层结构 — 千万行数据最多 3 次 IO</div>
+      <div class="diag-body">
+        <svg width="640" height="226" viewBox="0 0 640 226">
+          <!-- level labels -->
+          <text x="6" y="46" class="dg-t3" font-size="8.5" text-anchor="start">L0</text>
+          <text x="6" y="126" class="dg-t3" font-size="8.5" text-anchor="start">L1</text>
+          <text x="6" y="194" class="dg-t3" font-size="8.5" text-anchor="start">L2</text>
+
+          <!-- Root -->
+          <rect x="220" y="24" width="200" height="38" rx="5" class="dg-box-b"/>
+          <text x="320" y="44" class="dg-blue" font-size="11.5" text-anchor="middle" font-weight="700">Root  ·  1170 key + ptr</text>
+          <text x="320" y="57" class="dg-t3" font-size="9" text-anchor="middle">1 页 · 16 KB</text>
+
+          <!-- lines root → internal -->
+          <line x1="270" y1="62" x2="130" y2="100" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="320" y1="62" x2="320" y2="100" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="370" y1="62" x2="510" y2="100" class="dg-ln" marker-end="url(#arr)"/>
+
+          <!-- Internal nodes -->
+          <rect x="34" y="100" width="192" height="36" rx="5" class="dg-box-b"/>
+          <text x="130" y="120" class="dg-blue" font-size="11" text-anchor="middle" font-weight="700">Internal  ·  1170 ptr</text>
+          <text x="130" y="131" class="dg-t3" font-size="9" text-anchor="middle">共 1170 页</text>
+
+          <rect x="224" y="100" width="192" height="36" rx="5" class="dg-box-b"/>
+          <text x="320" y="120" class="dg-blue" font-size="11" text-anchor="middle" font-weight="700">Internal  ·  1170 ptr</text>
+          <text x="320" y="131" class="dg-t3" font-size="9" text-anchor="middle">···</text>
+
+          <rect x="414" y="100" width="192" height="36" rx="5" class="dg-box-b"/>
+          <text x="510" y="120" class="dg-blue" font-size="11" text-anchor="middle" font-weight="700">Internal  ·  1170 ptr</text>
+          <text x="510" y="131" class="dg-t3" font-size="9" text-anchor="middle">共 1170 页</text>
+
+          <!-- lines internal → leaf -->
+          <line x1="90"  y1="136" x2="60"  y2="168" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="130" y1="136" x2="160" y2="168" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="320" y1="136" x2="320" y2="168" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="470" y1="136" x2="480" y2="168" class="dg-ln" marker-end="url(#arr)"/>
+          <line x1="550" y1="136" x2="580" y2="168" class="dg-ln" marker-end="url(#arr)"/>
+
+          <!-- Leaf nodes -->
+          <rect x="18"  y="168" width="88" height="38" rx="5" class="dg-box-g"/>
+          <text x="62" y="184" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">行数据</text>
+          <text x="62" y="198" class="dg-t3" font-size="8.5" text-anchor="middle">≈ 16 行/页</text>
+
+          <rect x="118" y="168" width="88" height="38" rx="5" class="dg-box-g"/>
+          <text x="162" y="184" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">行数据</text>
+          <text x="162" y="198" class="dg-t3" font-size="8.5" text-anchor="middle">≈ 16 行/页</text>
+
+          <text x="234" y="192" class="dg-t3" font-size="14" text-anchor="middle">···</text>
+
+          <rect x="276" y="168" width="88" height="38" rx="5" class="dg-box-g"/>
+          <text x="320" y="184" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">行数据</text>
+          <text x="320" y="198" class="dg-t3" font-size="8.5" text-anchor="middle">≈ 16 行/页</text>
+
+          <text x="400" y="192" class="dg-t3" font-size="14" text-anchor="middle">···</text>
+
+          <rect x="438" y="168" width="88" height="38" rx="5" class="dg-box-g"/>
+          <text x="482" y="184" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">行数据</text>
+          <text x="482" y="198" class="dg-t3" font-size="8.5" text-anchor="middle">≈ 16 行/页</text>
+
+          <rect x="538" y="168" width="88" height="38" rx="5" class="dg-box-g"/>
+          <text x="582" y="184" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">行数据</text>
+          <text x="582" y="198" class="dg-t3" font-size="8.5" text-anchor="middle">≈ 16 行/页</text>
+
+          <!-- leaf linked list arrows -->
+          <line x1="106" y1="187" x2="118" y2="187" class="dg-ln-b" marker-end="url(#arr-b)"/>
+          <line x1="206" y1="187" x2="222" y2="187" class="dg-ln-b"/>
+          <line x1="245" y1="187" x2="276" y2="187" class="dg-ln-b" marker-end="url(#arr-b)"/>
+          <line x1="364" y1="187" x2="390" y2="187" class="dg-ln-b"/>
+          <line x1="410" y1="187" x2="438" y2="187" class="dg-ln-b" marker-end="url(#arr-b)"/>
+          <line x1="526" y1="187" x2="538" y2="187" class="dg-ln-b" marker-end="url(#arr-b)"/>
+
+          <!-- summary text -->
+          <text x="320" y="220" class="dg-t3" font-size="8.5" text-anchor="middle">叶节点双向链表 · 总容量 1170×1170×16 ≈ 2200 万行 · 最多 3 次 IO 定位任意行</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="note info">叶节点之间通过<strong>双向链表</strong>连接（图中蓝色箭头）。范围查询找到起始叶节点后，顺序扫链表即可，无需再从根节点向下遍历。这是 B+树比 B树更适合 <code>BETWEEN</code>、<code>ORDER BY</code>、<code>LIMIT</code> 扫描的根本原因。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 02 聚簇索引 -->
+    <div class="sec" id="cluster"><span class="sn">02</span>聚簇索引 vs 非聚簇索引</div>
+
+    <div class="card">
+      <div class="ct">聚簇索引（Clustered Index）</div>
+      <p><span class="kw">聚簇索引不是一种额外的索引，而是一种数据存储方式</span>：行数据和主键索引共用同一棵 B+树，叶节点直接存完整行数据。InnoDB 的主键就是聚簇索引，物理上行数据按主键顺序紧密排列在磁盘上。</p>
+      <p>主键确定规则（优先级从高到低）：</p>
+      <ul class="dl">
+        <li><span class="b">①</span><span>有显式 PRIMARY KEY → 用它</span></li>
+        <li><span class="b">②</span><span>没有主键，找第一个<strong>非空唯一索引</strong>（NOT NULL UNIQUE）→ 用它</span></li>
+        <li><span class="b">③</span><span>都没有 → InnoDB 自动生成隐藏的 6 字节 <code>DB_ROW_ID</code> 作为聚簇索引列，用户不可见</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="ct">二级索引（Secondary Index）与回表代价</div>
+      <p>InnoDB 所有非主键索引都是二级索引。二级索引的叶节点存储的是<span class="kw">索引列值 + 主键值</span>，不包含其他列。查询不在索引中的列时，需要两次 B+树遍历：</p>
+      <div class="step-flow" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num">①</div>
+          <div><div class="step-title">走二级索引 B+树</div><div class="step-desc">按 WHERE 条件在二级索引上定位到满足条件的叶节点，读取主键值。每命中一行，得到一个主键。</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">②</div>
+          <div><div class="step-title">回表（Table Lookup）</div><div class="step-desc">拿主键值重新在聚簇索引 B+树上再走一次，才能拿到完整行。每行需要一次独立的 B+树遍历，随机 IO。</div></div>
+        </div>
+      </div>
+      <p style="margin-top:10px">回表的 IO 是随机的（主键值散落在磁盘各处），命中行数越多，随机 IO 越多。当回表代价超过全表顺序扫描的代价时，优化器会主动放弃二级索引走全表扫描——这就是有时候明明加了索引却不走的原因之一。</p>
+    </div>
+
+    <div class="note warn"><strong>MyISAM 没有聚簇索引。</strong>MyISAM 的数据文件（.MYD）和索引文件（.MYI）分离，所有索引——包括主键索引——的叶节点存的都是行的物理地址（文件偏移量），数据按插入顺序堆放（堆表）。因此 MyISAM 的主键查询和普通索引查询性能差不多，都需要一次地址寻址，不存在"主键天然覆盖行数据"的优势。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 03 覆盖索引 -->
+    <div class="sec" id="covering"><span class="sn">03</span>覆盖索引</div>
+
+    <div class="card">
+      <div class="ct">用索引消灭回表</div>
+      <p>如果一条查询所需的所有列都包含在某个索引里（索引的 key 列 + 二级索引叶节点里自带的主键列），就不需要回表，直接在索引叶节点就能拿到完整结果，这叫<span class="kw">覆盖索引（Covering Index）</span>。</p>
+      <p>EXPLAIN 中 <code>Extra: Using index</code> 就是覆盖索引命中的信号，表示"从索引就拿到了所有需要的数据，没有回表"。</p>
+      <pre>-- 表结构：orders(id PK, user_id, status, amount, created_at)
+-- 索引：idx_user_status(user_id, status)
+
+-- ❌ 需要回表：amount 不在索引里
+SELECT user_id, status, amount FROM orders WHERE user_id = 100;
+
+-- ✅ 覆盖索引：只查 user_id + status，均在索引叶节点里
+SELECT user_id, status FROM orders WHERE user_id = 100;
+
+-- ✅ 也是覆盖索引：id 是主键，二级索引叶节点里自带
+SELECT id, user_id, status FROM orders WHERE user_id = 100;</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">覆盖索引的工程价值</div>
+      <p>高频查询路径上，把 SELECT 需要的列追加进联合索引，是消灭回表最直接的手段。代价是索引变大、写入维护成本增加，需要权衡：</p>
+      <ul class="dl">
+        <li><span class="b">✓</span><span>追加列区分度低、列宽小（如 status、is_deleted）→ 代价小，收益大，值得追加</span></li>
+        <li><span class="b">✗</span><span>追加列是 TEXT/BLOB 类型或宽度很大 → 索引页膨胀，不值得</span></li>
+      </ul>
+    </div>
+
+    <div class="note info"><strong>count(*) 也能走覆盖索引。</strong>执行 <code>SELECT count(*) FROM orders WHERE status=1</code> 时，如果 status 上有索引，优化器只需扫描索引叶节点计数，不需要读行数据。EXPLAIN 会显示 <code>Extra: Using index</code>，IO 大幅减少。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 04 联合索引与最左前缀 -->
+    <div class="sec" id="composite"><span class="sn">04</span>联合索引与最左前缀</div>
+
+    <div class="card">
+      <div class="ct">最左前缀的底层原因</div>
+      <p>联合索引 <code>(a, b, c)</code> 在 B+树中的排序规则是：<span class="kw">先按 a 排，a 相同按 b 排，b 相同按 c 排</span>。这个规则决定了索引的可用性：</p>
+      <ul class="dl">
+        <li><span class="b">✅</span><span><code>WHERE a=1</code>：a 有全局序，可以二分定位</span></li>
+        <li><span class="b">✅</span><span><code>WHERE a=1 AND b=2</code>：a 等值后，b 在该 a 子集内有序，可以继续定位</span></li>
+        <li><span class="b">✅</span><span><code>WHERE a=1 AND b&gt;2</code>：a 等值后，b 做范围扫，c 在此范围内无全局序，c 的过滤交给 ICP</span></li>
+        <li><span class="b">❌</span><span><code>WHERE b=2</code>：跳过 a，b 在全局无序，无法用索引定位</span></li>
+        <li><span class="b">❌</span><span><code>WHERE a=1 AND c=3</code>（跳过 b）：a 等值后，c 在 b 不确定下无序，c 无法索引定位</span></li>
+      </ul>
+      <p style="margin-top:10px">关键推论：<span class="kw">范围条件（&gt; / &lt; / BETWEEN / LIKE 'x%'）之后的列失去索引过滤能力</span>，但仍可通过 ICP 在引擎层过滤（见第 07 节）。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">MySQL 8.0 Skip Scan（跳跃扫描）</div>
+      <p>8.0 新增优化：当联合索引第一列区分度极低（如 gender 只有 M/F），查询只过滤后续列时，优化器可枚举第一列的所有值，对每个值做子范围扫描，从而"绕过"最左前缀限制。</p>
+      <pre>-- 索引：(gender, age)，gender 只有 M/F
+-- 8.0 Skip Scan：等价于 gender='M' AND age>25 UNION gender='F' AND age>25
+SELECT * FROM users WHERE age > 25;
+
+-- EXPLAIN FORMAT=JSON 中可以看到：
+-- "using_index_for_skip_scan": true</pre>
+      <div class="note info" style="margin-top:8px">Skip Scan 只在第一列区分度极低（值少）且第一列没有等值条件时才划算。若第一列有几十种值，枚举成本反而高于全表扫描，优化器会自动放弃 Skip Scan。</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ 05 ORDER BY -->
+    <div class="sec" id="orderby"><span class="sn">05</span>ORDER BY 与索引排序</div>
+
+    <div class="card">
+      <div class="ct">ORDER BY 什么时候走索引</div>
+      <p>ORDER BY 能走索引的本质条件：<span class="kw">在 WHERE 等值条件固定了索引前缀列之后，ORDER BY 的列恰好是索引中的下一列（且方向一致）</span>，这样排序列在固定前缀下已经是有序的，无需额外排序。</p>
+      <table class="tbl">
+        <tr><th>SQL 模式</th><th>索引</th><th>结果</th><th>原因</th></tr>
+        <tr><td><code>WHERE a=1 ORDER BY b</code></td><td>(a,b)</td><td>✅ 走索引，无 filesort</td><td>a 等值固定后，b 在该子集内天然有序</td></tr>
+        <tr><td><code>WHERE a=1 ORDER BY b,c</code></td><td>(a,b,c)</td><td>✅ 走索引，无 filesort</td><td>a 等值后，(b,c) 联合有序</td></tr>
+        <tr><td><code>WHERE a=1 AND b=2 ORDER BY c</code></td><td>(a,b,c)</td><td>✅ 走索引，无 filesort</td><td>(a,b) 均等值，c 有序</td></tr>
+        <tr><td><code>WHERE a&gt;1 ORDER BY b</code></td><td>(a,b)</td><td>❌ filesort</td><td>a 是范围条件，b 在不同 a 值间无全局序</td></tr>
+        <tr><td><code>WHERE a=1 ORDER BY b DESC,c ASC</code></td><td>(a,b,c)</td><td>❌ filesort（8.0前）</td><td>b/c 方向不一致，单向索引无法满足</td></tr>
+        <tr><td><code>WHERE a=1 ORDER BY b DESC,c ASC</code></td><td>(a, b DESC, c ASC)</td><td>✅ 走索引（8.0+）</td><td>8.0 支持建降序索引，方向与查询匹配</td></tr>
+        <tr><td><code>ORDER BY RAND()</code></td><td>—</td><td>❌ 永不走索引</td><td>函数结果不可预排序，无法映射到 B+树</td></tr>
+        <tr><td><code>ORDER BY a LIMIT 10</code></td><td>(a)</td><td>✅/❌ 视选择性</td><td>LIMIT 小、需回表行少时走索引；返回比例高时优化器选全表扫</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="ct">filesort 两种算法</div>
+      <p>ORDER BY 不能走索引时，MySQL 对结果集做内存（或磁盘）排序，称为 <code>filesort</code>（名字有点误导，不一定真写文件）。有两种算法：</p>
+      <div class="sort-grid">
+        <div class="sort-card">
+          <div class="sort-ttl blue">双路排序（Two-Pass Sort）</div>
+          <p>① 读 row pointer + 排序列 → sort_buffer<br>② 在 sort_buffer 内排好序<br>③ 按 row pointer 回表，再读剩余列<br><br><strong>两次磁盘读取</strong>；sort_buffer 只需存少量数据，适合行宽很大的场景。</p>
+        </div>
+        <div class="sort-card">
+          <div class="sort-ttl green">单路排序（Single-Pass Sort）</div>
+          <p>① 一次把 SELECT 需要的所有列读入 sort_buffer<br>② 在 sort_buffer 内直接排序，排完直接输出<br><br><strong>一次磁盘读取</strong>；但 sort_buffer 需装下所有列，占内存更多。</p>
+        </div>
+      </div>
+      <p style="margin-top:12px">MySQL 默认优先单路排序。当待排数据量超过 <code>sort_buffer_size</code>（默认 256 KB）时，会把已排好的片段溢写到磁盘，最后做<span class="kw">多路归并</span>，产生真正的文件 IO，这才是性能杀手。</p>
+      <pre>-- 调整（会话级别，不要设太大，是每个连接独占的内存）
+SET SESSION sort_buffer_size = 4 * 1024 * 1024;  -- 4 MB
+
+-- 查看排序是否用了磁盘临时文件
+SHOW STATUS LIKE 'Sort_merge_passes';  -- > 0 说明发生了磁盘归并</pre>
+    </div>
+
+    <div class="note warn"><strong>Using filesort 不代表性能差。</strong>结果集只有几十行时，filesort 在内存里瞬间完成，完全可以接受。真正危险的是 <code>Extra: Using temporary; Using filesort</code>——需要先建内存/磁盘临时表再排序，常见于 GROUP BY 和 ORDER BY 是不同列的场景。这才是需要重点优化的信号。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 06 索引失效 -->
+    <div class="sec" id="invalid"><span class="sn">06</span>索引失效场景</div>
+
+    <div class="card">
+      <div class="ct">让索引失效的常见写法</div>
+      <div class="fail-list">
+
+        <div class="fail-item">
+          <div class="fail-icon">🔴</div>
+          <div class="fail-body">
+            <div class="fail-title">对索引列使用函数或运算</div>
+            <div class="fail-desc">
+              <code>WHERE YEAR(created_at) = 2024</code> → ❌ 全表扫描<br>
+              <code>WHERE DATE_FORMAT(created_at, '%Y') = '2024'</code> → ❌<br>
+              改写：<code>WHERE created_at &gt;= '2024-01-01' AND created_at &lt; '2025-01-01'</code> → ✅<br>
+              <br>
+              <code>WHERE id + 1 = 101</code> → ❌ 改为 <code>WHERE id = 100</code> → ✅<br>
+              <br>
+              原因：函数/运算改变了列的实际值，B+树按原始值排序，找不到计算后的值。
+            </div>
+          </div>
+        </div>
+
+        <div class="fail-item">
+          <div class="fail-icon">🔴</div>
+          <div class="fail-body">
+            <div class="fail-title">隐式类型转换（高频坑）</div>
+            <div class="fail-desc">
+              <code>phone VARCHAR(20)</code> 列：<code>WHERE phone = 13812345678</code>（传了整型）→ ❌<br>
+              MySQL 需要把 phone 列每行都 CAST 成数字再比较，相当于对索引列套了函数，全表扫描。<br>
+              <br>
+              注意方向：<code>id INT</code>，<code>WHERE id = '100'</code>（传了字符串）→ ✅ 字符串 '100' 转成整数 100，对参数转换，不是对列转换，索引仍有效。<br>
+              <br>
+              记忆口诀：<span class="kw">转换加在列上 → 失效；转换加在参数上 → 有效</span>。
+            </div>
+          </div>
+        </div>
+
+        <div class="fail-item">
+          <div class="fail-icon">🔴</div>
+          <div class="fail-body">
+            <div class="fail-title">LIKE 前导通配符</div>
+            <div class="fail-desc">
+              <code>WHERE name LIKE '%张%'</code> → ❌ 前导 % 无法确定 B+树起始位置，全扫<br>
+              <code>WHERE name LIKE '张%'</code> → ✅ 确定前缀 '张'，可以在 B+树定位到第一个"张"开头的节点后顺序扫<br>
+              <br>
+              如果业务必须做全模糊搜索，考虑 Elasticsearch 全文检索，或 MySQL FULLTEXT 索引（仅适合文本内容搜索，不支持精确 SQL 过滤）。
+            </div>
+          </div>
+        </div>
+
+        <div class="fail-item">
+          <div class="fail-icon">🔴</div>
+          <div class="fail-body">
+            <div class="fail-title">OR 连接中有非索引列</div>
+            <div class="fail-desc">
+              <code>WHERE id = 1 OR name = '张三'</code>：id 有索引、name 没有 → ❌ 整体全表扫描<br>
+              因为满足 <code>name='张三'</code> 的行散落全表，必须扫全表，加上 id 的条件也没有意义。<br>
+              <br>
+              两列都有索引时，MySQL 可能 Index Merge（OR 合并两个索引结果），但稳定性差，建议改写：<br>
+              <code>SELECT ... WHERE id=1 UNION SELECT ... WHERE name='张三'</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="fail-item">
+          <div class="fail-icon">🟡</div>
+          <div class="fail-body">
+            <div class="fail-title">NOT IN / NOT EXISTS / !=（否定条件）</div>
+            <div class="fail-desc">
+              否定条件无法利用索引有序性定位一个区间，通常走全表扫描。<br>
+              例外：数据量极少 + 主键/唯一索引时，优化器可能走 index range scan。不可依赖，需 EXPLAIN 验证。<br>
+              <br>
+              改写思路：<code>NOT IN (1,2,3)</code> 可改为 LEFT JOIN ... IS NULL 的排除写法，有时能利用索引。
+            </div>
+          </div>
+        </div>
+
+        <div class="fail-item">
+          <div class="fail-icon">🟡</div>
+          <div class="fail-body">
+            <div class="fail-title">索引区分度太低，优化器主动放弃</div>
+            <div class="fail-desc">
+              <code>status</code> 只有 0/1 两个值，99% 的行 status=0。走索引 + 回表的代价 &gt; 全表顺序扫描的代价，优化器自动选择全表扫描，即使索引存在。<br>
+              <br>
+              强制走索引：<code>SELECT ... FROM t FORCE INDEX(idx_status) WHERE status=0</code>，但通常没有意义。<br>
+              真正的解决方案：重新设计索引（如把 status 放入联合索引的非首位），或接受全表扫描并优化表大小。
+            </div>
+          </div>
+        </div>
+
+        <div class="fail-item">
+          <div class="fail-icon">🟡</div>
+          <div class="fail-body">
+            <div class="fail-title">字符集或 Collation 不匹配（JOIN 时的坑）</div>
+            <div class="fail-desc">
+              两张表 JOIN，关联列类型相同但字符集不同（如一张 utf8，一张 utf8mb4），MySQL 需要做隐式转换，被转换的那侧无法走索引。<br>
+              <br>
+              排查：<code>SHOW CREATE TABLE</code> 确认字符集一致；生产环境统一使用 <code>utf8mb4 + utf8mb4_unicode_ci</code>。
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ 07 ICP -->
+    <div class="sec" id="icp"><span class="sn">07</span>索引下推 ICP</div>
+
+    <div class="card">
+      <div class="ct">Index Condition Pushdown（MySQL 5.6+）</div>
+      <p>ICP 解决的问题场景：联合索引 <code>(name, age)</code>，查询 <code>WHERE name LIKE '张%' AND age &gt; 20</code>。</p>
+      <p>name 前缀匹配能用索引定位到第一个"张"开头的节点，但 age 是范围列后的条件，在 B+树层无法过滤。<strong>5.6 之前</strong>：先按 name 命中的所有叶节点一一回表，拿完整行后再在 Server 层过滤 age。如果 name LIKE '张%' 命中 10000 行但 age&gt;20 只有 100 行，就产生了 9900 次无效回表。</p>
+      <p><strong>5.6+ ICP</strong>：把 age&gt;20 的过滤条件下推到存储引擎层，在拿到二级索引叶节点后先检查 age（叶节点里包含 age），只有 age&gt;20 的行才回表，直接把回表从 10000 次降为 100 次。</p>
+    </div>
+
+    <div class="diag-wrap">
+      <div class="diag-cap">ICP 对比 — 有无索引下推的 IO 路径</div>
+      <div class="diag-body">
+        <svg width="580" height="170" viewBox="0 0 580 170">
+          <!-- row 1: WITHOUT ICP -->
+          <text x="10" y="20" class="dg-t3" font-size="9" fill="var(--tx3)">WITHOUT ICP（5.6前）</text>
+          <rect x="10"  y="26" width="140" height="34" rx="4" class="dg-box-b"/>
+          <text x="80"  y="42" class="dg-blue" font-size="10.5" text-anchor="middle" font-weight="600">二级索引叶节点</text>
+          <text x="80"  y="54" class="dg-t3" font-size="8.5" text-anchor="middle">name LIKE '张%'，命中 N 行</text>
+          <line x1="150" y1="43" x2="175" y2="43" class="dg-ln" marker-end="url(#arr)"/>
+          <rect x="175" y="26" width="140" height="34" rx="4" class="dg-box-o"/>
+          <text x="245" y="42" class="dg-orange" font-size="10.5" text-anchor="middle" font-weight="600">回表（聚簇索引）</text>
+          <text x="245" y="54" class="dg-t3" font-size="8.5" text-anchor="middle" fill="var(--orange)">N 次回表，取完整行</text>
+          <line x1="315" y1="43" x2="340" y2="43" class="dg-ln" marker-end="url(#arr)"/>
+          <rect x="340" y="26" width="140" height="34" rx="4" class="dg-box"/>
+          <text x="410" y="42" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">Server 层过滤</text>
+          <text x="410" y="54" class="dg-t3" font-size="8.5" text-anchor="middle">age &gt; 20，丢弃大量行</text>
+
+          <!-- divider -->
+          <line x1="10" y1="80" x2="570" y2="80" class="dg-ln-dash"/>
+
+          <!-- row 2: WITH ICP -->
+          <text x="10" y="100" class="dg-t3" font-size="9" fill="var(--tx3)">WITH ICP（5.6+）</text>
+          <rect x="10"  y="106" width="140" height="34" rx="4" class="dg-box-b"/>
+          <text x="80"  y="122" class="dg-blue" font-size="10.5" text-anchor="middle" font-weight="600">二级索引叶节点</text>
+          <text x="80"  y="134" class="dg-t3" font-size="8.5" text-anchor="middle">name LIKE '张%'，命中 N 行</text>
+          <line x1="150" y1="123" x2="175" y2="123" class="dg-ln-b" marker-end="url(#arr-b)"/>
+          <rect x="175" y="106" width="140" height="34" rx="4" class="dg-box-b"/>
+          <text x="245" y="122" class="dg-blue" font-size="10.5" text-anchor="middle" font-weight="600">引擎层过滤 age&gt;20</text>
+          <text x="245" y="134" class="dg-t3" font-size="8.5" text-anchor="middle" fill="var(--green)">只有 M 行通过（M≪N）</text>
+          <line x1="315" y1="123" x2="340" y2="123" class="dg-ln-g" marker-end="url(#arr-g)"/>
+          <rect x="340" y="106" width="140" height="34" rx="4" class="dg-box-g"/>
+          <text x="410" y="122" class="dg-t" font-size="10.5" text-anchor="middle" font-weight="600">回表（聚簇索引）</text>
+          <text x="410" y="134" class="dg-t3" font-size="8.5" text-anchor="middle" fill="var(--green)">仅 M 次，大幅减少 IO</text>
+
+          <text x="290" y="162" class="dg-t3" font-size="8.5" text-anchor="middle">ICP 将回表次数从 N 降为 M，N 远大于 M 时效果显著</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="note info">EXPLAIN 中 <code>Extra: Using index condition</code> 表示 ICP 生效。ICP 默认开启，可用 <code>SET optimizer_switch='index_condition_pushdown=off'</code> 关闭。<strong>ICP 只对二级索引有效</strong>，聚簇索引的叶节点已包含所有列，没有"下推"的必要。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 08 MRR -->
+    <div class="sec" id="mrr"><span class="sn">08</span>MRR 优化</div>
+
+    <div class="card">
+      <div class="ct">Multi-Range Read — 随机 IO → 顺序 IO</div>
+      <p>二级索引按索引列有序排列，但叶节点里的主键值是<span class="kw">乱序</span>的。例如按 status 索引命中了 user_id 为 9012、43、7831、201 的行，按命中顺序回表就是 4 次随机 IO，物理上在磁盘各处跳来跳去。</p>
+      <p>MRR 的优化思路：</p>
+      <div class="step-flow" style="margin-top:8px">
+        <div class="step">
+          <div class="step-num">①</div>
+          <div><div class="step-title">收集主键</div><div class="step-desc">先扫描二级索引，把范围内所有主键值收集到 <code>read_rnd_buffer</code> 中，不立即回表。</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">②</div>
+          <div><div class="step-title">按主键排序</div><div class="step-desc">对 buffer 中的主键值排序，变成 43 → 201 → 7831 → 9012 的顺序（接近物理页顺序）。</div></div>
+        </div>
+        <div class="step">
+          <div class="step-num">③</div>
+          <div><div class="step-title">批量顺序回表</div><div class="step-desc">按排序后的主键顺序批量读聚簇索引，IO 变成近似顺序读，磁盘寻道次数大幅减少。</div></div>
+        </div>
+      </div>
+      <pre>-- 查看 MRR 开关状态
+SELECT @@optimizer_switch\G
+-- 含 "mrr=on,mrr_cost_based=on" → 开启，成本划算时自动启用
+
+-- EXPLAIN 中 Extra: Using MRR 表示生效
+
+-- 调整每次收集多少主键（默认 256KB）
+SET SESSION read_rnd_buffer_size = 4 * 1024 * 1024;</pre>
+    </div>
+
+    <div class="note info"><strong>MRR + BKA（Batched Key Access）联合优化 JOIN。</strong>BKA 把驱动表每批次产生的关联列值收集起来，以 MRR 方式访问被驱动表的索引，把 JOIN 的随机 IO 变成批量顺序 IO。需要单独开启：<code>SET optimizer_switch='batched_key_access=on'</code>，并同时确保 MRR 开启。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 09 页分裂 -->
+    <div class="sec" id="split"><span class="sn">09</span>页分裂与索引碎片</div>
+
+    <div class="card">
+      <div class="ct">自增主键 vs UUID 的写放大问题</div>
+      <p>InnoDB 每个 B+树叶节点是一个 16 KB 的页，满页插入新行时会触发<span class="kw">页分裂（Page Split）</span>：把当前页大约一半的记录移到新分配的页，然后更新父节点的指针。</p>
+      <div class="two-col">
+        <div class="card" style="margin:0">
+          <div class="ct" style="color:var(--green)">自增主键（推荐）</div>
+          <p>新行永远插到最后一页。当前页写满后直接申请新页追加，<strong>不触发分裂</strong>，IO 顺序，页填充率接近 100%。</p>
+        </div>
+        <div class="card" style="margin:0">
+          <div class="ct" style="color:var(--red)">UUID / 随机主键（慎用）</div>
+          <p>新行插入位置随机，大概率命中已满的中间页，频繁触发页分裂：<strong>写放大</strong>（每次分裂写两页 + 更新父节点）、<strong>碎片化</strong>（分裂后平均填充率约 50%）、<strong>缓存失效</strong>（热数据不集中，Buffer Pool 命中率下降）。</p>
+        </div>
+      </div>
+      <p style="margin-top:12px">100 万次随机主键写入，页分裂可能产生额外 <strong>50% 以上</strong>的页数，相同数据需要更多 IO 才能扫描完。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">碎片整理方案</div>
+      <pre>-- 查看碎片率
+SELECT table_name,
+       ROUND(data_length/1024/1024, 1) AS data_MB,
+       ROUND(data_free/1024/1024, 1)   AS free_MB,
+       ROUND(data_free/(data_length+data_free)*100, 1) AS frag_pct
+FROM information_schema.TABLES
+WHERE table_schema = 'your_db' AND engine = 'InnoDB'
+ORDER BY data_free DESC LIMIT 20;</pre>
+      <table class="tbl" style="margin-top:12px">
+        <tr><th>方案</th><th>原理</th><th>是否锁表</th><th>适用场景</th></tr>
+        <tr><td>OPTIMIZE TABLE t</td><td>重建表 + 索引，回收碎片空间</td><td>是（MDL 写锁）</td><td>小表，停机窗口</td></tr>
+        <tr><td>ALTER TABLE t ENGINE=InnoDB</td><td>触发 Online DDL 重建</td><td>否（5.6+ Online DDL）</td><td>中等大小表</td></tr>
+        <tr><td>pt-online-schema-change</td><td>影子表 + 增量同步 + rename</td><td>否</td><td>超大表，生产环境</td></tr>
+        <tr><td>gh-ost</td><td>基于 binlog 的无触发器迁移</td><td>否</td><td>超大表，主从复制环境</td></tr>
+      </table>
+    </div>
+
+    <div class="note warn"><strong>页分裂无法完全杜绝，但可以缓解。</strong>如果业务必须用全局唯一 ID，优先选<strong>雪花 ID</strong>（趋势递增，毫秒级有序）或 <strong>UUID v7</strong>（时间戳有序），而不是 UUID v4（完全随机）。趋势递增的 ID 写入模式接近自增，页分裂频率与自增主键相当。</div>
+
+    <!-- ═══════════════════════════════════════════════════ 10 索引设计实战 -->
+    <div class="sec" id="design"><span class="sn">10</span>索引设计实战</div>
+
+    <div class="card">
+      <div class="ct">选列：区分度优先</div>
+      <p><span class="kw">区分度（Selectivity）= 不重复值数量 / 总行数</span>，越接近 1 说明该列越适合做索引。</p>
+      <pre>-- 计算各列区分度
+SELECT
+  COUNT(DISTINCT status)  / COUNT(*) AS sel_status,   -- 结果约 0.00003，极低
+  COUNT(DISTINCT user_id) / COUNT(*) AS sel_user,     -- 结果约 0.3，可以
+  COUNT(DISTINCT phone)   / COUNT(*) AS sel_phone     -- 结果约 0.999，非常适合
+FROM orders;
+
+-- 经验值：Selectivity > 0.1 才值得单独建索引</pre>
+      <p style="margin-top:8px">区分度低的列（如 status、gender）不适合单独建索引，但可以作为联合索引的<strong>非首位列</strong>（查询有等值条件时仍能利用）。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">联合索引列顺序设计三原则</div>
+      <ul class="dl">
+        <li><span class="b">①</span><span><strong>等值列放前，范围列放后</strong>：<code>(user_id, created_at)</code> 比 <code>(created_at, user_id)</code> 更好——user_id 等值固定后，created_at 才有序，才能做范围扫。</span></li>
+        <li><span class="b">②</span><span><strong>高区分度列放前</strong>：在满足①的前提下，区分度高的列放在前面，过滤效果好，减少扫描行数。</span></li>
+        <li><span class="b">③</span><span><strong>覆盖查询的列追到末尾</strong>：把 SELECT 里频繁出现但不在 WHERE 中的列追加到联合索引末尾，消灭回表。代价是索引变宽，评估 write 开销是否可接受。</span></li>
+      </ul>
+      <pre>-- 典型设计案例：订单查询
+-- 查询：WHERE user_id=? AND status=? ORDER BY created_at DESC LIMIT 20
+-- 同时需要返回 order_no（不在 WHERE 里）
+
+-- 推荐索引：(user_id, status, created_at, order_no)
+--   user_id 等值，status 等值，created_at 有序 → ORDER BY 不需要 filesort
+--   order_no 追加尾部 → 覆盖索引，不需要回表
+ALTER TABLE orders ADD INDEX idx_user_status_time_no
+  (user_id, status, created_at, order_no);</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">前缀索引 — 处理长字符串</div>
+      <pre>-- 找到合适的前缀长度：区分度接近全列时就够了
+SELECT
+  COUNT(DISTINCT LEFT(email, 8))  / COUNT(*) AS p8,
+  COUNT(DISTINCT LEFT(email, 12)) / COUNT(*) AS p12,
+  COUNT(DISTINCT LEFT(email, 16)) / COUNT(*) AS p16,
+  COUNT(DISTINCT email)           / COUNT(*) AS full
+FROM users;
+-- 若 p12 ≈ full，取 12 即可
+
+ALTER TABLE users ADD INDEX idx_email(email(12));</pre>
+      <p style="margin-top:8px">前缀索引的缺点：<strong>不能用于覆盖索引</strong>（叶节点存的是截断值，不是完整值，查询还是要回表）；也不能用于 ORDER BY 排序（截断值和完整值排序结果可能不同）。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">索引维护：清理冗余与未使用的索引</div>
+      <pre>-- 查找冗余索引（前缀覆盖关系）
+SELECT * FROM sys.schema_redundant_indexes
+WHERE table_schema = 'your_db';
+
+-- 查找从未被使用的索引（MySQL 5.7+，基于 performance_schema）
+SELECT * FROM sys.schema_unused_indexes
+WHERE object_schema = 'your_db';
+
+-- 查看索引使用统计
+SELECT index_name, rows_selected, rows_inserted, rows_updated, rows_deleted
+FROM performance_schema.table_io_waits_summary_by_index_usage
+WHERE object_schema = 'your_db' AND object_name = 'orders';</pre>
+      <p style="margin-top:8px">每个多余的索引在 INSERT / UPDATE / DELETE 时都需要额外维护一棵 B+树，大表高并发写入时代价显著。定期清理冗余和未使用的索引是 DBA 的基本工作。</p>
+    </div>
+
+    <div class="note good"><strong>索引设计 Checklist</strong><br>
+    ① 先梳理高频查询，再针对性建索引（而不是先建索引再看效果）<br>
+    ② WHERE / JOIN ON / ORDER BY 列优先考虑，等值列在前，范围列在后<br>
+    ③ 必要时在索引末尾追加列消灭回表<br>
+    ④ 字符串列评估区分度，考虑前缀索引<br>
+    ⑤ 主键用自增整型或趋势递增 ID，避免随机 UUID<br>
+    ⑥ EXPLAIN 验证：type 列至少达到 range，最好 ref 或 eq_ref<br>
+    ⑦ 定期用 sys.schema_unused_indexes 清理无效索引</div>
+
+  </div><!-- /mc -->
+</div><!-- /layout -->
+
+<script>
+(function(){
+  var links = document.querySelectorAll('.s-link[href^="#"]');
+  var secs  = Array.from(links).map(function(l){
+    return document.querySelector(l.getAttribute('href'));
+  }).filter(Boolean);
+  function spy(){
+    var top = window.scrollY + 80;
+    var cur = secs[0];
+    secs.forEach(function(s){ if(s.offsetTop <= top) cur = s; });
+    links.forEach(function(l){
+      l.classList.toggle('active', l.getAttribute('href') === '#' + cur.id);
+    });
+  }
+  window.addEventListener('scroll', spy, {passive: true});
+})();
+</script>
+</body>
+</html>

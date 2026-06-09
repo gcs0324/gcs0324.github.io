@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORM 02 · MyBatis-Plus 核心功能</title>
+<style>
+:root{--accent-color:var(--orange);--accent-bg:var(--orange-bg);--accent-b:var(--orange-b)}
+header::before{content:'MP'}
+/* feature list */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.feat-item{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 14px}
+.feat-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;color:var(--orange);margin-bottom:4px}
+.feat-desc{font-size:12.5px;color:var(--tx2);line-height:1.55}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr}}
+/* wrapper hierarchy */
+.cls-chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cls-node{background:var(--bg2);border:1px solid var(--bd);border-radius:5px;padding:6px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx2)}
+.cls-node.hl{border-color:var(--ora-b);color:var(--orange);background:var(--ora-bg)}
+.cls-arrow{color:var(--tx3);font-size:13px}
+/* SVG diagram */
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-o{fill:var(--ora-bg);stroke:var(--ora-b);stroke-width:1.5}
+.dg-box-b{fill:var(--blu-bg);stroke:var(--blu-b);stroke-width:1.5}
+.dg-box-g{fill:var(--grn-bg);stroke:var(--grn-b);stroke-width:1.5}
+.dg-t{fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-blue{fill:var(--blue);font-family:'IBM Plex Mono',monospace}
+.dg-green{fill:var(--green);font-family:'IBM Plex Mono',monospace}
+.dg-ln{stroke:var(--bd2);stroke-width:1.5;fill:none}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-orm.js"></script>
+<header>
+  <div class="htag">ORM · 02 · MYBATIS-PLUS</div>
+  <h1>MyBatis-Plus 核心功能</h1>
+  <p class="sub">BaseMapper · 条件构造器 · 分页插件 · 自动填充 · 逻辑删除 · 乐观锁 · 多租户</p>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#intro"><span class="s-num">01</span>MP 是什么</a>
+    <a class="s-link" href="#mapper"><span class="s-num">02</span>三层核心接口</a>
+    <a class="s-link" href="#wrapper"><span class="s-num">03</span>条件构造器</a>
+    <a class="s-link" href="#page"><span class="s-num">04</span>分页插件</a>
+    <a class="s-link" href="#fill"><span class="s-num">05</span>自动填充</a>
+    <a class="s-link" href="#logic"><span class="s-num">06</span>逻辑删除 &amp; 乐观锁</a>
+    <a class="s-link" href="#codegen"><span class="s-num">07</span>代码生成器</a>
+    <a class="s-link" href="#tenant"><span class="s-num">08</span>多租户 &amp; 动态表名</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="orm-03-interview.html#cat3">→ 面试题 MyBatis-Plus</a>
+    <a class="s-link" href="orm-01-mybatis.html">← 上一章：MyBatis</a>
+    <a class="s-link" href="orm-03-interview.html">→ 下一章：面试题</a>
+  </aside>
+  <div class="mc">
+
+    <!-- 01 是什么 -->
+    <div class="sec" id="intro"><span class="sn">01</span>MP 是什么</div>
+    <div class="card">
+      <div class="ct">MyBatis 的增强版，不替换 MyBatis</div>
+      <p>MyBatis-Plus（MP）在 MyBatis 的基础上做了功能增强，不改变 MyBatis 的任何行为。已有的 XML Mapper 和注解照常工作，MP 只是在旁边加了一层开箱即用的 CRUD 能力。</p>
+      <div class="feat-grid">
+        <div class="feat-item">
+          <div class="feat-tag">内置 CRUD</div>
+          <div class="feat-desc">BaseMapper 提供 18 个通用方法，selectById / insert / updateById / deleteById 等，不用写 SQL 也能完成基本操作</div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-tag">条件构造器</div>
+          <div class="feat-desc">QueryWrapper / LambdaQueryWrapper 链式 API 拼接 WHERE 条件，类型安全，无硬编码字段名</div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-tag">分页插件</div>
+          <div class="feat-desc">MybatisPlusInterceptor 内置物理分页，自动改写 SQL + 执行 COUNT，适配 MySQL / PostgreSQL / Oracle 等主流数据库</div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-tag">功能扩展</div>
+          <div class="feat-desc">自动填充（createTime / updateTime）、逻辑删除（is_deleted）、乐观锁（version）、代码生成器，覆盖 80% 的重复工作</div>
+        </div>
+      </div>
+    </div>
+    <div class="note info">MP 的核心设计原则：<strong>只做增强，不做改变</strong>。引入 MP 后，原有的 XML Mapper 一行都不用改。</div>
+
+    <!-- 02 三层接口 -->
+    <div class="sec" id="mapper"><span class="sn">02</span>三层核心接口</div>
+    <div class="card">
+      <div class="ct">BaseMapper / IService / ServiceImpl 分工</div>
+      <p>MP 提供三层接口，越往上封装越高，使用越方便，但也越不灵活。</p>
+      <table class="tbl">
+        <tr><th>层次</th><th>接口 / 类</th><th>定位</th><th>代表方法</th></tr>
+        <tr><td>Mapper 层</td><td>BaseMapper&lt;T&gt;</td><td>直接操作数据库，18 个通用方法</td><td>insert / deleteById / selectById / selectList / selectPage</td></tr>
+        <tr><td>Service 层</td><td>IService&lt;T&gt;</td><td>封装业务逻辑，批量操作等</td><td>saveBatch / updateBatchById / listByIds / page / lambdaQuery</td></tr>
+        <tr><td>Service 实现</td><td>ServiceImpl&lt;M,T&gt;</td><td>实现 IService，注入 BaseMapper</td><td>继承即可，无需重复实现</td></tr>
+      </table>
+      <pre style="margin-top:14px">// Mapper 接口只需继承 BaseMapper，MP 自动注入 18 个方法
+public interface UserMapper extends BaseMapper&lt;User&gt; {
+    // 也可以按需添加自定义 XML 方法
+}
+
+// Service 接口
+public interface UserService extends IService&lt;User&gt; {}
+
+// ServiceImpl 声明两个泛型：Mapper 类型 + 实体类型
+@Service
+public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt;
+        implements UserService {}</pre>
+    </div>
+    <div class="note tip"><code>saveBatch</code> 底层默认用循环单条 INSERT，不是真正的批量 SQL。若要真正的批量插入（一条 SQL 多个 VALUES），需用 XML 写 <code>foreach</code>，或开启 JDBC <code>rewriteBatchedStatements=true</code>。</div>
+
+    <!-- 03 条件构造器 -->
+    <div class="sec" id="wrapper"><span class="sn">03</span>条件构造器</div>
+    <div class="card">
+      <div class="ct">QueryWrapper vs LambdaQueryWrapper</div>
+      <p>条件构造器用于拼接 WHERE 条件，替代手写 SQL 字符串。两种风格：</p>
+      <div class="cls-chain">
+        <div class="cls-node hl">AbstractWrapper</div>
+        <div class="cls-arrow">→</div>
+        <div class="cls-node">QueryWrapper（字符串列名）</div>
+        <div class="cls-arrow">+</div>
+        <div class="cls-node hl">LambdaQueryWrapper（Lambda 列名）</div>
+      </div>
+      <pre style="margin-top:14px">// QueryWrapper：列名用字符串，有硬编码风险
+QueryWrapper&lt;User&gt; qw = new QueryWrapper&lt;&gt;();
+qw.eq("name", "张三").ge("age", 18).orderByDesc("create_time");
+List&lt;User&gt; list = userMapper.selectList(qw);
+
+// LambdaQueryWrapper：列名用 Lambda，重构字段名时不会遗漏（推荐）
+LambdaQueryWrapper&lt;User&gt; lqw = new LambdaQueryWrapper&lt;&gt;();
+lqw.eq(User::getName, "张三")
+   .ge(User::getAge, 18)
+   .orderByDesc(User::getCreateTime);
+List&lt;User&gt; list = userMapper.selectList(lqw);</pre>
+      <table class="tbl" style="margin-top:12px">
+        <tr><th>方法</th><th>对应 SQL</th><th>说明</th></tr>
+        <tr><td>eq / ne</td><td>= / !=</td><td>等于 / 不等于</td></tr>
+        <tr><td>gt / ge / lt / le</td><td>&gt; / &gt;= / &lt; / &lt;=</td><td>大于 / 大于等于 / 小于 / 小于等于</td></tr>
+        <tr><td>like / likeLeft / likeRight</td><td>LIKE %val% / %val / val%</td><td>模糊查询</td></tr>
+        <tr><td>in / notIn</td><td>IN (...) / NOT IN (...)</td><td>集合匹配</td></tr>
+        <tr><td>isNull / isNotNull</td><td>IS NULL / IS NOT NULL</td><td>空值判断</td></tr>
+        <tr><td>between</td><td>BETWEEN a AND b</td><td>范围查询</td></tr>
+        <tr><td>orderByAsc / orderByDesc</td><td>ORDER BY col ASC/DESC</td><td>排序</td></tr>
+        <tr><td>select</td><td>SELECT col1, col2</td><td>指定查询列（避免 SELECT *）</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">UpdateWrapper — 只更新指定列</div>
+      <pre>// 只把 age >= 18 的用户 status 改为 1，不更新其他字段
+UpdateWrapper&lt;User&gt; uw = new UpdateWrapper&lt;&gt;();
+uw.ge("age", 18).set("status", 1);
+userMapper.update(null, uw); // 第一个参数为 null 表示实体字段不参与更新</pre>
+      <div class="note warn">条件构造器里的 <code>condition</code> 参数（三参数重载）可以控制某个条件是否加入：<code>eq(name != null, "name", name)</code>，只有 name 非空时才加 <code>eq</code> 条件，替代 MyBatis 的 <code>&lt;if&gt;</code> 标签。</div>
+    </div>
+
+    <!-- 04 分页插件 -->
+    <div class="sec" id="page"><span class="sn">04</span>分页插件</div>
+    <div class="card">
+      <div class="ct">MybatisPlusInterceptor + PaginationInnerInterceptor</div>
+      <p>MP 3.x 的新插件体系是 <code>MybatisPlusInterceptor</code>（外层容器）+ 各种 <code>InnerInterceptor</code>（功能单元）。分页功能由 <code>PaginationInnerInterceptor</code> 实现。</p>
+      <pre>// Spring Boot 配置
+@Configuration
+public class MybatisPlusConfig {
+    @Bean
+    public MybatisPlusInterceptor mpInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        // 指定数据库类型，分页 SQL 方言不同
+        interceptor.addInnerInterceptor(
+            new PaginationInnerInterceptor(DbType.MYSQL));
+        return interceptor;
+    }
+}</pre>
+      <pre>// 使用分页：第 2 页，每页 10 条
+Page&lt;User&gt; page = new Page&lt;&gt;(2, 10);
+LambdaQueryWrapper&lt;User&gt; lqw = new LambdaQueryWrapper&lt;&gt;()
+        .ge(User::getAge, 18);
+Page&lt;User&gt; result = userMapper.selectPage(page, lqw);
+
+System.out.println("总条数：" + result.getTotal());
+System.out.println("总页数：" + result.getPages());
+List&lt;User&gt; records = result.getRecords();</pre>
+      <ul class="dl" style="margin-top:10px">
+        <li><span class="b">SQL 改写</span><span>拦截 <code>Executor.query()</code>，用 JSqlParser 解析原 SQL，改写成 <code>SELECT ... LIMIT ?, ?</code>，同时生成 <code>SELECT COUNT(*) FROM (...)</code> 查询总条数</span></li>
+        <li><span class="b">COUNT 优化</span><span>若原 SQL 有 <code>ORDER BY</code>，COUNT 查询会自动去掉（ORDER BY 不影响条数但会降低 COUNT 性能）；若原 SQL 用了 <code>GROUP BY</code>，COUNT 包一层 <code>SELECT COUNT(*) FROM (原SQL)</code></span></li>
+        <li><span class="b">关闭 COUNT</span><span><code>new Page&lt;&gt;(1, 10, false)</code> 第三个参数传 false，不查总条数，节省一次 COUNT SQL</span></li>
+      </ul>
+    </div>
+
+    <!-- 05 自动填充 -->
+    <div class="sec" id="fill"><span class="sn">05</span>自动填充</div>
+    <div class="card">
+      <div class="ct">MetaObjectHandler — 创建时间 / 更新时间自动写入</div>
+      <p>自动填充解决的是每次 insert/update 都要手动设置 <code>createTime</code>、<code>updateTime</code> 的重复问题。两步配置：标注字段 + 实现处理器。</p>
+      <pre>// Step 1: 实体类字段加注解
+@TableField(fill = FieldFill.INSERT)           // 只在 INSERT 时填充
+private LocalDateTime createTime;
+
+@TableField(fill = FieldFill.INSERT_UPDATE)    // INSERT 和 UPDATE 都填充
+private LocalDateTime updateTime;
+
+@TableField(fill = FieldFill.INSERT)
+private Long createBy;                         // 创建人（结合 Security 上下文获取）</pre>
+      <pre>// Step 2: 实现 MetaObjectHandler
+@Component
+public class MyMetaHandler implements MetaObjectHandler {
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        this.strictInsertFill(metaObject, "createTime",
+            LocalDateTime.class, LocalDateTime.now());
+        this.strictInsertFill(metaObject, "updateTime",
+            LocalDateTime.class, LocalDateTime.now());
+    }
+
+    @Override
+    public void updateFill(MetaObject metaObject) {
+        this.strictUpdateFill(metaObject, "updateTime",
+            LocalDateTime.class, LocalDateTime.now());
+    }
+}</pre>
+      <div class="note warn">自动填充只在通过 MP 的 <code>insert()</code> / <code>updateById()</code> 方法操作时生效。直接用 XML 写的 SQL、或者用 UpdateWrapper 写的 SET 语句，<strong>不会触发自动填充</strong>。</div>
+    </div>
+
+    <!-- 06 逻辑删除 & 乐观锁 -->
+    <div class="sec" id="logic"><span class="sn">06</span>逻辑删除 &amp; 乐观锁</div>
+    <div class="card">
+      <div class="ct">@TableLogic — 逻辑删除</div>
+      <p>逻辑删除不是真正删数据，而是把 <code>is_deleted</code>（或 <code>deleted</code>）字段从 <code>0</code> 改成 <code>1</code>。后续查询自动过滤掉已删除的数据。</p>
+      <pre>// 实体类
+@TableLogic(value = "0", delval = "1")  // value=未删除值，delval=已删除值
+private Integer deleted;
+// 也可以全局配置，不用每个实体都写</pre>
+      <ul class="dl" style="margin-top:10px">
+        <li><span class="b">删除行为</span><span>调用 <code>deleteById()</code> 实际执行 <code>UPDATE user SET deleted=1 WHERE id=?</code></span></li>
+        <li><span class="b">查询行为</span><span>所有通过 BaseMapper / IService 的查询自动追加 <code>AND deleted=0</code> 条件</span></li>
+        <li><span class="b">注意</span><span>唯一索引字段（如手机号）逻辑删除后仍占用唯一值，重新注册同手机号会失败。解法：唯一索引改成联合索引 <code>(phone, deleted)</code>，或删除时把 phone 改写成随机值</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">@Version — 乐观锁</div>
+      <p>乐观锁用于解决并发更新时的数据覆盖问题。核心思路：读取时带上 version，更新时检查 version 是否还和读取时一致，不一致说明被其他人改过，更新失败。</p>
+      <pre>@Version
+private Integer version;  // 数据库里初始值为 0</pre>
+      <p>更新时 MP 自动把 SQL 改写成：</p>
+      <pre>UPDATE user SET name=?, version=version+1
+WHERE id=? AND version=?  -- version 必须等于读取时的值</pre>
+      <ul class="dl" style="margin-top:10px">
+        <li><span class="b">失败处理</span><span>SQL 影响行数为 0 时说明版本不匹配（已被其他线程更新），业务层需捕获并重试或提示用户刷新重试</span></li>
+        <li><span class="b">适用场景</span><span>读多写少、冲突概率低的场景。商品库存扣减这种高并发场景冲突率高，重试成本大，用 Redis + 原子操作或数据库悲观锁（SELECT ... FOR UPDATE）更合适</span></li>
+      </ul>
+    </div>
+
+    <!-- 07 代码生成器 -->
+    <div class="sec" id="codegen"><span class="sn">07</span>代码生成器</div>
+    <div class="card">
+      <div class="ct">AutoGenerator — 根据数据库表生成完整代码</div>
+      <p>代码生成器读取数据库表结构，自动生成 Entity / Mapper / Mapper XML / Service / ServiceImpl / Controller，省去手写重复模板。</p>
+      <pre>FastAutoGenerator.create("jdbc:mysql://...", "root", "password")
+    .globalConfig(builder -&gt; builder
+        .author("yourname")
+        .outputDir(System.getProperty("user.dir") + "/src/main/java"))
+    .packageConfig(builder -&gt; builder
+        .parent("com.example")
+        .entity("entity")
+        .mapper("mapper")
+        .service("service"))
+    .strategyConfig(builder -&gt; builder
+        .addInclude("user", "order")     // 只生成这两张表
+        .entityBuilder()
+            .enableLombok()              // 生成 @Data
+            .enableTableFieldAnnotation()
+        .mapperBuilder()
+            .enableMapperAnnotation()
+        .serviceBuilder()
+            .formatServiceFileName("%sService"))
+    .execute();</pre>
+      <div class="note info">代码生成器适合项目初始化阶段批量生成骨架，生成后需要手动调整业务逻辑。不建议在已有业务逻辑的项目上重复执行（会覆盖已有修改）。</div>
+    </div>
+
+    <!-- 08 多租户 & 动态表名 -->
+    <div class="sec" id="tenant"><span class="sn">08</span>多租户 &amp; 动态表名</div>
+    <div class="card">
+      <div class="ct">TenantLineInnerInterceptor — 自动追加租户条件</div>
+      <p>SaaS 多租户场景下，每张表都有 <code>tenant_id</code> 字段，每个查询都要带上 <code>WHERE tenant_id = ?</code>。用 <code>TenantLineInnerInterceptor</code> 可以让 MP 自动追加，不用每次手写。</p>
+      <pre>interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(
+    new TenantLineHandler() {
+        @Override
+        public Expression getTenantId() {
+            // 从当前线程上下文（ThreadLocal / SecurityContext）取租户 ID
+            Long tenantId = TenantContext.getCurrentTenantId();
+            return new LongValue(tenantId);
+        }
+
+        @Override
+        public String getTenantIdColumn() {
+            return "tenant_id";  // 租户列名
+        }
+
+        @Override
+        public boolean ignoreTable(String tableName) {
+            // 不需要租户隔离的表（如字典表）返回 true
+            return "sys_dict".equals(tableName);
+        }
+    }
+));</pre>
+      <ul class="dl" style="margin-top:10px">
+        <li><span class="b">SQL 改写</span><span>SELECT 自动追加 <code>AND tenant_id = ?</code>；INSERT 自动填充 <code>tenant_id</code>；UPDATE / DELETE 也追加</span></li>
+        <li><span class="b">超级管理员</span><span>若需要查所有租户数据，在 <code>getTenantId()</code> 里判断是否是管理员，是则返回 null（MP 不追加条件）</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">DynamicTableNameInnerInterceptor — 动态表名</div>
+      <p>按年月分表（如 <code>order_2024_01</code>）时，同一个 Mapper 需要操作不同表名。<code>DynamicTableNameInnerInterceptor</code> 在 SQL 执行前把固定表名替换成动态表名。</p>
+      <pre>interceptor.addInnerInterceptor(new DynamicTableNameInnerInterceptor() {{
+    setTableNameHandler((sql, tableName) -&gt; {
+        if ("order".equals(tableName)) {
+            // 根据当前时间决定查哪张表
+            String suffix = LocalDate.now().format(
+                DateTimeFormatter.ofPattern("yyyy_MM"));
+            return tableName + "_" + suffix; // order_2024_01
+        }
+        return tableName;
+    });
+}});</pre>
+      <div class="note warn">多个 InnerInterceptor 同时使用时，注意注册顺序：分页插件要放在动态表名 / 多租户插件<strong>之后</strong>，因为分页 SQL 是在最终表名确定后才执行 COUNT 改写的。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

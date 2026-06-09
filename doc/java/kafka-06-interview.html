@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kafka 06 · 高频面试题</title>
+<style>
+:root{--accent-color:var(--yellow);--accent-bg:var(--yellow-bg);--accent-b:var(--yellow-b)}
+header::before{content:'INTERVIEW'}
+
+.tip  {background:var(--green-bg);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+.warn {background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;font-size:.87rem}
+
+/* ── Q/A 问答卡 ── */
+.qa{border:1px solid var(--bd);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.qa-q{background:var(--bg2);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:flex-start;gap:12px}
+.qa-q-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:1px;background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-b);letter-spacing:.04em}
+.qa-q-text{font-size:14px;font-weight:600;color:var(--tx);line-height:1.5;flex:1}
+.qa-a{padding:14px 16px}
+.qa-a p{font-size:13.5px;color:var(--tx2);margin:0 0 8px;line-height:1.7}
+.qa-a p:last-child{margin-bottom:0}
+.qa-a strong{color:var(--tx)}
+.qa-a ul{list-style:none;display:flex;flex-direction:column;gap:5px;margin:8px 0}
+.qa-a ul li{font-size:13.5px;color:var(--tx2);display:flex;align-items:flex-start;gap:8px;line-height:1.6}
+.qa-a ul li::before{content:'·';color:var(--bd2);font-size:16px;flex-shrink:0;line-height:1.3}
+.qa-a ul li strong{color:var(--tx)}
+
+/* ── 对比表格增强 ── */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.compare-box{border:1px solid var(--bd);border-radius:6px;padding:12px 14px;background:var(--bg2)}
+.compare-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.compare-box.k .compare-title{color:var(--blue)}
+.compare-box.r .compare-title{color:var(--red)}
+.compare-box.rb .compare-title{color:var(--yellow)}
+.compare-item{font-size:12.5px;color:var(--tx2);margin-bottom:4px;display:flex;gap:6px;align-items:flex-start;line-height:1.5}
+.compare-item::before{content:'·';color:var(--bd2);font-size:14px;flex-shrink:0}
+.compare-item strong{color:var(--tx)}
+
+/* 题号 */
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);flex-shrink:0;margin-top:3px;min-width:30px}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-kafka.js"></script>
+
+<header>
+  <div class="htag">KAFKA · 06 · INTERVIEW</div>
+  <h1>高频面试题</h1>
+  <p class="subtitle">架构原理 · Producer · Consumer · 可靠性 · 对比选型 · 共 25 道高频题</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#arch"><span class="s-link-num">01</span>架构原理类</a>
+    <a class="s-link" href="#producer"><span class="s-link-num">02</span>Producer 类</a>
+    <a class="s-link" href="#consumer"><span class="s-link-num">03</span>Consumer 类</a>
+    <a class="s-link" href="#reliable"><span class="s-link-num">04</span>可靠性类</a>
+    <a class="s-link" href="#compare"><span class="s-link-num">05</span>对比与选型类</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="kafka-05-spring.html">← 上一章：Spring Kafka</a>
+    <a class="s-link" href="kafka-outline.html">↑ 返回大纲</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 架构原理类 ═══ -->
+    <div class="sec" id="arch"><span class="sec-num">01</span>架构原理类</div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q1</span>
+        <span class="qa-q-badge">ARCH</span>
+        <span class="qa-q-text">Kafka 为什么吞吐量这么高？请从多个维度回答。</span>
+      </div>
+      <div class="qa-a">
+        <p>Kafka 的高吞吐来源于多项设计的叠加：</p>
+        <ul>
+          <li><strong>顺序写磁盘（Append-Only）：</strong>Kafka 只追加写，磁盘顺序写速度接近内存随机写（600 MB/s），远高于数据库 B+Tree 的随机写（几十 MB/s）。</li>
+          <li><strong>OS Page Cache：</strong>写入直接打到 Page Cache，由 OS 异步刷盘，消费也优先命中 Cache，消费者甚至不需要读磁盘。</li>
+          <li><strong>零拷贝（sendfile）：</strong>消费者拉取时，内核通过 DMA 直接将数据从 Page Cache 传到网卡，跳过"内核→用户态→内核"的两次拷贝，减少 CPU 上下文切换。</li>
+          <li><strong>批量发送 + 压缩：</strong>RecordBatch 打包多条消息一次发送，Snappy/LZ4/ZSTD 压缩减少网络传输量，极大降低网络往返次数。</li>
+          <li><strong>Partition 并行：</strong>Topic 拆分为多个 Partition 分散在不同 Broker，Producer 和 Consumer 可并行读写，水平扩展吞吐量。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q2</span>
+        <span class="qa-q-badge">ARCH</span>
+        <span class="qa-q-text">Partition 的作用是什么？Partition 数量设多少合适？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>作用：</strong>Partition 是 Kafka 并行和水平扩展的基础单元。一个 Topic 的 Partition 可以分布在不同 Broker 上，实现负载均衡；Consumer Group 内每个 Partition 只能被一个 Consumer 消费，Partition 数决定消费并行度的上限。</p>
+        <p><strong>数量设计原则：</strong>分区数越多并行度越高，但 Leader 选举开销、文件句柄消耗也随之增加（每个 Partition 在 Broker 上至少 3 个文件句柄）。</p>
+        <ul>
+          <li>经验公式：<code>目标吞吐量 / 单 Partition 吞吐上限（通常 10~50 MB/s）</code></li>
+          <li>通常不超过 100 个分区，结合实际 Consumer 实例数来定</li>
+          <li>一旦 Partition 数增加，Key 路由结果改变，需谨慎评估对顺序消费的影响</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q3</span>
+        <span class="qa-q-badge">ARCH</span>
+        <span class="qa-q-text">ISR 机制是什么？Follower 什么情况下会被移出 ISR？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>ISR（In-Sync Replicas）</strong> 是与 Leader 保持同步的副本集合。AR（全部副本）= ISR + OSR（落后副本）。</p>
+        <p><strong>移出 ISR 的条件：</strong>Follower 在 <code>replica.lag.time.max.ms</code>（默认 30s）内没有向 Leader 发送 Fetch 请求，或拉取进度落后超过此时间，则被 Controller 从 ISR 中移除，进入 OSR。当 Follower 追上 Leader 后重新加入 ISR。</p>
+        <p><strong>意义：</strong><code>acks=all</code> 要求 ISR 中所有副本都写入才确认。ISR 动态收缩保证了即使部分 Follower 落后，也不会无限阻塞 Producer。</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q4</span>
+        <span class="qa-q-badge">ARCH</span>
+        <span class="qa-q-text">HW 和 LEO 的区别？HW 如何推进？</span>
+      </div>
+      <div class="qa-a">
+        <ul>
+          <li><strong>LEO（Log End Offset）：</strong>每个副本自己的下一条待写入消息的 Offset，即当前日志末尾 + 1，每个副本各自维护。</li>
+          <li><strong>HW（High Watermark）：</strong>消费者<strong>可见的最大 Offset</strong>，等于 ISR 中<strong>所有副本 LEO 的最小值</strong>。HW 之前的消息才能被消费者读取。</li>
+        </ul>
+        <p><strong>HW 推进流程：</strong>Follower 向 Leader 发送 Fetch 请求时携带自己的 LEO。Leader 收到后更新该 Follower 的 LEO 记录，重新计算 ISR 中的 min(LEO)，更新 HW，并在下一次 Fetch 响应中将新 HW 告知所有 Follower。</p>
+        <p>例：Leader LEO=10，Follower1 LEO=8，Follower2 LEO=9 → HW = min(10,8,9) = 8，消费者只能看到 offset 0~7。</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q5</span>
+        <span class="qa-q-badge">ARCH</span>
+        <span class="qa-q-text">KRaft 模式和 ZooKeeper 模式的区别？</span>
+      </div>
+      <div class="qa-a">
+        <table class="tbl">
+          <tr><th>对比维度</th><th>ZooKeeper 模式</th><th>KRaft 模式（Kafka 3.x）</th></tr>
+          <tr><td>元数据存储</td><td>存在独立的 ZooKeeper 集群</td><td>存在 Kafka 内部 <code>@metadata</code> Topic</td></tr>
+          <tr><td>Controller 选举</td><td>ZooKeeper 临时节点抢占</td><td>Raft 协议多数派投票</td></tr>
+          <tr><td>扩展性</td><td>百万 Partition 有瓶颈</td><td>支持百万级 Partition</td></tr>
+          <tr><td>运维</td><td>需额外维护 ZooKeeper</td><td>只需 Kafka，架构更简单</td></tr>
+          <tr><td>GA 状态</td><td>生产成熟</td><td>3.3 GA，4.0 完全移除 ZooKeeper</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ 02 Producer 类 ═══ -->
+    <div class="sec" id="producer"><span class="sec-num">02</span>Producer 类</div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q6</span>
+        <span class="qa-q-badge">PRODUCER</span>
+        <span class="qa-q-text">acks 参数三种取值的区别和适用场景？</span>
+      </div>
+      <div class="qa-a">
+        <table class="tbl">
+          <tr><th>acks</th><th>确认时机</th><th>丢消息风险</th><th>吞吐量</th><th>适用场景</th></tr>
+          <tr><td><code>0</code></td><td>不等确认，发出即成功</td><td>高（Broker 未收到）</td><td>最高</td><td>日志采集、埋点等允许少量丢失的场景</td></tr>
+          <tr><td><code>1</code></td><td>Leader 写入 Page Cache 即确认</td><td>中（Leader 宕机后 Follower 未同步）</td><td>高</td><td>对延迟敏感、允许极小概率丢失的场景</td></tr>
+          <tr><td><code>all/-1</code></td><td>等 ISR 中全部副本写入才确认</td><td>低（ISR 全部宕机才丢）</td><td>低</td><td>金融交易、订单等不允许丢消息的场景</td></tr>
+        </table>
+        <p>生产环境重要业务一律用 <code>acks=all</code> + <code>min.insync.replicas=2</code>，配合 <code>enable.idempotence=true</code> 避免重试导致重复。</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q7</span>
+        <span class="qa-q-badge">PRODUCER</span>
+        <span class="qa-q-text">Producer 幂等的原理？只能保证哪个范围内的幂等？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>原理：</strong>开启 <code>enable.idempotence=true</code> 后，Broker 为每个 Producer 分配唯一的 <strong>ProducerID（PID）</strong>，Producer 为每个 Partition 的每条消息分配单调递增的 <strong>SequenceNumber</strong>。Broker 记录每个（PID, Partition）对应的最大已接受 SequenceNumber，若收到重复消息（相同 PID + 相同 SequenceNumber）则直接丢弃，不重复写入。</p>
+        <p><strong>局限性：</strong></p>
+        <ul>
+          <li>只能保证<strong>单个 Partition、单次 Session</strong>（Producer 重启后 PID 变更，之前的 SequenceNumber 记录失效）内的幂等</li>
+          <li>跨多个 Partition 的原子写入需要<strong>事务 Producer</strong>（<code>transactional.id</code>），PID 与 transactional.id 绑定，重启后可恢复</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q8</span>
+        <span class="qa-q-badge">PRODUCER</span>
+        <span class="qa-q-text">Kafka 事务消息怎么实现？Exactly-Once 的完整方案？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>事务 Producer 核心流程：</strong></p>
+        <ul>
+          <li>设置 <code>transactional.id</code>，Broker 端用于跨 Session 恢复事务状态</li>
+          <li>调用链：<code>initTransactions()</code> → <code>beginTransaction()</code> → <code>send()</code>（可跨多个 Partition）→ <code>commitTransaction()</code> / <code>abortTransaction()</code></li>
+          <li>事务日志存储在 <code>__transaction_state</code> Topic（50 个 Partition）</li>
+        </ul>
+        <p><strong>Exactly-Once 完整方案（CTP 模式）：</strong></p>
+        <ul>
+          <li>Consumer 端设置 <code>isolation.level=read_committed</code>，过滤未提交事务的消息</li>
+          <li>Consumer 消费 → 处理 → Producer 发送新消息 + 提交 Offset，三步在同一 Kafka 事务内原子完成</li>
+          <li>事务提交 ↔ Offset 提交同步，宕机重启后消费位置和消息发送都能正确恢复</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q9</span>
+        <span class="qa-q-badge">PRODUCER</span>
+        <span class="qa-q-text">消息发送链路中 RecordAccumulator 的作用？</span>
+      </div>
+      <div class="qa-a">
+        <p><code>RecordAccumulator</code> 是 Producer 的内存缓冲区，位于业务线程和 Sender 线程之间，实现<strong>批量发送</strong>和<strong>线程解耦</strong>：</p>
+        <ul>
+          <li>业务线程调用 <code>send()</code> 后，消息不立即发网络，而是按 Partition 追加到对应的 <code>Deque&lt;ProducerBatch&gt;</code> 中</li>
+          <li>Sender 线程轮询 Accumulator，当批次大小达到 <code>batch.size</code>（默认 16KB）或等待时间超过 <code>linger.ms</code> 时，将批次通过 NetworkClient 发送给 Broker</li>
+          <li>总缓冲区大小由 <code>buffer.memory</code>（默认 32MB）控制，满时 <code>send()</code> 阻塞，超过 <code>max.block.ms</code> 抛异常</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ═══ 03 Consumer 类 ═══ -->
+    <div class="sec" id="consumer"><span class="sec-num">03</span>Consumer 类</div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q10</span>
+        <span class="qa-q-badge">CONSUMER</span>
+        <span class="qa-q-text">Rebalance 的触发条件有哪些？如何避免频繁 Rebalance？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>触发条件：</strong></p>
+        <ul>
+          <li>Consumer 加入 Group（新实例启动）</li>
+          <li>Consumer 离开 Group（正常关闭或崩溃）</li>
+          <li>心跳超时（超过 <code>session.timeout.ms</code>，默认 45s，Coordinator 认为 Consumer 宕机）</li>
+          <li>消费处理超时（超过 <code>max.poll.interval.ms</code>，默认 5min，Consumer 被踢出）</li>
+          <li>Topic Partition 数变更</li>
+          <li>Consumer 订阅的 Topic 数量变化</li>
+        </ul>
+        <p><strong>避免措施：</strong></p>
+        <ul>
+          <li>调大 <code>session.timeout.ms</code>（如 60s）和 <code>heartbeat.interval.ms</code>（session 的 1/3，如 20s），减少误判</li>
+          <li>调大 <code>max.poll.interval.ms</code> 或减小 <code>max.poll.records</code>，防止处理超时被踢出</li>
+          <li>使用 <strong>CooperativeStickyAssignor</strong>（Kafka 2.4+）实现增量 Rebalance，减少全停影响</li>
+          <li>避免消费处理逻辑中有长时间阻塞（DB 慢查询、HTTP 调用），必要时异步化</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q11</span>
+        <span class="qa-q-badge">CONSUMER</span>
+        <span class="qa-q-text">手动提交 Offset 和自动提交的区别？各有什么风险？</span>
+      </div>
+      <div class="qa-a">
+        <table class="tbl">
+          <tr><th>方式</th><th>配置</th><th>语义</th><th>风险</th></tr>
+          <tr>
+            <td>自动提交</td>
+            <td><code>enable.auto.commit=true</code>，每隔 <code>auto.commit.interval.ms</code>（5s）提交</td>
+            <td>at-most-once（可能丢消息）</td>
+            <td>消息拉取后提交，但处理前宕机 → 消息丢失；或处理完但还未到提交时间点 → 重复消费</td>
+          </tr>
+          <tr>
+            <td>手动同步提交</td>
+            <td><code>commitSync()</code>，阻塞直到提交成功</td>
+            <td>at-least-once</td>
+            <td>处理完再提交，宕机时重新消费（重复），需业务幂等；提交阻塞会降低吞吐量</td>
+          </tr>
+          <tr>
+            <td>手动异步提交</td>
+            <td><code>commitAsync(callback)</code>，不阻塞</td>
+            <td>at-least-once</td>
+            <td>提交失败不重试（避免乱序），需在 callback 中记录失败告警；关闭时需改用 commitSync 兜底</td>
+          </tr>
+        </table>
+        <p><strong>生产推荐：</strong>异步提交（高吞吐）+ 关闭时同步提交（保证最终提交）+ 业务幂等（处理重复）。</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q12</span>
+        <span class="qa-q-badge">CONSUMER</span>
+        <span class="qa-q-text">Cooperative Rebalance 和 Eager Rebalance 的区别？</span>
+      </div>
+      <div class="qa-a">
+        <ul>
+          <li><strong>Eager Rebalance（默认）：</strong>Rebalance 触发时，所有 Consumer 立即停止消费，撤销全部 Partition 分配，等待 GroupCoordinator 重新分配完成后再恢复消费。"全停止"期间服务完全不可用，Rebalance 时间越长影响越大。</li>
+          <li><strong>Cooperative Rebalance（CooperativeStickyAssignor）：</strong>增量式 Rebalance，只撤销需要迁移的 Partition。Consumer 继续消费其他 Partition，只停止迁移中的部分，大幅缩短服务中断时间。通常需要两轮协商（Two-Phase）完成迁移。</li>
+        </ul>
+        <div class="tip">
+          <strong>推荐：</strong>Kafka 2.4+ 新项目使用 <code>CooperativeStickyAssignor</code>，配合 <code>partition.assignment.strategy=CooperativeStickyAssignor</code>。从 Eager 迁移到 Cooperative 需要滚动重启。
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q13</span>
+        <span class="qa-q-badge">CONSUMER</span>
+        <span class="qa-q-text">Consumer Lag 怎么监控？积压了怎么处理？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>Lag = HW − CurrentOffset</strong>（该 Partition 已写入但未消费的消息数）</p>
+        <p><strong>监控方式：</strong></p>
+        <ul>
+          <li>命令行：<code>kafka-consumer-groups.sh --describe --group my-group</code>，查看每个 Partition 的 LAG 列</li>
+          <li>JMX 指标：<code>kafka.consumer:type=consumer-fetch-manager-metrics,records-lag-max</code></li>
+          <li>接入 Prometheus + kafka-exporter，配合 Grafana 看板可视化 Lag 趋势告警</li>
+        </ul>
+        <p><strong>积压处理：</strong>确认根因 → 扩容 Consumer（≤ Partition 数）→ 批量消费（调大 <code>max.poll.records</code>）→ 极端情况临时扩分区（详见 → <a href="kafka-04-reliable.html#backlog">04 · §04</a>）</p>
+      </div>
+    </div>
+
+    <!-- ═══ 04 可靠性类 ═══ -->
+    <div class="sec" id="reliable"><span class="sec-num">04</span>可靠性类</div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q14</span>
+        <span class="qa-q-badge">RELIABLE</span>
+        <span class="qa-q-text">如何保证消息不丢失？三端配置清单是什么？</span>
+      </div>
+      <div class="qa-a">
+        <p>消息丢失可能发生在三个环节，需三端联动：</p>
+        <table class="tbl">
+          <tr><th>端</th><th>关键配置</th><th>作用</th></tr>
+          <tr><td>Producer</td><td><code>acks=all</code> + <code>enable.idempotence=true</code> + <code>retries=MAX</code></td><td>等 ISR 全部写入，重试时不重复</td></tr>
+          <tr><td>Broker</td><td><code>replication.factor≥3</code> + <code>min.insync.replicas=2</code> + <code>unclean.leader.election=false</code></td><td>副本冗余 + 禁止落后副本成 Leader</td></tr>
+          <tr><td>Consumer</td><td><code>enable.auto.commit=false</code> + 处理完手动 <code>commitSync()</code></td><td>业务完成后再提交 Offset</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q15</span>
+        <span class="qa-q-badge">RELIABLE</span>
+        <span class="qa-q-text">如何实现幂等消费？业务层幂等有哪些方案？</span>
+      </div>
+      <div class="qa-a">
+        <p>Kafka at-least-once 语义决定消息可能被重复消费，业务层需自行保证幂等（即同一条消息处理多次结果不变）。</p>
+        <ul>
+          <li><strong>数据库唯一键：</strong>以消息 ID 或业务主键建 UNIQUE KEY，重复 INSERT 触发唯一键冲突直接忽略。最简单可靠，适合 Insert 类操作。</li>
+          <li><strong>Redis SETNX 去重：</strong>消费前 <code>SET msgId NX EX TTL</code>，已存在跳过。高并发场景常用，但 Redis 和 DB 操作非原子，需配合 DB 幂等。</li>
+          <li><strong>状态机判断：</strong>业务对象有明确状态流转（CREATED→PAID→SHIPPED），只在合法状态下执行变更，"查状态 + 变状态"必须在同一事务内。</li>
+          <li><strong>乐观锁版本号：</strong><code>UPDATE ... WHERE id=? AND version=?</code>，重复操作版本号不匹配自动失败，适合 Update 类操作。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q16</span>
+        <span class="qa-q-badge">RELIABLE</span>
+        <span class="qa-q-text">如何保证消息顺序？全局顺序和局部顺序有什么区别？</span>
+      </div>
+      <div class="qa-a">
+        <ul>
+          <li><strong>全局顺序：</strong>Topic 只有 1 个 Partition + Consumer Group 内只有 1 个 Consumer。所有消息严格有序，但吞吐量受限，且单点可用性低。</li>
+          <li><strong>局部顺序（推荐）：</strong>相同业务 Key（如订单 ID）通过 murmur2 哈希固定落到同一 Partition，该 Partition 内严格有序。不同 Key 可并行消费，吞吐量高。</li>
+          <li><strong>多线程消费保序：</strong>若需要多线程提升吞吐，可按 Key <code>hashCode % 线程数</code> 路由到固定线程处理，保证同 Key 在同一线程内有序。</li>
+        </ul>
+        <div class="warn">
+          <strong>⚠ 扩分区破坏顺序：</strong>增加 Partition 数后，相同 Key 可能路由到不同 Partition，顺序保证失效。需在业务低峰期操作，并处理过渡期的顺序问题。
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q17</span>
+        <span class="qa-q-badge">RELIABLE</span>
+        <span class="qa-q-text">消息积压了如何紧急处理？</span>
+      </div>
+      <div class="qa-a">
+        <p>分四步处理，从快到慢：</p>
+        <ul>
+          <li><strong>① 确认根因：</strong>区分是消费速率低还是生产速率暴增，检查业务处理耗时、下游 DB/Redis 响应时间、Consumer Lag 趋势。</li>
+          <li><strong>② 快速扩容 Consumer：</strong>新增 Consumer 实例（不超过 Partition 数），触发 Rebalance 后立即提升并行消费能力。Consumer 数量上限 = Partition 数。</li>
+          <li><strong>③ 批量消费优化：</strong>增大 <code>max.poll.records</code>，改为批量入库代替逐条处理，减少数据库 IO 次数。</li>
+          <li><strong>④ 临时扩分区（极端情况）：</strong>若 Consumer 已扩到 Partition 上限仍不够，停止原 Topic 写入 → 消费原 Topic 并转发到多分区新 Topic → 用更多 Consumer 并行消费新 Topic。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ═══ 05 对比与选型 ═══ -->
+    <div class="sec" id="compare"><span class="sec-num">05</span>对比与选型类</div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q18</span>
+        <span class="qa-q-badge">COMPARE</span>
+        <span class="qa-q-text">Kafka vs RocketMQ — 延迟消息、事务消息、消费模型有什么区别？</span>
+      </div>
+      <div class="qa-a">
+        <div class="compare">
+          <div class="compare-box k">
+            <div class="compare-title">⚡ Kafka</div>
+            <div class="compare-item"><strong>延迟消息：</strong>原生不支持，需借助延迟 Topic 或 Redis 时间轮</div>
+            <div class="compare-item"><strong>事务消息：</strong>支持，基于 Producer 两阶段提交，适合 CTP 流处理</div>
+            <div class="compare-item"><strong>消费模型：</strong>Consumer Group 竞争消费；不同 Group 各自消费（广播）</div>
+            <div class="compare-item"><strong>消费方式：</strong>Pull 模式，Consumer 主动拉取</div>
+            <div class="compare-item"><strong>吞吐量：</strong>极高（百万 TPS），日志/流处理首选</div>
+          </div>
+          <div class="compare-box r">
+            <div class="compare-title">🚀 RocketMQ</div>
+            <div class="compare-item"><strong>延迟消息：</strong>原生支持 18 个级别（1s ~ 2h），4.x 商业版支持任意精度</div>
+            <div class="compare-item"><strong>事务消息：</strong>支持半消息（Half Message）+ 事务回查机制，更适合业务事务</div>
+            <div class="compare-item"><strong>消费模型：</strong>集群消费（竞争）+ 广播消费，标签过滤</div>
+            <div class="compare-item"><strong>消费方式：</strong>Push 模式（底层仍是 Pull + 长轮询）</div>
+            <div class="compare-item"><strong>消息回查：</strong>Broker 主动回查 Producer 事务状态，更易实现最终一致</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q19</span>
+        <span class="qa-q-badge">COMPARE</span>
+        <span class="qa-q-text">Kafka vs RabbitMQ — 吞吐量、路由能力、适用场景有何差异？</span>
+      </div>
+      <div class="qa-a">
+        <div class="compare">
+          <div class="compare-box k">
+            <div class="compare-title">⚡ Kafka</div>
+            <div class="compare-item"><strong>吞吐量：</strong>极高（百万 TPS），磁盘顺序写 + 零拷贝</div>
+            <div class="compare-item"><strong>路由：</strong>按 Topic + Partition，通过 Key 路由，简单但高效</div>
+            <div class="compare-item"><strong>持久化：</strong>消息保留 7 天（默认），可回溯重消费</div>
+            <div class="compare-item"><strong>延迟：</strong>毫秒级（配置 linger.ms=0）</div>
+            <div class="compare-item"><strong>场景：</strong>日志收集、流计算、事件溯源、大数据管道</div>
+          </div>
+          <div class="compare-box rb">
+            <div class="compare-title">🐰 RabbitMQ</div>
+            <div class="compare-item"><strong>吞吐量：</strong>万级 TPS，基于 AMQP 协议，有更多协议开销</div>
+            <div class="compare-item"><strong>路由：</strong>Exchange + Binding Key，支持 Direct/Fanout/Topic/Headers 多种路由模式</div>
+            <div class="compare-item"><strong>持久化：</strong>消费后即删除（默认），不支持回溯</div>
+            <div class="compare-item"><strong>延迟：</strong>微秒级（内存队列）</div>
+            <div class="compare-item"><strong>场景：</strong>任务队列、RPC 模式、复杂路由分发、低延迟通知</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q20</span>
+        <span class="qa-q-badge">COMPARE</span>
+        <span class="qa-q-text">什么场景选 Kafka？什么场景不适合用 Kafka？</span>
+      </div>
+      <div class="qa-a">
+        <p><strong>✅ 选 Kafka 的场景：</strong></p>
+        <ul>
+          <li>高吞吐日志收集、用户行为埋点（百万 TPS 以上）</li>
+          <li>实时流处理管道（Kafka Streams / Flink 消费 Kafka）</li>
+          <li>事件溯源（Event Sourcing），需要回溯历史消息</li>
+          <li>微服务解耦，多消费方订阅同一主题（不同 Consumer Group）</li>
+          <li>数据库变更数据捕获（CDC，Debezium + Kafka）</li>
+        </ul>
+        <p><strong>❌ 不适合 Kafka 的场景：</strong></p>
+        <ul>
+          <li><strong>延迟消息：</strong>原生不支持，需额外实现，不如 RocketMQ 直接</li>
+          <li><strong>复杂路由：</strong>需要 fanout、topic 匹配等复杂分发逻辑，RabbitMQ 更合适</li>
+          <li><strong>极低延迟（微秒级）：</strong>Kafka 最低毫秒级，对延迟极敏感的场景不适用</li>
+          <li><strong>消息量很小的业务：</strong>Kafka 运维成本较高，小规模业务用 RabbitMQ 或 Redis 更轻量</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q21</span>
+        <span class="qa-q-badge">COMPARE</span>
+        <span class="qa-q-text">Spring Kafka 和原生 KafkaConsumer 的区别？什么时候该用原生 API？</span>
+      </div>
+      <div class="qa-a">
+        <table class="tbl">
+          <tr><th>对比维度</th><th>Spring Kafka</th><th>原生 KafkaConsumer</th></tr>
+          <tr><td>开发效率</td><td>高，@KafkaListener 声明式，自动装配</td><td>低，需手写 poll 循环、Offset 管理、Rebalance 处理</td></tr>
+          <tr><td>错误处理</td><td>内置 DefaultErrorHandler + BackOff + DLT</td><td>需自己实现重试、死信逻辑</td></tr>
+          <tr><td>灵活性</td><td>约定优于配置，自定义需理解框架扩展点</td><td>完全控制消费逻辑，灵活性最高</td></tr>
+          <tr><td>Spring 集成</td><td>无缝集成事务、DI、AOP</td><td>需手动集成</td></tr>
+          <tr><td>性能开销</td><td>极小，框架层几乎无额外开销</td><td>无额外开销</td></tr>
+        </table>
+        <p><strong>适合用原生 API 的场景：</strong></p>
+        <ul>
+          <li>非 Spring 项目（如纯 Java 应用、命令行工具）</li>
+          <li>需要精细控制 Partition 分配（<code>assign()</code> 模式）或实现自定义的 Seek 逻辑</li>
+          <li>流处理框架（Kafka Streams）已封装原生 API，无需 Spring Kafka</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <span class="q-num">Q22 ~</span>
+        <span class="qa-q-badge">BONUS</span>
+        <span class="qa-q-text">补充：Kafka 消息可以保证 Exactly-Once 吗？怎么做到的？</span>
+      </div>
+      <div class="qa-a">
+        <p>Kafka 在<strong>特定条件下</strong>可以实现 Exactly-Once：</p>
+        <ul>
+          <li><strong>Producer 幂等（单 Partition）：</strong><code>enable.idempotence=true</code>，依靠 PID + SequenceNumber，单 Partition 单 Session 内不重复。</li>
+          <li><strong>事务 Producer（跨 Partition）：</strong>开启 <code>transactional.id</code>，Producer 两阶段提交保证跨 Partition 原子写入。</li>
+          <li><strong>Consumer 端 Exactly-Once：</strong>需要 <code>isolation.level=read_committed</code>，只消费已提交事务的消息。</li>
+          <li><strong>端到端 Exactly-Once（CTP）：</strong>消费 + 处理 + 发布 + Offset 提交在同一 Kafka 事务内，Kafka Streams 原生支持此语义（通过配置 <code>processing.guarantee=exactly_once_v2</code>）。</li>
+        </ul>
+        <div class="warn">
+          <strong>⚠ 注意：</strong>Kafka Exactly-Once 仅保证"消息在 Kafka 管道内不重复"，不保证消费者的外部操作（如写 DB）精确一次。外部操作的幂等需要业务层自己保证。
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

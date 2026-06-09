@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Cloud 02 · 注册中心与配置中心</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'NACOS'}
+.note.tip {background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--tx2)}
+.note.good{background:var(--green-bg);border:1px solid var(--green-b);color:var(--tx2)}
+.note strong{color:var(--tx)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr}}
+.comp-card{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:13px 15px}
+.comp-name{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--green);margin-bottom:5px}
+.comp-name.blue{color:var(--blue)}.comp-name.orange{color:var(--orange)}
+.comp-name.purple{color:var(--purple)}.comp-name.red{color:var(--red)}
+.comp-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+.diag-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:14px 0}
+.diag-cap{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding:10px 18px;border-bottom:1px solid var(--bd)}
+.diag-body{padding:20px 16px;display:flex;justify-content:center;overflow-x:auto}
+.dg-box  {fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}
+.dg-box-b{fill:var(--blue-bg);stroke:var(--blue-b);stroke-width:1.5}
+.dg-box-g{fill:var(--green-bg);stroke:var(--green-b);stroke-width:1.5}
+.dg-box-o{fill:var(--orange-bg);stroke:var(--orange-b);stroke-width:1.5}
+.dg-box-p{fill:var(--purple-bg);stroke:var(--purple-b);stroke-width:1.5}
+.dg-box-r{fill:var(--red-bg);stroke:var(--red-b);stroke-width:1.5}
+.dg-t {fill:var(--tx);font-family:'Inter',sans-serif}
+.dg-t3{fill:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.dg-blue  {fill:var(--blue);  font-family:'IBM Plex Mono',monospace}
+.dg-green {fill:var(--green); font-family:'IBM Plex Mono',monospace}
+.dg-orange{fill:var(--orange);font-family:'IBM Plex Mono',monospace}
+.dg-purple{fill:var(--purple);font-family:'IBM Plex Mono',monospace}
+.dg-ln   {stroke:var(--bd2);stroke-width:1.5;fill:none}
+.dg-ln-b {stroke:var(--blue);stroke-width:1.8;fill:none}
+.dg-ln-g {stroke:var(--green);stroke-width:1.8;fill:none}
+.dg-ln-o {stroke:var(--orange);stroke-width:1.8;fill:none}
+.dg-ln-dash{stroke:var(--bd2);stroke-width:1.5;stroke-dasharray:5 3;fill:none}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <marker id="arr"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="rgba(120,140,170,0.7)"/></marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--blue)"/></marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--green)"/></marker>
+    <marker id="arr-o" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0.5 L6,3.5 L0,6.5 Z" fill="var(--orange)"/></marker>
+  </defs>
+</svg>
+<script src="../../shared/nav-sc.js"></script>
+<header>
+  <div class="htag">Spring Cloud · 02 · REGISTER</div>
+  <h1>注册中心与配置中心</h1>
+  <p class="sub">服务发现原理 · Nacos 架构 · AP vs CP · 健康检查 · 配置动态刷新 · Nacos vs Eureka</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-lbl">本章目录</div>
+    <a class="s-link active" href="#why"><span class="s-num">01</span>为什么需要注册中心</a>
+    <a class="s-link" href="#nacos-arch"><span class="s-num">02</span>Nacos 架构原理</a>
+    <a class="s-link" href="#ap-cp"><span class="s-num">03</span>AP vs CP 模式</a>
+    <a class="s-link" href="#health"><span class="s-num">04</span>健康检查机制</a>
+    <a class="s-link" href="#config"><span class="s-num">05</span>Nacos 配置中心</a>
+    <a class="s-link" href="#compare"><span class="s-num">06</span>Nacos vs Eureka</a>
+    <div class="s-div"></div>
+    <div class="s-lbl">导航</div>
+    <a class="s-link" href="sc-01-arch.html">← 上一章：架构总览</a>
+    <a class="s-link" href="sc-03-gateway.html">→ 下一章：网关&调用</a>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ══ 01 为什么需要注册中心 -->
+    <div class="sec" id="why"><span class="sn">01</span>为什么需要注册中心</div>
+
+    <div class="card">
+      <div class="ct">没有注册中心，微服务怎么找到对方？</div>
+      <p>最简单的方式是硬编码 IP：order-service 调用 user-service 时，直接写死 <code>http://192.168.1.10:8082/user/info</code>。这在小规模系统中勉强可以用，但立即暴露三个问题：</p>
+      <ul class="dl">
+        <li><span class="b">动态扩容</span><span>user-service 新增一个实例（192.168.1.11），order-service 不知道，新实例永远不会被调用</span></li>
+        <li><span class="b">故障下线</span><span>192.168.1.10 宕机了，order-service 还在调它，持续报错</span></li>
+        <li><span class="b">运维噩梦</span><span>50 个服务互相调用，IP 变一次就要改大量配置，还要重启</span></li>
+      </ul>
+      <p style="margin-top:10px">注册中心解决方案：<span class="kw">服务注册 + 服务发现</span>。服务启动时把自己的 IP+端口注册到注册中心，消费方通过服务名查询注册中心获取实例列表，再通过负载均衡选一个调用。</p>
+    </div>
+
+    <div class="diag-wrap">
+      <div class="diag-cap">服务注册与发现流程</div>
+      <div class="diag-body">
+        <svg width="580" height="230" viewBox="0 0 580 230">
+          <!-- Nacos -->
+          <rect x="210" y="10" width="160" height="60" rx="6" class="dg-box-g"/>
+          <text x="290" y="32" class="dg-t3" font-size="9" text-anchor="middle" letter-spacing=".06em">NACOS REGISTRY</text>
+          <text x="290" y="50" class="dg-green" font-size="12" text-anchor="middle" font-weight="700">注册中心</text>
+          <text x="290" y="64" class="dg-t3" font-size="8.5" text-anchor="middle">服务实例列表</text>
+
+          <!-- Provider -->
+          <rect x="20" y="100" width="150" height="50" rx="5" class="dg-box-b"/>
+          <text x="95" y="118" class="dg-t3" font-size="9" text-anchor="middle">USER-SERVICE</text>
+          <text x="95" y="132" class="dg-blue" font-size="10" text-anchor="middle" font-weight="600">192.168.1.10:8082</text>
+          <text x="95" y="145" class="dg-t3" font-size="8" text-anchor="middle">（服务提供方）</text>
+
+          <!-- Consumer -->
+          <rect x="410" y="100" width="150" height="50" rx="5" class="dg-box-o"/>
+          <text x="485" y="118" class="dg-t3" font-size="9" text-anchor="middle">ORDER-SERVICE</text>
+          <text x="485" y="132" class="dg-orange" font-size="10" text-anchor="middle" font-weight="600">192.168.1.20:8081</text>
+          <text x="485" y="145" class="dg-t3" font-size="8" text-anchor="middle">（服务消费方）</text>
+
+          <!-- ① 注册 -->
+          <line x1="170" y1="115" x2="210" y2="50" class="dg-ln-b" marker-end="url(#arr-b)"/>
+          <text x="155" y="75" class="dg-t3" font-size="9" fill="var(--blue)">① 注册</text>
+          <text x="132" y="87" class="dg-t3" font-size="8" fill="var(--blue)">(启动时)</text>
+
+          <!-- ② 心跳 -->
+          <path d="M 170,125 Q 200,155 210,55" fill="none" stroke="var(--blue)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="158" y="148" class="dg-t3" font-size="9" fill="var(--blue)">② 心跳</text>
+
+          <!-- ③ 订阅/拉取 -->
+          <line x1="410" y1="40" x2="370" y2="40" class="dg-ln-o" marker-end="url(#arr-o)"/>
+          <text x="388" y="35" class="dg-t3" font-size="9" fill="var(--orange)" text-anchor="middle">③ 订阅/拉取</text>
+
+          <!-- ④ 推送变更 -->
+          <line x1="370" y1="55" x2="410" y2="55" class="dg-ln-g" marker-end="url(#arr-g)"/>
+          <text x="388" y="70" class="dg-t3" font-size="9" fill="var(--green)" text-anchor="middle">④ 推送变更</text>
+
+          <!-- ⑤ 直接调用 -->
+          <line x1="410" y1="125" x2="170" y2="125" class="dg-ln" marker-end="url(#arr)"/>
+          <text x="290" y="120" class="dg-t3" font-size="9" text-anchor="middle">⑤ 直接调用（不经过注册中心）</text>
+
+          <!-- 负载均衡说明 -->
+          <rect x="180" y="185" width="220" height="36" rx="4" class="dg-box"/>
+          <text x="290" y="200" class="dg-t3" font-size="8.5" text-anchor="middle">客户端负载均衡（LoadBalancer）</text>
+          <text x="290" y="215" class="dg-t3" font-size="8" text-anchor="middle">消费方本地缓存实例列表，选一个发请求</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ══ 02 Nacos 架构 -->
+    <div class="sec" id="nacos-arch"><span class="sn">02</span>Nacos 架构原理</div>
+
+    <div class="card">
+      <div class="ct">Nacos 是什么？做了什么？</div>
+      <p>Nacos（Dynamic Naming and Configuration Service）是阿里开源的<span class="kw">注册中心 + 配置中心</span>一体化产品。相比需要单独部署注册中心（Eureka）+ 配置中心（Spring Cloud Config）的方案，Nacos 一个组件全覆盖，运维简单很多。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">Nacos 数据模型：Namespace / Group / Service / Cluster / Instance</div>
+      <p>Nacos 用五层数据模型组织服务，理解这个模型对多环境、多机房部署非常重要：</p>
+      <ul class="dl">
+        <li><span class="b">Namespace</span><span>最顶层隔离，通常用来区分<strong>环境</strong>（dev / test / staging / prod）。不同 Namespace 的服务互不可见。默认 Namespace 是 <code>public</code>。</span></li>
+        <li><span class="b">Group</span><span>在 Namespace 内进一步分组，通常用来区分<strong>业务域</strong>（order-group / user-group）。同一 Namespace 不同 Group 的服务也互不可见（需显式跨 Group 查询）。</span></li>
+        <li><span class="b">Service</span><span>服务名，如 <code>order-service</code>。一个 Service 可以有多个实例。</span></li>
+        <li><span class="b">Cluster</span><span>服务的分集群，通常用来区分<strong>机房/可用区</strong>（beijing / shanghai）。LoadBalancer 优先选同集群的实例（就近访问）。</span></li>
+        <li><span class="b">Instance</span><span>一个具体的服务进程，包含 IP、端口、权重、健康状态、元数据等。</span></li>
+      </ul>
+      <pre>spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: dev-namespace-id   # Namespace ID（不是名称）
+        group: order-group
+        cluster-name: BJ              # 当前实例所属集群</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">Nacos 集群部署与 Raft 共识</div>
+      <p>生产环境 Nacos 需要至少 3 节点集群（奇数，同 Raft 要求）。Nacos 2.x 默认在 CP 模式（一致性优先）下使用 <span class="kw">Raft 协议</span>选举 Leader，所有写操作通过 Leader 再同步到 Follower，保证数据一致性。</p>
+      <p>Nacos 使用的持久化存储：</p>
+      <ul class="dl">
+        <li><span class="b">单机模式</span><span>内嵌 Derby 数据库（仅用于测试/开发，不可用于生产）</span></li>
+        <li><span class="b">集群模式</span><span>外置 MySQL，所有节点共享同一个 MySQL，通过 Raft 保证写操作串行</span></li>
+      </ul>
+    </div>
+
+    <!-- ══ 03 AP vs CP -->
+    <div class="sec" id="ap-cp"><span class="sn">03</span>AP vs CP 模式选择</div>
+
+    <div class="card">
+      <div class="ct">同一个 Nacos，临时实例用 AP，永久实例用 CP</div>
+      <p>Nacos 的一大亮点：<span class="kw">在同一注册中心内，临时实例和永久实例使用不同的一致性协议</span>，可以按需选择。</p>
+      <table class="tbl">
+        <tr><th>模式</th><th>实例类型</th><th>协议</th><th>适用场景</th><th>配置</th></tr>
+        <tr><td><strong>AP 模式</strong></td><td>临时实例（Ephemeral）</td><td>Distro（自研最终一致性）</td><td>Spring Boot 微服务（需要高可用，允许短暂不一致）</td><td>默认行为（<code>ephemeral: true</code>）</td></tr>
+        <tr><td><strong>CP 模式</strong></td><td>永久实例（Persistent）</td><td>Raft</td><td>需要强一致的场景（如 DNS 服务、服务配置）</td><td><code>ephemeral: false</code></td></tr>
+      </table>
+      <p style="margin-top:10px"><strong>AP 模式下的行为</strong>：客户端实例宕机后，Nacos 在心跳超时（默认 15s）后将其标记为不健康，30s 后从列表中删除。宕机期间其他实例依然可以正常注册和发现（AP 优先可用性）。</p>
+      <p><strong>CP 模式下的行为</strong>：Raft Leader 不可用时，整个注册中心暂停写操作（新注册 / 注销），直到选出新 Leader。已注册的实例列表仍可读（不影响服务发现），但新服务无法注册。</p>
+    </div>
+
+    <!-- ══ 04 健康检查 -->
+    <div class="sec" id="health"><span class="sn">04</span>健康检查机制</div>
+
+    <div class="card">
+      <div class="ct">客户端心跳 vs 服务端探测</div>
+      <div class="two-col">
+        <div class="comp-card">
+          <div class="comp-name">客户端心跳（临时实例，AP 模式）</div>
+          <div class="comp-desc">
+            服务实例定期（默认每 5 秒）向 Nacos 发送心跳（<code>PUT /nacos/v1/ns/instance/beat</code>）。<br><br>
+            · 超过 15 秒未收到心跳 → 标记为<strong>不健康</strong>（unhealthy）<br>
+            · 超过 30 秒未收到心跳 → 从实例列表<strong>删除</strong><br><br>
+            消费方缓存了实例列表，Nacos 会主动 Push 变更通知（UDP），消费方收到后更新本地缓存。
+          </div>
+        </div>
+        <div class="comp-card">
+          <div class="comp-name blue">服务端主动探测（永久实例，CP 模式）</div>
+          <div class="comp-desc">
+            Nacos 主动向注册的实例发起健康检查请求（HTTP 或 TCP）。<br><br>
+            · <strong>HTTP 探测</strong>：Nacos 对实例的某个 URL 发 GET 请求，200 则健康<br>
+            · <strong>TCP 探测</strong>：建立 TCP 连接，成功则健康<br><br>
+            适用于非 Spring Boot 服务（如传统 Java 服务、第三方服务），不能自己发心跳的场景。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">消费方的本地缓存与推拉结合</div>
+      <p>消费方不会每次调用都去 Nacos 查询（否则 Nacos 成为请求热点）。Spring Cloud LoadBalancer 在本地<span class="kw">缓存实例列表</span>，更新策略是推拉结合：</p>
+      <ul class="dl">
+        <li><span class="b">Push</span><span>Nacos 服务端感知到实例变化（注册/注销/健康状态变化），主动通过 gRPC（Nacos 2.x）推送给所有订阅该服务的消费方，延迟约 1~2 秒</span></li>
+        <li><span class="b">Pull</span><span>消费方定期（默认 30 秒）主动拉取一次，防止 Push 漏掉的情况</span></li>
+      </ul>
+      <p style="margin-top:8px">Nacos 2.x 把 HTTP 轮询改成了 gRPC 长连接，推送延迟从秒级降到毫秒级，是相比 Nacos 1.x 最大的架构改进。</p>
+    </div>
+
+    <!-- ══ 05 配置中心 -->
+    <div class="sec" id="config"><span class="sn">05</span>Nacos 配置中心</div>
+
+    <div class="card">
+      <div class="ct">配置文件的三个维度：Namespace / Group / DataId</div>
+      <p>Nacos 配置中心用三个维度定位一个配置文件：</p>
+      <ul class="dl">
+        <li><span class="b">Namespace</span><span>环境隔离，与注册中心的 Namespace 一一对应</span></li>
+        <li><span class="b">Group</span><span>业务分组，默认 <code>DEFAULT_GROUP</code></span></li>
+        <li><span class="b">DataId</span><span>配置文件名，格式通常是 <code>{spring.application.name}-{spring.profiles.active}.{file-extension}</code>，如 <code>order-service-prod.yaml</code></span></li>
+      </ul>
+      <pre>spring:
+  config:
+    import: nacos:order-service-prod.yaml   # Spring Boot 2.4+ 写法
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: prod-namespace-id
+        group: order-group
+        file-extension: yaml</pre>
+    </div>
+
+    <div class="card">
+      <div class="ct">动态刷新：@RefreshScope</div>
+      <p>Nacos 配置变更后，服务<strong>不需要重启</strong>即可生效，但需要在 Bean 上添加 <code>@RefreshScope</code>：</p>
+      <pre>@RestController
+@RefreshScope   // 配置变更时，Spring 会销毁并重新创建这个 Bean
+public class OrderController {
+
+    @Value("${order.maxRetry:3}")
+    private int maxRetry;   // 配置变更后，这里的值会自动更新
+
+    // 使用 @ConfigurationProperties 更推荐，自动支持刷新
+}
+
+// 推荐方式：@ConfigurationProperties + @RefreshScope
+@Component
+@RefreshScope
+@ConfigurationProperties(prefix = "order")
+public class OrderProperties {
+    private int maxRetry = 3;
+    private String paymentUrl;
+    // getter/setter
+}</pre>
+      <p style="margin-top:8px">刷新原理：Nacos 客户端监听配置变更（长轮询，默认 30 秒），收到变更后发布 <code>RefreshEvent</code>，Spring 的 <code>ContextRefresher</code> 接收事件，重新绑定所有 <code>@RefreshScope</code> Bean 的配置。</p>
+    </div>
+
+    <div class="card">
+      <div class="ct">配置分级与共享配置</div>
+      <p>实际项目中，常见三层配置结构：</p>
+      <ul class="dl">
+        <li><span class="b">公共配置</span><span><code>common.yaml</code>：所有服务共享（数据库连接池参数、公共超时配置）</span></li>
+        <li><span class="b">服务配置</span><span><code>order-service.yaml</code>：该服务所有环境通用的配置</span></li>
+        <li><span class="b">环境配置</span><span><code>order-service-prod.yaml</code>：该服务特定环境的配置（DB 密码、第三方 API Key）</span></li>
+      </ul>
+      <pre># 加载多个配置文件（shared-configs）
+spring:
+  config:
+    import:
+      - nacos:common.yaml
+      - nacos:order-service.yaml
+      - nacos:order-service-prod.yaml  # 同名 key 以最后加载的为准</pre>
+      <div class="note warn"><strong>敏感配置（密码、密钥）不应该放 Nacos 明文存储。</strong>应使用 Nacos 的加密插件或对接 HashiCorp Vault / 阿里云 KMS，在应用启动时自动解密。</div>
+    </div>
+
+    <!-- ══ 06 Nacos vs Eureka -->
+    <div class="sec" id="compare"><span class="sn">06</span>Nacos vs Eureka</div>
+
+    <div class="card">
+      <div class="ct">全面对比</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Nacos</th><th>Eureka</th></tr>
+        <tr><td>一致性协议</td><td>AP（Distro）/ CP（Raft）可切换</td><td>AP（自研，最终一致性）</td></tr>
+        <tr><td>健康检查</td><td>客户端心跳 + 服务端主动探测，两种均支持</td><td>仅客户端心跳</td></tr>
+        <tr><td>服务下线</td><td>支持主动注销 + 心跳超时自动剔除</td><td>心跳超时自动剔除（90s）</td></tr>
+        <tr><td>配置中心</td><td>✅ 内置，无需额外组件</td><td>❌ 不支持，需单独部署 Spring Cloud Config</td></tr>
+        <tr><td>推送机制</td><td>gRPC 长连接推送（Nacos 2.x），毫秒级</td><td>定时拉取，秒级延迟</td></tr>
+        <tr><td>维护状态</td><td>✅ 阿里持续维护，社区活跃</td><td>⚠ Netflix 已停止维护（2022 年）</td></tr>
+        <tr><td>UI 控制台</td><td>功能丰富，支持服务管理/配置编辑/权重调整</td><td>简单，仅展示服务列表</td></tr>
+        <tr><td>权重/路由</td><td>✅ 实例权重、集群就近路由</td><td>❌ 不支持</td></tr>
+      </table>
+    </div>
+
+    <div class="note good"><strong>新项目直接选 Nacos，无需考虑 Eureka。</strong>Nacos = 注册中心 + 配置中心，减少一个中间件的部署和运维。Eureka 已停止维护，Spring Cloud 官方也逐渐减少对它的支持。</div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.s-link[href^="#"]');
+  var secs=Array.from(links).map(function(l){return document.querySelector(l.getAttribute('href'));}).filter(Boolean);
+  function spy(){var top=window.scrollY+80,cur=secs[0];secs.forEach(function(s){if(s.offsetTop<=top)cur=s;});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur.id);});}
+  window.addEventListener('scroll',spy,{passive:true});
+})();
+</script>
+</body>
+</html>

@@ -6,7 +6,8 @@
     {href:'spring-03-tx.html',label:'03 事务'},
     {href:'spring-04-mvc.html',label:'04 MVC'},
     {href:'spring-05-boot.html',label:'05 Boot'},
-    {href:'spring-06-interview.html',label:'06 面试题'}
+    {href:'spring-07-event.html',label:'06 Event'},
+    {href:'spring-06-interview.html',label:'07 面试题'}
   ];
   var cur=location.pathname.split('/').pop();
   var links=pages.map(function(p){return '<a href="'+p.href+'"'+(cur===p.href?' class="active"':'')+'>'+p.label+'</a>';}).join('');
