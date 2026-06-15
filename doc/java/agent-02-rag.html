@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 02 · RAG 检索增强生成</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'RAG'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 02 · RAG</div>
+  <h1>RAG 检索增强生成</h1>
+  <p class="sub">检索增强生成 · 文档切分 · Embedding · 向量检索 · 重排序 · 生成回答</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#rag-concept"><span class="s-link-num">01</span>RAG 核心概念</a>
+    <a class="s-link" href="#rag-pipeline"><span class="s-link-num">02</span>RAG 完整流程</a>
+    <a class="s-link" href="#doc-split"><span class="s-link-num">03</span>文档切分策略</a>
+    <a class="s-link" href="#retrieval"><span class="s-link-num">04</span>检索与排序</a>
+    <a class="s-link" href="#generation"><span class="s-link-num">05</span>生成与优化</a>
+    <a class="s-link" href="#rag-advanced"><span class="s-link-num">06</span>进阶模式</a>
+    <a class="s-link" href="#rag-java"><span class="s-link-num">07</span>Java 实现</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#rag">→ 面试题 · RAG 篇</a>
+    <a class="s-link" href="agent-03-prompt-engineering.html">→ 下一章：Prompt Engineering</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="rag-concept"><span class="sec-num">01</span>RAG 核心概念</div>
+
+    <div class="card">
+      <div class="card-title">什么是 RAG</div>
+      <p><span class="kw">RAG（Retrieval-Augmented Generation，检索增强生成）</span>是一种将"信息检索"与"大语言模型生成"结合的技术方案。核心思路很简单：先从外部知识库中检索出与问题相关的文档片段，再把这些片段塞进 Prompt 里交给 LLM 生成回答。</p>
+      <p>打个比方：LLM 是一个知识渊博但可能记错细节的专家，RAG 就是给这位专家递上一份参考资料，让他"开卷答题"而不是"闭卷答题"。</p>
+      <ul class="dl">
+        <li><span class="b">输入</span>用户的自然语言问题 + 外部文档库</li>
+        <li><span class="b">过程</span>检索相关文档 → 拼接到 Prompt → LLM 基于文档生成回答</li>
+        <li><span class="b">输出</span>带有来源引用的、基于真实数据的回答</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">为什么需要 RAG</div>
+      <p>LLM 有三个天然缺陷，RAG 正好能解决：</p>
+      <ul class="dl">
+        <li><span class="b">知识时效性</span>LLM 的训练数据有截止日期。比如 GPT-4 的训练数据截止到某个时间点，之后发生的事它不知道。RAG 可以实时检索最新信息</li>
+        <li><span class="b">私有数据</span>LLM 不知道你公司的内部文档、产品手册、历史工单。RAG 可以把企业私有知识库接入 LLM</li>
+        <li><span class="b">幻觉问题</span>LLM 会在不确定时"编造"答案。RAG 给它提供真实文档作为依据，大幅降低幻觉概率</li>
+      </ul>
+      <table class="tbl">
+        <tr><th>方案</th><th>优势</th><th>劣势</th></tr>
+        <tr><td>直接调用 LLM</td><td>零成本接入，零维护</td><td>无法访问私有数据，可能产生幻觉</td></tr>
+        <tr><td>Fine-tuning 微调</td><td>模型深度适配业务，推理时不需要检索</td><td>训练成本高（几十到几百万条数据），数据更新需重新训练，知识注入不够精确</td></tr>
+        <tr><td>RAG</td><td>无需训练，知识库可实时更新，可溯源</td><td>检索质量影响回答质量，需要维护向量数据库</td></tr>
+      </table>
+      <div class="note tip"><strong>面试常考</strong>：RAG vs Fine-tuning 不是二选一。Fine-tuning 适合让模型学会"怎么说话"（语气、格式、领域术语），RAG 适合让模型"知道什么"（事实、数据、文档内容）。两者可以组合使用。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="rag-pipeline"><span class="sec-num">02</span>RAG 完整流程</div>
+
+    <div class="card">
+      <div class="card-title">RAG Pipeline 全景</div>
+      <p>一个完整的 RAG 系统分为三个阶段，每个阶段包含多个子步骤：</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">Indexing（离线索引阶段）</div><div class="step-desc">文档加载 → 文档切分（Chunking）→ 向量化（Embedding）→ 写入向量数据库。这个阶段在用户提问之前完成，需要定期更新</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">Retrieval（在线检索阶段）</div><div class="step-desc">用户提问 → 问题向量化 → 在向量数据库中搜索最相似的 Chunk → 按相关性排序 → 返回 Top-K 个结果</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">Generation（生成阶段）</div><div class="step-desc">将检索到的文档片段拼接到 Prompt 中 → 构建完整的上下文 → 调用 LLM 生成最终回答</div></div></div>
+      </div>
+      <p>用一句话概括：<strong>把相关文档"喂"给 LLM，让它基于真实数据回答</strong>。</p>
+      <div class="note info"><strong>性能参考</strong>：典型 RAG 系统中，向量检索耗时约 10-50ms，LLM 生成耗时约 1-5 秒，文档索引阶段（含 Embedding）根据文档规模从几秒到几小时不等。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="doc-split"><span class="sec-num">03</span>文档切分策略</div>
+
+    <div class="card">
+      <div class="card-title">Chunk 切分方法</div>
+      <p>文档切分是 RAG 中最容易被低估的环节。切分质量直接决定了检索的准确性——切得太粗，检索到的文档里一半是无关内容；切得太细，丢失上下文语义。</p>
+      <table class="tbl">
+        <tr><th>方法</th><th>原理</th><th>适用场景</th></tr>
+        <tr><td>固定大小切分</td><td>按字符数或 Token 数切割，比如每 500 个 Token 一个 Chunk</td><td>结构简单、内容均匀的文档（FAQ、列表）</td></tr>
+        <tr><td>按语义切分</td><td>用 Embedding 计算相邻段落的语义相似度，在语义跳变处切分</td><td>内容跳跃性大的文档（长文章、报告）</td></tr>
+        <tr><td>递归切分</td><td>先按大分隔符（如章节标题）切，再递归按小分隔符（段落→句子）切</td><td>有层级结构的文档（Markdown、HTML、法律文书）</td></tr>
+        <tr><td>按文档结构切分</td><td>利用文档原生结构（Markdown 的 # 标题、HTML 的 &lt;h2&gt;）</td><td>结构化文档（技术文档、代码注释）</td></tr>
+      </table>
+      <div class="note tip"><strong>Java 开发者首选</strong>：LangChain4j 提供了 RecursiveCharacterTextSplitter，按 "\n\n" → "\n" → ". " → " " 的优先级递归切分，大多数场景开箱即用。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Chunk Size 与重叠</div>
+      <p>切分时有两个关键参数需要调优：</p>
+      <ul class="dl">
+        <li><span class="b">Chunk Size（块大小）</span>每个文档片段的大小，通常 200-1000 Token。太小则丢失上下文，太大则检索到的无关内容多。经验值：中文场景 300-500 Token 比较合适</li>
+        <li><span class="b">Chunk Overlap（重叠）</span>相邻 Chunk 之间的重叠部分，通常 10-20% 的 Chunk Size。作用是防止关键信息恰好被切断在两个 Chunk 的边界上</li>
+      </ul>
+      <p>举个例子：Chunk Size = 500 Token，Overlap = 50 Token。第一个 Chunk 包含第 1-500 Token，第二个 Chunk 包含第 451-950 Token，中间有 50 Token 的重叠。</p>
+      <div class="note warn"><strong>常见坑</strong>：Chunk Size 不是越大越好。超过 1000 Token 的 Chunk 在检索时相关性得分会被"稀释"——因为 Chunk 里混入了太多无关内容，Embedding 向量会偏向"平均语义"，反而不如小 Chunk 检索精准。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="retrieval"><span class="sec-num">04</span>检索与排序</div>
+
+    <div class="card">
+      <div class="card-title">向量检索 vs 关键词检索</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>向量检索</th><th>关键词检索</th></tr>
+        <tr><td>原理</td><td>将文本编码为高维向量，通过余弦相似度等度量计算语义相似性</td><td>基于倒排索引，匹配精确关键词（如 BM25 算法）</td></tr>
+        <tr><td>优势</td><td>理解语义——"如何退货"能匹配"退换货流程"</td><td>精确匹配——"Java 17 LTS"不会匹配"Java 8"</td></tr>
+        <tr><td>劣势</td><td>对专业术语、产品型号等精确匹配场景效果一般</td><td>无法理解同义词和语义相近的表达</td></tr>
+        <tr><td>典型工具</td><td>Milvus / Pinecone / Qdrant / pgvector</td><td>Elasticsearch / Solr / PostgreSQL 全文搜索</td></tr>
+      </table>
+      <div class="note info"><strong>Embedding 模型选择</strong>：Java 生态常用 OpenAI text-embedding-3-small（1536 维）或开源的 BGE/M3E 模型。维度越高不代表效果越好，关键看在你的数据集上的表现。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Hybrid Search 混合检索</div>
+      <p><span class="kw">Hybrid Search</span>同时执行向量检索和关键词检索，然后将两种结果合并排序。这是目前生产环境的主流做法。</p>
+      <ul class="dl">
+        <li><span class="b">为什么要混合</span>向量检索擅长理解语义（"退货政策"能匹配"退换货流程"），关键词检索擅长精确匹配（"SN-2024-001"不会匹配"SN-2024-002"）。混合检索兼顾两者</li>
+        <li><span class="b">融合策略</span>最常见的是 <span class="kw">RRF（Reciprocal Rank Fusion）</span>：将两个排序列表的名次取倒数相加，按综合分重新排序。公式：score = 1/(k + rank₁) + 1/(k + rank₂)，k 通常取 60</li>
+        <li><span class="b">权重调节</span>可以通过调整向量检索和关键词检索的权重比例来适配不同场景。偏语义的场景（客服问答）加大向量权重，偏精确的场景（工单号查询）加大关键词权重</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Reranking 重排序</div>
+      <p><span class="kw">Reranking</span>是检索之后的"精排"环节。向量检索是粗筛（召回），Reranking 是精排（排序）。</p>
+      <ul class="dl">
+        <li><span class="b">为什么需要</span>向量检索基于 Embedding 相似度排序，但 Embedding 为了速度牺牲了一定精度。Reranking 用更重的模型（Cross-Encoder）对 Top-K 结果重新打分，精准度更高</li>
+        <li><span class="b">工作方式</span>Cross-Encoder 会把问题和每个候选文档<strong>拼接在一起</strong>输入模型，逐对精算相关性，而不是像 Bi-Encoder 那样分别编码再比较</li>
+        <li><span class="b">性能开销</span>Reranking 耗时约 100-500ms（取决于候选数量和模型大小），通常只对 Top 10-50 个结果做重排</li>
+      </ul>
+      <p>常见的 Reranking 模型：Cohere Rerank、BGE-Reranker、Jina Reranker。</p>
+      <div class="note good"><strong>最佳实践</strong>：生产环境推荐 Pipeline = 向量检索（召回 Top 50）→ Reranking（精排 Top 10）→ 注入 Prompt。这样既保证了召回率，又保证了精确度。</div>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="generation"><span class="sec-num">05</span>生成与优化</div>
+
+    <div class="card">
+      <div class="card-title">Prompt 构建与上下文注入</div>
+      <p>检索到相关文档后，需要把它们"组装"进 Prompt。这一步看似简单，实际有几个关键点：</p>
+      <ul class="dl">
+        <li><span class="b">注入格式</span>通常用分隔符将多个文档片段隔开，比如 <code>[文档1]...\n[文档2]...</code>，让 LLM 能区分不同来源</li>
+        <li><span class="b">上下文窗口</span>LLM 有 Token 上限（GPT-4o 为 128K，Claude 为 200K）。检索到的文档 + 用户问题 + 系统提示词的总 Token 数不能超过这个限制。实际使用中，注入 3-5 个 Chunk（约 1500-2500 Token）是比较常见的做法</li>
+        <li><span class="b">指令明确</span>在 Prompt 中明确告诉 LLM："基于以下参考资料回答，如果参考资料中没有相关信息，请说'我不知道'"。这能有效抑制幻觉</li>
+      </ul>
+      <p>一个典型的 RAG Prompt 结构：</p>
+      <pre>你是一个客服助手。请基于以下参考资料回答用户问题。
+如果参考资料中没有相关信息，请回答"抱歉，我无法回答这个问题"。
+
+【参考资料】
+[1] {chunk_1_text}
+[2] {chunk_2_text}
+[3] {chunk_3_text}
+
+【用户问题】
+{user_question}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">幻觉检测与引用溯源</div>
+      <p><span class="kw">幻觉（Hallucination）</span>指 LLM 生成了看似合理但实际不正确的内容。RAG 能降低幻觉概率，但无法完全消除。</p>
+      <ul class="dl">
+        <li><span class="b">引用溯源</span>在 Prompt 中要求 LLM 给出回答的来源编号（如 [1]、[2]）。用户可以点击查看原文，验证回答的准确性</li>
+        <li><span class="b">置信度评估</span>让 LLM 在回答后输出一个置信度分数（1-10）。低于阈值的回答标记为"需要人工审核"</li>
+        <li><span class="b">忠实度检测</span>用另一个 LLM 调用来验证生成的回答是否与检索到的文档内容一致。LangChain 提供了 Faithfulness evaluator</li>
+      </ul>
+      <div class="note warn"><strong>生产环境必做</strong>：在金融、医疗、法律等高风险领域，必须实现引用溯源 + 人工审核双重保障。即使是客服场景，也应该保留 LLM 回答的原始 Prompt（含检索到的文档）用于审计。</div>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="rag-advanced"><span class="sec-num">06</span>进阶模式</div>
+
+    <div class="card">
+      <div class="card-title">Advanced RAG 技术</div>
+      <p>基础 RAG 流程（索引→检索→生成）在实际使用中常常遇到检索质量不够、回答不够准确等问题。以下是四种常见的进阶模式：</p>
+      <ul class="dl">
+        <li><span class="b">Multi-Query RAG</span>用户提一个问题后，LLM 自动改写成多个不同角度的子问题，分别检索，再合并去重。比如"如何优化 Kafka 性能"会被改写为"Kafka 生产者调优参数有哪些"、"Kafka 消费者并发优化方案"、"Kafka Broker 配置最佳实践"，覆盖更多检索路径</li>
+        <li><span class="b">Self-RAG</span>让 LLM 在生成回答前先自我判断：这个问题需不需要检索？检索到的文档相关吗？生成的回答有依据吗？如果判断"不需要检索"就直接回答，避免无关文档干扰</li>
+        <li><span class="b">Corrective RAG（CRAG）</span>在 Self-RAG 基础上加入纠错机制。如果检索到的文档质量不高（相关性低于阈值），自动触发二次检索或从知识库中补充信息</li>
+        <li><span class="b">Graph RAG</span>将文档中的实体和关系抽取为知识图谱，再基于图谱进行检索。适合需要多跳推理的场景——比如"张三的上司的上司是谁"需要在图谱中跳两跳才能找到答案</li>
+      </ul>
+      <div class="note info"><strong>适用建议</strong>：Multi-Query 是投入产出比最高的进阶方案，实现简单（只需在检索前加一步 Prompt 改写），效果提升明显。Self-RAG 和 CRAG 适合对回答质量要求极高的场景。Graph RAG 适合实体关系密集的领域（医疗、金融风控）。</div>
+    </div>
+
+    <!-- ═══ 07 ═══ -->
+    <div class="sec" id="rag-java"><span class="sec-num">07</span>Java 实现</div>
+
+    <div class="card">
+      <div class="card-title">Spring AI + 向量数据库实战</div>
+      <p>Java 生态中，<span class="kw">Spring AI</span> 是目前最主流的 AI 应用框架，提供了统一的 API 抽象层，支持 OpenAI、Ollama、智谱等多种模型。</p>
+      <ul class="dl">
+        <li><span class="b">Embedding</span>通过 <code>EmbeddingModel</code> 接口将文本转为向量。Spring AI 默认使用 OpenAI 的 text-embedding-3-small，也支持本地部署的 BGE 模型</li>
+        <li><span class="b">向量数据库</span>Spring AI 支持 Milvus、PgVector、Chroma、Redis 等。Java 项目最常用的是 <strong>Milvus</strong>（分布式，适合大规模数据）和 <strong>PgVector</strong>（已有 PostgreSQL 的项目直接加扩展即可）</li>
+        <li><span class="b">文档加载</span>Spring AI 提供了 <code>DocumentReader</code> 接口，支持读取 PDF、Markdown、纯文本等格式。<code>TikaDocumentReader</code> 可以处理几乎所有文档类型</li>
+        <li><span class="b">切分</span>使用 <code>TextSplitter</code>，Spring AI 内置了按字符数切分和按 Token 切分两种方式</li>
+        <li><span class="b">完整流程</span>加载文档 → 切分为 Chunk → Embedding → 写入向量数据库；用户提问时 → 问题 Embedding → 向量检索 → Prompt 构建 → LLM 生成</li>
+      </ul>
+      <pre>// Spring AI RAG 核心代码示例
+// 1. 加载文档并切分
+DocumentReader reader = new TextReader("classpath:docs/faq.md");
+List&lt;Document&gt; docs = reader.get();
+TextSplitter splitter = new TokenTextSplitter(500, 100, 5, 10000);
+List&lt;Document&gt; chunks = splitter.apply(docs);
+
+// 2. 写入向量数据库
+vectorStore.accept(chunks);
+
+// 3. 检索并生成
+String question = "如何配置 Kafka 消费者组？";
+List&lt;Document&gt; results = vectorStore.similaritySearch(question, 5);
+String context = results.stream()
+    .map(Document::getContent)
+    .collect(Collectors.joining("\n\n"));
+
+String prompt = "基于以下资料回答：\n" + context + "\n\n问题：" + question;
+String answer = chatClient.prompt(prompt).call().content();</pre>
+      <div class="note good"><strong>生产建议</strong>：向量数据库选型——数据量 < 100 万条用 PgVector 就够了（省掉额外运维），数据量更大或需要分布式扩展则选 Milvus。开发阶段可以用 Chroma 做快速原型验证。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

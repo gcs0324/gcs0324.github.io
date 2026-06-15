@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 09 · Agent 架构模式</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'ARCH'}
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 09 · ARCH PATTERNS</div>
+  <h1>Agent 架构模式</h1>
+  <p class="sub">ReAct · Plan-and-Execute · Reflexion · Multi-Agent · Agent Loop · 决策机制</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#agent-concept"><span class="s-link-num">01</span>Agent 核心概念</a>
+    <a class="s-link" href="#react"><span class="s-link-num">02</span>ReAct 模式</a>
+    <a class="s-link" href="#plan-execute"><span class="s-link-num">03</span>Plan-and-Execute</a>
+    <a class="s-link" href="#reflexion"><span class="s-link-num">04</span>Reflexion</a>
+    <a class="s-link" href="#agent-loop"><span class="s-link-num">05</span>Agent Loop 实现</a>
+    <a class="s-link" href="#comparison"><span class="s-link-num">06</span>模式对比与选型</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#arch">→ 面试题 · 架构篇</a>
+    <a class="s-link" href="agent-10-langchain4j.html">→ 下一章：LangChain4j</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="agent-concept"><span class="sec-num">01</span>Agent 核心概念</div>
+
+    <div class="card">
+      <div class="card-title">什么是 AI Agent</div>
+      <p><span class="kw">AI Agent（智能体）</span>是一个能够<strong>自主感知环境、做出决策、调用工具、执行动作</strong>的系统。它不是一次性回答问题，而是围绕一个目标，反复进行"思考→行动→观察结果"的循环，直到任务完成。</p>
+      <ul class="dl">
+        <li><span class="b">核心组成</span>：LLM（大脑）+ Tools（手脚）+ Memory（记忆）+ Planning（规划能力）</li>
+        <li><span class="b">本质区别</span>：普通 LLM 调用是"一问一答"，Agent 是"给一个目标，自己拆解步骤去完成"</li>
+        <li><span class="b">典型例子</span>：用户说"帮我查一下今天的天气然后发到钉钉"，Agent 会自主调用天气 API → 拼接消息 → 调用钉钉 API，而不是需要用户分步指令</li>
+        <li><span class="b">决策方式</span>：每一步都由 LLM 根据当前上下文决定下一步做什么，不是预定义的固定流程</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Agent 与 Chain 的区别</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Chain（链）</th><th>Agent（智能体）</th></tr>
+        <tr><td>执行流程</td><td>预定义的固定步骤序列（A → B → C）</td><td>动态决策，每一步由 LLM 决定下一步做什么</td></tr>
+        <tr><td>工具调用</td><td>固定顺序调用，流程编译时确定</td><td>运行时根据需要选择调用哪个工具</td></tr>
+        <tr><td>循环能力</td><td>不支持循环，线性执行</td><td>支持循环，可以反复尝试直到成功</td></tr>
+        <tr><td>适用场景</td><td>流程确定、步骤固定的任务（如 RAG 检索增强生成）</td><td>需要动态决策、多步骤探索的任务（如自动化运维、复杂查询）</td></tr>
+        <tr><td>复杂度</td><td>简单可控，容易调试</td><td>复杂度高，行为不完全可预测</td></tr>
+        <tr><td>成本</td><td>LLM 调用次数固定，成本可控</td><td>每步决策都调 LLM，成本与任务复杂度正相关</td></tr>
+      </table>
+      <div class="note tip"><strong>面试要点</strong>：Chain 是"编排好的流水线"，Agent 是"有自主判断力的工人"。面试时用这个比喻能快速说清楚两者区别。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="react"><span class="sec-num">02</span>ReAct 模式</div>
+
+    <div class="card">
+      <div class="card-title">ReAct: Reasoning + Acting</div>
+      <p><span class="kw">ReAct</span> 是目前最主流的 Agent 架构模式，核心思想是将<span class="kw">推理（Reasoning）</span>和<span class="kw">行动（Acting）</span>交织进行。LLM 先思考当前该做什么（Thought），然后执行一个动作（Action），观察执行结果（Observation），再基于结果继续推理，如此循环。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">Thought（思考）</div><div class="step-desc">LLM 分析当前状态，决定下一步应该做什么。例如："用户要查订单，我需要先调用订单查询接口"</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">Action（行动）</div><div class="step-desc">选择并调用一个工具，传入参数。例如：调用 orderService.query(orderId="12345")</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">Observation（观察）</div><div class="step-desc">获取工具返回的结果。例如：订单状态为"已发货"，物流单号为 SF123456789</div></div></div>
+        <div class="step"><div><div class="step-title">循环判断</div><div class="step-desc">如果已经获得足够信息，输出最终答案；否则回到①继续推理</div></div></div>
+      </div>
+      <div class="note good"><strong>为什么 ReAct 效果好</strong>：它让 LLM 的推理过程"可见"。每一步的 Thought 都是对当前状态的总结，相当于给了 LLM 一个"工作记忆"，避免在多步推理中迷失方向。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ReAct 实现细节</div>
+      <ul class="dl">
+        <li><span class="b">Prompt 模板</span>：通常在 System Prompt 中给出 Thought/Action/Observation 的格式示例，让 LLM 按固定格式输出，便于解析</li>
+        <li><span class="b">工具选择</span>：每次 Action 只调用一个工具。LLM 从可用工具列表中选择最合适的，输出工具名和参数的 JSON</li>
+        <li><span class="b">终止条件</span>：当 LLM 输出"Final Answer"而非 Action 时，循环结束。也可以设置最大循环次数（通常 5-10 次）防止无限循环</li>
+        <li><span class="b">上下文管理</span>：每轮循环的历史（Thought+Action+Observation）都拼接到对话历史中，LLM 能看到完整的决策链</li>
+        <li><span class="b">常见问题</span>：如果工具返回错误信息，LLM 需要在下一轮 Thought 中分析原因并换一种方式尝试</li>
+      </ul>
+      <div class="note warn"><strong>ReAct 的局限</strong>：每步都调 LLM，5 轮循环就是 5 次 LLM 请求。对于复杂任务（10+ 步），延迟和成本都较高。此时可以考虑 Plan-and-Execute 模式。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="plan-execute"><span class="sec-num">03</span>Plan-and-Execute</div>
+
+    <div class="card">
+      <div class="card-title">先规划后执行</div>
+      <p><span class="kw">Plan-and-Execute</span> 将任务分为两个阶段：<strong>规划阶段</strong>由一个 LLM 生成完整的执行计划（步骤列表），<strong>执行阶段</strong>逐步执行每个步骤。适合步骤较多、流程相对可预测的任务。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">Planner（规划器）</div><div class="step-desc">接收用户目标，输出一个有序步骤列表。例如：1.查询用户信息 → 2.查询订单列表 → 3.查询物流状态 → 4.汇总生成报告</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">Executor（执行器）</div><div class="step-desc">按顺序执行每个步骤，每步调用相应的工具。执行器不需要重新规划，只负责执行</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">Re-Planner（可选：重新规划）</div><div class="step-desc">执行完所有步骤后，如果结果不满足要求，或者中间发现计划需要调整，可以触发重新规划</div></div></div>
+      </div>
+      <p>与 ReAct 的核心区别：ReAct 是"边想边做"，每一步都重新决策；Plan-and-Execute 是"先想好再做"，规划和执行分离。</p>
+      <div class="note info"><strong>适用场景</strong>：需要 5 步以上的复杂任务、可以并行执行多个步骤的场景、流程相对标准化的工作流（如数据处理管道）。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="reflexion"><span class="sec-num">04</span>Reflexion</div>
+
+    <div class="card">
+      <div class="card-title">反思与自我纠错</div>
+      <p><span class="kw">Reflexion</span> 是一种让 Agent 从失败中学习的模式。当 Agent 的执行结果不符合预期时，它会对自己的行为进行<span class="kw">反思（Reflection）</span>，分析失败原因，将经验存入记忆，然后在下一次尝试中避免同样的错误。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">执行任务</div><div class="step-desc">Agent 按常规流程（如 ReAct）执行任务，得到一个结果</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">评估结果</div><div class="step-desc">用评估器（可以是另一个 LLM 调用）判断结果是否满足目标。例如：代码测试是否通过、答案是否正确</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">反思分析</div><div class="step-desc">如果结果不合格，LLM 分析失败原因。例如："查询条件写错了，应该用 userId 而不是 orderId"</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">存入记忆</div><div class="step-desc">将反思结论存入长期记忆，在下一次尝试时作为上下文提供给 LLM</div></div></div>
+        <div class="step"><div><div class="step-title">重新尝试</div><div class="step-desc">带着之前的经验重新执行任务，通常 2-3 次尝试内就能成功</div></div></div>
+      </div>
+      <div class="note tip"><strong>面试要点</strong>：Reflexion 的核心价值是让 Agent 具备"从错误中学习"的能力。典型应用：代码生成 Agent 反复运行测试用例直到全部通过，每轮根据失败的测试反馈调整代码。</div>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="agent-loop"><span class="sec-num">05</span>Agent Loop 实现</div>
+
+    <div class="card">
+      <div class="card-title">Agent Loop 核心循环</div>
+      <p><span class="kw">Agent Loop</span> 是所有 Agent 架构模式的底层机制——一个无限循环，直到任务完成或达到终止条件。无论 ReAct 还是 Plan-and-Execute，底层都是这个循环。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">接收输入</div><div class="step-desc">接收用户目标和当前上下文（包括历史对话、工具返回结果）</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">LLM 推理</div><div class="step-desc">将完整上下文发送给 LLM，获取下一步动作（工具调用指令或最终回答）</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">解析输出</div><div class="step-desc">解析 LLM 的响应：如果是工具调用，提取工具名和参数；如果是最终回答，结束循环</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">执行工具</div><div class="step-desc">调用对应的工具函数，获取返回结果</div></div></div>
+        <div class="step"><div class="step-num">⑤</div><div><div class="step-title">更新上下文</div><div class="step-desc">将本轮的 Action 和 Observation 追加到对话历史中</div></div></div>
+        <div class="step"><div><div class="step-title">终止检查</div><div class="step-desc">检查是否达到终止条件（最终回答 / 最大循环次数 / 用户中断），否则回到②</div></div></div>
+      </div>
+      <pre>// 伪代码：Agent Loop 核心实现
+while (true) {
+    Response resp = llm.chat(messages);        // ② LLM 推理
+    if (resp.isFinalAnswer()) return resp;     // 终止：输出最终答案
+    ToolCall call = parseToolCall(resp);        // ③ 解析工具调用
+    String result = tools.execute(call);        // ④ 执行工具
+    messages.add(assistantMessage(resp));       // ⑤ 更新上下文
+    messages.add(toolMessage(result));
+    if (loopCount++ > MAX_LOOPS) break;        // 防止无限循环
+}</pre>
+      <div class="note warn"><strong>最大循环次数</strong>：生产环境建议设置为 5-10 次。超过这个次数通常意味着 LLM 无法解决问题，需要人工介入。设置太小可能任务未完成就被截断。</div>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="comparison"><span class="sec-num">06</span>模式对比与选型</div>
+
+    <div class="card">
+      <div class="card-title">各模式适用场景对比</div>
+      <table class="tbl">
+        <tr><th>模式</th><th>核心思想</th><th>适用场景</th><th>LLM 调用次数</th><th>典型延迟</th></tr>
+        <tr><td>ReAct</td><td>边思考边行动，逐步推进</td><td>简单到中等复杂度任务、需要动态决策</td><td>与步骤数相同</td><td>每步 1-3 秒</td></tr>
+        <tr><td>Plan-and-Execute</td><td>先规划完整计划，再逐步执行</td><td>步骤多、流程可预测、可并行的任务</td><td>规划 1 次 + 执行 N 次</td><td>规划较慢，执行较快</td></tr>
+        <tr><td>Reflexion</td><td>从失败中反思学习，反复尝试</td><td>允许试错的任务、代码生成、复杂推理</td><td>尝试次数 × 每次步骤数</td><td>多次尝试，总延迟较高</td></tr>
+        <tr><td>Multi-Agent</td><td>多个 Agent 分工协作</td><td>需要专业分工的复杂系统、团队模拟</td><td>各 Agent 独立调用</td><td>取决于协作模式</td></tr>
+      </table>
+      <div class="note good"><strong>选型建议</strong>：大多数场景从 ReAct 开始，它最通用也最容易实现。当任务步骤超过 5 步且流程可预测时，考虑 Plan-and-Execute。当任务需要高准确率且允许重试时，加入 Reflexion。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

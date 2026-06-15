@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 16 · 向量数据库选型</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'VECDB'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 16 · VECTOR DB</div>
+  <h1>向量数据库选型</h1>
+  <p class="sub">向量相似度 · 主流选型对比 · 索引算法 · 性能调优 · Java 集成</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#vec-concept"><span class="s-link-num">01</span>向量检索基础</a>
+    <a class="s-link" href="#vec-similarity"><span class="s-link-num">02</span>相似度算法</a>
+    <a class="s-link" href="#vec-index"><span class="s-link-num">03</span>索引算法</a>
+    <a class="s-link" href="#vec-compare"><span class="s-link-num">04</span>主流选型对比</a>
+    <a class="s-link" href="#vec-tuning"><span class="s-link-num">05</span>性能调优</a>
+    <a class="s-link" href="#vec-java"><span class="s-link-num">06</span>Java 集成</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#vecdb">→ 面试题 · 向量数据库篇</a>
+    <a class="s-link" href="agent-17-embedding.html">→ 下一章：Embedding</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 向量检索基础 ═══ -->
+    <div class="sec" id="vec-concept"><span class="sec-num">01</span>向量检索基础</div>
+
+    <div class="card">
+      <div class="card-title">什么是向量数据库</div>
+      <p><span class="kw">向量数据库</span>是专门用于存储和检索高维向量的数据库。在 AI 应用中，文本、图片等非结构化数据通过 Embedding 模型转化为固定长度的数值向量（比如一段 300 词的文本变成一个 1536 维的浮点数组），向量数据库的核心能力就是<strong>快速找到与目标向量最相似的 Top-K 个向量</strong>。</p>
+      <ul class="dl">
+        <li><span class="b">存储</span>以向量为基本单元，同时支持存储原始文本、ID 等标量字段</li>
+        <li><span class="b">检索</span>输入一条查询向量，返回语义最接近的 K 条结果，通常在毫秒级完成</li>
+        <li><span class="b">典型场景</span>RAG（检索增强生成）、语义搜索、推荐系统、多模态检索</li>
+        <li><span class="b">核心指标</span>召回率（能否找到正确的相似结果）和查询延迟（单次检索耗时）</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">向量 vs 关系型数据库</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>关系型数据库</th><th>向量数据库</th></tr>
+        <tr><td>查询方式</td><td>精确匹配：WHERE name = '张三'</td><td>近似最近邻（ANN）：找语义最接近的 K 条</td></tr>
+        <tr><td>数据模型</td><td>行/列结构，强 Schema</td><td>向量 + 可选标量字段，Schema 灵活</td></tr>
+        <tr><td>索引目标</td><td>等值查询、范围查询 O(log N)</td><td>高维空间最近邻 O(log N) 或亚线性</td></tr>
+        <tr><td>事务支持</td><td>ACID 事务</td><td>多数不支持事务，侧重高吞吐写入</td></tr>
+        <tr><td>典型数据规模</td><td>GB ~ TB</td><td>百万 ~ 十亿条向量</td></tr>
+        <tr><td>典型引擎</td><td>MySQL / PostgreSQL</td><td>Milvus / Qdrant / Pinecone / Weaviate</td></tr>
+      </table>
+      <div class="note info"><strong>能否用关系型数据库做向量检索？</strong><br>PostgreSQL + pgvector 扩展支持向量存储和近似搜索，适合数据量 < 500 万且查询 QPS 低的场景。超过这个规模建议用专用向量数据库。</div>
+    </div>
+
+    <!-- ═══ 02 相似度算法 ═══ -->
+    <div class="sec" id="vec-similarity"><span class="sec-num">02</span>相似度算法</div>
+
+    <div class="card">
+      <div class="card-title">余弦相似度 / 欧氏距离 / 内积</div>
+      <p>向量检索的本质是比较两个向量有多"接近"。不同算法衡量的维度不同，直接影响检索效果。</p>
+      <table class="tbl">
+        <tr><th>算法</th><th>公式含义</th><th>取值范围</th><th>适用场景</th></tr>
+        <tr><td><span class="kw">余弦相似度</span></td><td>两个向量夹角的余弦值，只看方向不看大小</td><td>[-1, 1]，越大越相似</td><td>文本语义搜索（最常用）；Embedding 模型输出已归一化时，等价于内积</td></tr>
+        <tr><td><span class="kw">欧氏距离</span></td><td>两个向量在空间中的直线距离，值越小越相似</td><td>[0, +∞)，越小越相似</td><td>图像特征匹配、物理位置相近的检索</td></tr>
+        <tr><td><span class="kw">内积（Dot Product）</span></td><td>对应维度相乘再求和，兼顾方向和大小</td><td>无固定范围</td><td>向量已归一化时等价余弦；推荐系统中需要考虑热度偏差时使用</td></tr>
+      </table>
+      <div class="note tip"><strong>面试要点</strong><br>大多数 Embedding 模型（如 OpenAI text-embedding-3）输出的向量已经 L2 归一化，此时余弦相似度 = 内积，三者等价。选型时优先余弦，性能最优。</div>
+      <p><strong>选择建议</strong>：文本语义搜索用余弦相似度；图像检索用欧氏距离；如果向量已归一化，三者效果相同，选计算最快的即可。</p>
+    </div>
+
+    <!-- ═══ 03 索引算法 ═══ -->
+    <div class="sec" id="vec-index"><span class="sec-num">03</span>索引算法</div>
+
+    <div class="card">
+      <div class="card-title">HNSW / IVF / PQ / Flat</div>
+      <p>全量遍历（Flat）每条查询都要比较所有向量，100 万条向量单次查询约 100ms。索引算法通过空间换时间，将查询加速到毫秒级。</p>
+      <table class="tbl">
+        <tr><th>算法</th><th>原理</th><th>内存占用</th><th>召回率</th><th>适用规模</th></tr>
+        <tr><td><span class="kw">Flat</span></td><td>暴力搜索，逐个比较</td><td>1x（仅原始数据）</td><td>100%</td><td>< 10 万条</td></tr>
+        <tr><td><span class="kw">HNSW</span></td><td>构建多层跳表图结构，从顶层快速定位到目标区域再逐层细化</td><td>~1.5x</td><td>95-99%</td><td>10 万 ~ 1 亿条（推荐）</td></tr>
+        <tr><td><span class="kw">IVF</span></td><td>先用 K-Means 将向量聚成 N 个簇，检索时只搜索最近的若干簇</td><td>~1.1x</td><td>90-98%</td><td>100 万 ~ 10 亿条</td></tr>
+        <tr><td><span class="kw">PQ</span></td><td>将高维向量压缩为低维编码（如 1536 维 → 96 字节），大幅减少内存</td><td>~0.1x</td><td>85-95%</td><td>1 亿条以上，内存受限</td></tr>
+      </table>
+      <div class="note good"><strong>最佳实践</strong><br>中小规模（< 1000 万条）优先选 HNSW：召回率高、查询快、实现简单。超大规模 + 内存受限选 IVF_PQ 组合（IVF 聚类 + PQ 压缩）。Flat 适合做召回率基准测试。</div>
+    </div>
+
+    <!-- ═══ 04 主流选型对比 ═══ -->
+    <div class="sec" id="vec-compare"><span class="sec-num">04</span>主流选型对比</div>
+
+    <div class="card">
+      <div class="card-title">Milvus vs Pinecone vs Weaviate vs Qdrant vs Chroma</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>Milvus</th><th>Pinecone</th><th>Weaviate</th><th>Qdrant</th><th>Chroma</th></tr>
+        <tr><td>部署方式</td><td>自部署（Docker/K8s）</td><td>纯云托管 SaaS</td><td>自部署 / 云托管</td><td>自部署 / 云托管</td><td>嵌入式 / 自部署</td></tr>
+        <tr><td>开源</td><td>Apache 2.0</td><td>❌ 闭源</td><td>BSD-3</td><td>Apache 2.0</td><td>Apache 2.0</td></tr>
+        <tr><td>语言</td><td>Go + C++</td><td>—</td><td>Go</td><td>Rust</td><td>Python</td></tr>
+        <tr><td>索引算法</td><td>HNSW / IVF / PQ / DiskANN</td><td>内部优化（HNSW 变体）</td><td>HNSW / PQ</td><td>HNSW</td><td>HNSW（via hnswlib）</td></tr>
+        <tr><td>最大规模</td><td>10 亿+</td><td>10 亿+（托管）</td><td>数亿</td><td>数亿</td><td>百万级</td></tr>
+        <tr><td>Java SDK</td><td>✅ 官方支持</td><td>✅ 官方支持</td><td>✅ 官方支持</td><td>✅ 官方支持</td><td>❌ 仅 Python</td></tr>
+        <tr><td>混合搜索</td><td>✅ 标量 + 向量</td><td>✅ 元数据过滤</td><td>✅ BM25 + 向量</td><td>✅ 标量 + 向量</td><td>元数据过滤</td></tr>
+        <tr><td>适用场景</td><td>大规模生产环境</td><td>免运维、快速上手</td><td>需要向量化 + 搜索一体</td><td>高性能、Rust 性能</td><td>原型验证、本地开发</td></tr>
+      </table>
+      <div class="note good"><strong>选型建议</strong><br>• 企业生产环境（Java 栈）：Milvus —— 性能强、生态成熟、K8s 部署<br>• 快速验证 POC：Chroma —— pip install 即用，适合本地实验<br>• 不想运维：Pinecone —— 全托管，按量付费<br>• 追求极致性能：Qdrant —— Rust 实现，单机性能最优</div>
+    </div>
+
+    <!-- ═══ 05 性能调优 ═══ -->
+    <div class="sec" id="vec-tuning"><span class="sec-num">05</span>性能调优</div>
+
+    <div class="card">
+      <div class="card-title">索引参数调优与资源规划</div>
+      <p>向量数据库的性能由<strong>召回率、查询延迟、内存占用</strong>三个指标决定，调优本质是在三者之间找平衡。</p>
+
+      <div class="card-title" style="margin-top:16px">HNSW 关键参数</div>
+      <table class="tbl">
+        <tr><th>参数</th><th>含义</th><th>推荐值</th><th>调大效果</th></tr>
+        <tr><td>M（最大连接数）</td><td>每个节点最多连接的邻居数</td><td>16 ~ 64</td><td>召回率 ↑，内存 ↑，构建速度 ↓</td></tr>
+        <tr><td>ef_construction（构建时搜索宽度）</td><td>插入新节点时搜索的候选集大小</td><td>100 ~ 300</td><td>索引质量 ↑，构建速度 ↓</td></tr>
+        <tr><td>ef_search（查询时搜索宽度）</td><td>查询时搜索的候选集大小</td><td>50 ~ 200</td><td>召回率 ↑，延迟 ↑</td></tr>
+      </table>
+
+      <div class="card-title" style="margin-top:16px">资源规划参考</div>
+      <ul class="dl">
+        <li><span class="b">内存估算</span>1536 维 float32 向量：每条约 6KB（1536 × 4 字节）；HNSW 索引额外占用约 50-100%，即每条约 10-12KB</li>
+        <li><span class="b">QPS 估算</span>单节点（16 核 64GB）Milvus：HNSW 索引 100 万条向量，QPS 可达 1000-5000</li>
+        <li><span class="b">写入速度</span>批量插入（batch insert）比逐条插入快 10-50 倍；建议每次写入 1000-5000 条</li>
+        <li><span class="b">磁盘索引</span>Milvus 2.3+ 支持 DiskANN，将索引放磁盘，内存需求降低 80%，适合超大规模场景</li>
+      </ul>
+      <div class="note warn"><strong>常见坑</strong><br>• ef_search 设置过低（< 30）导致召回率骤降到 70% 以下<br>• 插入数据后立即查询，索引尚未构建完成，需要等待 indexing 完成<br>• 未设置磁盘容量告警，索引写满磁盘后写入失败</div>
+    </div>
+
+    <!-- ═══ 06 Java 集成 ═══ -->
+    <div class="sec" id="vec-java"><span class="sec-num">06</span>Java 集成</div>
+
+    <div class="card">
+      <div class="card-title">Spring AI + Milvus 实战</div>
+      <p>Spring AI 提供了对 Milvus 和 Qdrant 的开箱即用支持，通过 <code>VectorStore</code> 接口统一操作，切换数据库只需改配置。</p>
+      <ul class="dl">
+        <li><span class="b">添加依赖</span><code>spring-ai-milvus-store-spring-boot-starter</code>（Milvus）或 <code>spring-ai-qdrant-store-spring-boot-starter</code>（Qdrant）</li>
+        <li><span class="b">配置连接</span>application.yml 中设置 <code>spring.ai.vectorstore.milvus.uri</code> 和 <code>collection-name</code>；Milvus 默认端口 19530</li>
+        <li><span class="b">写入向量</span>调用 <code>vectorStore.add(List&lt;Document&gt;)</code>，Spring AI 自动调用 Embedding 模型生成向量并存入数据库</li>
+        <li><span class="b">语义检索</span><code>vectorStore.similaritySearch("查询文本", topK, similarityThreshold)</code>，返回最相关的 Document 列表</li>
+        <li><span class="b">混合检索</span>配合 <code>KeywordAdvisor</code> 或自定义 <code>FilterExpression</code> 实现关键词 + 向量的混合搜索</li>
+      </ul>
+      <div class="note info"><strong>切换到 Qdrant</strong><br>将 starter 换成 <code>spring-ai-qdrant-store-spring-boot-starter</code>，配置改为 <code>spring.ai.vectorstore.qdrant.uri</code>，业务代码无需修改（VectorStore 接口统一）。</div>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

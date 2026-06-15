@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 29 · 高频面试题</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'INTERVIEW'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 29 · 面试题</div>
+  <h1>Agent 高频面试题</h1>
+  <p class="sub">LLM 基础 · RAG · Agent 架构 · Tool Calling · 向量数据库 · 系统设计</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#rag"><span class="s-link-num">01</span>RAG 类</a>
+    <a class="s-link" href="#prompt"><span class="s-link-num">02</span>Prompt 类</a>
+    <a class="s-link" href="#arch"><span class="s-link-num">03</span>架构模式类</a>
+    <a class="s-link" href="#tool"><span class="s-link-num">04</span>Tool Calling 类</a>
+    <a class="s-link" href="#vecdb"><span class="s-link-num">05</span>向量数据库类</a>
+    <a class="s-link" href="#system-design"><span class="s-link-num">06</span>系统设计类</a>
+    <a class="s-link" href="#production"><span class="s-link-num">07</span>生产实践类</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-outline.html">→ 返回大纲</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 RAG ═══ -->
+    <div class="sec" id="rag"><span class="sec-num">01</span>RAG 类</div>
+
+    <div class="card">
+      <div class="card-title">RAG 核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>什么是 RAG？与 Fine-tuning 的区别和适用场景？</strong><br>RAG（Retrieval-Augmented Generation）在生成回答前，先从外部知识库检索相关文档，再将检索结果和问题一起交给 LLM 生成答案。与 Fine-tuning 的核心区别：RAG 不修改模型参数，通过外挂知识库实现知识更新；Fine-tuning 则通过训练数据改变模型权重。RAG 适合知识频繁更新的场景（如企业文档问答），Fine-tuning 适合需要改变模型行为或风格的场景（如领域术语理解）。</span></li>
+        <li><span class="b">Q2</span><span><strong>Chunk size（分块大小）如何优化？</strong><br>分块大小直接影响检索质量和回答准确度。太小（如 100 token）会导致上下文丢失，检索到的片段无法完整表达语义；太大（如 2000 token）会引入无关信息，稀释关键内容。推荐策略：通用场景 500-1000 token，代码类文档 200-500 token，同时采用 overlapping（10-20% 重叠）避免边界截断。</span></li>
+        <li><span class="b">Q3</span><span><strong>什么是混合检索（Hybrid Search）？为什么需要它？</strong><br>混合检索是将关键词检索（BM25）和向量语义检索结合使用。纯向量检索擅长语义匹配但对精确关键词（如产品编号"SKU-12345"）不敏感；纯关键词检索擅长精确匹配但无法理解同义词。混合检索通过 RRF（Reciprocal Rank Fusion）等算法融合两种排序结果，兼顾精确性和语义性，召回率通常比单一方式提升 10-20%。</span></li>
+        <li><span class="b">Q4</span><span><strong>Reranking 是什么？为什么要加这一步？</strong><br>Reranking 是在初步检索（召回阶段）之后，用更精确的模型对候选结果重新排序。召回阶段用轻量模型快速从百万文档中筛选 Top-50，Reranking 用 Cross-Encoder 等重排模型对这 50 条做精细打分，选出最相关的 Top-5 交给 LLM。好处：Cross-Encoder 能同时看到 query 和 document 的完整交互，准确度远高于召回阶段的双塔模型。</span></li>
+        <li><span class="b">Q5</span><span><strong>如何评估 RAG 系统的质量？</strong><br>从三个维度评估：① 召回质量——用 Recall@K、MRR（Mean Reciprocal Rank）衡量检索结果是否包含正确答案；② 生成质量——用 Faithfulness（回答是否忠于检索结果）、Answer Relevancy（回答是否切题）评估；③ 端到端——人工评测 + 自动化评估（如 RAGAS 框架）。关键原则：先确保检索质量（"检索不到就答不对"），再优化生成质量。</span></li>
+        <li><span class="b">Q6</span><span><strong>RAG 中常见的"幻觉"问题如何解决？</strong><br>RAG 幻觉的根源是检索到的内容和问题不相关，或 LLM 超出检索结果范围自行发挥。解决思路：① 优化检索质量，确保相关文档被召回；② Prompt 中明确要求"仅根据提供的上下文回答"，并添加引用来源；③ 增加"不知道就说不知道"的兜底指令；④ 用 Reranking 精选最相关片段，减少噪声输入。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 02 Prompt ═══ -->
+    <div class="sec" id="prompt"><span class="sec-num">02</span>Prompt 类</div>
+
+    <div class="card">
+      <div class="card-title">Prompt 核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>Prompt Engineering 有哪些常用技巧？</strong><br>① 角色设定：明确 LLM 扮演的角色（如"你是一个资深 Java 架构师"）；② 结构化输出：要求 JSON、Markdown 表格等固定格式；③ Chain-of-Thought（思维链）：要求"先分析再回答"；④ Few-shot：提供 2-5 个输入输出示例；⑤ 约束条件：明确长度、语气、禁止事项。核心原则：清晰 > 复杂，短 prompt 效果不好时先加约束条件，而不是加更多示例。</span></li>
+        <li><span class="b">Q2</span><span><strong>System Prompt 如何设计？</strong><br>System Prompt 是角色和行为的"宪法"，应包含：① 角色定义（你是谁）；② 能力边界（你能做什么、不能做什么）；③ 输出格式（JSON/Markdown/纯文本）；④ 安全约束（不生成有害内容）；⑤ 示例（可选）。关键技巧：将最重要的指令放在 prompt 开头或结尾（遗忘曲线两端效应最强）；使用 XML 标签分隔指令和内容（如 &lt;context&gt;...&lt;/context&gt;）。</span></li>
+        <li><span class="b">Q3</span><span><strong>Few-shot vs Zero-shot 各自适用场景？</strong><br>Zero-shot 不提供示例，依赖模型自身能力，适合任务本身简单或模型能力足够强的场景（如分类、摘要）。Few-shot 提供 2-5 个示例，适合：① 任务格式复杂（如自定义 JSON Schema）；② 需要特定领域风格（如法律文书生成）；③ 模型对任务理解偏差大。成本权衡：Few-shot 示例越多，输入 token 越多，延迟和成本都增加，一般 3-5 个示例是性价比最优区间。</span></li>
+        <li><span class="b">Q4</span><span><strong>如何通过 Prompt 减少 LLM 幻觉？</strong><br>① 约束回答范围：明确要求"仅基于提供的上下文回答，如果上下文没有相关信息请说不知道"；② 要求引用来源：让 LLM 在回答中标注信息来自哪个文档或段落；③ 分步验证：先让 LLM 列出依据，再基于依据生成答案；④ 结构化推理：用 Chain-of-Thought 要求模型先分析再回答，减少跳步导致的错误。注意：这些方法能显著降低幻觉率，但无法完全消除，关键场景仍需人工审核。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 03 架构 ═══ -->
+    <div class="sec" id="arch"><span class="sec-num">03</span>架构模式类</div>
+
+    <div class="card">
+      <div class="card-title">Agent 架构核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>ReAct 和 Plan-and-Execute 的区别？各自适用场景？</strong><br>ReAct（Reasoning + Acting）是"边想边做"：LLM 先思考下一步做什么（Thought），然后执行动作（Action），观察结果（Observation），循环直到完成。简单直接，但可能陷入循环或偏离目标。Plan-and-Execute 是"先想后做"：先用 LLM 制定完整计划，再逐步执行，执行失败可重新规划。适合多步骤复杂任务。实践中 Plan-and-Execute + ReAct 结合使用效果最好。</span></li>
+        <li><span class="b">Q2</span><span><strong>Agent Loop 的核心流程是什么？</strong><br>标准 Agent Loop：① 接收用户输入 → ② LLM 推理（决定调用工具或直接回答） → ③ 若需要工具则执行调用并返回结果 → ④ 将工具结果追加到对话历史 → ⑤ 再次 LLM 推理 → 循环直到生成最终回答。关键设计点：设置最大循环次数（防止无限循环）；对话历史要有 token 上限（防止上下文溢出）；工具调用结果需要格式化（避免原始 JSON 污染 prompt）。</span></li>
+        <li><span class="b">Q3</span><span><strong>什么时候该用 Multi-Agent（多智能体）？</strong><br>适合 Multi-Agent 的场景：① 任务有明确分工（如一个 Agent 负责检索、一个负责生成）；② 需要不同角色协作（如"批评者" Agent 评审"生成者" Agent 的输出）；③ 并行子任务（多个 Agent 同时搜索不同数据源）。不适合的场景：任务简单、单 Agent 能胜任；Agent 间通信开销 > 收益。核心原则：先尝试单 Agent，只有在单 Agent 明显不够时才引入多 Agent。</span></li>
+        <li><span class="b">Q4</span><span><strong>什么是 Reflexion 模式？有什么优势？</strong><br>Reflexion 是让 Agent 在失败后进行自我反思的模式：执行任务 → 失败 → Agent 分析失败原因并总结教训 → 将教训加入上下文 → 重新尝试。优势：不需要额外训练，通过 prompt 中的"经验"积累逐步提升准确率。典型实现：LangGraph 中的 Reflexion Agent，失败后生成反思文本，下次尝试时作为 context 注入。适合代码修复、推理等可验证的任务。</span></li>
+        <li><span class="b">Q5</span><span><strong>如何设计 Agent 的记忆系统？</strong><br>Agent 记忆分为三层：① 工作记忆（当前对话上下文），存在消息列表中，容量受 context window 限制；② 短期记忆（最近几次交互的摘要），通过 summarization 定期压缩历史对话；③ 长期记忆（持久化知识），存入向量数据库或键值存储。生产中常用方案：对话超过 token 阈值时自动摘要压缩；重要信息提取后写入向量数据库；用户画像等个性化信息存入 KV 存储。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 04 Tool ═══ -->
+    <div class="sec" id="tool"><span class="sec-num">04</span>Tool Calling 类</div>
+
+    <div class="card">
+      <div class="card-title">Tool Calling 核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>Function Calling 的工作原理？</strong><br>Function Calling 是 LLM 原生支持的工具调用机制。流程：① 开发者将工具的 JSON Schema（名称、描述、参数）传给 LLM；② 用户提问后，LLM 判断是否需要调用工具，若需要则返回结构化的工具调用请求（函数名 + 参数）；③ 开发者端执行实际函数调用；④ 将执行结果返回给 LLM；⑤ LLM 基于结果生成最终回答。注意：LLM 不执行函数，它只生成"调用什么函数、传什么参数"的结构化指令。</span></li>
+        <li><span class="b">Q2</span><span><strong>Tool Schema 如何设计才能提高调用准确率？</strong><br>① 工具名称用动词+名词（如 search_documents、get_weather），语义清晰；② 描述要说明"什么时候用"而非仅"做什么"（如"当用户问天气相关问题时调用"）；③ 参数描述给出具体示例（如 <code>query: "搜索关键词，如'Kafka 可靠性'"</code>）；④ 必需参数和可选参数明确标注；⑤ 工具数量控制在 10 个以内（过多会降低 LLM 选择准确率）。</span></li>
+        <li><span class="b">Q3</span><span><strong>什么是并行工具调用（Parallel Tool Calls）？</strong><br>当 LLM 判断多个工具调用互不依赖时，可以同时发起多个调用，无需串行等待。例如用户问"北京和上海今天的天气"，LLM 会同时调用两次 get_weather（city="北京"）和 get_weather（city="上海"），而不是先查北京再查上海。并行调用可以显著降低延迟（从 2N 降为接近 1N），但需要开发者端支持异步执行并聚合结果。OpenAI 和 Claude 都支持此特性。</span></li>
+        <li><span class="b">Q4</span><span><strong>Tool 调用失败如何处理？</strong><br>① 将错误信息格式化后返回给 LLM（如"API 超时，请稍后重试"），让 LLM 决定是否重试或换一种方式回答；② 设置重试上限（通常 2-3 次），超过后直接返回错误提示给用户；③ 对可重试错误（超时、限流）做指数退避重试；④ 对不可重试错误（参数错误、权限不足）直接返回，不重试。关键原则：永远不要让原始异常堆栈暴露给 LLM 或用户。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 05 向量数据库 ═══ -->
+    <div class="sec" id="vecdb"><span class="sec-num">05</span>向量数据库类</div>
+
+    <div class="card">
+      <div class="card-title">向量数据库核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>HNSW 索引的原理？为什么适合向量检索？</strong><br>HNSW（Hierarchical Navigable Small World）是一种基于图的近似最近邻算法。它构建多层跳表结构：底层包含所有节点，上层节点逐层稀疏。查询时从最高层的入口节点开始贪心搜索，快速定位到目标区域，然后逐层下降到底层做精确搜索。类似"高速公路 → 城市道路 → 小巷"的导航逻辑。优势：查询速度快（O(log N)）、召回率高（95%+）、支持增量写入，是目前最主流的向量索引算法。</span></li>
+        <li><span class="b">Q2</span><span><strong>向量数据库和传统数据库的本质区别是什么？</strong><br>传统数据库基于 B-Tree / Hash 索引，擅长精确匹配和范围查询（WHERE id = 1），查询结果是确定性的。向量数据库基于 ANN（近似最近邻）索引，擅长在高维空间中找"最近"的向量，结果是近似的（可能漏掉一些真正最近的向量）。核心差异在于查询语义：SQL 是"找到满足条件的行"，向量检索是"找到最像的 K 条"。向量数据库通常不支持事务（ACID），但支持高吞吐的批量写入。</span></li>
+        <li><span class="b">Q3</span><span><strong>如何选择合适的索引算法？</strong><br>数据量 < 10 万：用 Flat（暴力搜索），无需索引开销，100% 召回率。10 万 ~ 1 亿：用 HNSW，召回率高、查询快，内存约 1.5 倍原始数据。1 亿以上或内存受限：用 IVF_PQ（IVF 聚类 + PQ 压缩），内存降至 0.1 倍但召回率下降到 85-95%。超大规模 + SSD：Milvus 的 DiskANN 方案，索引放磁盘，内存需求降低 80%。选型核心原则：先测 Flat 作为基准，再逐步换索引算法对比召回率和延迟。</span></li>
+        <li><span class="b">Q4</span><span><strong>余弦相似度、欧氏距离、内积如何选择？</strong><br>① 文本语义搜索（最常见）：用余弦相似度，只关注方向不关注大小，适合 Embedding 模型输出的归一化向量。② 图像特征匹配：用欧氏距离，因为图像特征的绝对值有意义。③ 推荐系统：用内积，可以同时考虑内容相似度和用户偏好强度。实际中，主流 Embedding 模型（OpenAI、通义千问等）输出的向量都做了 L2 归一化，此时三者等价，选计算最快的内积即可。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 06 系统设计 ═══ -->
+    <div class="sec" id="system-design"><span class="sec-num">06</span>系统设计类</div>
+
+    <div class="card">
+      <div class="card-title">系统设计核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>设计一个企业级 RAG 系统，需要考虑哪些方面？</strong><br>① 数据层：多源数据接入（文档、数据库、API）→ 清洗 → 分块 → Embedding → 写入向量数据库；② 检索层：混合检索（向量 + BM25）+ Reranking + 元数据过滤；③ 生成层：Prompt 模板管理 + LLM 调用 + 流式输出；④ 可观测性：检索质量追踪（相关性打分）、LLM 调用日志、用户反馈收集；⑤ 运维：向量数据库集群部署、索引增量更新、数据版本管理。核心挑战是检索质量——"垃圾进垃圾出"，需要持续优化分块策略和检索参数。</span></li>
+        <li><span class="b">Q2</span><span><strong>如何做 Agent 的可观测性（Observability）？</strong><br>① Trace 级：记录每次 Agent 执行的完整链路——输入、每一步推理、工具调用、中间结果、最终输出，用 LangSmith / Langfuse 等平台追踪。② Metric 级：监控 LLM 调用延迟、Token 用量、工具调用成功率、Agent 循环次数。③ Evaluation 级：自动化评测（答案准确性、相关性）+ 人工抽检。④ 日志级：结构化日志记录每次 LLM 请求/响应（脱敏后），用于事后分析。关键指标：首 token 延迟（TTFT）、端到端延迟、Token 消耗、用户满意度。</span></li>
+        <li><span class="b">Q3</span><span><strong>如何优化 LLM 调用成本？</strong><br>① 模型分级：简单任务用小模型（GPT-4o-mini），复杂推理用大模型（GPT-4o），通过路由策略自动选择；② 缓存策略：对相似查询做语义缓存（向量相似度 > 阈值时返回缓存结果），可减少 30-50% 调用；③ Prompt 优化：精简 System Prompt，移除冗余指令，减少每次调用的 token 消耗；④ 批处理：非实时任务用 Batch API（OpenAI 便宜 50%）；⑤ 量化监控：设置每日/每月 token 预算，超预算自动降级或告警。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 07 生产实践 ═══ -->
+    <div class="sec" id="production"><span class="sec-num">07</span>生产实践类</div>
+
+    <div class="card">
+      <div class="card-title">生产实践核心问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>Agent 在生产环境中如何保证安全？</strong><br>① Prompt 注入防护：对用户输入做清洗（过滤特殊指令），使用分隔符隔离用户内容和系统指令；② 权限控制：Agent 调用工具时做鉴权检查，遵循最小权限原则（只授予必要的 API 权限）；③ 输出过滤：对 LLM 输出做内容审核（敏感词、有害内容），必要时接入内容安全 API；④ 沙箱执行：工具调用在隔离环境中运行，防止恶意代码执行；⑤ 审计日志：所有 LLM 交互和工具调用完整记录，支持事后审查。</span></li>
+        <li><span class="b">Q2</span><span><strong>什么是 Guardrails（护栏）？如何实现？</strong><br>Guardrails 是在 LLM 输入和输出两侧设置的安全检查机制。输入侧：敏感词过滤、Prompt 注入检测、PII 脱敏；输出侧：内容安全审核、格式校验（如确保返回合法 JSON）、事实性检查。实现方式：① 规则引擎（正则匹配、关键词列表）处理简单场景；② 用另一个 LLM 做输出评审（如 NeMo Guardrails）处理复杂语义场景；③ 关键操作设置人工审核环节。生产中通常组合使用多层 Guardrails。</span></li>
+        <li><span class="b">Q3</span><span><strong>Agent 系统的评估指标有哪些？</strong><br>① 任务完成率：Agent 成功完成用户请求的比例（最核心指标）；② 工具调用准确率：正确选择工具 + 正确填写参数的比例；③ 端到端延迟：从用户提问到获得回答的总耗时；④ Token 效率：完成同一任务消耗的 Token 越少越优化；⑤ 循环次数：Agent Loop 的平均迭代次数，过多说明决策效率低；⑥ 用户满意度：通过点赞/点踩或 NPS 收集。建议建立自动化评估 pipeline，每次代码变更后自动运行评测用例。</span></li>
+        <li><span class="b">Q4</span><span><strong>Agent 系统如何做灰度发布和回滚？</strong><br>① 流量分层：按用户 ID 或地域分流，先 5% 流量切到新版本 Agent；② 指标对比：对比新旧版本的任务完成率、延迟、Token 消耗；③ 自动回滚：设置熔断条件（如错误率 > 5% 或延迟 > 10s 自动回滚）；④ LLM 版本管理：Prompt 和模型版本绑定，每次变更记录到配置中心（如 Nacos）；⑤ A/B 测试：同时运行两个版本，对比核心指标。关键原则：Agent 系统的不确定性比传统服务更高，灰度比例应更保守（5% → 20% → 100%）。</span></li>
+      </ul>
+    </div>
+
+  </div><!-- /mcontent -->
+</div><!-- /layout -->
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 学习大纲 · 目录结构</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+
+h1{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.subtitle{font-size:13px;color:var(--tx2);margin-bottom:32px}
+
+/* ── chapter card ── */
+.ch-card{border:1px solid var(--bd);border-radius:10px;margin-bottom:20px;overflow:hidden}
+.ch-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b);border-radius:4px;padding:3px 9px;flex-shrink:0}
+.ch-title{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--tx);flex:1}
+.ch-file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+.ch-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);background:var(--green-bg);border:1px solid var(--green-b);border-radius:4px;padding:3px 10px;text-decoration:none;flex-shrink:0;transition:opacity .15s}
+.ch-link:hover{opacity:.75}
+.ch-link.todo{color:var(--tx3);background:var(--bg);border-color:var(--bd);cursor:default;pointer-events:none}
+.ch-body{padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+/* ── section group ── */
+.sec-group{}
+.sec-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--tx3);text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bd)}
+.sec-list{list-style:none;display:flex;flex-direction:column;gap:3px}
+.sec-list li{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--tx2);line-height:1.5;padding:2px 0}
+.sec-list li::before{content:'·';color:var(--bd2);font-size:14px;flex-shrink:0;margin-top:1px}
+.sec-list li strong{color:var(--tx);font-weight:600}
+
+/* ── stats bar ── */
+.stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 18px;display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:var(--tx)}
+.stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.05em}
+
+/* ── progress ── */
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.progress-bar{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;border:1px solid var(--bd)}
+.progress-fill{height:100%;background:var(--green);border-radius:3px}
+.progress-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);flex-shrink:0}
+
+/* ── status badge ── */
+.badge-done{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-b)}
+.badge-wip{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-b)}
+.badge-todo{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:1px 6px;border-radius:3px;background:var(--bg2);color:var(--tx3);border:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+<main style="max-width:960px;margin:0 auto;padding:40px 32px 80px">
+
+  <h1>Agent · 学习大纲</h1>
+  <p class="subtitle">5 大专题 · 29 个文件 · 覆盖 LLM 基础 / Agent 框架 / 向量数据库 / 工程实践 / 系统设计 & 面试</p>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-val">29</span><span class="stat-lbl">FILES</span></div>
+    <div class="stat"><span class="stat-val">5</span><span class="stat-lbl">TOPICS</span></div>
+    <div class="stat"><span class="stat-val">0 / 29</span><span class="stat-lbl">COMPLETED</span></div>
+    <div class="stat"><span class="stat-val">~600</span><span class="stat-lbl">MIN READ</span></div>
+  </div>
+
+  <div class="progress-row">
+    <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+    <span class="progress-txt">0% 完成</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- 18 · LLM & AI 基础                        -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="ch-card" id="ch18">
+    <div class="ch-head">
+      <span class="ch-num">18</span>
+      <span class="ch-title">LLM & AI 基础</span>
+      <span class="ch-file">8 files</span>
+      <span class="badge-todo">TODO</span>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">核心知识</div>
+        <ul class="sec-list">
+          <li><strong>agent-01</strong> Tokenization & 上下文窗口</li>
+          <li><strong>agent-02</strong> RAG 检索增强生成</li>
+          <li><strong>agent-03</strong> Prompt Engineering</li>
+          <li><strong>agent-04</strong> Context Engineering</li>
+          <li><strong>agent-05</strong> 模型路由与选择</li>
+          <li><strong>agent-06</strong> 流式输出 (SSE)</li>
+          <li><strong>agent-07</strong> 幻觉成因与缓解</li>
+          <li><strong>agent-08</strong> 微调入门 (SFT/RLHF/DPO)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- 19 · Agent 框架                            -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="ch-card" id="ch19">
+    <div class="ch-head">
+      <span class="ch-num">19</span>
+      <span class="ch-title">Agent 框架</span>
+      <span class="ch-file">7 files</span>
+      <span class="badge-todo">TODO</span>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">框架 & 模式</div>
+        <ul class="sec-list">
+          <li><strong>agent-09</strong> Agent 架构模式 (ReAct / Plan-Execute)</li>
+          <li><strong>agent-10</strong> LangChain4j</li>
+          <li><strong>agent-11</strong> Spring AI</li>
+          <li><strong>agent-12</strong> Tool Calling & Function Calling</li>
+          <li><strong>agent-13</strong> Agent 记忆系统</li>
+          <li><strong>agent-14</strong> 状态管理</li>
+          <li><strong>agent-15</strong> 结构化输出 (JSON Mode)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- 20 · 向量数据库 & 检索                     -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="ch-card" id="ch20">
+    <div class="ch-head">
+      <span class="ch-num">20</span>
+      <span class="ch-title">向量数据库 & 检索</span>
+      <span class="ch-file">5 files</span>
+      <span class="badge-todo">TODO</span>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">检索 & 存储</div>
+        <ul class="sec-list">
+          <li><strong>agent-16</strong> 向量数据库选型</li>
+          <li><strong>agent-17</strong> Embedding 原理</li>
+          <li><strong>agent-18</strong> 检索策略 & Reranking</li>
+          <li><strong>agent-19</strong> 缓存策略 & Prompt Cache</li>
+          <li><strong>agent-20</strong> 可观测性 (日志/指标/追踪)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- 21 · Agent 工程实践                        -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="ch-card" id="ch21">
+    <div class="ch-head">
+      <span class="ch-num">21</span>
+      <span class="ch-title">Agent 工程实践</span>
+      <span class="ch-file">5 files</span>
+      <span class="badge-todo">TODO</span>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">生产实践</div>
+        <ul class="sec-list">
+          <li><strong>agent-21</strong> 多 Agent 协作</li>
+          <li><strong>agent-22</strong> 评估体系</li>
+          <li><strong>agent-23</strong> 安全 & Guardrails</li>
+          <li><strong>agent-24</strong> 成本控制</li>
+          <li><strong>agent-25</strong> CI/CD & 部署</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- 22 · Agent 系统设计 & 面试题                -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="ch-card" id="ch22">
+    <div class="ch-head">
+      <span class="ch-num">22</span>
+      <span class="ch-title">Agent 系统设计 & 面试题</span>
+      <span class="ch-file">4 files</span>
+      <span class="badge-todo">TODO</span>
+    </div>
+    <div class="ch-body">
+      <div class="sec-group">
+        <div class="sec-lbl">设计 & 面试</div>
+        <ul class="sec-list">
+          <li><strong>agent-26</strong> 系统设计</li>
+          <li><strong>agent-27</strong> 流式 & 并发</li>
+          <li><strong>agent-28</strong> 事件驱动</li>
+          <li><strong>agent-29</strong> 高频面试题</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

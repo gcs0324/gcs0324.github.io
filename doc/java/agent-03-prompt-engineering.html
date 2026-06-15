@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 03 · Prompt Engineering</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'PROMPT'}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 03 · PROMPT</div>
+  <h1>Prompt Engineering</h1>
+  <p class="sub">Prompt 设计原则 · 常用模式 · Few-shot · CoT · 系统提示词 · 模板管理</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#prompt-basics"><span class="s-link-num">01</span>Prompt 基础</a>
+    <a class="s-link" href="#prompt-patterns"><span class="s-link-num">02</span>常用模式</a>
+    <a class="s-link" href="#prompt-system"><span class="s-link-num">03</span>系统提示词</a>
+    <a class="s-link" href="#prompt-fewshot"><span class="s-link-num">04</span>Few-shot 与 CoT</a>
+    <a class="s-link" href="#prompt-template"><span class="s-link-num">05</span>模板管理</a>
+    <a class="s-link" href="#prompt-eval"><span class="s-link-num">06</span>评估与迭代</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#prompt">→ 面试题 · Prompt 篇</a>
+    <a class="s-link" href="agent-04-context-engineering.html">→ 下一章：Context Engineering</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="prompt-basics"><span class="sec-num">01</span>Prompt 基础</div>
+
+    <div class="card">
+      <div class="card-title">Prompt 的本质</div>
+      <p><span class="kw">Prompt</span>就是你发给大语言模型（LLM）的输入文本。它不是什么高深的概念——你每次和 ChatGPT 对话时输入的内容就是 Prompt。</p>
+      <p>从技术角度看，LLM 的本质是一个"下一个 Token 预测器"。给定一串 Token 序列，它会计算下一个 Token 的概率分布。Prompt 就是这个 Token 序列的起点，它决定了模型从哪个方向"续写"。</p>
+      <ul class="dl">
+        <li><span class="b">输入</span>一段自然语言文本（可以包含指令、问题、上下文、示例等）</li>
+        <li><span class="b">输出</span>LLM 基于这段输入生成的续写内容</li>
+        <li><span class="b">关键点</span>Prompt 的措辞、结构、顺序会直接影响生成结果的质量。同一问题换一种问法，输出可能完全不同</li>
+      </ul>
+      <div class="note info"><strong>为什么叫"Engineering"</strong>：Prompt Engineering 不是简单地"跟 AI 聊天"，而是一套系统化的工程方法论——通过设计、测试、迭代 Prompt 来稳定地获得高质量输出。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">好 Prompt 的特征</div>
+      <p>一个高质量的 Prompt 通常具备以下特征：</p>
+      <ul class="dl">
+        <li><span class="b">明确（Specific）</span>告诉模型具体要做什么，不要模糊。"帮我写个接口"不如"帮我写一个 REST API，GET /api/users/{id}，返回 UserDTO，包含 id、name、email 三个字段"</li>
+        <li><span class="b">结构化（Structured）</span>用分隔符、编号、标题组织内容，让模型清楚地识别指令、上下文、输入和输出要求</li>
+        <li><span class="b">有约束（Constrained）</span>明确输出格式、长度、语言、风格等限制。"用 Java 编写，使用 Spring Boot 3.x，输出纯代码不要解释"</li>
+        <li><span class="b">有示例（Exemplified）</span>给出 1-3 个输入输出示例，让模型理解你想要的模式（即 Few-shot）</li>
+        <li><span class="b">分步骤（Step-by-step）</span>复杂任务拆成小步骤，让模型逐步推理，而不是一步到位</li>
+      </ul>
+      <div class="note tip"><strong>记忆口诀</strong>：好 Prompt = 明确目标 + 充分上下文 + 输出约束 + 示例参考。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="prompt-patterns"><span class="sec-num">02</span>常用模式</div>
+
+    <div class="card">
+      <div class="card-title">指令型 / 角色型 / 情境型</div>
+      <p>实际开发中，Prompt 往往是多种模式的组合。以下是最常见的三种基础模式：</p>
+      <table class="tbl">
+        <tr><th>模式</th><th>写法</th><th>示例</th><th>适用场景</th></tr>
+        <tr><td>指令型</td><td>直接告诉模型做什么，加约束条件</td><td>"将以下 SQL 转为 MyBatis XML 映射，保留所有注释"</td><td>格式转换、代码生成、文本处理</td></tr>
+        <tr><td>角色型</td><td>先设定模型的角色/身份，再提要求</td><td>"你是一位有 10 年经验的 Java 架构师，请审查以下代码的设计问题"</td><td>需要专业判断的场景（代码审查、方案设计）</td></tr>
+        <tr><td>情境型</td><td>先描述背景信息，再提出问题</td><td>"我们团队正在将单体应用拆分为微服务。当前系统是 Spring Boot 单体，数据库是 MySQL。请给出分步拆分方案"</td><td>需要理解业务上下文的复杂决策</td></tr>
+      </table>
+      <p>实际使用中，最常见的组合是：<strong>角色 + 指令 + 情境</strong>。例如："你是一位资深 DBA（角色），请分析以下 SQL 查询慢的原因（指令），当前数据量约 5000 万行，使用 MySQL 8.0（情境）"。</p>
+      <div class="note warn"><strong>常见误区</strong>：不要给模型设定不可能的角色（"你是一个数据库引擎"），也不要给角色设定无意义的属性（"你是一个友善的、幽默的、戴眼镜的工程师"）。角色设定的目的是引导模型调用正确的知识领域，不是"讲故事"。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="prompt-system"><span class="sec-num">03</span>系统提示词</div>
+
+    <div class="card">
+      <div class="card-title">System Prompt 设计</div>
+      <p><span class="kw">System Prompt（系统提示词）</span>是预设在对话开始前的"全局指令"，对整个对话生效。它不会出现在用户的消息历史中，但会一直影响模型的输出风格和行为。</p>
+      <p>System Prompt 通常包含以下几个部分：</p>
+      <ul class="dl">
+        <li><span class="b">角色定义</span>你是谁，负责什么。例如："你是一个 Java 技术文档助手，专注于 Spring Boot 和中间件领域"</li>
+        <li><span class="b">行为规范</span>应该做什么、不应该做什么。例如："回答时使用中文，技术术语保留英文原文；如果不确定答案，说'我不确定'而不是编造"</li>
+        <li><span class="b">输出格式</span>回答的结构和风格。例如："回答分为三个部分：问题分析 → 解决方案 → 注意事项。每个部分不超过 3 段"</li>
+        <li><span class="b">知识边界</span>明确模型的知识范围。例如："你只负责回答 Spring 相关问题，遇到非 Spring 问题请引导用户咨询对应专家"</li>
+      </ul>
+      <p>一个完整的 System Prompt 示例：</p>
+      <pre>你是团队的 Java 技术助手。你的职责是帮助开发者解决 Spring Boot、
+MyBatis、Kafka、Redis 相关的技术问题。
+
+规则：
+1. 回答使用中文，技术术语保留英文
+2. 代码示例使用 Java 17 + Spring Boot 3.x 语法
+3. 回答结构：问题分析 → 解决方案（含代码）→ 注意事项
+4. 如果问题超出你的知识范围，诚实告知并建议咨询方向
+5. 遇到安全相关的代码（SQL 拼接、密钥硬编码），必须指出风险</pre>
+      <div class="note good"><strong>设计原则</strong>：System Prompt 应该简洁、明确、可测试。避免写一大堆"你应该博学多才、充满智慧"之类的空话——这些对模型行为没有实质影响。重点放在具体的输出格式、行为约束和知识边界上。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="prompt-fewshot"><span class="sec-num">04</span>Few-shot 与 CoT</div>
+
+    <div class="card">
+      <div class="card-title">Few-shot / Chain-of-Thought / Self-Consistency</div>
+      <p>以下是三种经过验证的、能显著提升 LLM 输出质量的 Prompt 技术：</p>
+      <ul class="dl">
+        <li><span class="b">Few-shot（少样本学习）</span>在 Prompt 中给出 2-5 个输入输出示例，让模型"照葫芦画瓢"。比如让模型做情感分析，先给出 3 条标注好的样例，模型就能学会你的标注标准。比 Zero-shot（不给示例）准确率通常高 10-30%</li>
+        <li><span class="b">Chain-of-Thought（CoT，思维链）</span>要求模型在回答前先展示推理过程。加一句"请一步步思考"或"Let's think step by step"，模型会先输出推理步骤，再给出最终答案。对于数学、逻辑、复杂推理任务效果显著</li>
+        <li><span class="b">Self-Consistency（自我一致性）</span>让同一个 Prompt 被模型执行多次（温度 > 0），取多数投票的结果。比如同一个问题问 5 次，如果 3 次以上答案相同，就采纳该答案。适合需要高可靠性的决策场景</li>
+      </ul>
+      <p>一个结合了 Few-shot 和 CoT 的 Prompt 示例：</p>
+      <pre>请判断以下代码是否存在 SQL 注入风险。
+
+示例 1：
+代码：String sql = "SELECT * FROM users WHERE id = '" + userId + "'";
+分析：直接拼接用户输入到 SQL 中，存在 SQL 注入风险。
+结论：有风险
+
+示例 2：
+代码：String sql = "SELECT * FROM users WHERE id = ?";
+PreparedStatement ps = conn.prepareStatement(sql);
+ps.setString(1, userId);
+分析：使用 PreparedStatement 参数化查询，用户输入不会被解析为 SQL。
+结论：无风险
+
+现在请分析：
+代码：{user_code}
+分析：（请一步步思考）</pre>
+      <div class="note tip"><strong>面试常考</strong>：CoT 的核心价值在于"把隐性推理显性化"——强制模型输出中间步骤，既提高了最终答案的准确性，也让用户可以检查推理过程是否合理。这在需要可解释性的场景（金融、医疗）中尤为重要。</div>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="prompt-template"><span class="sec-num">05</span>模板管理</div>
+
+    <div class="card">
+      <div class="card-title">Prompt 模板化与版本管理</div>
+      <p>在生产环境中，Prompt 不应该硬编码在代码里。模板化和版本管理是工程化的基本要求。</p>
+      <ul class="dl">
+        <li><span class="b">模板化</span>把 Prompt 中的变量部分用占位符代替，运行时动态填充。例如 <code>你是一个{role}助手，请回答关于{topic}的问题</code>。Spring AI 提供了 <code>PromptTemplate</code> 类支持变量替换</li>
+        <li><span class="b">版本管理</span>每次修改 Prompt 都应该记录版本号、修改原因、A/B 测试结果。建议用 Git 管理 Prompt 文件，或者使用 Prompt 管理平台（如 LangSmith、PromptFlow）</li>
+        <li><span class="b">环境隔离</span>不同环境（开发/测试/生产）使用不同的 Prompt 版本。测试环境可以用更激进的 Prompt（比如更严格的输出格式），生产环境用更稳健的版本</li>
+        <li><span class="b">灰度发布</span>新 Prompt 上线前，先在小流量上测试。比如将 5% 的用户流量切到新 Prompt，对比关键指标后再决定是否全量</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：Prompt 应该像代码一样管理——用 Git 做版本控制，用 CI/CD 做自动化测试，用 A/B 测试做效果验证。每次修改都写清楚"改了什么、为什么改、预期效果"。</div>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="prompt-eval"><span class="sec-num">06</span>评估与迭代</div>
+
+    <div class="card">
+      <div class="card-title">Prompt A/B 测试与评估指标</div>
+      <p>Prompt 的优化不是靠直觉，而是靠数据。以下是评估和迭代的标准流程：</p>
+      <p><strong>评估维度：</strong></p>
+      <ul class="dl">
+        <li><span class="b">准确性（Accuracy）</span>生成的回答是否正确。可以人工标注一批测试用例，计算正确率</li>
+        <li><span class="b">相关性（Relevance）</span>回答是否紧扣问题，没有跑题或答非所问</li>
+        <li><span class="b">完整性（Completeness）</span>回答是否覆盖了问题的所有方面，没有遗漏关键信息</li>
+        <li><span class="b">格式合规（Format Compliance）</span>回答是否符合要求的输出格式（JSON、Markdown、纯文本等）</li>
+        <li><span class="b">响应时间（Latency）</span>Prompt 越长，LLM 推理越慢。需要在质量和速度之间找平衡</li>
+      </ul>
+      <p><strong>A/B 测试流程：</strong></p>
+      <ul class="dl">
+        <li><span class="b">准备测试集</span>收集 50-200 条典型问题，覆盖不同场景和难度</li>
+        <li><span class="b">对比版本</span>同一个测试集分别跑 Prompt A 和 Prompt B</li>
+        <li><span class="b">打分对比</span>可以用 LLM-as-Judge（让另一个 LLM 给回答打分）或人工打分</li>
+        <li><span class="b">统计显著性</span>样本量足够大时，用统计检验确认差异不是随机波动</li>
+      </ul>
+      <div class="note info"><strong>常用工具</strong>：LangSmith（LangChain 官方平台，支持 Prompt 版本管理和评估）、PromptLayer（Prompt 日志和版本管理）、Braintrust（端到端 AI 评估平台）。Java 项目也可以自己搭一套基于 JUnit + LLM API 的评估框架。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
