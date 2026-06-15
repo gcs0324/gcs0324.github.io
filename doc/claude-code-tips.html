@@ -334,6 +334,18 @@ commit 所有改动，message 写 feat: add user api
   <p>为 scm-bms 项目生成 Excel 导入功能的测试用例。</p>
 </div>
 
+<div class="card">
+  <div class="card-title">RTK — Rust Token Killer（CLI 代理）</div>
+  <p>不是 skill，是系统级 CLI 代理。通过 hook 自动重写命令，节省 60-90% token。对 Claude 透明，无需手动调用。</p>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">rtk gain</span><span class="cmd-desc">查看 token 节省统计</span></div>
+    <div class="cmd-row"><span class="cmd-code">rtk gain --history</span><span class="cmd-desc">查看历史命令的节省量</span></div>
+    <div class="cmd-row"><span class="cmd-code">rtk discover</span><span class="cmd-desc">分析历史，找出没用 rtk 的命令</span></div>
+    <div class="cmd-row"><span class="cmd-code">rtk proxy &lt;cmd&gt;</span><span class="cmd-desc">原样执行命令（调试用）</span></div>
+  </div>
+  <div class="note tip"><strong>原理：</strong><code>git status</code> 原始输出可能几十行，rtk 重写后只保留关键信息，Claude 拿到的 token 少很多但信息量不变。</div>
+</div>
+
 <!-- ═══ 06 Compose 技能 ═══ -->
 <div class="sec" id="compose"><span class="sn">06</span> Compose 技能（编排模式）</div>
 
@@ -427,6 +439,7 @@ review → feedback → implement</pre>
     <div class="cmd-row"><span class="cmd-code">/compact 压缩</span><span class="cmd-desc">对话变长时压缩历史，减少每次请求的 token。</span></div>
     <div class="cmd-row"><span class="cmd-code">caveman 模式</span><span class="cmd-desc">说 "caveman mode"，压缩语言，token 降 75%。</span></div>
     <div class="cmd-row"><span class="cmd-code">/effort low</span><span class="cmd-desc">简单任务用低思考深度，减少推理 token。</span></div>
+    <div class="cmd-row"><span class="cmd-code">rtk（自动）</span><span class="cmd-desc">RTK 通过 hook 自动重写命令输出，节省 60-90% token，无需手动操作。</span></div>
     <div class="cmd-row"><span class="cmd-code">及时 /clear</span><span class="cmd-desc">30 轮后清空重开，比继续长对话更省。</span></div>
   </div>
 </div>
