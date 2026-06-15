@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude Code 高级使用技巧</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;font-size:14px}
+nav{background:var(--bg2);padding:0 48px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);overflow-x:auto}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em}
+nav a:hover{color:var(--tx);border-bottom-color:var(--bd2)}
+nav a.active{color:var(--blue);border-bottom-color:var(--blue)}
+header{background:var(--bg2);padding:42px 48px 28px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+header::before{content:'CODE';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:88px;font-weight:700;color:var(--watermark,rgba(128,128,128,.05));letter-spacing:-.04em;pointer-events:none}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8}
+main{padding:40px 48px 80px;max-width:1100px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;display:flex;align-items:center;gap:10px}
+.sec:first-child{margin-top:0}
+.sec .sn{color:var(--blue)}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:18px 22px;margin-bottom:12px}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--blue);margin-bottom:12px;text-transform:uppercase}
+p{font-size:14px;color:var(--tx2);margin-bottom:10px;line-height:1.75}
+p:last-child{margin-bottom:0}
+.kw{color:var(--tx);font-weight:600}
+ul.detail{list-style:none;display:flex;flex-direction:column;gap:7px;padding-left:0;margin:10px 0}
+ul.detail li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--tx2)}
+ul.detail li .b{font-family:'IBM Plex Mono',monospace;color:var(--blue);flex-shrink:0;font-size:11px;margin-top:3px;min-width:18px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:7px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+.note{border-radius:6px;padding:10px 14px;font-size:13px;margin:12px 0;line-height:1.65}
+.note.tip{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--tx2)}
+.note.warn{background:var(--yellow-bg,#fffbe6);border:1px solid var(--yellow-b,#f0d060);color:var(--tx2)}
+.note.good{background:var(--green-bg,#e6f7ec);border:1px solid var(--green-b,#9ed4b0);color:var(--tx2)}
+.note strong{color:var(--tx)}
+code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx)}
+pre{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:14px 16px;overflow-x:auto;line-height:1.65;color:var(--tx2);margin:10px 0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+.cmd-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.cmd-row{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 16px;display:flex;gap:14px;align-items:flex-start}
+.cmd-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;min-width:200px;margin-top:1px}
+.cmd-desc{font-size:13px;color:var(--tx2);line-height:1.55}
+.tip-list{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.tip-item{display:flex;gap:12px;align-items:flex-start;background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 16px}
+.tip-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.tip-body{flex:1}
+.tip-title{font-weight:600;font-size:13.5px;color:var(--tx);margin-bottom:3px}
+.tip-text{font-size:13px;color:var(--tx2);line-height:1.6}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;border-radius:3px;padding:2px 7px;border:1px solid;display:inline-block;margin-right:4px;vertical-align:middle}
+.badge.new{background:var(--green-bg,#e6f7ec);color:var(--green,#1a8c3c);border-color:var(--green-b,#9ed4b0)}
+.badge.hot{background:var(--red-bg);color:var(--red);border-color:var(--red-b,#f5a3a3)}
+.badge.tip{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-b)}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">CLAUDE · CODE · TIPS</div>
+  <h1>Claude Code 高级使用技巧</h1>
+  <p class="subtitle">CLAUDE.md 配置 · 自定义 Skills · MCP 集成 · 多文件编辑 · 记忆管理 · Git 工作流 · 成本优化</p>
+</header>
+<nav>
+  <a href="#config">CLAUDE.md 配置</a>
+  <a href="#skills">自定义 Skills</a>
+  <a href="#mcp">MCP 集成</a>
+  <a href="#editing">多文件编辑</a>
+  <a href="#memory">记忆管理</a>
+  <a href="#git">Git 工作流</a>
+  <a href="#parallel">并行与子代理</a>
+  <a href="#cost">成本优化</a>
+  <a href="#debug">调试技巧</a>
+  <a href="#workflow">实战工作流</a>
+</nav>
+<main>
+
+<!-- ═══ 01 CLAUDE.md 配置 ═══ -->
+<div class="sec" id="config"><span class="sn">01</span> CLAUDE.md 配置</div>
+
+<div class="card">
+  <div class="card-title">CLAUDE.md 是什么</div>
+  <p>CLAUDE.md 是 Claude Code 的<span class="kw">项目级配置文件</span>，放在项目根目录。每次启动 Claude Code 时自动读取，相当于给 Agent 注入一份"项目上下文"。写得好的 CLAUDE.md 能让 Claude 理解项目架构、编码规范、常用命令，减少重复解释。</p>
+  <div class="note tip"><strong>类比：</strong>CLAUDE.md 就是你给新同事的"项目上手指南"，写得越清楚，同事干活越靠谱。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">推荐结构</div>
+  <pre># CLAUDE.md
+
+## Project Overview
+一句话说清楚项目是什么、用什么技术栈。
+
+## Architecture
+关键目录结构、核心模块职责。
+
+## Commands
+- 构建：`mvn clean package`
+- 测试：`mvn test`
+- Lint：`./mvnw spotless:check`
+
+## Code Conventions
+编码规范、命名约定、重要约束。
+
+## Common Patterns
+项目中反复出现的模式（如错误处理、API 风格）。</pre>
+  <div class="note good"><strong>最佳实践：</strong>保持 CLAUDE.md 精简（200-500 行以内）。太长反而让 Claude 抓不住重点。用 <code>##</code> 分节，每节 3-5 条关键信息。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">多级配置</div>
+  <table class="tbl">
+    <tr><th>文件位置</th><th>作用域</th><th>用途</th></tr>
+    <tr><td>~/.claude/CLAUDE.md</td><td>全局</td><td>个人偏好、通用规范（所有项目生效）</td></tr>
+    <tr><td>项目根目录/CLAUDE.md</td><td>项目级</td><td>项目架构、构建命令、团队规范</td></tr>
+    <tr><td>子目录/CLAUDE.md</td><td>模块级</td><td>特定模块的上下文（如 doc/、src/）</td></tr>
+  </table>
+  <div class="note info"><strong>加载顺序：</strong>全局 → 项目根 → 子目录。子目录配置会补充而非覆盖全局配置。</div>
+</div>
+
+<!-- ═══ 02 自定义 Skills ═══ -->
+<div class="sec" id="skills"><span class="sn">02</span> 自定义 Skills <span class="badge new">NEW</span></div>
+
+<div class="card">
+  <div class="card-title">什么是 Skills</div>
+  <p>Skills 是 Claude Code 的<span class="kw">可复用指令模板</span>，把一套固定的工作流封装成一个 skill 文件。当你触发某个 skill 时，Claude 会按照预定义的步骤执行，保证每次做同一件事质量一致。</p>
+  <ul class="detail">
+    <li><span class="b">▸</span> 本质是一个 <code>SKILL.md</code> 文件，包含角色定义、步骤清单、输出格式</li>
+    <li><span class="b">▸</span> 可以引用项目中的脚本、模板、配置文件</li>
+    <li><span class="b">▸</span> 支持参数化，同一个 skill 可用于不同场景</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">Skill 文件示例</div>
+  <pre># SKILL.md — code-review
+
+## 角色
+你是一个严格的代码审查员，专注于发现 bug 和安全隐患。
+
+## 步骤
+1. 读取 git diff 的变更
+2. 检查每个变更文件的：
+   - 边界条件处理
+   - 资源泄漏风险
+   - 并发安全性
+3. 输出审查报告，格式：
+   - 🔴 严重问题
+   - 🟡 建议改进
+   - 🟢 做得好的地方
+
+## 约束
+- 只评论变更的代码，不评论未改动的部分
+- 每个问题给出具体的修复建议</pre>
+</div>
+
+<div class="card">
+  <div class="card-title">常用内置 Skills</div>
+  <table class="tbl">
+    <tr><th>Skill</th><th>用途</th><th>触发方式</th></tr>
+    <tr><td>Code</td><td>编码工作流（规划→实现→验证）</td><td>编写代码时自动匹配</td></tr>
+    <tr><td>brainstorming</td><td>需求探索与设计讨论</td><td>创建功能前自动匹配</td></tr>
+    <tr><td>security-auditor</td><td>安全审查</td><td>涉及认证/加密时匹配</td></tr>
+    <tr><td>frontend-design</td><td>前端界面设计</td><td>构建 UI 组件时匹配</td></tr>
+  </table>
+</div>
+
+<!-- ═══ 03 MCP 集成 ═══ -->
+<div class="sec" id="mcp"><span class="sn">03</span> MCP 集成</div>
+
+<div class="card">
+  <div class="card-title">MCP（Model Context Protocol）</div>
+  <p>MCP 是 Claude Code 连接<span class="kw">外部工具和数据源</span>的标准协议。通过 MCP Server，Claude 可以读写数据库、调用 API、操作文件系统、访问浏览器——能力边界大幅扩展。</p>
+  <ul class="detail">
+    <li><span class="b">▸</span> MCP Server 是一个独立进程，通过 stdio 或 HTTP 与 Claude Code 通信</li>
+    <li><span class="b">▸</span> Claude Code 内置支持 MCP，无需额外插件</li>
+    <li><span class="b">▸</span> 配置在 <code>.mcp.json</code> 或 <code>~/.claude/mcp.json</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">MCP 配置示例</div>
+  <pre>{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/dir"]
+    }
+  }
+}</pre>
+  <div class="note warn"><strong>安全注意：</strong>只暴露必要的目录和数据库给 MCP Server。生产环境不要把数据库凭据硬编码在配置文件中。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">常用 MCP Server</div>
+  <table class="tbl">
+    <tr><th>Server</th><th>功能</th><th>适用场景</th></tr>
+    <tr><td>postgres / mysql</td><td>数据库查询</td><td>查数据、改 schema、写 SQL</td></tr>
+    <tr><td>filesystem</td><td>文件读写</td><td>操作非项目目录的文件</td></tr>
+    <tr><td>github</td><td>GitHub API</td><td>管理 Issue、PR、Release</td></tr>
+    <tr><td>brave-search</td><td>网络搜索</td><td>查找最新文档、Stack Overflow</td></tr>
+    <tr><td>puppeteer</td><td>浏览器控制</td><td>自动化测试、截图、爬取页面</td></tr>
+  </table>
+</div>
+
+<!-- ═══ 04 多文件编辑 ═══ -->
+<div class="sec" id="editing"><span class="sn">04</span> 多文件编辑</div>
+
+<div class="card">
+  <div class="card-title">Edit vs Write vs Patch</div>
+  <table class="tbl">
+    <tr><th>工具</th><th>用途</th><th>最佳场景</th></tr>
+    <tr><td>Edit</td><td>精确替换文件中的某段文本</td><td>修改已有文件的特定部分</td></tr>
+    <tr><td>Write</td><td>创建新文件或完全重写</td><td>新建文件、大规模重构</td></tr>
+    <tr><td>Read</td><td>读取文件内容</td><td>编辑前先理解上下文</td></tr>
+  </table>
+  <div class="note tip"><strong>核心原则：</strong>Claude Code 每次编辑都基于 Read 获取的真实内容。先 Read → 理解上下文 → 再 Edit，而不是凭猜测修改。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">高效编辑模式</div>
+  <ul class="detail">
+    <li><span class="b">▸</span> <span class="kw">先读后改</span>：每次 Edit 前必须 Read 过目标文件，确保 oldString 精确匹配</li>
+    <li><span class="b">▸</span> <span class="kw">小步迭代</span>：一次 Edit 改一小段，比一次改整个文件更可靠</li>
+    <li><span class="b">▸</span> <span class="kw">并行读取</span>：需要看多个文件时，一次性 Read 所有文件，减少轮次</li>
+    <li><span class="b">▸</span> <span class="kw">replaceAll</span>：批量重命名变量时用 <code>replaceAll: true</code>，比逐个替换快</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">批量操作技巧</div>
+  <pre># 批量重命名：把所有 MyOldService 替换为 MyNewService
+Edit(filePath, oldString="MyOldService", newString="MyNewService", replaceAll=true)
+
+# 跨文件一致性：同时修改接口和实现
+Read 接口文件 → Read 实现文件 → Edit 接口 → Edit 实现</pre>
+</div>
+
+<!-- ═══ 05 记忆管理 ═══ -->
+<div class="sec" id="memory"><span class="sn">05</span> 记忆管理</div>
+
+<div class="card">
+  <div class="card-title">Memory 系统</div>
+  <p>Claude Code 有<span class="kw">持久化记忆</span>能力，可以跨会话记住项目上下文、你的偏好、过去的决策。记忆存储在 <code>.claude/memory/</code> 目录下。</p>
+  <ul class="detail">
+    <li><span class="b">▸</span> <span class="kw">Project Memory</span>：项目级知识，所有会话共享（架构决策、技术选型）</li>
+    <li><span class="b">▸</span> <span class="kw">Session Memory</span>：当前会话的工作状态、任务进度</li>
+    <li><span class="b">▸</span> <span class="kw">Global Memory</span>：跨项目的个人偏好（编码风格、常用工具）</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">如何利用记忆</div>
+  <ul class="detail">
+    <li><span class="b">▸</span> 让 Claude 在关键决策时自动写入记忆，下次会话直接引用</li>
+    <li><span class="b">▸</span> 用 <code>memory search</code> 查询过去的技术决策，避免重复讨论</li>
+    <li><span class="b">▸</span> 在 CLAUDE.md 中告诉 Claude 什么信息值得记住</li>
+  </ul>
+  <div class="note good"><strong>实用技巧：</strong>在 CLAUDE.md 中加一句"每次做完重要决定后，把原因写入 project memory"，这样团队新成员（或未来的你）能快速了解历史背景。</div>
+</div>
+
+<!-- ═══ 06 Git 工作流 ═══ -->
+<div class="sec" id="git"><span class="sn">06</span> Git 工作流</div>
+
+<div class="card">
+  <div class="card-title">Claude Code 的 Git 行为准则</div>
+  <ul class="detail">
+    <li><span class="b">▸</span> <span class="kw">绝不自动 commit</span>：除非你明确要求，Claude 不会执行 git commit</li>
+    <li><span class="b">▸</span> <span class="kw">绝不 force push</span>：破坏性操作必须人工确认</li>
+    <li><span class="b">▸</span> <span class="kw">精确 add</span>：只 git add 涉及的文件，不用 <code>git add -A</code></li>
+    <li><span class="b">▸</span> <span class="kw">新建 commit 而非 amend</span>：除非你明确要求修改上一次 commit</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">常用 Git 指令</div>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">commit 并推送</span><span class="cmd-desc">告诉 Claude "commit 并 push"，它会自动 add → commit → push，commit message 按项目风格生成</span></div>
+    <div class="cmd-row"><span class="cmd-code">创建 PR</span><span class="cmd-desc">说 "创建一个 PR"，Claude 会 diff 所有变更、写 PR description、用 gh 命令创建</span></div>
+    <div class="cmd-row"><span class="cmd-code">review 代码</span><span class="cmd-desc">说 "review 一下最近的改动"，Claude 会 git diff HEAD~N 并逐文件审查</span></div>
+    <div class="cmd-row"><span class="cmd-code">解决冲突</span><span class="cmd-desc">遇到 merge conflict 时，Claude 可以读取冲突文件并给出解决建议</span></div>
+  </div>
+</div>
+
+<!-- ═══ 07 并行与子代理 ═══ -->
+<div class="sec" id="parallel"><span class="sn">07</span> 并行与子代理</div>
+
+<div class="card">
+  <div class="card-title">Subagent（子代理）</div>
+  <p>Claude Code 可以<span class="kw">派生子代理</span>并行处理多个独立任务。子代理是独立的 Claude 实例，有自己的上下文，完成后把结果返回给主代理。</p>
+  <ul class="detail">
+    <li><span class="b">▸</span> <span class="kw">explore</span>：快速搜索代码库，找定义、找调用者、查签名</li>
+    <li><span class="b">▸</span> <span class="kw">general</span>：执行复杂多步任务（写代码、分析、审查）</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">并行场景</div>
+  <table class="tbl">
+    <tr><th>场景</th><th>做法</th><th>收益</th></tr>
+    <tr><td>同时改 3 个独立文件</td><td>派 3 个子代理并行编辑</td><td>3x 速度</td></tr>
+    <tr><td>大范围代码探索</td><td>派 explore 子代理搜索</td><td>主代理不被阻塞</td></tr>
+    <tr><td>写代码 + 写测试</td><td>一个子代理实现，另一个写测试</td><td>并行推进</td></tr>
+    <tr><td>多模块重构</td><td>每个模块一个子代理</td><td>模块间互不干扰</td></tr>
+  </table>
+  <div class="note warn"><strong>注意：</strong>子代理看不到主代理的完整上下文，派发时必须在 prompt 中给足背景信息。</div>
+</div>
+
+<!-- ═══ 08 成本优化 ═══ -->
+<div class="sec" id="cost"><span class="sn">08</span> 成本优化</div>
+
+<div class="card">
+  <div class="card-title">Token 消耗分析</div>
+  <p>Claude Code 的成本主要来自<span class="kw">上下文窗口</span>——每次请求都会带上完整对话历史。上下文越长，token 消耗越大。</p>
+  <table class="tbl">
+    <tr><th>操作</th><th>估算 Token</th><th>优化建议</th></tr>
+    <tr><td>读一个小文件（~100行）</td><td>~800 tokens</td><td>用 offset/limit 只读需要的部分</td></tr>
+    <tr><td>读一个大文件（~500行）</td><td>~4000 tokens</td><td>先 grep 定位再精确读取</td></tr>
+    <tr><td>一次 Edit 操作</td><td>~500 tokens</td><td>小步迭代，避免反复修改同一处</td></tr>
+    <tr><td>子代理搜索</td><td>~2000 tokens</td><td>只在真正需要时派子代理</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">省钱技巧</div>
+  <div class="tip-list">
+    <div class="tip-item">
+      <div class="tip-icon">💡</div>
+      <div class="tip-body">
+        <div class="tip-title">用 Sonnet 而不是 Opus</div>
+        <div class="tip-text">80% 的任务 Sonnet 就够了。只在复杂推理、架构设计时切换 Opus。用 <code>/model</code> 命令随时切换。</div>
+      </div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">💡</div>
+      <div class="tip-body">
+        <div class="tip-title">精确读取而非全量读取</div>
+        <div class="tip-text">用 <code>Read(offset=100, limit=50)</code> 只读 50 行，而不是读整个 500 行文件。省 90% token。</div>
+      </div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">💡</div>
+      <div class="tip-body">
+        <div class="tip-title">Grep 定位后再 Read</div>
+        <div class="tip-text">先 Grep 找到行号，再精确 Read 那几行。比直接读整个文件省很多。</div>
+      </div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">💡</div>
+      <div class="tip-body">
+        <div class="tip-title">及时开新会话</div>
+        <div class="tip-text">对话超过 30 轮后，上下文膨胀严重。开一个新会话，用 CLAUDE.md 和 memory 恢复上下文，比继续长对话更省。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 09 调试技巧 ═══ -->
+<div class="sec" id="debug"><span class="sn">09</span> 调试技巧</div>
+
+<div class="card">
+  <div class="card-title">让 Claude 帮你 Debug</div>
+  <ul class="detail">
+    <li><span class="b">▸</span> <span class="kw">贴错误日志</span>：直接粘贴报错信息，Claude 会定位到出错的文件和行号</li>
+    <li><span class="b">▸</span> <span class="kw">描述复现步骤</span>：告诉 Claude "做了 X 操作，期望 Y，实际 Z"</li>
+    <li><span class="b">▸</span> <span class="kw">让它跑测试</span>：说 "跑一下测试看看哪些失败"，Claude 会执行并分析结果</li>
+    <li><span class="b">▸</span> <span class="kw">让它加日志</span>：说 "在这里加几行日志"，Claude 会帮你加 debug log</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">调试工作流</div>
+  <div class="step-flow">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">描述问题</div><div class="step-desc">给 Claude 完整的错误信息、堆栈跟踪、复现步骤</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">Claude 定位</div><div class="step-desc">Claude 读取相关文件，分析根因，给出修复方案</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">应用修复</div><div class="step-desc">Claude 修改代码，你 review 变更</div></div></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title">验证</div><div class="step-desc">跑测试确认修复有效，没有引入新问题</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ 10 实战工作流 ═══ -->
+<div class="sec" id="workflow"><span class="sn">10</span> 实战工作流</div>
+
+<div class="card">
+  <div class="card-title">从 0 到 1 开发新功能</div>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">① 需求探索</span><span class="cmd-desc">"我要做一个 X 功能，帮我分析需求和技术方案" → Claude 会提问题、给方案</span></div>
+    <div class="cmd-row"><span class="cmd-code">② 写计划</span><span class="cmd-desc">"写一个实现计划" → Claude 会生成分步计划，你确认后开始执行</span></div>
+    <div class="cmd-row"><span class="cmd-code">③ 实现</span><span class="cmd-desc">"按计划执行" → Claude 逐步实现，每步完成后自动验证</span></div>
+    <div class="cmd-row"><span class="cmd-code">④ 测试</span><span class="cmd-desc">"写测试" → Claude 生成单元测试/集成测试，跑通后提交</span></div>
+    <div class="cmd-row"><span class="cmd-code">⑤ 提交</span><span class="cmd-desc">"commit 并创建 PR" → Claude 按规范 commit + 推送 + 建 PR</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">日常开发快捷指令</div>
+  <table class="tbl">
+    <tr><th>你说</th><th>Claude 做什么</th></tr>
+    <tr><td>"解释一下这个文件"</td><td>读取文件，逐模块解释用途和逻辑</td></tr>
+    <tr><td>"这个函数有什么问题"</td><td>分析函数逻辑，找 bug 和改进建议</td></tr>
+    <tr><td>"帮我重构这段代码"</td><td>分析代码坏味道，给出重构方案并执行</td></tr>
+    <tr><td>"写一个 API 接口"</td><td>按项目风格生成 Controller + Service + DTO</td></tr>
+    <tr><td>"跑一下 lint"</td><td>执行项目的 lint 命令，修复报错</td></tr>
+    <tr><td>"看看最近 5 个 commit 改了什么"</td><td>git log + git diff，总结变更</td></tr>
+    <tr><td>"这个 PR 改了什么，有没有问题"</td><td>拉取 PR diff，逐文件审查</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">高效使用的核心原则</div>
+  <div class="tip-list">
+    <div class="tip-item">
+      <div class="tip-icon">🎯</div>
+      <div class="tip-body">
+        <div class="tip-title">明确 > 模糊</div>
+        <div class="tip-text">说"在 UserService 的 login 方法里加一个参数校验"，而不是"帮我加个校验"。越具体，Claude 做得越准。</div>
+      </div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">🎯</div>
+      <div class="tip-body">
+        <div class="tip-title">分步 > 一大坨</div>
+        <div class="tip-text">复杂任务拆成小步骤，每步确认后再下一步。一次扔 10 个需求容易出错。</div>
+      </div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">🎯</div>
+      <div class="tip-body">
+        <div class="tip-title">验证 > 盲信</div>
+        <div class="tip-text">Claude 改完代码后，跑一下测试、看一眼 diff。不要假设"它肯定改对了"。</div>
+      </div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">🎯</div>
+      <div class="tip-body">
+        <div class="tip-title">CLAUDE.md > 重复解释</div>
+        <div class="tip-text">每次都要解释的项目规范，写进 CLAUDE.md。一次投入，永久省时间。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>
