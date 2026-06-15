@@ -86,15 +86,24 @@ pre{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg);bo
 </div>
 
 <div class="card">
-  <div class="card-title">会话内快捷操作</div>
+  <div class="card-title">会话内 Slash 命令</div>
   <div class="cmd-list">
-    <div class="cmd-row"><span class="cmd-code">/model</span><span class="cmd-desc">切换模型（不用重启）</span></div>
-    <div class="cmd-row"><span class="cmd-code">/effort</span><span class="cmd-desc">切换思考深度</span></div>
-    <div class="cmd-row"><span class="cmd-code">/cost</span><span class="cmd-desc">查看当前 token 消耗和费用</span></div>
-    <div class="cmd-row"><span class="cmd-code">/clear</span><span class="cmd-desc">清空上下文（重新开始，不退出）</span></div>
+    <div class="cmd-row"><span class="cmd-code">/help</span><span class="cmd-desc">查看帮助和可用命令</span></div>
+    <div class="cmd-row"><span class="cmd-code">/model</span><span class="cmd-desc">切换模型（sonnet/opus/haiku），不用重启</span></div>
+    <div class="cmd-row"><span class="cmd-code">/effort</span><span class="cmd-desc">切换思考深度（low/medium/high/max）</span></div>
+    <div class="cmd-row"><span class="cmd-code">/cost</span><span class="cmd-desc">查看当前会话 token 消耗和费用</span></div>
+    <div class="cmd-row"><span class="cmd-code">/context</span><span class="cmd-desc">查看当前上下文窗口使用情况</span></div>
+    <div class="cmd-row"><span class="cmd-code">/clear</span><span class="cmd-desc">清空上下文（重新开始，不退出会话）</span></div>
     <div class="cmd-row"><span class="cmd-code">/compact</span><span class="cmd-desc">压缩对话历史，减少 token 占用</span></div>
     <div class="cmd-row"><span class="cmd-code">/memory</span><span class="cmd-desc">编辑 CLAUDE.md 记忆文件</span></div>
+    <div class="cmd-row"><span class="cmd-code">/config</span><span class="cmd-desc">打开设置面板</span></div>
+    <div class="cmd-row"><span class="cmd-code">/init</span><span class="cmd-desc">为当前项目初始化 CLAUDE.md</span></div>
     <div class="cmd-row"><span class="cmd-code">/resume</span><span class="cmd-desc">恢复之前的会话</span></div>
+    <div class="cmd-row"><span class="cmd-code">/vim</span><span class="cmd-desc">切换 vim 编辑模式</span></div>
+    <div class="cmd-row"><span class="cmd-code">/diff</span><span class="cmd-desc">查看最近代码变更的 diff</span></div>
+    <div class="cmd-row"><span class="cmd-code">/agents</span><span class="cmd-desc">管理后台代理</span></div>
+    <div class="cmd-row"><span class="cmd-code">/remote-control</span><span class="cmd-desc">开启远程控制（其他设备接管会话）</span></div>
+    <div class="cmd-row"><span class="cmd-code">/bug</span><span class="cmd-desc">向 Anthropic 报告 bug</span></div>
   </div>
 </div>
 
