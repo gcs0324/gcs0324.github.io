@@ -64,7 +64,6 @@ pre{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg);bo
   <a href="#skills-ai">AI 内容 Skills</a>
   <a href="#skills-util">工具 Skills</a>
   <a href="#compose">Compose 技能</a>
-  <a href="#tips">实用技巧</a>
   <a href="#cost">成本控制</a>
 </nav>
 <main>
@@ -142,6 +141,7 @@ commit 所有改动，message 写 feat: add user api
 
 <div class="card">
   <div class="card-title">brainstorming — 需求探索</div>
+  <p><strong>来源：</strong>社区 Skill</p>
   <p>创建功能前<span class="kw">自动触发</span>。Claude 先问需求、给方案，确认后再实现。不直接动手。</p>
 </div>
 
@@ -172,6 +172,7 @@ commit 所有改动，message 写 feat: add user api
 
 <div class="card">
   <div class="card-title">frontend-design — 前端设计</div>
+  <p><strong>来源：</strong>开源社区（Apache 2.0）</p>
   <p>构建 UI 时触发。生成高质量前端代码，避免 AI 塑料感界面。</p>
 </div>
 
@@ -193,16 +194,6 @@ commit 所有改动，message 写 feat: add user api
 <div class="card">
   <div class="card-title">self-improving — 自我改进</div>
   <p>Claude 自动评估工作质量，发现错误并永久改进。</p>
-</div>
-
-<div class="card">
-  <div class="card-title">caveman — 省 token 模式</div>
-  <p>说 "caveman mode" 触发。压缩语言回复，token 降 75%，准确度不变。</p>
-</div>
-
-<div class="card">
-  <div class="card-title">skill-creator — 创建 Skill</div>
-  <p>想自定义 skill 时使用。引导写 SKILL.md，定义角色、步骤、输出格式。</p>
 </div>
 
 <!-- ═══ 03 飞书 Skills ═══ -->
@@ -289,54 +280,90 @@ commit 所有改动，message 写 feat: add user api
   <pre>"帮我查一下关于 RAG 的最新论文"</pre>
 </div>
 
-<div class="card">
-  <div class="card-title">openai-docs — OpenAI 文档</div>
-  <p>查询 OpenAI/Codex 官方文档，API 信息和模型选型。</p>
-</div>
-
 <!-- ═══ 05 工具 Skills ═══ -->
 <div class="sec" id="skills-util"><span class="sn">05</span> 工具 Skills</div>
 
 <div class="card">
-  <div class="card-title">ffmpeg-video-editor — 视频编辑</div>
-  <p>自然语言生成 FFmpeg 命令：剪切、转码、压缩、改比例、提取音频。</p>
-  <pre>"把这个视频从 00:01:30 截取到 00:05:00"</pre>
+  <div class="card-title">xlsx — 表格处理</div>
+  <p><strong>触发：</strong>处理 <code>.xlsx</code>、<code>.xlsm</code>、<code>.csv</code>、<code>.tsv</code>，或需要新建/清洗/转换表格文件。</p>
+  <p><strong>作用：</strong>读取、编辑、修复和生成电子表格；支持公式、格式、图表、脏数据清洗和表格格式转换。</p>
 </div>
 
 <div class="card">
-  <div class="card-title">video-frames — 视频抽帧</div>
-  <p>从视频中提取关键帧或短片段。</p>
-  <pre>"从这个视频里每隔10秒抽一帧"</pre>
+  <div class="card-title">pdf — PDF 处理</div>
+  <p><strong>触发：</strong>提到 PDF 文件，或需要读取、合并、拆分、旋转、加水印、填表、加密/解密、OCR。</p>
+  <p><strong>作用：</strong>处理 PDF 文本、表格、图片和页面级操作，扫描件可做 OCR 变成可搜索 PDF。</p>
 </div>
 
 <div class="card">
-  <div class="card-title">tmux — 终端复用</div>
-  <p>远程控制 tmux 会话，发送按键、抓取输出。适合长时间运行的 CLI。</p>
+  <div class="card-title">docx — Word 文档</div>
+  <p><strong>触发：</strong>处理 <code>.docx</code>、Word 文档、报告、模板、批注、样式或文档生成。</p>
+  <p><strong>作用：</strong>读取、创建、编辑 Word 文档，适合报告整理、模板填充和结构化文档输出。</p>
 </div>
 
 <div class="card">
-  <div class="card-title">1password — 密码管理</div>
-  <p>通过 1Password CLI 读取/注入密钥。安装 CLI、登录、读取 secret。</p>
+  <div class="card-title">pptx — 演示文稿</div>
+  <p><strong>触发：</strong>处理 PPT、<code>.pptx</code>、slides、deck、演示稿或幻灯片内容。</p>
+  <p><strong>作用：</strong>创建、读取、编辑演示文稿，适合从提纲生成 slides、整理讲稿和修改现有 PPT。</p>
 </div>
 
 <div class="card">
   <div class="card-title">find-skills — 查找 Skill</div>
-  <p>当你说 "怎么做 X" 时，自动搜索是否有对应的 skill 可以安装。</p>
+  <p><strong>触发：</strong>问“有没有 skill 可以…”，“怎么扩展能力”，或需要寻找可安装 skill。</p>
+  <p><strong>作用：</strong>发现 open agent skills 生态里的可用 skill，并给出安装建议。</p>
 </div>
 
 <div class="card">
-  <div class="card-title">session-logs — 查历史会话</div>
-  <p>用 jq 搜索和分析自己的历史会话日志。</p>
+  <div class="card-title">skill-creator — 创建/优化 Skill</div>
+  <p><strong>触发：</strong>想从零创建 skill，修改已有 skill，跑 eval，或优化 skill 描述触发率。</p>
+  <p><strong>作用：</strong>编写 <code>SKILL.md</code>、设计触发条件和执行流程，并用评测验证效果。</p>
 </div>
 
 <div class="card">
-  <div class="card-title">gen-test-cases — 生成测试用例</div>
-  <p>为 scm-bms 项目生成 Excel 导入功能的测试用例。</p>
+  <div class="card-title">update-config — 修改 Claude Code 配置</div>
+  <p><strong>触发：</strong>要改 <code>settings.json</code>、权限 allowlist、环境变量、hooks，或配置自动行为。</p>
+  <p><strong>作用：</strong>安全地更新 Claude Code harness 配置；简单主题/模型切换仍建议用 <code>/config</code>。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">keybindings-help — 快捷键配置</div>
+  <p><strong>触发：</strong>要重绑快捷键、添加 chord、修改提交键，或编辑 <code>~/.claude/keybindings.json</code>。</p>
+  <p><strong>作用：</strong>按 Claude Code 的 keybindings 格式生成或修改快捷键配置。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">fewer-permission-prompts — 减少权限弹窗</div>
+  <p><strong>触发：</strong>想减少常见只读命令或 MCP 调用的确认提示。</p>
+  <p><strong>作用：</strong>扫描会话记录，生成项目级 <code>.claude/settings.json</code> allowlist，降低重复授权成本。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">loop — 循环执行任务</div>
+  <p><strong>触发：</strong>需要定时/重复运行任务，例如“每 5 分钟检查部署”或“持续跑某个 slash command”。</p>
+  <p><strong>作用：</strong>按固定间隔或动态节奏重复执行提示词；一次性提醒不要用它。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">caveman — 省 Token 模式</div>
+  <p><strong>触发：</strong>说 “caveman mode”、“be brief”、“less tokens” 或使用 <code>/caveman</code>。</p>
+  <p><strong>作用：</strong>压缩回复语言，支持 <code>lite</code>、<code>full</code>、<code>ultra</code> 和文言模式，保持技术准确度。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">hot-topics — 中文平台热搜</div>
+  <p><strong>触发：</strong>想看微博、知乎、百度、抖音、今日头条、B 站等平台实时热搜。</p>
+  <p><strong>作用：</strong>汇总中文主流平台热门话题和趋势内容。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">social-news — 社会新闻</div>
+  <p><strong>触发：</strong>问“最近有什么新闻”“今天热点”“社会上发生了什么”“最近有什么大事”。</p>
+  <p><strong>作用：</strong>查询中国社会新闻和社会事件最新进展，不覆盖技术、体育、娱乐八卦等垂直领域。</p>
 </div>
 
 <div class="card">
   <div class="card-title">RTK — Rust Token Killer（CLI 代理）</div>
-  <p>不是 skill，是系统级 CLI 代理。通过 hook 自动重写命令，节省 60-90% token。对 Claude 透明，无需手动调用。</p>
+  <p>不是 skill，是系统级 CLI 代理。通过 hook 自动重写命令输出，节省 60-90% token。对 Claude 透明，无需手动调用。</p>
   <div class="cmd-list">
     <div class="cmd-row"><span class="cmd-code">rtk gain</span><span class="cmd-desc">查看 token 节省统计</span></div>
     <div class="cmd-row"><span class="cmd-code">rtk gain --history</span><span class="cmd-desc">查看历史命令的节省量</span></div>
@@ -384,51 +411,8 @@ debug → implement → verify
 review → feedback → implement</pre>
 </div>
 
-<!-- ═══ 07 实用技巧 ═══ -->
-<div class="sec" id="tips"><span class="sn">07</span> 实用技巧</div>
-
-<div class="card">
-  <div class="card-title">CLAUDE.md 配置</div>
-  <p>项目根目录放 <code>CLAUDE.md</code>，写上项目架构、构建命令、编码规范。每次启动自动加载，不用重复解释。</p>
-  <pre># CLAUDE.md 示例
-## Commands
-- 构建：mvn clean package
-- 测试：mvn test
-- Lint：mvn spotless:check
-
-## Conventions
-- 用 SLF4J 日志，不用 System.out
-- Controller 不写业务逻辑
-- Service 层做参数校验</pre>
-</div>
-
-<div class="card">
-  <div class="card-title">先 Read 再 Edit</div>
-  <p>Claude Code 每次编辑都基于 Read 获取的真实内容。<span class="kw">先 Read → 理解上下文 → 再 Edit</span>。不 Read 直接 Edit 大概率失败。</p>
-</div>
-
-<div class="card">
-  <div class="card-title">Grep 定位再精确读</div>
-  <p>找代码时先 Grep 定位行号，再 Read 那几行。不要一上来就读整个大文件。</p>
-</div>
-
-<div class="card">
-  <div class="card-title">小步迭代</div>
-  <p>一次 Edit 改一小段。一次改整个文件容易出错，且失败后 oldString 匹配不上要重来。</p>
-</div>
-
-<div class="card">
-  <div class="card-title">及时开新会话</div>
-  <p>对话超过 30 轮后上下文膨胀。<code>/clear</code> 清空上下文，或开新会话（<code>claude -c</code> 继续）。用 CLAUDE.md 和 memory 恢复上下文。</p>
-</div>
-
-<div class="card">
-  <div class="card-title">用 /cost 监控消耗</div>
-  <p>定期跑 <code>/cost</code> 看 token 消耗。发现异常高时用 <code>/compact</code> 压缩或 <code>/clear</code> 重开。</p>
-</div>
-
-<!-- ═══ 08 成本控制 ═══ -->
-<div class="sec" id="cost"><span class="sn">08</span> 成本控制</div>
+<!-- ═══ 06 成本控制 ═══ -->
+<div class="sec" id="cost"><span class="sn">07</span> 成本控制</div>
 
 <div class="card">
   <div class="card-title">省钱策略</div>
