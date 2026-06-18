@@ -31,6 +31,12 @@ header::before{content:'INTERVIEW'}
     <a class="s-link" href="#vecdb"><span class="s-link-num">05</span>向量数据库类</a>
     <a class="s-link" href="#system-design"><span class="s-link-num">06</span>系统设计类</a>
     <a class="s-link" href="#production"><span class="s-link-num">07</span>生产实践类</a>
+    <a class="s-link" href="#llm-base"><span class="s-link-num">08</span>大模型基础</a>
+    <a class="s-link" href="#framework"><span class="s-link-num">09</span>框架与生态</a>
+    <a class="s-link" href="#app-eng"><span class="s-link-num">10</span>应用工程</a>
+    <a class="s-link" href="#scenario"><span class="s-link-num">11</span>场景设计</a>
+    <a class="s-link" href="#project"><span class="s-link-num">12</span>项目深挖</a>
+    <a class="s-link" href="#coding"><span class="s-link-num">13</span>工程代码</a>
     <div class="s-divider"></div>
     <div class="s-section-lbl">快速导航</div>
     <a class="s-link" href="agent-outline.html">→ 返回大纲</a>
@@ -53,6 +59,32 @@ header::before{content:'INTERVIEW'}
       </ul>
     </div>
 
+    <div class="card">
+      <div class="card-title">RAG 扩展问题</div>
+      <ul class="dl">
+        <li><span class="b">Q7</span><span><strong>RAG 的完整流程是什么？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>为什么大模型需要 RAG？它解决了什么问题？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>RAG 和微调的区别是什么？什么时候用 RAG，什么时候用微调？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>向量数据库在 RAG 中的作用是什么？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>文档切分 chunk size 怎么选？chunk overlap 有什么用？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>文档切太大或太小分别有什么问题？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>embedding 模型如何选择？中文场景怎么选 embedding？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>相似度检索常用哪些算法？余弦相似度、内积、L2 距离有什么区别？</strong></span></li>
+        <li><span class="b">Q15</span><span><strong>TopK 召回后为什么还要 rerank？</strong></span></li>
+        <li><span class="b">Q16</span><span><strong>BM25 和向量检索有什么区别？为什么常用混合检索？</strong></span></li>
+        <li><span class="b">Q17</span><span><strong>如何处理 RAG 召回不准的问题？</strong></span></li>
+        <li><span class="b">Q18</span><span><strong>如何处理"召回到了但模型答错"的问题？</strong></span></li>
+        <li><span class="b">Q19</span><span><strong>如何降低 RAG 幻觉？</strong></span></li>
+        <li><span class="b">Q20</span><span><strong>如何评估一个 RAG 系统的效果？</strong></span></li>
+        <li><span class="b">Q21</span><span><strong>RAG 中 query rewrite / query expansion 有什么作用？</strong></span></li>
+        <li><span class="b">Q22</span><span><strong>多轮对话里的 RAG 如何处理上下文？</strong></span></li>
+        <li><span class="b">Q23</span><span><strong>文档更新后，向量库如何增量更新？</strong></span></li>
+        <li><span class="b">Q24</span><span><strong>PDF、表格、网页这类非结构化数据怎么入库？</strong></span></li>
+        <li><span class="b">Q25</span><span><strong>企业知识库权限隔离怎么做？</strong></span></li>
+        <li><span class="b">Q26</span><span><strong>RAG 系统线上延迟高，怎么优化？</strong></span></li>
+      </ul>
+    </div>
+
     <!-- ═══ 02 Prompt ═══ -->
     <div class="sec" id="prompt"><span class="sec-num">02</span>Prompt 类</div>
 
@@ -63,6 +95,24 @@ header::before{content:'INTERVIEW'}
         <li><span class="b">Q2</span><span><strong>System Prompt 如何设计？</strong><br>System Prompt 是角色和行为的"宪法"，应包含：① 角色定义（你是谁）；② 能力边界（你能做什么、不能做什么）；③ 输出格式（JSON/Markdown/纯文本）；④ 安全约束（不生成有害内容）；⑤ 示例（可选）。关键技巧：将最重要的指令放在 prompt 开头或结尾（遗忘曲线两端效应最强）；使用 XML 标签分隔指令和内容（如 &lt;context&gt;...&lt;/context&gt;）。</span></li>
         <li><span class="b">Q3</span><span><strong>Few-shot vs Zero-shot 各自适用场景？</strong><br>Zero-shot 不提供示例，依赖模型自身能力，适合任务本身简单或模型能力足够强的场景（如分类、摘要）。Few-shot 提供 2-5 个示例，适合：① 任务格式复杂（如自定义 JSON Schema）；② 需要特定领域风格（如法律文书生成）；③ 模型对任务理解偏差大。成本权衡：Few-shot 示例越多，输入 token 越多，延迟和成本都增加，一般 3-5 个示例是性价比最优区间。</span></li>
         <li><span class="b">Q4</span><span><strong>如何通过 Prompt 减少 LLM 幻觉？</strong><br>① 约束回答范围：明确要求"仅基于提供的上下文回答，如果上下文没有相关信息请说不知道"；② 要求引用来源：让 LLM 在回答中标注信息来自哪个文档或段落；③ 分步验证：先让 LLM 列出依据，再基于依据生成答案；④ 结构化推理：用 Chain-of-Thought 要求模型先分析再回答，减少跳步导致的错误。注意：这些方法能显著降低幻觉率，但无法完全消除，关键场景仍需人工审核。</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Prompt 扩展问题</div>
+      <ul class="dl">
+        <li><span class="b">Q5</span><span><strong>什么是 zero-shot、few-shot、chain-of-thought？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>system prompt、user prompt、assistant message 的区别是什么？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>如何设计一个稳定的 prompt？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>Prompt 中为什么要写角色、任务、约束、输出格式？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>如何让模型严格输出 JSON？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>模型不听指令怎么办？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>Prompt injection 是什么？怎么防？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>RAG 场景中用户问"忽略以上内容"怎么办？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>如何设计多轮对话的 prompt？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>Prompt 太长会带来什么问题？</strong></span></li>
+        <li><span class="b">Q15</span><span><strong>如何做 prompt 版本管理？</strong></span></li>
+        <li><span class="b">Q16</span><span><strong>如何评估 prompt 改动是否有效？</strong></span></li>
       </ul>
     </div>
 
@@ -77,6 +127,27 @@ header::before{content:'INTERVIEW'}
         <li><span class="b">Q3</span><span><strong>什么时候该用 Multi-Agent（多智能体）？</strong><br>适合 Multi-Agent 的场景：① 任务有明确分工（如一个 Agent 负责检索、一个负责生成）；② 需要不同角色协作（如"批评者" Agent 评审"生成者" Agent 的输出）；③ 并行子任务（多个 Agent 同时搜索不同数据源）。不适合的场景：任务简单、单 Agent 能胜任；Agent 间通信开销 > 收益。核心原则：先尝试单 Agent，只有在单 Agent 明显不够时才引入多 Agent。</span></li>
         <li><span class="b">Q4</span><span><strong>什么是 Reflexion 模式？有什么优势？</strong><br>Reflexion 是让 Agent 在失败后进行自我反思的模式：执行任务 → 失败 → Agent 分析失败原因并总结教训 → 将教训加入上下文 → 重新尝试。优势：不需要额外训练，通过 prompt 中的"经验"积累逐步提升准确率。典型实现：LangGraph 中的 Reflexion Agent，失败后生成反思文本，下次尝试时作为 context 注入。适合代码修复、推理等可验证的任务。</span></li>
         <li><span class="b">Q5</span><span><strong>如何设计 Agent 的记忆系统？</strong><br>Agent 记忆分为三层：① 工作记忆（当前对话上下文），存在消息列表中，容量受 context window 限制；② 短期记忆（最近几次交互的摘要），通过 summarization 定期压缩历史对话；③ 长期记忆（持久化知识），存入向量数据库或键值存储。生产中常用方案：对话超过 token 阈值时自动摘要压缩；重要信息提取后写入向量数据库；用户画像等个性化信息存入 KV 存储。</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Agent 扩展问题</div>
+      <ul class="dl">
+        <li><span class="b">Q6</span><span><strong>Agent 和普通 Chatbot 的区别是什么？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>ReAct 框架是什么？Thought / Action / Observation 分别是什么？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>Tool Calling / Function Calling 的原理是什么？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>Agent 如何选择工具？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>Agent 调用工具失败怎么办？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>如何防止 Agent 陷入无限循环？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>Agent 的 memory 分哪几类？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>短期记忆和长期记忆怎么设计？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>多 Agent 协作有什么典型架构？</strong></span></li>
+        <li><span class="b">Q15</span><span><strong>Planner-Executor 模式是什么？</strong></span></li>
+        <li><span class="b">Q16</span><span><strong>Agent 执行任务时如何做权限控制？</strong></span></li>
+        <li><span class="b">Q17</span><span><strong>如何让 Agent 输出稳定可解析的 JSON？</strong></span></li>
+        <li><span class="b">Q18</span><span><strong>Agent 和 Workflow 的区别是什么？</strong></span></li>
+        <li><span class="b">Q19</span><span><strong>为什么很多生产系统不用完全自主 Agent，而是用受控 Workflow？</strong></span></li>
+        <li><span class="b">Q20</span><span><strong>如何评估 Agent 的任务完成率？</strong></span></li>
       </ul>
     </div>
 
@@ -106,6 +177,22 @@ header::before{content:'INTERVIEW'}
       </ul>
     </div>
 
+    <div class="card">
+      <div class="card-title">向量数据库扩展问题</div>
+      <ul class="dl">
+        <li><span class="b">Q5</span><span><strong>Milvus、Faiss、ElasticSearch、pgvector 的区别是什么？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>HNSW 是什么？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>IVF、PQ、HNSW 分别适合什么场景？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>向量维度越高越好吗？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>向量索引和普通数据库索引有什么区别？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>向量库如何做过滤条件检索？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>metadata filter 如何和向量检索结合？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>数据量很大时，向量检索如何优化？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>向量召回结果不稳定怎么办？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>向量库如何做备份和迁移？</strong></span></li>
+      </ul>
+    </div>
+
     <!-- ═══ 06 系统设计 ═══ -->
     <div class="sec" id="system-design"><span class="sec-num">06</span>系统设计类</div>
 
@@ -128,6 +215,140 @@ header::before{content:'INTERVIEW'}
         <li><span class="b">Q2</span><span><strong>什么是 Guardrails（护栏）？如何实现？</strong><br>Guardrails 是在 LLM 输入和输出两侧设置的安全检查机制。输入侧：敏感词过滤、Prompt 注入检测、PII 脱敏；输出侧：内容安全审核、格式校验（如确保返回合法 JSON）、事实性检查。实现方式：① 规则引擎（正则匹配、关键词列表）处理简单场景；② 用另一个 LLM 做输出评审（如 NeMo Guardrails）处理复杂语义场景；③ 关键操作设置人工审核环节。生产中通常组合使用多层 Guardrails。</span></li>
         <li><span class="b">Q3</span><span><strong>Agent 系统的评估指标有哪些？</strong><br>① 任务完成率：Agent 成功完成用户请求的比例（最核心指标）；② 工具调用准确率：正确选择工具 + 正确填写参数的比例；③ 端到端延迟：从用户提问到获得回答的总耗时；④ Token 效率：完成同一任务消耗的 Token 越少越优化；⑤ 循环次数：Agent Loop 的平均迭代次数，过多说明决策效率低；⑥ 用户满意度：通过点赞/点踩或 NPS 收集。建议建立自动化评估 pipeline，每次代码变更后自动运行评测用例。</span></li>
         <li><span class="b">Q4</span><span><strong>Agent 系统如何做灰度发布和回滚？</strong><br>① 流量分层：按用户 ID 或地域分流，先 5% 流量切到新版本 Agent；② 指标对比：对比新旧版本的任务完成率、延迟、Token 消耗；③ 自动回滚：设置熔断条件（如错误率 > 5% 或延迟 > 10s 自动回滚）；④ LLM 版本管理：Prompt 和模型版本绑定，每次变更记录到配置中心（如 Nacos）；⑤ A/B 测试：同时运行两个版本，对比核心指标。关键原则：Agent 系统的不确定性比传统服务更高，灰度比例应更保守（5% → 20% → 100%）。</span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 08 大模型基础 ═══ -->
+    <div class="sec" id="llm-base"><span class="sec-num">08</span>大模型基础</div>
+
+    <div class="card">
+      <div class="card-title">大模型基础问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>Transformer 的核心结构是什么？</strong></span></li>
+        <li><span class="b">Q2</span><span><strong>Attention 机制的计算过程是什么？</strong></span></li>
+        <li><span class="b">Q3</span><span><strong>Self-Attention 和 Cross-Attention 有什么区别？</strong></span></li>
+        <li><span class="b">Q4</span><span><strong>为什么 Transformer 可以并行训练？</strong></span></li>
+        <li><span class="b">Q5</span><span><strong>什么是 token？中文 tokenization 有什么特点？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>什么是上下文窗口？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>temperature、top_p、top_k 分别控制什么？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>temperature 越高会怎样？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>greedy decoding 和 sampling 有什么区别？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>什么是 hallucination？为什么会出现？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>SFT、RLHF、DPO 分别是什么？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>LoRA / QLoRA 是什么？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>微调和提示词优化的区别是什么？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>embedding 和生成模型有什么区别？</strong></span></li>
+        <li><span class="b">Q15</span><span><strong>BERT 类模型和 GPT 类模型有什么区别？</strong></span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 09 框架与生态 ═══ -->
+    <div class="sec" id="framework"><span class="sec-num">09</span>框架与生态</div>
+
+    <div class="card">
+      <div class="card-title">LangChain / LlamaIndex 类问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>LangChain 的核心组件有哪些？</strong></span></li>
+        <li><span class="b">Q2</span><span><strong>Chain、Agent、Tool、Retriever 分别是什么？</strong></span></li>
+        <li><span class="b">Q3</span><span><strong>LangChain Expression Language 是什么？</strong></span></li>
+        <li><span class="b">Q4</span><span><strong>LlamaIndex 更适合解决什么问题？</strong></span></li>
+        <li><span class="b">Q5</span><span><strong>为什么生产环境不一定直接用 LangChain？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>如果不用 LangChain，自己实现 RAG 需要哪些模块？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>如何封装一个可复用的 Retriever？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>如何接入自定义模型？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>如何接入自定义工具？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>LangChain 的 callback 有什么用？</strong></span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 10 应用工程 ═══ -->
+    <div class="sec" id="app-eng"><span class="sec-num">10</span>应用工程</div>
+
+    <div class="card">
+      <div class="card-title">模型应用工程问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>你做过的大模型应用架构是什么？</strong></span></li>
+        <li><span class="b">Q2</span><span><strong>前端、后端、模型服务、向量库分别怎么交互？</strong></span></li>
+        <li><span class="b">Q3</span><span><strong>流式输出怎么实现？</strong></span></li>
+        <li><span class="b">Q4</span><span><strong>SSE 和 WebSocket 有什么区别？大模型聊天一般用哪个？</strong></span></li>
+        <li><span class="b">Q5</span><span><strong>如何处理中途停止生成？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>大模型接口超时怎么办？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>如何做重试？哪些错误可以重试，哪些不能？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>如何控制调用成本？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>如何做 token 计费统计？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>如何做请求限流？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>如何缓存大模型结果？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>相同问题是否适合直接缓存？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>如何保护 API Key？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>用户上传文件后，处理流程怎么设计？</strong></span></li>
+        <li><span class="b">Q15</span><span><strong>如何支持多模型切换？</strong></span></li>
+        <li><span class="b">Q16</span><span><strong>如何设计模型网关？</strong></span></li>
+        <li><span class="b">Q17</span><span><strong>如何做灰度发布和 A/B 测试？</strong></span></li>
+        <li><span class="b">Q18</span><span><strong>如何记录大模型调用日志？</strong></span></li>
+        <li><span class="b">Q19</span><span><strong>日志里如何避免泄露用户隐私？</strong></span></li>
+        <li><span class="b">Q20</span><span><strong>如果线上回答质量突然下降，你怎么排查？</strong></span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 11 场景设计 ═══ -->
+    <div class="sec" id="scenario"><span class="sec-num">11</span>场景设计</div>
+
+    <div class="card">
+      <div class="card-title">场景设计问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>设计一个企业内部知识库问答系统。</strong></span></li>
+        <li><span class="b">Q2</span><span><strong>设计一个客服机器人，要求支持工单创建。</strong></span></li>
+        <li><span class="b">Q3</span><span><strong>设计一个代码助手，能读仓库并回答问题。</strong></span></li>
+        <li><span class="b">Q4</span><span><strong>设计一个合同审查助手。</strong></span></li>
+        <li><span class="b">Q5</span><span><strong>设计一个 SQL 生成助手，如何防止危险 SQL？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>设计一个多轮销售助手，如何记住用户偏好？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>设计一个基于大模型的简历筛选系统。</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>设计一个大模型网关，支持多供应商模型。</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>设计一个可观测的大模型应用平台。</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>设计一个 Agent 自动报表系统。</strong></span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 12 项目深挖 ═══ -->
+    <div class="sec" id="project"><span class="sec-num">12</span>项目深挖</div>
+
+    <div class="card">
+      <div class="card-title">项目深挖问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>你的大模型项目解决了什么业务问题？</strong></span></li>
+        <li><span class="b">Q2</span><span><strong>为什么选择 RAG，而不是直接微调？</strong></span></li>
+        <li><span class="b">Q3</span><span><strong>知识库数据来源是什么？</strong></span></li>
+        <li><span class="b">Q4</span><span><strong>数据清洗怎么做？</strong></span></li>
+        <li><span class="b">Q5</span><span><strong>chunk 策略怎么定的？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>embedding 模型怎么选的？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>检索准确率怎么评估？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>有没有做 rerank？效果提升多少？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>模型回答错误时怎么定位原因？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>用户反馈如何进入改进闭环？</strong></span></li>
+        <li><span class="b">Q11</span><span><strong>系统 QPS、延迟、成本是多少？</strong></span></li>
+        <li><span class="b">Q12</span><span><strong>最难的问题是什么？怎么解决的？</strong></span></li>
+        <li><span class="b">Q13</span><span><strong>如果数据规模扩大 10 倍，系统怎么改？</strong></span></li>
+        <li><span class="b">Q14</span><span><strong>如果用户问权限外内容，系统怎么处理？</strong></span></li>
+        <li><span class="b">Q15</span><span><strong>这个项目还有哪些不足？</strong></span></li>
+      </ul>
+    </div>
+
+    <!-- ═══ 13 工程代码 ═══ -->
+    <div class="sec" id="coding"><span class="sec-num">13</span>工程代码</div>
+
+    <div class="card">
+      <div class="card-title">代码 / 算法问题</div>
+      <ul class="dl">
+        <li><span class="b">Q1</span><span><strong>Python 装饰器怎么写？</strong></span></li>
+        <li><span class="b">Q2</span><span><strong>FastAPI 如何实现流式响应？</strong></span></li>
+        <li><span class="b">Q3</span><span><strong>asyncio 和多线程区别？</strong></span></li>
+        <li><span class="b">Q4</span><span><strong>HTTP SSE 怎么实现？</strong></span></li>
+        <li><span class="b">Q5</span><span><strong>Redis 用在大模型应用里的哪些地方？</strong></span></li>
+        <li><span class="b">Q6</span><span><strong>MySQL 索引失效场景有哪些？</strong></span></li>
+        <li><span class="b">Q7</span><span><strong>如何设计一个任务队列？</strong></span></li>
+        <li><span class="b">Q8</span><span><strong>如何实现 LRU Cache？</strong></span></li>
+        <li><span class="b">Q9</span><span><strong>如何解析大文件并分批入库？</strong></span></li>
+        <li><span class="b">Q10</span><span><strong>给一个文本列表，如何批量调用 embedding 并限流重试？</strong></span></li>
       </ul>
     </div>
 
