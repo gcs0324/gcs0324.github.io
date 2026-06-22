@@ -1731,15 +1731,27 @@
         { text: 'Perplexity', url: 'https://www.perplexity.ai' },
         { text: 'Gamma（AI 幻灯片）', url: 'https://gamma.app' },
       ]},
+      { icon: '📡', title: 'AI 研发情报', links: [
+        { text: '2026-06-15 · AI 技术趋势简报', url: 'ai-briefing/report-2026-06-15.html' },
+      ]},
       { icon: '📚', title: '考研备考', links: [
         { text: '学习清单 · 章节要不要学', url: 'doc/kaoyan-plan.html' },
         { text: '时间分配表 · 哪月学哪章', url: 'doc/kaoyan-schedule.html' },
       ]},
     ];
 
+    var CARDS_VERSION = 1;
+
     function getCards() {
-      try { const s = localStorage.getItem('customCards'); return s ? JSON.parse(s) : DEFAULT_CARDS; }
-      catch { return DEFAULT_CARDS; }
+      try {
+        var storedVer = localStorage.getItem('cardsVersion');
+        if (storedVer && +storedVer < CARDS_VERSION) {
+          localStorage.removeItem('customCards');
+        }
+        localStorage.setItem('cardsVersion', CARDS_VERSION);
+        var s = localStorage.getItem('customCards');
+        return s ? JSON.parse(s) : DEFAULT_CARDS;
+      } catch (e) { return DEFAULT_CARDS; }
     }
     function saveCards(cards) { localStorage.setItem('customCards', JSON.stringify(cards)); }
 

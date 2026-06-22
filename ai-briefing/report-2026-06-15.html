@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Intelligence Briefing - 2026-06-15</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #21262d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --border: #30363d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header {
+      text-align: center;
+      padding: 50px 20px 40px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(88,166,255,0.08) 0%, transparent 100%);
+    }
+    header h1 { font-size: 2.4em; margin-bottom: 12px; letter-spacing: -0.5px; }
+    header .tagline { font-size: 1.15em; color: var(--accent-blue); font-style: italic; margin-bottom: 8px; }
+    header .date { color: var(--text-secondary); font-size: 0.95em; }
+    header .meta { margin-top: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    header .meta span {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      color: var(--text-secondary);
+    }
+    section { padding: 36px 0; border-bottom: 1px solid var(--border); }
+    section h2 { font-size: 1.5em; margin-bottom: 20px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--accent-blue); }
+    .card h3 { margin-bottom: 8px; font-size: 1.1em; }
+    .card .desc { color: var(--text-secondary); margin-bottom: 12px; font-size: 0.95em; }
+    .card .analysis { background: var(--bg-secondary); border-radius: 6px; padding: 14px; margin-top: 12px; font-size: 0.93em; }
+    .card .analysis strong { color: var(--accent-orange); }
+    .score {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.85em;
+    }
+    .score-high { background: rgba(63,185,80,0.2); color: var(--accent-green); border: 1px solid rgba(63,185,80,0.3); }
+    .score-medium { background: rgba(210,153,34,0.2); color: var(--accent-orange); border: 1px solid rgba(210,153,34,0.3); }
+    .score-low { background: rgba(248,81,73,0.2); color: var(--accent-red); border: 1px solid rgba(248,81,73,0.3); }
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      margin-right: 6px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .tag.blue { border-color: rgba(88,166,255,0.4); color: var(--accent-blue); }
+    .tag.green { border-color: rgba(63,185,80,0.4); color: var(--accent-green); }
+    .tag.purple { border-color: rgba(188,140,255,0.4); color: var(--accent-purple); }
+    .signal-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--bg-secondary);
+      margin: 8px 0;
+      overflow: hidden;
+    }
+    .signal-fill { height: 100%; border-radius: 3px; }
+    .stars { color: var(--accent-orange); letter-spacing: 2px; }
+    .trend-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .trend-stage {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .trend-stage h4 { margin-bottom: 12px; font-size: 1em; }
+    .trend-stage ul { list-style: none; padding: 0; }
+    .trend-stage li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+    .trend-stage li:last-child { border-bottom: none; }
+    .action-priority {
+      border-left: 4px solid;
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      background: var(--bg-card);
+      border-radius: 0 8px 8px 0;
+    }
+    .action-p0 { border-color: var(--accent-red); }
+    .action-p0 h4 { color: var(--accent-red); }
+    .action-p1 { border-color: var(--accent-orange); }
+    .action-p1 h4 { color: var(--accent-orange); }
+    .action-p2 { border-color: var(--accent-blue); }
+    .action-p2 h4 { color: var(--accent-blue); }
+    .action-priority .meta-row { display: flex; gap: 16px; margin-top: 8px; font-size: 0.85em; color: var(--text-secondary); }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.93em; }
+    th { color: var(--text-secondary); font-weight: 600; background: var(--bg-secondary); }
+    tr:hover td { background: rgba(88,166,255,0.03); }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .source-tag { font-size: 0.78em; color: var(--text-secondary); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .highlight-box {
+      border: 1px solid var(--accent-purple);
+      background: rgba(188,140,255,0.05);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+    .highlight-box h4 { color: var(--accent-purple); margin-bottom: 8px; }
+    footer { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 0.85em; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    @media (max-width: 768px) {
+      .trend-map { grid-template-columns: 1fr 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .container { padding: 10px; }
+      header h1 { font-size: 1.8em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header>
+      <h1>AI Intelligence Briefing</h1>
+      <div class="tagline">Agent技能生态爆发 + 自进化编码Agent突破50% SWE-bench + 代码视觉理解兴起</div>
+      <div class="date">2026-06-15</div>
+      <div class="meta">
+        <span>GitHub Trending</span>
+        <span>猫目新闻</span>
+        <span>Arxiv (19篇论文)</span>
+        <span>全源采集成功</span>
+      </div>
+    </header>
+
+    <!-- Section 1: Top 10 -->
+    <section id="top10">
+      <h2>Section 1: 今日Top 10动态</h2>
+
+      <div class="card">
+        <h3>1. Socratic-SWE：编码Agent自进化达到 SWE-bench 50.40% <span class="score score-high">重要性 86</span></h3>
+        <div class="desc">利用历史求解轨迹自动生成结构化Agent技能，三次迭代后达到 SWE-bench Verified 50.40%</div>
+        <div class="tag blue">Arxiv</div><div class="tag green">Coding Agent</div><div class="tag purple">Self-Evolution</div>
+        <div class="analysis"><strong>为什么重要：</strong>这是自进化编码Agent的新范式——不需要人工设计新技能，Agent从自己的成功轨迹中提炼技能。相比固定流水线（AutoGen/CrewAI），这种自我改进能力是走向通用编码Agent的关键一步。50.40% 虽然还不完美，但三次迭代的持续提升证明了自进化的有效性。</div>
+      </div>
+
+      <div class="card">
+        <h3>2. Code as Agent Harness：代码是Agent基础设施的"第一性原理" <span class="score score-high">重要性 86</span></h3>
+        <div class="desc">全面综述：将代码定位为Agent推理、行动和验证的基础载体</div>
+        <div class="tag blue">Arxiv</div><div class="tag green">Agent架构</div><div class="tag purple">Survey</div>
+        <div class="analysis"><strong>为什么重要：</strong>这篇综述提出了一个关键观点——代码不仅是Agent的输出，更是Agent的"底盘"。从harness接口到规划/记忆/工具使用，代码贯穿始终。这为MCP协议、Coding Agent设计提供了理论基础。对后端开发者来说，理解"代码即Agent基础设施"的设计哲学将直接影响未来2-3年的架构选型。</div>
+      </div>
+
+      <div class="card">
+        <h3>3. headroom：LLM Token压缩60-95%，周增10,653星 <span class="score score-high">重要性 84</span></h3>
+        <div class="desc">在工具输出、日志、文件进入LLM前压缩token，节约60-95%</div>
+        <div class="tag blue">GitHub</div><div class="tag green">Context Engineering</div>
+        <div class="analysis"><strong>为什么重要：</strong>Context窗口成本是Coding Agent的核心瓶颈。headroom精准解决了"喂给LLM之前先压缩"这个痛点。60-95%的压缩率意味着同样的token预算可以做更多轮Agent交互。这是Context Engineering方向最实用的工具之一。</div>
+      </div>
+
+      <div class="card">
+        <h3>4. Recursive Agent Harnesses：递归Agent模式，Codex提升至81.36% <span class="score score-high">重要性 82</span></h3>
+        <div class="desc">将递归LLM模式扩展到完整Agent harness（文件系统工具+代码执行+规划），Codex从71.75%提升至81.36%</div>
+        <div class="tag blue">Arxiv (Jun 11)</div><div class="tag green">Coding Agent</div><div class="tag purple">Recursive</div>
+        <div class="analysis"><strong>为什么重要：</strong>这是目前最新鲜的论文（6月11日提交）。递归Agent模式支持长达4M token的上下文推理，比Flat Agent结构更擅长长链任务。对使用Claude Code/Codex的开发者来说，理解递归Agent的工作原理有助于更好地设计prompt和task分解策略。</div>
+      </div>
+
+      <div class="card">
+        <h3>5. NVIDIA/SkillSpector：AI Agent技能安全扫描器 <span class="score score-high">重要性 80</span></h3>
+        <div class="desc">首个检测AI agent skills中的漏洞、恶意模式和安全隐患的工具 | 周增3,669星</div>
+        <div class="tag blue">GitHub</div><div class="tag green">Agent安全</div><div class="tag purple">NVIDIA</div>
+        <div class="analysis"><strong>为什么重要：</strong>随着Agent Skills市场（pm-skills、agent-skills等）爆发式增长，供应链安全成为真实威胁。SkillSpector是第一个专注于Agent技能安全扫描的工具，填补了关键空白。NVIDIA入局也说明GPU巨头在关注Agent生态安全。</div>
+      </div>
+
+      <div class="card">
+        <h3>6. Meta-Agent：从自然语言自动构建多Agent系统 <span class="score score-high">重要性 80</span></h3>
+        <div class="desc">两阶段框架：自动构建并执行DAG结构的Agent规范，含I/O合约和三级错误溯源</div>
+        <div class="tag blue">Arxiv</div><div class="tag green">Multi-Agent</div><div class="tag purple">Auto-Construction</div>
+        <div class="analysis"><strong>为什么重要：</strong>"只描述需求，AI自动组装Agent团队"从概念走向实现。DAG结构+ I/O合约+ 三级错误溯源（本地/上游/结构）提供了比现有AutoGen/CrewAI更可靠的Agent编排方案。</div>
+      </div>
+
+      <div class="card">
+        <h3>7. addyosmani/agent-skills：生产级Coding Agent工程技能 <span class="score score-high">重要性 80</span></h3>
+        <div class="desc">面向AI编码Agent的生产级工程技能集 | 总计59,791星，周增10,445星</div>
+        <div class="tag blue">GitHub</div><div class="tag green">Coding Agent</div><div class="tag purple">Skills</div>
+        <div class="analysis"><strong>为什么重要：</strong>Google Chrome工程师出品的Agent技能集，代表了Coding Agent从"能写代码"到"能写生产级代码"的关键跳跃。周增10,445星说明市场对高质量Agent Skills的强烈需求。</div>
+      </div>
+
+      <div class="card">
+        <h3>8. LLM Agents Can See Code Repositories <span class="score score-medium">重要性 78</span></h3>
+        <div class="desc">首个系统研究：用可视化仓库图减少Agent token消耗26%，保持/提升准确率 | ASE 2026</div>
+        <div class="tag blue">Arxiv (Jun 12)</div><div class="tag green">Multimodal</div><div class="tag purple">Context</div>
+        <div class="analysis"><strong>为什么重要：</strong>这是Agent输入模态的创新——不再纯文本喂代码，而是让Agent"看"仓库结构图。减少26% token消耗的同时保持准确率，这对实际部署意义重大。预示着多模态Coding Agent的未来方向。</div>
+      </div>
+
+      <div class="card">
+        <h3>9. RHO：回顾式Harness优化，SWE-Bench Pro 59%→78% <span class="score score-medium">重要性 78</span></h3>
+        <div class="desc">利用历史轨迹自我优化Agent harness，无需外部标注，SWE-Bench Pro pass rate从59%提升至78%</div>
+        <div class="tag blue">Arxiv (Jun 4)</div><div class="tag green">Coding Agent</div><div class="tag purple">Self-Improvement</div>
+        <div class="analysis"><strong>为什么重要：</strong>与Socratic-SWE形成互补——前者从成功轨迹生成技能，RHO从所有轨迹（包括失败的）学习优化harness。这种"吃自己的狗粮"式的自改进，是Agent从工具走向平台的关键。</div>
+      </div>
+
+      <div class="card">
+        <h3>10. 扣子3.0：Claude Code + CodeX 同项目协作 <span class="score score-medium">重要性 76</span></h3>
+        <div class="desc">实测扣子3.0将Claude Code和CodeX拉到一个项目群协同工作</div>
+        <div class="tag blue">猫目新闻</div><div class="tag green">工具</div><div class="tag purple">Multi-Agent</div>
+        <div class="analysis"><strong>为什么重要：</strong>多Agent协作从论文走向产品。不同Coding Agent各有优势（Claude Code擅长复杂推理，CodeX擅长快速迭代），扣子3.0将它们组合成一个项目群工作，代表了Coding Agent编排的产品化方向。</div>
+      </div>
+    </section>
+
+    <!-- Section 2: GitHub Projects -->
+    <section id="github">
+      <h2>Section 2: GitHub高价值项目</h2>
+      <table>
+        <thead>
+          <tr><th>项目</th><th>总Star</th><th>周增Star</th><th>核心能力</th><th>学习价值</th><th>推荐指数</th><th>立即关注</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://github.com/chopratejas/headroom">chopratejas/headroom</a></td>
+            <td>27,943</td>
+            <td>+10,653</td>
+            <td>LLM Token压缩 60-95%</td>
+            <td><span class="score score-high">9/10</span></td>
+            <td><span class="score score-high">9/10</span></td>
+            <td>是</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/addayosmani/agent-skills">addayosmani/agent-skills</a></td>
+            <td>59,791</td>
+            <td>+10,445</td>
+            <td>生产级Coding Agent技能</td>
+            <td><span class="score score-high">9/10</span></td>
+            <td><span class="score score-high">9/10</span></td>
+            <td>是</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/mvanhorn/last30days-skill">mvanhorn/last30days-skill</a></td>
+            <td>42,341</td>
+            <td>+12,053</td>
+            <td>AI Agent跨平台研究技能</td>
+            <td><span class="score score-medium">8/10</span></td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td>是</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/NVIDIA/SkillSpector">NVIDIA/SkillSpector</a></td>
+            <td>5,689</td>
+            <td>+3,669</td>
+            <td>AI Agent技能安全扫描</td>
+            <td><span class="score score-medium">8/10</span></td>
+            <td><span class="score score-high">9/10</span></td>
+            <td>是</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/safishamsi/graphify">safishamsi/graphify</a></td>
+            <td>67,339</td>
+            <td>+5,478</td>
+            <td>代码知识图谱（多Agent兼容）</td>
+            <td><span class="score score-medium">8/10</span></td>
+            <td><span class="score score-medium">8/10</span></td>
+            <td>是</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/Panniantong/Agent-Reach">Panniantong/Agent-Reach</a></td>
+            <td>29,091</td>
+            <td>+5,468</td>
+            <td>Agent全网访问（Twitter/Reddit/YouTube等）</td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td>否</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/Leonxlnx/taste-skill">Leonxlnx/taste-skill</a></td>
+            <td>43,996</td>
+            <td>+7,591</td>
+            <td>AI输出品质控制</td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td>否</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/lfnovo/open-notebook">lfnovo/open-notebook</a></td>
+            <td>30,679</td>
+            <td>+3,468</td>
+            <td>开源 Notebook LM</td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td>否</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <h4>本周GitHub关键信号</h4>
+        <p><strong>Agent Skills生态</strong> 是本周最热的GitHub主题。mvanhorn/last30days-skill（1.2万周星）、addayosmani/agent-skills（1万周星）、phuryn/pm-skills（5,713周星）、safishamsi/graphify（5,478周星）和Leonxlnx/taste-skill（7,591周星）加起来周增超过4万星。这说明<strong>如何让Coding Agent做得更好（skills/plugins/quality control）</strong>已成为社区最大的关注点。</p>
+      </div>
+    </section>
+
+    <!-- Section 3: Signal Radar -->
+    <section id="signals">
+      <h2>Section 3: Signal Radar（信号雷达）</h2>
+
+      <div class="card">
+        <h3><span class="stars">★★★★★</span> Agent技能供应链安全 — Signal Score: 82</h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:82%;background:var(--accent-green);"></div></div>
+        <div class="desc">
+          <strong>证据：</strong>NVIDIA发布SkillSpector + pm-skills（100+技能市场）爆发 + addyosmani/agent-skills 6万星。<br>
+          <strong>判断：</strong>随着Claude Code skills、Codex plugins等Agent扩展机制的普及，Agent技能的供应链安全将成为2026下半年的关键议题。预计半年内会出现类似npm audit的Agent技能安全审计标准。<br>
+          <strong>行动：</strong>关注SkillSpector的发展，开始审查你的项目中使用的Agent skills来源。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="stars">★★★★★</span> 自进化编码Agent — Signal Score: 78</h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:78%;background:var(--accent-green);"></div></div>
+        <div class="desc">
+          <strong>证据：</strong>Socratic-SWE（50.40% SWE-bench）+ RHO（59%→78% SWE-Bench Pro）+ SEMAG（98.8% HumanEval）+ Closed-Loop Memory Optimization。<br>
+          <strong>判断：</strong>自进化（Self-Evolution）正在取代固定流水线成为Coding Agent的主流范式。Agent不再依赖人工预设策略，而是从自身历史中学习优化。这将在6-12个月内显著改变开发者使用Coding Agent的方式。<br>
+          <strong>行动：</strong>关注自进化Agent的落地进展，思考如何在自己的工作流中引入Agent自我改进机制。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="stars">★★★★</span> 可视化代码理解 — Signal Score: 68</h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:68%;background:var(--accent-orange);"></div></div>
+        <div class="desc">
+          <strong>证据：</strong>"LLM Agents Can See Code Repositories"（ASE 2026）+ graphify（6.7万星代码知识图谱）。<br>
+          <strong>判断：</strong>纯文本喂代码的方式正在被挑战。视觉化的仓库结构图可以同时减少token消耗和提升准确率。这是一个早期信号，预计12个月内会出现更多视觉+文本混合的Agent输入方案。<br>
+          <strong>行动：</strong>这是一个3-6个月的弱信号，不需要立即行动但值得关注。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="stars">★★★★</span> Context Engineering（Token压缩与管理） — Signal Score: 66</h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:66%;background:var(--accent-orange);"></div></div>
+        <div class="desc">
+          <strong>证据：</strong>headroom（2.8万星）+ Sema Code（自适应上下文压缩）+ LLM Agents Can See Code Repositories（26% token减少）。<br>
+          <strong>判断：</strong>Context窗口管理正在从"工程技巧"走向"系统性工程"。多个独立项目在解决同一问题——如何高效利用有限的context window。这与Anthropic的Context Engineering理念一致。<br>
+          <strong>行动：</strong>如果你在构建Agent系统，认真考虑引入token压缩中间件。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="stars">★★★</span> AaaS（Agent-as-a-Service）概念兴起 — Signal Score: 52</h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:52%;background:var(--accent-orange);"></div></div>
+        <div class="desc">
+          <strong>证据：</strong>"The End of Software Engineering"论文 + Sema Code（可嵌入Agent基础设施）+ Multi-Agent编排产品化。<br>
+          <strong>判断：</strong>虽然"SE的终结"可能言过其实，但Agent从工具到服务的范式转移确实在发生。AaaS概念的出现意味着Agent正在成为独立的基础设施层。<br>
+          <strong>行动：</strong>了解AaaS概念，但短期内不需要行动。
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Trend Map -->
+    <section id="trends">
+      <h2>Section 4: 趋势地图</h2>
+      <div class="trend-map">
+        <div class="trend-stage">
+          <h4>萌芽</h4>
+          <ul>
+            <li>可视化代码仓库理解</li>
+            <li>Agent技能安全审计</li>
+            <li>AaaS（Agent即服务）</li>
+            <li>多模态Agent输入</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>成长</h4>
+          <ul>
+            <li>自进化编码Agent</li>
+            <li>Multi-Agent自动编排</li>
+            <li>递归Agent架构</li>
+            <li>电信/科学等垂直领域Agent</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>爆发</h4>
+          <ul>
+            <li>Agent Skills/Plugins生态</li>
+            <li>Token/Context压缩</li>
+            <li>多Provider统一接口</li>
+            <li>Coding Agent协同工具</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>成熟</h4>
+          <ul>
+            <li>LLM多Provider抽象（aisuite）</li>
+            <li>代码知识图谱（graphify）</li>
+            <li>Code-to-Markdown（markitdown）</li>
+            <li>计算机视觉工具链（supervision）</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Learning -->
+    <section id="learning">
+      <h2>Section 5: 学习建议</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>本周最值得学习（选2项）</h3>
+          <div class="analysis">
+            <strong>1. Code as Agent Harness 综述</strong><br>
+            这篇综述系统梳理了"代码作为Agent基础设施"的设计哲学。阅读它可以帮助你建立Agent架构的系统认知。预计阅读时间：2小时。<br><br>
+            <strong>2. headroom Token压缩原理</strong><br>
+            了解60-95%的token压缩是如何实现的。即使不使用headroom，其中的技术思路（结构化过滤、选择性保留）也能应用到你的Agent系统中。预计学习时间：1小时。
+          </div>
+        </div>
+        <div class="card">
+          <h3>本月最值得学习（选1项）</h3>
+          <div class="analysis">
+            <strong>自进化Agent系统设计（Socratic-SWE + RHO）</strong><br>
+            这两篇论文代表了Coding Agent的未来方向：从固定规则走向自我改进。理解它们的核心思路（轨迹提取、harness优化）将让你领先大多数开发者。预计学习时间：4-6小时。<br><br>
+            建议先读Socratic-SWE（更易理解），再读RHO（需要更多背景）。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Side Projects -->
+    <section id="projects">
+      <h2>Section 6: 实验项目推荐</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>1. 给你的Claude Code加一个Token压缩中间件</h3>
+          <div class="desc">
+            <strong>难度：</strong>中等（Python，1个周末）<br>
+            <strong>收获：</strong>深入理解Context Engineering，降低日常使用Claude Code的token消耗。<br>
+            <strong>思路：</strong>参考headroom的设计，在工具输出进入LLM之前做结构化压缩：移除重复内容、合并相似输出、保留关键信息。
+          </div>
+        </div>
+        <div class="card">
+          <h3>2. 用NVIDIA SkillSpector扫描你的Agent Skills</h3>
+          <div class="desc">
+            <strong>难度：</strong>简单（CLI工具，半天）<br>
+            <strong>收获：</strong>了解Agent技能安全风险，建立安全审查习惯。<br>
+            <strong>思路：</strong>对你项目中使用的Agent skills（caveman、gen-test-cases、ai-briefing等）运行一次安全扫描，看看有什么发现。
+          </div>
+        </div>
+        <div class="card">
+          <h3>3. 基于自进化思路改进你的测试用例生成Skill</h3>
+          <div class="desc">
+            <strong>难度：</strong>较高（Java/Python，1-2个周末）<br>
+            <strong>收获：</strong>将Socratic-SWE的自进化理念应用到实际的Agent Skill开发中。<br>
+            <strong>思路：</strong>为gen-test-cases skill添加结果反馈机制——每次生成的测试用例执行后，收集覆盖率/失败率数据，用于优化下一次生成的prompt策略。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Tools -->
+    <section id="tools">
+      <h2>Section 7: 工具推荐</h2>
+      <table>
+        <thead>
+          <tr><th>工具</th><th>类型</th><th>推荐理由</th><th>尝试成本</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://github.com/chopratejas/headroom">headroom</a></td>
+            <td>Context压缩</td>
+            <td>立即可用的token节约工具，与任何LLM/Agent兼容</td>
+            <td>低（pip install + 5分钟配置）</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/NVIDIA/SkillSpector">SkillSpector</a></td>
+            <td>Agent安全</td>
+            <td>首个Agent技能安全扫描工具，NVIDIA维护</td>
+            <td>低（CLI工具）</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/addayosmani/agent-skills">agent-skills</a></td>
+            <td>Coding Agent技能</td>
+            <td>生产级代码规范的Agent技能集，可集成到Claude Code</td>
+            <td>中（需要评估与现有流程的适配）</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/safishamsi/graphify">graphify</a></td>
+            <td>代码知识图谱</td>
+            <td>为代码仓库建立知识图谱，增强Agent的代码理解能力</td>
+            <td>中（需要集成到工作流）</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/andrewyng/aisuite">aisuite</a></td>
+            <td>LLM统一接口</td>
+            <td>Andrew Ng出品，多Provider统一API。如果需要切换/对比不同LLM，这是最佳选择</td>
+            <td>低（pip install aisuite）</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 8: Actions -->
+    <section id="actions">
+      <h2>Section 8: 行动清单</h2>
+
+      <div class="action-priority action-p0">
+        <h4>P0 - 立即执行（本周）</h4>
+        <p><strong>安装并试用 headroom</strong>，集成到日常Claude Code使用中。Token消耗是你的主要成本，headroom可以立即产生效益。</p>
+        <div class="meta-row"><span>原因：直接降低Token成本</span><span>收益：立即</span><span>投入：30分钟</span></div>
+      </div>
+
+      <div class="action-priority action-p1">
+        <h4>P1 - 近期规划（本月）</h4>
+        <p><strong>阅读 "Code as Agent Harness" 综述论文</strong>，建立Agent架构的系统认知。这直接影响你对MCP、Agent Skills、Multi-Agent协作等技术选型的判断。</p>
+        <div class="meta-row"><span>原因：建立Agent架构认知框架</span><span>收益：中长期</span><span>投入：2-3小时</span></div>
+      </div>
+
+      <div class="action-priority action-p1">
+        <h4>P1 - 近期规划（本月）</h4>
+        <p><strong>评估 agent-skills（addayosmani）</strong> 是否适合集成到你的SCM BMS项目中。特别关注代码质量、测试、文档生成相关的skills。</p>
+        <div class="meta-row"><span>原因：提升Coding Agent输出质量</span><span>收益：中期</span><span>投入：4-6小时评估</span></div>
+      </div>
+
+      <div class="action-priority action-p2">
+        <h4>P2 - 持续关注（季度）</h4>
+        <p><strong>跟踪自进化Agent（Socratic-SWE/RHO）的落地进展</strong>。这些技术将在未来6-12个月内影响Coding Agent的产品形态。当它们以产品形式出现时，你应该已经是第一批用户。</p>
+        <div class="meta-row"><span>原因：前瞻性技术储备</span><span>收益：长期</span><span>投入：每月跟进1小时</span></div>
+      </div>
+
+      <div class="action-priority action-p2">
+        <h4>P2 - 持续关注（季度）</h4>
+        <p><strong>关注Agent技能供应链安全</strong>。对项目中使用的第三方Agent Skills建立来源审查机制，等待SkillSpector生态成熟后引入安全扫描。</p>
+        <div class="meta-row"><span>原因：防范供应链风险</span><span>收益：长期</span><span>投入：持续关注</span></div>
+      </div>
+    </section>
+
+    <footer>
+      <p>AI Intelligence Briefing — 2026-06-15</p>
+      <p style="margin-top:8px">数据来源：GitHub Trending · 猫目新闻 · Arxiv | 共采集分析 40+ 条信息 · 深度分析 10 条</p>
+      <p style="margin-top:4px;font-size:0.8em">报告生成时间：2026-06-15T18:00:00+08:00</p>
+    </footer>
+
+  </div>
+</body>
+</html>
