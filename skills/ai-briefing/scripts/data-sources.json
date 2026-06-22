@@ -1,0 +1,34 @@
+{
+  "sources": [
+    {
+      "id": "github-trending",
+      "name": "GitHub Trending",
+      "type": "web-fetch",
+      "urls": [
+        "https://github.com/trending?since=daily",
+        "https://github.com/trending?since=weekly"
+      ],
+      "filters": ["AI", "Agent", "MCP", "Coding Agent"],
+      "fields": ["项目名", "Star数", "描述", "语言"]
+    },
+    {
+      "id": "maomu-news",
+      "name": "猫猫新闻",
+      "type": "web-fetch",
+      "urls": ["https://maomu.com/news"],
+      "filters": ["AI", "编程", "开源", "Agent", "大模型"],
+      "fields": ["标题", "摘要", "时间"]
+    },
+    {
+      "id": "arxiv",
+      "name": "Arxiv",
+      "type": "web-search",
+      "searchQueries": [
+        "site:arxiv.org AI agent multi-agent coding {current_year}",
+        "arxiv new paper LLM agent software engineering this week"
+      ],
+      "note": "执行时将 {current_year} 替换为当天日期所在年份",
+      "fields": ["论文标题", "摘要要点", "链接"]
+    }
+  ]
+}

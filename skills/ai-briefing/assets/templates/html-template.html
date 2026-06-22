@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Intelligence Briefing - {日期}</title>
+  <style>
+    /* 完整的暗色主题CSS */
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #21262d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --border: #30363d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { font-size: 2em; margin-bottom: 10px; }
+    header .tagline {
+      font-size: 1.2em;
+      color: var(--accent-blue);
+      font-style: italic;
+    }
+    header .date { color: var(--text-secondary); margin-top: 10px; }
+    section { padding: 30px 0; border-bottom: 1px solid var(--border); }
+    section h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: var(--accent-blue);
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h3 { margin-bottom: 10px; }
+    .score {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    .score-high { background: var(--accent-green); color: #000; }
+    .score-medium { background: var(--accent-orange); color: #000; }
+    .score-low { background: var(--accent-red); color: #fff; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      margin-right: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+    }
+    .signal-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      margin: 8px 0;
+    }
+    .signal-fill { height: 100%; border-radius: 4px; }
+    .trend-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .trend-stage {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .trend-stage h4 {
+      color: var(--accent-purple);
+      margin-bottom: 12px;
+    }
+    .action-priority {
+      border-left: 4px solid;
+      padding-left: 16px;
+      margin-bottom: 16px;
+    }
+    .action-p0 { border-color: var(--accent-red); }
+    .action-p1 { border-color: var(--accent-orange); }
+    .action-p2 { border-color: var(--accent-blue); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--text-secondary); font-weight: 600; }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .stars { color: var(--accent-orange); }
+    @media (max-width: 768px) {
+      .trend-map { grid-template-columns: 1fr; }
+      .container { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔬 AI Intelligence Briefing</h1>
+      <div class="tagline">{一句话总结，如：Agent工程正在从Prompt时代进入Context时代}</div>
+      <div class="date">{YYYY-MM-DD}</div>
+    </header>
+
+    <!-- Section 1: 今日Top10动态 -->
+    <section id="top10">
+      <h2>📰 Section 1: 今日Top10动态</h2>
+      <!-- 按重要性排序的10条动态 -->
+      <!-- 每条包含：标题、摘要、来源、重要性评分、ROI评分 -->
+    </section>
+
+    <!-- Section 2: GitHub高价值项目 -->
+    <section id="github">
+      <h2>🐙 Section 2: GitHub高价值项目</h2>
+      <!-- 每个项目包含：项目名、Star数、描述、学习价值评分、推荐指数、是否立即关注 -->
+    </section>
+
+    <!-- Section 3: Signal Radar -->
+    <section id="signals">
+      <h2>📡 Section 3: Signal Radar</h2>
+      <!-- 按信号等级排序 -->
+      <!-- 每个信号包含：名称、等级、分数、增长趋势、重要性、关注等级(★~★★★★★) -->
+    </section>
+
+    <!-- Section 4: 趋势地图 -->
+    <section id="trends">
+      <h2>🗺️ Section 4: 趋势地图</h2>
+      <div class="trend-map">
+        <div class="trend-stage">
+          <h4>🌱 萌芽</h4>
+          <!-- 列出处于萌芽阶段的技术 -->
+        </div>
+        <div class="trend-stage">
+          <h4>📈 成长</h4>
+          <!-- 列出处于成长阶段的技术 -->
+        </div>
+        <div class="trend-stage">
+          <h4>💥 爆发</h4>
+          <!-- 列出处于爆发阶段的技术 -->
+        </div>
+        <div class="trend-stage">
+          <h4>🏛️ 成熟</h4>
+          <!-- 列出处于成熟阶段的技术 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: 学习建议 -->
+    <section id="learning">
+      <h2>📚 Section 5: 学习建议</h2>
+      <!-- 本周最值得学习 + 本月最值得学习 -->
+    </section>
+
+    <!-- Section 6: 实验项目推荐 -->
+    <section id="projects">
+      <h2>🧪 Section 6: 实验项目推荐</h2>
+      <!-- 最多3个周末可完成的Side Project -->
+    </section>
+
+    <!-- Section 7: 工具推荐 -->
+    <section id="tools">
+      <h2>🔧 Section 7: 工具推荐</h2>
+      <!-- 最多5个值得尝试的工具 -->
+    </section>
+
+    <!-- Section 8: 行动清单 -->
+    <section id="actions">
+      <h2>✅ Section 8: 行动清单</h2>
+      <!-- P0/P1/P2 分级行动建议 -->
+    </section>
+  </div>
+</body>
+</html>

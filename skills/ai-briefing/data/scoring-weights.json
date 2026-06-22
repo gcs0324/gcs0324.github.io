@@ -1,0 +1,97 @@
+{
+  "importance_score": {
+    "formula": "(技术价值 + 创新性 + 实用价值 + 对研发工程师影响 + 半年影响力) * 2",
+    "dimensions": {
+      "技术价值": {
+        "weight": 1,
+        "range": [0, 10],
+        "description": "是否有真实的技术突破或改进"
+      },
+      "创新性": {
+        "weight": 1,
+        "range": [0, 10],
+        "description": "是否有新的思路、方法或架构"
+      },
+      "实用价值": {
+        "weight": 1,
+        "range": [0, 10],
+        "description": "开发者能否直接使用或学习"
+      },
+      "对研发工程师影响": {
+        "weight": 1,
+        "range": [0, 10],
+        "description": "对日常开发工作的影响程度"
+      },
+      "半年影响力": {
+        "weight": 1,
+        "range": [0, 10],
+        "description": "6个月后是否仍然重要"
+      }
+    },
+    "thresholds": {
+      "delete_below": 40,
+      "brief_min": 40,
+      "deep_min": 60
+    }
+  },
+  "signal_score": {
+    "formula": "GitHub热度 * 0.4 + 新闻热度 * 0.2 + 论文增长率 * 0.3 + 持续时间 * 0.1",
+    "weights": {
+      "GitHub热度": 0.4,
+      "新闻热度": 0.2,
+      "论文增长率": 0.3,
+      "持续时间": 0.1
+    },
+    "missing_input_rule": "某输入未采集到时，将其权重按比例分摊到其余有效输入并重新归一化；在信号条目处标注「基于 N/3 项数据源输入」；禁止为缺失输入估值或引用未采集来源",
+    "levels": {
+      "噪音": [0, 30],
+      "弱信号": [30, 50],
+      "值得关注": [50, 70],
+      "高价值趋势": [70, 90],
+      "下一代方向": [90, 100]
+    }
+  },
+  "roi_score": {
+    "high_weight_topics": [
+      "Agent Engineering",
+      "Context Engineering",
+      "MCP (Model Context Protocol)",
+      "Coding Agent",
+      "AI开发工具",
+      "AI工程化",
+      "自动化开发",
+      "Agent架构设计"
+    ],
+    "low_weight_topics": [
+      "模型营销新闻",
+      "无技术细节发布会",
+      "纯资本市场新闻",
+      "纯融资新闻"
+    ]
+  },
+  "github_project": {
+    "metrics": {
+      "学习价值评分": {
+        "range": [1, 10],
+        "description": "从该项目能学到多少"
+      },
+      "推荐指数": {
+        "range": [1, 10],
+        "description": "是否值得投入时间"
+      },
+      "是否立即关注": {
+        "type": "boolean",
+        "description": "是否需要立即关注"
+      }
+    }
+  },
+  "signal_attention": {
+    "levels": {
+      "★": "可忽略",
+      "★★": "了解即可",
+      "★★★": "值得关注",
+      "★★★★": "重点跟踪",
+      "★★★★★": "必须跟进"
+    }
+  }
+}
