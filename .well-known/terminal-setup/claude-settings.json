@@ -1,0 +1,15 @@
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "ark-ecd74f02-9774-4e1e-952b-2316577399b4-a1b31",
+    "ANTHROPIC_BASE_URL": "https://ark.cn-beijing.volces.com/api/coding",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "ark-code-latest",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.2[1M]",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME": "glm-5.2",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1M]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME": "deepseek-v4-pro",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro"
+  },
+  "includeCoAuthoredBy": false,
+  "model": "sonnet",
+  "theme": "dark"
+}

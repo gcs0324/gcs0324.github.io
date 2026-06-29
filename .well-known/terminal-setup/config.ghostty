@@ -1,0 +1,4 @@
+# Ghostty Config
+# Location: ~/Library/Application Support/com.mitchellh.ghostty/config.ghostty
+
+config-file = ?auto/theme.ghostty

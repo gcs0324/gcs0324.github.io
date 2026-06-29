@@ -1,0 +1,50 @@
+# Homebrew Bundle for restoration
+# Generated: 2026-06-29
+# Restore: brew bundle --file=Brewfile
+
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# Yet another cross-platform graphical process/system monitor
+brew "bottom"
+# Resource monitor. C++ version and continuation of bashtop and bpytop
+brew "btop"
+# More intuitive version of du in rust
+brew "dust"
+# Modern, maintained replacement for ls
+brew "eza"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# User-friendly command-line shell for UNIX-like operating systems
+brew "fish"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GitHub command-line tool
+brew "gh"
+# Distributed revision control system
+brew "git"
+# Clone of ls with colorful output, file type icons, and more
+brew "lsd"
+# Java-based project management
+brew "maven"
+# Modern replacement for ps written in Rust
+brew "procs"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# CLI proxy to minimize LLM token consumption
+brew "rtk"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Official tldr client written in Rust
+brew "tlrc"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# Configuration manager for AI coding agents
+cask "cc-switch"
+# Terminal-based AI coding assistant
+cask "claude-code"
+# OpenAI's coding agent that runs in your terminal
+cask "codex"
+# Terminal emulator that uses platform-native UI and GPU acceleration
+cask "ghostty"
+uv "claude-tap"
+npm "corepack"
