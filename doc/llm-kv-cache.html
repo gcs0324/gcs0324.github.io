@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LLM 缓存机制 · KV Cache / Prompt Cache</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;font-size:14px}
+nav{background:var(--bg2);padding:0 48px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);overflow-x:auto}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em}
+nav a:hover{color:var(--tx);border-bottom-color:var(--bd2)}
+header{background:var(--bg2);padding:42px 48px 28px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+header::before{content:'CACHE';position:absolute;right:32px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:88px;font-weight:700;color:var(--watermark,rgba(128,128,128,.05));letter-spacing:-.04em;pointer-events:none}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8}
+main{padding:40px 48px 80px;max-width:1100px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;display:flex;align-items:center;gap:10px}
+.sec:first-child{margin-top:0}
+.sec .sn{color:var(--blue)}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:18px 22px;margin-bottom:12px}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--blue);margin-bottom:12px}
+p{font-size:14px;color:var(--tx2);margin-bottom:10px;line-height:1.75}
+p:last-child{margin-bottom:0}
+.kw{color:var(--tx);font-weight:600}
+ul.detail{list-style:none;display:flex;flex-direction:column;gap:7px;padding-left:0;margin:10px 0}
+ul.detail li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--tx2)}
+ul.detail li .b{font-family:'IBM Plex Mono',monospace;color:var(--blue);flex-shrink:0;font-size:11px;margin-top:3px;min-width:18px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:7px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+.note{border-radius:6px;padding:10px 14px;font-size:13px;margin:12px 0;line-height:1.65}
+.note.tip{background:var(--blu-bg);border:1px solid var(--blu-b);color:var(--tx2)}
+.note.warn{background:var(--yel-bg);border:1px solid var(--yel-b);color:var(--tx2)}
+.note.good{background:var(--grn-bg);border:1px solid var(--grn-b);color:var(--tx2)}
+.note.info{background:var(--bg);border:1px solid var(--bd);color:var(--tx2)}
+.note strong{color:var(--tx)}
+code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx)}
+pre{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:14px 16px;overflow-x:auto;line-height:1.65;color:var(--tx2);margin:10px 0}
+.kbox{background:var(--bg);border:1px solid var(--bd);border-left:3px solid var(--blue);border-radius:6px;padding:14px 16px;margin:12px 0}
+.kbox h4{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--blue);margin-bottom:6px}
+.kbox p{font-size:13.5px;margin:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* message structure diagram */
+.msg-stack{display:flex;flex-direction:column;gap:3px;margin:14px 0;font-family:'IBM Plex Mono',monospace;font-size:12px}
+.msg-layer{padding:10px 16px;border-radius:5px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.msg-label{font-weight:700;letter-spacing:.03em}
+.msg-size{font-size:11px;opacity:.7}
+.msg-hit{font-size:11px;padding:2px 8px;border-radius:3px;border:1px solid}
+.layer-system{background:var(--blu-bg);border:1px solid var(--blu-b);color:var(--blue)}
+.layer-tools{background:var(--grn-bg);border:1px solid var(--grn-b);color:var(--green)}
+.layer-history{background:var(--yel-bg);border:1px solid var(--yel-b);color:var(--yellow)}
+.layer-new{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+.hit-yes{background:var(--grn-bg);border-color:var(--grn-b);color:var(--green)}
+.hit-maybe{background:var(--yel-bg);border-color:var(--yel-b);color:var(--yellow)}
+.hit-no{background:var(--red-bg);border-color:var(--red-b);color:var(--red)}
+.bracket-label{font-size:11px;color:var(--tx3);margin-left:4px;font-family:'Inter',sans-serif;font-weight:400}
+/* cache miss vs hit comparison */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.cmp-card{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:14px 16px}
+.cmp-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:10px}
+.cmp-hit .cmp-title{color:var(--green)}
+.cmp-miss .cmp-title{color:var(--red)}
+.cmp-card ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.cmp-card li{font-size:13px;color:var(--tx2);display:flex;gap:8px}
+.cmp-card li::before{content:'·';color:var(--tx3);flex-shrink:0}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px}.grid2,.compare{grid-template-columns:1fr}.msg-layer{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">LLM · 推理优化</div>
+  <h1>LLM 缓存机制</h1>
+  <p class="subtitle">KV Cache 原理 · Prompt Cache 命中条件 · Context 压缩对缓存的影响 · Claude Code 消息结构与缓存分布</p>
+</header>
+<nav>
+  <a href="#kvcache">KV Cache</a>
+  <a href="#promptcache">Prompt Cache</a>
+  <a href="#compaction">压缩的影响</a>
+  <a href="#structure">消息结构</a>
+  <a href="#hit">哪些部分命中</a>
+</nav>
+<main>
+
+<!-- 01 KV Cache -->
+<div class="sec" id="kvcache"><span class="sn">01</span> KV Cache — 推理加速的核心</div>
+
+<div class="card">
+  <div class="card-title">是什么</div>
+  <p>Transformer 生成每个 Token 时，需要对所有历史 Token 做 Attention 计算：<span class="kw">Q × K → Attention Score → × V → 输出</span>。其中历史 Token 的 K 和 V 不会变，可以缓存下来，下次直接复用，不用重新算。这个缓存就叫 <span class="kw">KV Cache</span>。</p>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">没有 KV Cache</div>
+    <p>生成第 N 个 Token 时，要把前面 N-1 个 Token 全部重新过一遍 Attention 层。生成越到后面越慢，复杂度 <code>O(n²)</code>，长文本几乎不可用。</p>
+  </div>
+  <div class="card">
+    <div class="card-title">有 KV Cache</div>
+    <p>历史 Token 的 K/V 已经存在显存里，每次只算新 Token 的 Q，然后和缓存的 K/V 做 Attention。复杂度降到 <code>O(n)</code>，生成速度基本恒定。</p>
+  </div>
+</div>
+
+<div class="note info">
+  <strong>KV Cache 的生命周期：</strong>只在单次生成过程中有效，存在 GPU 显存里。会话结束、进程重启、显存不足时全部失效。和下面讲的 Prompt Cache 是两个不同层次的缓存。
+</div>
+
+<!-- 02 Prompt Cache -->
+<div class="sec" id="promptcache"><span class="sn">02</span> Prompt Cache — 跨请求的前缀缓存</div>
+
+<div class="card">
+  <div class="card-title">是什么</div>
+  <p><span class="kw">Prompt Cache</span>（也叫前缀缓存）是跨请求级别的缓存。如果两次请求的 Prompt 前缀完全相同，服务端可以复用上次已经计算好的 KV 结果，不用从头算。</p>
+  <p>比喻：你每天开会前都要翻一遍同一份 100 页背景材料。没有缓存的话每天都要重新读；有缓存的话，材料内容没变，KV 结果直接用上次的，只需要处理今天新增的那几页议程。</p>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">命中条件</div>
+    <ul class="detail">
+      <li><span class="b">①</span> Prompt 前缀和上次请求完全一致（逐 Token 匹配）</li>
+      <li><span class="b">②</span> 缓存还在有效期内（Anthropic API 约 5 分钟 TTL）</li>
+      <li><span class="b">③</span> 相同的模型版本（不同模型不共享缓存）</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">命中收益（Anthropic API）</div>
+    <ul class="detail">
+      <li><span class="b">·</span> 首 Token 延迟明显降低（无需重新计算前缀）</li>
+      <li><span class="b">·</span> 输入 Token 费用降低约 90%</li>
+      <li><span class="b">·</span> 吞吐量提升，适合 System Prompt 巨大的 Agent 场景</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note tip">
+  <strong>前缀必须完全一致</strong>：哪怕在 System Prompt 里加一个空格，缓存就全部失效。这就是为什么 Claude Code 的 CLAUDE.md 内容一旦稳定就不要频繁改动。
+</div>
+
+<!-- 03 压缩的影响 -->
+<div class="sec" id="compaction"><span class="sn">03</span> 压缩 Context 对缓存的影响</div>
+
+<div class="card">
+  <div class="card-title">压缩做了什么</div>
+  <p>当对话历史过长（接近上下文窗口限制），Claude Code 会触发 <span class="kw">Context Compaction</span>：把旧的对话历史替换成一段 AI 生成的摘要，从而腾出空间继续对话。</p>
+  <p>从 Prompt Cache 角度看：Messages 部分整体被改写了，前缀从某个位置起完全不同。之前为这段历史计算并缓存的 KV 全部作废。</p>
+</div>
+
+<div class="compare">
+  <div class="cmp-card cmp-hit">
+    <div class="cmp-title">✓ 压缩后仍然命中的部分</div>
+    <ul>
+      <li>System Prompt（没变）</li>
+      <li>Tools 定义（没变）</li>
+      <li>CLAUDE.md 注入的项目上下文（没变）</li>
+    </ul>
+  </div>
+  <div class="cmp-card cmp-miss">
+    <div class="cmp-title">✗ 压缩后必然 Cache Miss 的部分</div>
+    <ul>
+      <li>原始对话历史（已被摘要替换）</li>
+      <li>Tool Use 循环记录（已清除）</li>
+      <li>压缩后第一条新消息（前缀已变）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note warn">
+  <strong>表现：</strong>压缩后第一条回复会明显比平时慢（首 Token 延迟升高）。服务端要重新处理 Messages 部分的 KV，System + Tools 因为没变仍然命中，所以不是完全冷启动，只是比命中时慢。
+</div>
+
+<div class="note info">
+  <strong>压缩时机：</strong>默认在上下文剩余空间不足时自动触发。Claude Code 也支持手动执行 <code>/compact</code> 命令提前压缩。无论哪种方式，对缓存的影响相同。
+</div>
+
+<!-- 04 消息结构 -->
+<div class="sec" id="structure"><span class="sn">04</span> Claude Code Agent 的消息结构</div>
+
+<div class="card">
+  <div class="card-title">发给大模型的完整结构</div>
+  <p>Claude Code 使用 Anthropic Messages API，每次请求由三部分拼成：</p>
+
+  <div class="msg-stack">
+    <div class="msg-layer layer-system">
+      <div>
+        <span class="msg-label">System Prompt</span>
+        <span class="bracket-label">— CLAUDE.md · 权限配置 · 行为规则 · 项目上下文</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="msg-size">数千–数万 Token</span>
+        <span class="msg-hit hit-yes">命中 ✓</span>
+      </div>
+    </div>
+    <div class="msg-layer layer-tools">
+      <div>
+        <span class="msg-label">Tools</span>
+        <span class="bracket-label">— Read / Edit / Bash / MCP 等所有工具的 JSON Schema</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="msg-size">大量结构化 JSON</span>
+        <span class="msg-hit hit-yes">命中 ✓</span>
+      </div>
+    </div>
+    <div class="msg-layer layer-history">
+      <div>
+        <span class="msg-label">Messages（历史）</span>
+        <span class="bracket-label">— 用户消息 · Assistant 回复 · Tool Use 循环</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="msg-size">随对话增长</span>
+        <span class="msg-hit hit-maybe">部分命中</span>
+      </div>
+    </div>
+    <div class="msg-layer layer-new">
+      <div>
+        <span class="msg-label">Messages（最新一条）</span>
+        <span class="bracket-label">— 当前用户输入</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="msg-size">每次都不同</span>
+        <span class="msg-hit hit-no">必定 Miss</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note tip">
+  <strong>为什么 Tools 这么大：</strong>Claude Code 默认加载几十个工具（文件读写、bash、MCP 工具等），每个工具的 JSON Schema 描述都很详细，Tools 部分加起来可达数千 Token，比普通 AI 应用的 Tools 大很多。
+</div>
+
+<!-- 05 哪些部分命中 -->
+<div class="sec" id="hit"><span class="sn">05</span> 哪些部分容易命中缓存</div>
+
+<table class="tbl">
+  <tr>
+    <th>部分</th>
+    <th>变化频率</th>
+    <th>缓存命中</th>
+    <th>原因</th>
+  </tr>
+  <tr>
+    <td>System Prompt</td>
+    <td>会话级别固定</td>
+    <td style="color:var(--green);font-weight:600">高</td>
+    <td>CLAUDE.md、权限、行为规则基本不变</td>
+  </tr>
+  <tr>
+    <td>Tools 定义</td>
+    <td>会话级别固定</td>
+    <td style="color:var(--green);font-weight:600">高</td>
+    <td>工具列表启动后不变</td>
+  </tr>
+  <tr>
+    <td>Messages 前半段</td>
+    <td>随对话稳定增长</td>
+    <td style="color:var(--yellow);font-weight:600">中</td>
+    <td>前缀匹配，越靠前越稳定</td>
+  </tr>
+  <tr>
+    <td>Messages 后半段</td>
+    <td>每次请求都在变</td>
+    <td style="color:var(--red);font-weight:600">低</td>
+    <td>新 Tool Use 结果不断追加</td>
+  </tr>
+  <tr>
+    <td>Context 压缩后</td>
+    <td>一次性大改动</td>
+    <td style="color:var(--red);font-weight:600">Messages 全 Miss</td>
+    <td>历史被摘要替换，前缀完全不同</td>
+  </tr>
+</table>
+
+<div class="kbox">
+  <h4>为什么 System + Tools 是 Claude Code 速度的关键</h4>
+  <p>Claude Code 的 System Prompt + Tools 通常占整个请求 Token 的 40–70%。这部分如果稳定命中 Prompt Cache，相当于每次请求的大头都直接跳过计算，首 Token 延迟从几秒降到零点几秒。一旦这部分失效（比如修改 CLAUDE.md 后），会明显感觉第一条回复变慢。</p>
+</div>
+
+<div class="note good">
+  <strong>实践建议：</strong>CLAUDE.md 内容稳定后不要频繁小改。每次修改都会导致 System Prompt 前缀改变，缓存完全失效，下一条回复明显变慢。批量修改一次比多次零散修改对缓存更友好。
+</div>
+
+</main>
+<script>
+const links = document.querySelectorAll('nav a');
+const secs = [...document.querySelectorAll('.sec')];
+window.addEventListener('scroll', () => {
+  const top = window.scrollY + 70;
+  let cur = secs[0]?.id;
+  secs.forEach(s => { if (s.offsetTop <= top) cur = s.id; });
+  links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+}, {passive: true});
+</script>
+</body>
+</html>
