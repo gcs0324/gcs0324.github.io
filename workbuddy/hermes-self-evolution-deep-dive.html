@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes 自进化：Agent 如何在实战中进化"工作方法"而非"大脑" | 深度解读</title>
+<style>
+  /* ============ 基础重置 ============ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fafafa;
+    --bg-card: #ffffff;
+    --bg-code: #1e1e2e;
+    --text: #2c2c2c;
+    --text-secondary: #555;
+    --text-muted: #888;
+    --accent: #6c5ce7;
+    --accent-light: #a29bfe;
+    --accent-bg: rgba(108, 92, 231, 0.08);
+    --border: #e2e2e2;
+    --border-light: #f0f0f0;
+    --green: #00b894;
+    --orange: #e17055;
+    --blue: #0984e3;
+    --red: #d63031;
+    --max-width: 820px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-mono: "SF Mono", "Fira Code", "Cascadia Code", "JetBrains Mono", monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.85;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ============ Hero ============ */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    color: #fff;
+    padding: 100px 24px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(108,92,231,0.15) 0%, transparent 40%),
+                radial-gradient(circle at 70% 50%, rgba(9,132,227,0.12) 0%, transparent 40%);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-5%, 5%); }
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .hero-tag {
+    display: inline-block;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    border: 1px solid rgba(162,155,254,0.4);
+    border-radius: 100px;
+    padding: 6px 18px;
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+  .hero-thesis {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 24px 28px;
+    font-size: 17px;
+    line-height: 1.8;
+    backdrop-filter: blur(10px);
+  }
+  .hero-thesis strong { color: var(--accent-light); }
+
+  /* ============ 目录 ============ */
+  .toc {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 24px;
+  }
+  .toc-inner { max-width: var(--max-width); margin: 0 auto; }
+  .toc-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .toc-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px 24px;
+    list-style: none;
+  }
+  .toc-list li a {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+  .toc-list li a:hover { color: var(--accent); }
+  .toc-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 28px;
+  }
+
+  /* ============ 正文 ============ */
+  .article {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  .chapter { margin-bottom: 64px; }
+
+  .chapter-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .chapter-label .ch-num {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .chapter-label .ch-tag {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.4;
+    margin-bottom: 24px;
+    letter-spacing: -0.3px;
+    color: #1a1a1a;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 36px;
+    margin-bottom: 14px;
+    color: #1a1a1a;
+  }
+
+  p {
+    margin-bottom: 18px;
+    color: var(--text);
+  }
+
+  strong { font-weight: 700; color: #1a1a1a; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ============ 引子场景框 ============ */
+  .scene-box {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 28px 32px;
+    margin: 28px 0;
+  }
+  .scene-box .scene-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .scene-box p { margin-bottom: 12px; }
+  .scene-box p:last-child { margin-bottom: 0; }
+  .scene-vs {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .scene-vs .vs-item {
+    flex: 1;
+    background: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .scene-vs .vs-item.bad { border-left: 3px solid var(--red); }
+  .scene-vs .vs-item.good { border-left: 3px solid var(--green); }
+  .scene-vs .vs-arrow {
+    font-size: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .scene-vs .vs-title {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .scene-vs .vs-title.bad { color: var(--red); }
+  .scene-vs .vs-title.good { color: var(--green); }
+  .scene-vs .vs-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ============ 题眼 ============ */
+  .thesis-callout {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin: 32px 0;
+    text-align: center;
+    position: relative;
+  }
+  .thesis-callout::before {
+    content: '“';
+    position: absolute;
+    top: 0; left: 24px;
+    font-size: 80px;
+    color: rgba(108,92,231,0.3);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .thesis-callout p {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: #fff;
+    margin: 0;
+  }
+  .thesis-callout .thesis-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 12px;
+    font-weight: 400;
+  }
+
+  /* ============ Callout ============ */
+  .callout {
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 28px 0;
+    border-left: 4px solid;
+  }
+  .callout-warn {
+    background: #fff5f5;
+    border-color: var(--red);
+  }
+  .callout-info {
+    background: #f0f7ff;
+    border-color: var(--blue);
+  }
+  .callout-success {
+    background: #f0fff4;
+    border-color: var(--green);
+  }
+  .callout-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .callout-warn .callout-title { color: var(--red); }
+  .callout-info .callout-title { color: var(--blue); }
+  .callout-success .callout-title { color: var(--green); }
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ============ 代码块 ============ */
+  .code-block {
+    background: var(--bg-code);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #cdd6f4;
+  }
+  .code-block .code-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #6c7086;
+    margin-bottom: 12px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+  .code-block pre { margin: 0; }
+  .code-block .kw { color: #cba6f7; }
+  .code-block .str { color: #a6e3a1; }
+  .code-block .com { color: #6c7086; font-style: italic; }
+  .code-block .fn { color: #89b4fa; }
+  .code-block .num { color: #fab387; }
+  .code-block .var { color: #f9e2af; }
+  .code-block .op { color: #94e2d5; }
+
+  /* ============ 表格 ============ */
+  .table-wrap { overflow-x: auto; margin: 24px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 13px;
+  }
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ============ 分隔线 ============ */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+    color: var(--text-muted);
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ============ 飞轮 SVG 容器 ============ */
+  .diagram-wrap {
+    margin: 36px 0;
+    text-align: center;
+  }
+  .diagram-wrap .diagram-caption {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    font-style: italic;
+  }
+  svg.diagram { max-width: 100%; height: auto; }
+
+  /* ============ 类比卡片 ============ */
+  .analogy-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 28px 0;
+  }
+  .analogy-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .analogy-icon { font-size: 32px; margin-bottom: 12px; }
+  .analogy-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+  .analogy-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .analogy-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-top: 10px;
+  }
+  .analogy-tag.note { background: var(--accent-bg); color: var(--accent); }
+  .analogy-tag.muscle { background: rgba(0,184,148,0.1); color: var(--green); }
+
+  /* ============ 章末小结 ============ */
+  .chapter-summary {
+    background: var(--accent-bg);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-top: 32px;
+    border: 1px solid rgba(108,92,231,0.15);
+  }
+  .chapter-summary .summary-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .chapter-summary p { margin-bottom: 0; font-size: 15px; }
+
+  /* ============ 结语 ============ */
+  .epilogue {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 56px 48px;
+    margin-top: 48px;
+    text-align: center;
+  }
+  .epilogue h2 { color: #fff; }
+  .epilogue p { color: rgba(255,255,255,0.8); }
+  .epilogue .open-question {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 28px;
+    margin-top: 28px;
+    text-align: left;
+  }
+  .epilogue .open-question .oq-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-light);
+    margin-bottom: 10px;
+  }
+
+  /* ============ 页脚 ============ */
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ============ 响应式 ============ */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 26px; }
+    .hero-sub { font-size: 15px; }
+    h2 { font-size: 22px; }
+    .thesis-callout p { font-size: 17px; }
+    .analogy-card { grid-template-columns: 1fr; }
+    .scene-vs { flex-direction: column; }
+    .scene-vs .vs-arrow { transform: rotate(90deg); }
+    .epilogue { padding: 36px 24px; }
+    .article { padding: 40px 16px 60px; }
+  }
+
+  /* ============ 层级对比卡片 ============ */
+  .layer-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .layer-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+  }
+  .layer-card.runtime::before { background: var(--green); }
+  .layer-card.system::before { background: var(--blue); }
+  .layer-card.model::before { background: var(--orange); }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .layer-title { font-size: 18px; font-weight: 700; }
+  .layer-badge {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+  .layer-badge.runtime { background: rgba(0,184,148,0.1); color: var(--green); }
+  .layer-badge.system { background: rgba(9,132,227,0.1); color: var(--blue); }
+  .layer-badge.model { background: rgba(225,112,85,0.1); color: var(--orange); }
+  .layer-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .layer-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ============ 闭环步骤 ============ */
+  .loop-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0;
+  }
+  .loop-step {
+    flex: 1;
+    min-width: 120px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 14px;
+    text-align: center;
+    position: relative;
+  }
+  .loop-step-num {
+    width: 24px; height: 24px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+  }
+  .loop-step-text { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .loop-step-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ============ 记忆层卡片 ============ */
+  .memory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .memory-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .memory-item .mem-icon { font-size: 24px; margin-bottom: 8px; }
+  .memory-item .mem-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .memory-item .mem-en { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-mono); }
+  .memory-item .mem-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  @media (max-width: 640px) { .memory-grid { grid-template-columns: 1fr; } }
+
+  /* ============ 高亮文字 ============ */
+  .highlight { background: rgba(108,92,231,0.12); padding: 2px 5px; border-radius: 4px; font-weight: 600; }
+
+  /* ============ 引用块 ============ */
+  blockquote {
+    border-left: 3px solid var(--accent-light);
+    padding-left: 20px;
+    margin: 24px 0;
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 15px;
+  }
+
+  /* ============ 内联代码 ============ */
+  code.inline {
+    background: #eee;
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-tag">Agent Engineering · Deep Dive</span>
+    <h1>Hermes 自进化深度解读<br>Agent 如何在实战中进化"工作方法"而非"大脑"</h1>
+    <p class="hero-sub">Nous Research 在 2026 年开源的 Hermes Agent，把"自我进化"做成了框架的底层第一性原则。它到底进化了什么？又刻意没有进化什么？</p>
+    <div class="hero-thesis">
+      <strong>核心命题：</strong>不改模型权重，只改"怎么用模型"的策略——进化的不是"大脑"，而是"工作方法"。
+    </div>
+  </div>
+</section>
+
+<!-- ============ 目录 ============ -->
+<nav class="toc">
+  <div class="toc-inner">
+    <div class="toc-title">文章目录</div>
+    <ul class="toc-list">
+      <li><a href="#intro"><span class="toc-num">00</span> 引子：一个反差场景</a></li>
+      <li><a href="#ch1"><span class="toc-num">01</span> 为什么现有 Agent 无法进化</a></li>
+      <li><a href="#ch2"><span class="toc-num">02</span> 祛魅："自进化"到底进化了什么</a></li>
+      <li><a href="#ch3"><span class="toc-num">03</span> 地基：四层记忆架构</a></li>
+      <li><a href="#ch4"><span class="toc-num">04</span> 引擎一：Skill 闭环</a></li>
+      <li><a href="#ch5"><span class="toc-num">05</span> 引擎二：GEPA/DSPy 系统级优化</a></li>
+      <li><a href="#ch6"><span class="toc-num">06</span> 引擎三：RL 训练</a></li>
+      <li><a href="#ch7"><span class="toc-num">07</span> 合体：三层飞轮协同</a></li>
+      <li><a href="#ch8"><span class="toc-num">08</span> 冷静下来：局限与边界</a></li>
+      <li><a href="#epilogue"><span class="toc-num">09</span> 结语：升维</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ============ 正文 ============ -->
+<article class="article">
+
+<!-- ============ 引子 ============ -->
+<section class="chapter" id="intro">
+  <div class="chapter-label">
+    <span class="ch-num">00</span>
+    <span class="ch-tag">引子</span>
+  </div>
+  <h2>用一个场景把读者拉进来</h2>
+
+  <div class="scene-box">
+    <div class="scene-label">同一个任务，两种命运</div>
+    <p>你让 AI Agent 执行一个看似简单的任务：<strong>"把这个 Next.js 项目部署到 Vercel"</strong>。</p>
+
+    <div class="scene-vs">
+      <div class="vs-item bad">
+        <div class="vs-title bad">普通 Agent · 第一次</div>
+        <div class="vs-desc">摸索环境变量配置、踩 Node 版本不兼容的坑、试错 <code class="inline">vercel deploy</code> 参数……花了 15 分钟、30 次工具调用才成功。</div>
+      </div>
+      <div class="vs-arrow">→</div>
+      <div class="vs-item good">
+        <div class="vs-title good">普通 Agent · 第二次</div>
+        <div class="vs-desc"><strong>同样的事从头来一遍。</strong>环境变量、Node 版本、参数——每一个坑都重新踩。没有记忆，没有积累。</div>
+      </div>
+    </div>
+
+    <div class="scene-vs">
+      <div class="vs-item good">
+        <div class="vs-title good">Hermes · 第一次</div>
+        <div class="vs-desc">同样摸索、同样踩坑、同样花 15 分钟。但在任务完成后，它自动复盘，把成功路径抽象成一条可复用的 Skill。</div>
+      </div>
+      <div class="vs-arrow">→</div>
+      <div class="vs-item good" style="border-left-color: var(--accent);">
+        <div class="vs-title good" style="color: var(--accent);">Hermes · 第二次</div>
+        <div class="vs-desc">直接调用上次沉淀的 Skill，一气呵成完成部署。甚至顺手修正了 Skill 中过时的命令。<strong>30 秒搞定。</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <p>这个反差场景揭示了一个核心命题：<strong>这不是"AI 自己写代码改自己"的科幻叙事，而是一次关于"Agent 如何进化"的范式提案。</strong></p>
+
+  <p>Hermes Agent 由 Nous Research 在 2026 年 2 月开源，它把"自我进化"做成了框架的底层第一性原则——不是附加功能，不是可选插件，而是整个架构设计的出发点。它与你见过的 AutoGPT、LangChain、CrewAI 乃至各类"Agent 框架"有一个根本性的分水岭：那些框架优化的是"执行效率"，而 Hermes 优化的是"从经验流中自主学习的能力"。</p>
+
+  <div class="thesis-callout">
+    <p>不改模型权重，只改"怎么用模型"的策略。<br>进化的不是"大脑"，而是"工作方法"。</p>
+    <div class="thesis-sub">—— 全文题眼</div>
+  </div>
+
+  <p>这句话是理解 Hermes 全部设计的钥匙。接下来，我们将逐层拆解它的三层进化引擎、四层记忆架构，以及它们如何构成一个自我加速的飞轮。</p>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第一章 ============ -->
+<section class="chapter" id="ch1">
+  <div class="chapter-label">
+    <span class="ch-num">01</span>
+    <span class="ch-tag">问题定义</span>
+  </div>
+  <h2>为什么现有 Agent 无法进化</h2>
+
+  <p>要理解 Hermes 为什么重要，先要看清它试图解决的痛点。当前主流的 Agent 框架——无论是 AutoGPT 的自主循环、LangChain 的链式编排、CrewAI 的多角色协作，还是更近期的各类"通用 Agent"——都共享一个根本性的瓶颈：<strong>它们优化的是"执行"效率，但没有突破"从经验流中自主学习"的壁垒。</strong></p>
+
+  <h3>三个致命痛点</h3>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">痛点一：跨会话失忆</div>
+    <p>每次新对话开始，Agent 都是"失忆"的。你在上一个会话中花 20 分钟调通的环境配置、踩过的坑、摸索出的最佳实践，全部蒸发。它不会记住"上次我是怎么做的"，更不会从中学习"下次应该怎么做"。</p>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">痛点二：技能不可复用</div>
+    <p>即便 Agent 在一次会话中表现出色，这些"技能"也无法被提取、保存、复用。你无法把"部署到 Vercel 的完整流程"固化成一个可复用的模块——每次都要从头来过，相当于每次都雇佣一个新实习生。</p>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">痛点三：无法从失败中吸取教训</div>
+    <p>Agent 执行失败后，最多告诉你"出错了"，但不会分析"为什么出错"、不会总结"下次如何避免"。失败经验被白白浪费，同样的错误反复犯。</p>
+  </div>
+
+  <p>这三个痛点叠加的后果是：Agent 的能力不会随使用时间增长。用了一百次的 Agent 和用了一次的 Agent，表现没有本质区别。它是一个<strong>静态工具</strong>，而非一个<strong>成长型伙伴</strong>。</p>
+
+  <h3>Hermes 的分水岭</h3>
+
+  <p>Hermes 把"自进化"当作框架的第一性原则，而非补丁式的附加功能。这意味着从架构设计的第一天起，记忆、技能沉淀、经验复用就不是"以后可以加的功能"，而是整个系统的骨架。其他框架的典型路径是：先做一个能执行任务的 Agent，然后再考虑"能不能让它记住东西"。Hermes 的路径恰恰相反：<strong>先设计好记忆和进化的骨架，再往上面挂执行能力。</strong></p>
+
+  <p>这个设计顺序的差异，决定了 Hermes 的进化能力是"内生的"而非"外挂的"。</p>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>现有 Agent 框架的共同瓶颈是"跨会话失忆、技能不可复用、无法从失败中学习"。Hermes 把自进化作为第一性原则而非附加功能，从架构层面解决了这三个问题——这是它与其他框架的根本分水岭。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第二章 ============ -->
+<section class="chapter" id="ch2">
+  <div class="chapter-label">
+    <span class="ch-num">02</span>
+    <span class="ch-tag">边界厘清</span>
+  </div>
+  <h2>先祛魅："自进化"到底进化了什么</h2>
+
+  <p>"自进化"这个词容易被误解为某种科幻场景——AI 在运行时自动修改自己的神经网络权重，变得越来越聪明。这个画面既不准确，也容易让人对 Hermes 的能力产生不切实际的期望。</p>
+
+  <p>本章的目的就是<strong>祛魅</strong>：厘清边界，明确它做什么、不做什么。</p>
+
+  <h3>它不做什么</h3>
+
+  <p>Hermes <strong>不在运行时重训底层 LLM 的权重</strong>。无论你用了 Hermes 多少次、沉淀了多少技能、经历了多少进化循环，底层模型（无论你接的是 GPT-4、Claude 还是 Llama）的参数一个都不会变。它不是在"修改大脑"。</p>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 常见误解</div>
+    <p>"Hermes 会在使用过程中读取你的数据，实时修改模型权重，让模型变得越来越懂你。"——<strong>这是错误的。</strong>运行时的任何进化都发生在模型外部的策略层，与模型权重无关。</p>
+  </div>
+
+  <h3>它做什么</h3>
+
+  <p>Hermes 的"自进化"发生在模型外部的三个层次：</p>
+
+  <ul style="margin-bottom: 18px; padding-left: 24px; line-height: 2;">
+    <li><strong>提示层</strong>：优化系统提示、工具描述、技能文件的措辞和结构。</li>
+    <li><strong>记忆层</strong>：积累和检索跨会话的经验、偏好、上下文。</li>
+    <li><strong>工具编排层</strong>：优化"在什么场景下用什么工具、按什么顺序用"的策略。</li>
+  </ul>
+
+  <p>用一个贯穿全文的类比来建立稳定的心智模型：</p>
+
+  <div class="analogy-card">
+    <div class="analogy-item">
+      <div class="analogy-icon">📝</div>
+      <div class="analogy-title">Skill 沉淀 = 做笔记</div>
+      <div class="analogy-desc">把成功经验写成可复用的操作手册。解决的是<strong>"记得住"</strong>的问题——下次遇到类似任务，不用从头摸索。</div>
+      <div class="analogy-tag note">运行时层 / 系统层</div>
+    </div>
+    <div class="analogy-item">
+      <div class="analogy-icon">💪</div>
+      <div class="analogy-title">RL 训练 = 刻意练习</div>
+      <div class="analogy-desc">把大量使用轨迹内化成模型的"肌肉记忆"。解决的是<strong>"做得好"</strong>的问题——模型本身的判断力和执行力变强。</div>
+      <div class="analogy-tag muscle">模型层</div>
+    </div>
+  </div>
+
+  <p>这个类比非常精准：<strong>做笔记不需要改变你的大脑结构</strong>，它改变的是你"下次遇到类似问题时怎么处理"的策略。同样，Skill 沉淀不需要改变模型权重，它改变的是"下次模型遇到类似任务时，给它什么样的上下文和指令"。而 RL 训练则确实需要"改变大脑"（修改权重），但这是离线的、批量的、需要专门算力的——跟运行时的"做笔记"是完全不同的路径。</p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">为什么这一章很重要</div>
+    <p>这是"防割韭菜"章节。在 AI 领域，"自进化""自我改进"这类术语经常被滥用。明确边界不仅是为了技术准确性，更是为了建立作者的可信度——你得先证明自己不会夸大其词，读者才愿意信任你后续的深度分析。</p>
+  </div>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>Hermes 的自进化不触碰模型权重，而是在提示层、记忆层、工具编排层优化"使用模型的方式"。"做笔记 vs 刻意练习"的类比是理解全文的关键心智模型：Skill 沉淀解决"记得住"，RL 训练解决"做得好"。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第三章 ============ -->
+<section class="chapter" id="ch3">
+  <div class="chapter-label">
+    <span class="ch-num">03</span>
+    <span class="ch-tag">地基</span>
+  </div>
+  <h2>四层记忆架构：为什么进化必须先解决记忆</h2>
+
+  <p>任何形式的"从经验中学习"，前提都是"能记住经验"。一个跨会话失忆的 Agent，不可能自进化——经验都留不住，何谈从经验中学习？因此，记忆架构是 Hermes 自进化体系的地基。</p>
+
+  <p>Hermes 将记忆刻意分为四层，每层有明确的职责、存储位置和读取时机：</p>
+
+  <div class="memory-grid">
+    <div class="memory-item">
+      <div class="mem-icon">⚡</div>
+      <div class="mem-name">工作记忆</div>
+      <div class="mem-en">Working Memory</div>
+      <div class="mem-desc">当前对话的上下文窗口。存储即时任务状态、最近几轮对话。随会话结束而清除。对应 LLM 的 context window。</div>
+    </div>
+    <div class="memory-item">
+      <div class="mem-icon">📖</div>
+      <div class="mem-name">情景记忆</div>
+      <div class="mem-en">Episodic Memory</div>
+      <div class="mem-desc">跨会话的"经历日志"。记录"什么时候、做了什么、结果如何"。通过 <span class="highlight">FTS5 全文索引</span>存入 SQLite，检索时先经 LLM 摘要再注入上下文。</div>
+    </div>
+    <div class="memory-item">
+      <div class="mem-icon">🧠</div>
+      <div class="mem-name">语义记忆</div>
+      <div class="mem-en">Semantic Memory</div>
+      <div class="mem-desc">从多次经历中提炼的"知识点"和"事实"。比如"用户偏好用 pnpm 而非 npm""项目用 Tailwind 而非 CSS Modules"。存储在 MEMORY.md 中。</div>
+    </div>
+    <div class="memory-item">
+      <div class="mem-icon">🔧</div>
+      <div class="mem-name">技能记忆</div>
+      <div class="mem-en">Skill Memory</div>
+      <div class="mem-desc">可复用的"操作手册"——即 Skill 文件。每个 Skill 是一个 SKILL.md，包含触发条件、执行步骤、注意事项。是程序性记忆的核心载体。</div>
+    </div>
+  </div>
+
+  <h3>为什么要分层？</h3>
+
+  <p>这是 Hermes 设计中最容易被忽略、但最为关键的决策。如果所有记忆混在一个存储里——一个大文件、一个大数据库——时间一长必然退化：</p>
+
+  <ul style="margin-bottom: 18px; padding-left: 24px; line-height: 2;">
+    <li><strong>检索变慢</strong>：存储越大，找到相关信息的成本越高。全量塞进上下文窗口既不现实也不经济。</li>
+    <li><strong>噪声淹没有用信息</strong>：无关的历史记录会干扰模型的判断。你需要的是"跟当前任务相关的经验"，而不是"所有历史经验"。</li>
+    <li><strong>不同类型的信息有不同的生命周期</strong>：工作记忆随会话清除，情景记忆长期保留但可能被新经验覆盖，语义记忆相对稳定，技能记忆则是持续迭代的。混在一起就无法实施差异化的管理策略。</li>
+  </ul>
+
+  <h3>实现细节：文件系统 + SQLite 的混合架构</h3>
+
+  <p>Hermes 的记忆系统并非依赖某个复杂的向量数据库，而是采用了文件系统 + SQLite 的务实组合：</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>记忆层</th>
+          <th>存储位置</th>
+          <th>读取方式</th>
+          <th>控制策略</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>工作记忆</td>
+          <td>LLM 上下文窗口</td>
+          <td>直接注入</td>
+          <td>受 context window 限制，自动截断</td>
+        </tr>
+        <tr>
+          <td>情景记忆</td>
+          <td>SQLite + FTS5 全文索引</td>
+          <td>关键词检索 → LLM 摘要 → 注入</td>
+          <td>只带相关条目，非全量加载</td>
+        </tr>
+        <tr>
+          <td>语义记忆</td>
+          <td>MEMORY.md 文件</td>
+          <td>会话开始时注入</td>
+          <td>精炼长期事实，控制文件大小</td>
+        </tr>
+        <tr>
+          <td>技能记忆</td>
+          <td>SKILL.md 文件（技能库目录）</td>
+          <td>按需加载（You MUST load it）</td>
+          <td>patch 式增量更新，单文件 ≤ 15KB</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>其中几个关键设计值得展开：</p>
+
+  <p><strong>SOUL.md / MEMORY.md / USER.md 的角色分工。</strong>这三个文件构成了 Hermes 的"人格与偏好层"。SOUL.md 定义 Agent 的核心性格和价值观（"你是谁"），USER.md 记录用户的基本信息（"你在帮谁"），MEMORY.md 则是跨会话的长期记忆（"你们一起经历了什么"）。它们的共同目的是<strong>在不无限膨胀上下文的前提下，保持 Agent 的连续性和个性化</strong>。</p>
+
+  <p><strong>FTS5 全文索引 + LLM 摘要注入。</strong>情景记忆不是简单地存日志、检索时全部塞回上下文。Hermes 的做法是：用 SQLite 的 FTS5 扩展做全文检索，找到与当前任务相关的历史条目，然后用 LLM 对这些条目做摘要，只把摘要后的关键信息注入上下文。这样既保证了相关性，又控制了上下文长度。</p>
+
+  <p><strong>"只带相关内容"的纪律。</strong>这是整个记忆系统的核心原则。不是"记住所有"，而是"在需要时找到相关的，且只把相关的带进来"。这直接决定了系统能否在长期使用中保持性能不退化。</p>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>记忆是自进化的地基。Hermes 将记忆刻意分为工作记忆、情景记忆、语义记忆、技能记忆四层，用文件系统 + SQLite 的混合架构实现差异化存储与检索。程序性记忆（技能）与情景记忆（经历）的刻意分离是关键设计选择——这确保了系统能在长期使用中保持检索效率和信号纯度。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第四章 ============ -->
+<section class="chapter" id="ch4">
+  <div class="chapter-label">
+    <span class="ch-num">04</span>
+    <span class="ch-tag">引擎一 · 运行时进化</span>
+  </div>
+  <h2>Skill 闭环：让经验自动沉淀为可复用的能力</h2>
+
+  <p>如果说记忆架构是地基，那么 Skill 闭环就是 Hermes 运行时进化的核心引擎。它的工作是将"一次成功的执行经验"自动转化为"下次可直接复用的能力"。</p>
+
+  <h3>完整闭环：六步循环</h3>
+
+  <div class="loop-steps">
+    <div class="loop-step">
+      <div class="loop-step-num">1</div>
+      <div class="loop-step-text">经验提取</div>
+      <div class="loop-step-desc">从执行轨迹中识别可复用的模式</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-step-num">2</div>
+      <div class="loop-step-text">知识存储</div>
+      <div class="loop-step-desc">写入 SKILL.md 技能文件</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-step-num">3</div>
+      <div class="loop-step-text">智能检索</div>
+      <div class="loop-step-desc">下次遇到类似任务时匹配技能</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-step-num">4</div>
+      <div class="loop-step-text">上下文注入</div>
+      <div class="loop-step-desc">将技能内容注入当前对话</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-step-num">5</div>
+      <div class="loop-step-text">执行验证</div>
+      <div class="loop-step-desc">用技能指导执行，验证效果</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-step-num">6</div>
+      <div class="loop-step-text">自动改进</div>
+      <div class="loop-step-desc">patch 式修正过时或出错的部分</div>
+    </div>
+  </div>
+
+  <p>这六步构成了一个自增强的闭环：每次使用都在验证和改进技能，每次改进都让下次执行更高效。关键在于，这个闭环是<strong>自动触发的</strong>，不需要用户手动操作。</p>
+
+  <h3>触发时机：Nudge 机制</h3>
+
+  <p>Hermes 不会在每次工具调用后都触发复盘——那样成本太高，也会打断执行流。它用一个叫 <strong>Nudge</strong> 的机制来判断"什么时候该把经验固化成技能了"。</p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Nudge 触发条件</div>
+    <p>大致的触发规则是：<strong>每完成约 15 次工具调用，或完成一个复杂任务后</strong>，系统会触发自我复盘。复盘时会回顾刚刚的执行轨迹，识别其中"值得固化为技能"的部分——比如一套反复验证有效的工具调用序列、一个解决特定问题的可靠流程。</p>
+  </div>
+
+  <p>"约 15 次"这个数字并非随意设定，而是成本-效果的权衡点。太频繁（比如每 3 次调用）会过度消耗 token 和时间；太稀疏（比如每 100 次）又会遗漏有价值的经验。15 次工具调用通常意味着一个"有一定复杂度、值得总结"的完整工作单元。</p>
+
+  <h3>自我修正：patch 式而非整体重写</h3>
+
+  <p>这是 Hermes Skill 系统中最精巧的设计之一。当后续使用中发现某个技能过时或出错时，Hermes <strong>不会重写整个 SKILL.md 文件</strong>，而是用 patch 式的 find-and-replace，只修改需要变更的片段。</p>
+
+  <div class="code-block">
+    <div class="code-label">SKILL.md 的 patch 式更新（伪代码示意）</div>
+    <pre><span class="com"># 不是这样（整体重写——风险高、浪费 token）：</span>
+<span class="fn">write_file</span>(<span class="str">"SKILL.md"</span>, <span class="fn">regenerate_entire_skill</span>(new_experience))
+
+<span class="com"># 而是这样（patch 式——精准、低成本、可追溯）：</span>
+<span class="kw">old</span> = <span class="str">"使用 `vercel deploy --prod` 部署"</span>
+<span class="kw">new</span> = <span class="str">"使用 `vercel deploy --prod --yes` 部署（--yes 跳过确认提示）"</span>
+<span class="fn">edit_file</span>(<span class="str">"SKILL.md"</span>, find=<span class="kw">old</span>, replace=<span class="kw">new</span>)</pre>
+  </div>
+
+  <p>为什么这个设计如此重要？因为整体重写有两个致命问题：</p>
+
+  <p><strong>第一，"越用越腐烂"。</strong>每次重写都可能引入回归——之前正确的部分可能被改错。而 patch 式更新只动需要动的地方，最大限度地保留了已经验证过的内容。这让技能"越用越准"而非"越用越烂"。</p>
+
+  <p><strong>第二，token 浪费。</strong>重写一个可能 10KB 的 SKILL.md 需要先生成 10KB 的内容，而 patch 式更新只需要生成变更的那几行。在大量技能需要维护的场景下，这个成本差异是巨大的。</p>
+
+  <h3>硬核深挖：注入机制背后的工程约束</h3>
+
+  <p>对于想深入理解工程细节的读者，这里展开几个值得注意的设计决策：</p>
+
+  <p><strong>[SYSTEM: ...] 前缀与"you MUST load it"强制措辞。</strong>当 Hermes 决定在当前会话中加载某个技能时，它会在消息流中注入一条以 <code class="inline">[SYSTEM: ...]</code> 为前缀的指令，并使用 "you MUST load it" 这样的强制措辞。这看似简单，背后其实是一个成本-效果的精密权衡：</p>
+
+  <ul style="margin-bottom: 18px; padding-left: 24px; line-height: 2;">
+    <li><strong>成本侧</strong>：每次注入技能都会占用上下文窗口，增加 token 消耗。不能无差别地注入所有可能相关的技能。</li>
+    <li><strong>效果侧</strong>：如果不强制加载，LLM 可能"偷懒"忽略技能——尤其是当技能内容较长时。强制措辞确保技能被实际使用和验证。</li>
+  </ul>
+
+  <p><strong>"Prompt Caching Must Not Break"约束。</strong>许多 LLM 提供商支持 Prompt Caching——如果连续请求的前缀相同，可以复用缓存的 KV 状态，大幅降低成本和延迟。Hermes 的技能注入必须放在<strong>不会破坏 Prompt Cache 的位置</strong>——通常是在缓存前缀之后。如果技能注入打断了前缀的一致性，每次请求都要重新计算整个前缀的 KV，成本会飙升。这是一个典型的"看起来不起眼、但做错了会让整个系统在经济上不可行"的工程约束。</p>
+
+  <div class="code-block">
+    <div class="code-label">技能注入的消息结构（简化示意）</div>
+    <pre><span class="com"># ---- 以下部分可被 Prompt Cache 复用 ----</span>
+<span class="var">system_prompt</span>: <span class="str">"You are Hermes, a self-evolving agent..."</span>
+<span class="var">soul_md</span>: <span class="str">"你的性格、价值观..."</span>
+<span class="var">user_md</span>: <span class="str">"用户信息..."</span>
+<span class="var">memory_md</span>: <span class="str">"长期记忆..."</span>
+
+<span class="com"># ---- 以下部分每次可能不同（Cache 边界） ----</span>
+<span class="var">skill_injection</span>: <span class="str">"[SYSTEM: The following skill is relevant to the current task. You MUST load it and follow its instructions: ...]"</span>
+<span class="var">episodic_recall</span>: <span class="str">"[SYSTEM: Relevant past experience summary: ...]"</span>
+<span class="var">user_message</span>: <span class="str">"帮我把项目部署到 Vercel"</span></pre>
+  </div>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>Skill 闭环是运行时进化的核心引擎：Nudge 机制在约 15 次工具调用后触发复盘，将成功经验抽象为 SKILL.md；后续使用中通过 patch 式 find-and-replace 增量修正，让技能"越用越准"。注入机制背后的 Prompt Caching 约束是一个"做错了会让系统在经济上不可行"的关键工程决策。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第五章 ============ -->
+<section class="chapter" id="ch5">
+  <div class="chapter-label">
+    <span class="ch-num">05</span>
+    <span class="ch-tag">引擎二 · 离线批量进化</span>
+  </div>
+  <h2>GEPA/DSPy 系统级优化：让 Agent 在离线时"反思"自己</h2>
+
+  <p>运行时的 Skill 闭环解决的是"即时经验沉淀"，但它有一个局限：只能优化"技能文件"这一个维度。Agent 的表现还取决于系统提示写得好不好、工具描述清不清楚、工具代码本身有没有 bug。这些维度的优化需要更系统的方法。</p>
+
+  <p>2026 年 3 月，独立项目 <strong>hermes-agent-self-evolution</strong> 应运而生。它用 DSPy + GEPA（Genetic-Pareto Prompt Evolution）自动进化技能文件、工具描述、系统提示，甚至工具代码本身。</p>
+
+  <h3>GEPA 是什么？为什么它不同于普通提示优化</h3>
+
+  <p>GEPA 是 ICLR 2026 论文提出的方法，核心思想是用遗传算法 + Pareto 前沿优化来进化提示词。但 Hermes 用它的方式有一个独到之处：</p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">GEPA 的关键差异</div>
+    <p>普通的提示优化只看"成功还是失败"（二值信号），然后尝试随机变异。GEPA 的优化器会<strong>读取完整的执行轨迹</strong>，理解"为什么失败"——是哪个步骤出了问题、是什么原因导致的、修正哪个环节能改善。这意味着它生成的候选变体是有方向性的，而非盲目试错。</p>
+  </div>
+
+  <p>举个具体例子：假设一个"部署到 Vercel"的技能在执行中失败了，普通优化器只会知道"失败了，试试换个说法"。而 GEPA 会读取轨迹，发现失败是因为"技能中引用的 <code class="inline">vercel-cli</code> 命令已经在新版本中改名了"——然后它会针对性地修改那个过时的命令名，而不是随机重写整段技能。</p>
+
+  <h3>安全设计：进化不能失控</h3>
+
+  <p>自动修改系统提示和工具代码听起来很危险——如果进化出一条有害的指令怎么办？如果"优化"后的工具代码引入了安全漏洞怎么办？Hermes 用一套多层约束门控来兜底：</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>约束门控</th>
+          <th>规则</th>
+          <th>目的</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>测试门控</td>
+          <td>候选变体必须 100% 通过现有测试套件</td>
+          <td>防止回归——进化不能破坏已有功能</td>
+        </tr>
+        <tr>
+          <td>大小门控</td>
+          <td>技能文件不超过 15KB</td>
+          <td>控制上下文占用，防止技能膨胀</td>
+        </tr>
+        <tr>
+          <td>语义门控</td>
+          <td>变体的语义不能偏离原始目的</td>
+          <td>防止"优化"方向跑偏——部署技能不能进化成删除技能</td>
+        </tr>
+        <tr>
+          <td>审核门控</td>
+          <td>所有变体以 PR 形式提交人工审核</td>
+          <td>最后一道防线，确保人类把关</td>
+        </tr>
+        <tr>
+          <td>回滚门控</td>
+          <td>完整 Git 历史可追溯、可回滚</td>
+          <td>出问题时能快速恢复到上一个已知好的版本</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>这五层门控构成了一个"进化沙箱"：GEPA 可以自由探索优化空间，但任何变异都必须通过所有门控才能生效。这种设计让"自动化"和"安全性"取得了平衡——既不扼杀进化的效率，也不放弃人类对系统的最终控制权。</p>
+
+  <h3>经济性：让"Agent 自我改进"平民化</h3>
+
+  <p>GEPA 管道的一个重要特性是<strong>无需 GPU</strong>。它调用的是 LLM API（来做轨迹分析和变体生成），而不是在本地跑模型训练。这意味着：</p>
+
+  <div class="callout callout-success">
+    <div class="callout-title">成本结构</div>
+    <p>每次进化运行的成本大约在 <strong>2–10 美元</strong>之间——取决于优化的范围和使用的 LLM。这个成本意味着<strong>任何团队都用得起</strong>，而不只是拥有 GPU 集群的大公司。它大大降低了"Agent 自我改进"的门槛。</p>
+  </div>
+
+  <p>对比一下：一次完整的 RL 训练（下一章会讲）可能需要数百到数千美元的 GPU 算力。GEPA 的 2–10 美元让它成为"高频、低成本的渐进式优化"路径——你可以每周跑一次，持续改进系统提示和技能文件，而不需要等到攒够一大笔训练预算。</p>
+
+  <div class="code-block">
+    <div class="code-label">GEPA 进化管道（伪代码示意）</div>
+    <pre><span class="com"># 1. 收集执行轨迹</span>
+<span class="var">trajectories</span> = <span class="fn">collect_trajectories</span>(agent, test_scenarios)
+
+<span class="com"># 2. GEPA 分析"为什么失败"（而非仅看成功/失败）</span>
+<span class="kw">for</span> traj <span class="kw">in</span> <span class="var">trajectories</span>:
+    <span class="kw">if</span> <span class="kw">not</span> traj.success:
+        <span class="var">failure_analysis</span> = <span class="fn">llm_analyze</span>(
+            <span class="str">"为什么这条轨迹失败了？哪个环节出了问题？"</span>,
+            trajectory=traj
+        )
+
+<span class="com"># 3. 生成候选变体（有方向性，非盲目变异）</span>
+<span class="var">candidates</span> = <span class="fn">generate_variants</span>(
+    current_skill, failure_analyses, constraints
+)
+
+<span class="com"># 4. 约束门控过滤</span>
+<span class="var">survivors</span> = []
+<span class="kw">for</span> candidate <span class="kw">in</span> <span class="var">candidates</span>:
+    <span class="kw">if</span> <span class="fn">passes_all_tests</span>(candidate) \
+       <span class="kw">and</span> <span class="fn">size_ok</span>(candidate, limit=<span class="num">15</span><span class="str">KB</span>) \
+       <span class="kw">and</span> <span class="fn">semantic_aligned</span>(candidate, original):
+        <span class="var">survivors</span>.<span class="fn">append</span>(candidate)
+
+<span class="com"># 5. Pareto 前沿选择（多目标优化：成功率 vs 效率 vs 简洁性）</span>
+<span class="var">best</span> = <span class="fn">pareto_select</span>(<span class="var">survivors</span>)
+
+<span class="com"># 6. 提交 PR 供人工审核</span>
+<span class="fn">create_pull_request</span>(<span class="var">best</span>, reviewer=<span class="str">"human"</span>)</pre>
+  </div>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>hermes-agent-self-evolution 用 DSPy + GEPA 实现离线批量进化：优化器读取执行轨迹理解"为什么失败"，生成有方向性的候选变体，经过五层约束门控（测试/大小/语义/审核/回滚）后以 PR 形式提交人工审核。每次成本 2–10 美元、无需 GPU，让"Agent 自我改进"平民化。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第六章 ============ -->
+<section class="chapter" id="ch6">
+  <div class="chapter-label">
+    <span class="ch-num">06</span>
+    <span class="ch-tag">引擎三 · 模型级进化</span>
+  </div>
+  <h2>RL 训练：把使用轨迹变成更强的模型</h2>
+
+  <p>前两个引擎——Skill 闭环和 GEPA——都在模型外部工作，不改变模型本身。第三条路线则是最重、最根本的：<strong>把使用轨迹导出为训练数据，去 RL（强化学习）训练一个更强的 Hermes 模型。</strong></p>
+
+  <h3>轨迹如何变成训练数据</h3>
+
+  <p>Hermes 的运行时会产生大量的执行轨迹——每一步工具调用、每一条 LLM 响应、每一次成功或失败的结果。这些轨迹通过 <code class="inline">trajectory.py</code> 模块被结构化记录，然后转换为训练所需的格式。</p>
+
+  <div class="code-block">
+    <div class="code-label">trajectory.py 结构化记录（简化示意）</div>
+    <pre><span class="com"># 每条轨迹记录完整的状态-动作-奖励序列</span>
+<span class="kw">class</span> <span class="fn">Trajectory</span>:
+    <span class="var">task</span>: <span class="fn">str</span>                    <span class="com"># "部署到 Vercel"</span>
+    <span class="var">steps</span>: <span class="fn">List</span>[<span class="fn">Step</span>]          <span class="com"># 每一步的详情</span>
+    <span class="var">outcome</span>: <span class="fn">str</span>               <span class="com"># "success" | "failure"</span>
+    <span class="var">reward</span>: <span class="fn">float</span>              <span class="com"># 奖励信号</span>
+    <span class="var">tools_used</span>: <span class="fn">List</span>[<span class="fn">str</span>]      <span class="com"># 使用的工具序列</span>
+    <span class="var">total_cost</span>: <span class="fn">float</span>          <span class="com"># token 成本</span>
+    <span class="var">duration</span>: <span class="fn">float</span>             <span class="com"># 耗时</span></pre>
+  </div>
+
+  <p>这些轨迹随后被转换为 <strong>ShareGPT 格式</strong>——一种在开源社区广泛使用的对话数据格式。这里有一个有趣的叙事点值得展开：</p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">"gpt 标签"背后的生态锁定</div>
+    <p>ShareGPT 格式中，消息的角色标签通常是 <code class="inline">"gpt"</code> 和 <code class="inline">"human"</code>——这是从 ShareGPT（一个分享 ChatGPT 对话的项目）继承来的命名。即使你用 Claude 或 Llama 生成的轨迹，在格式化时也可能被打上 <code class="inline">"gpt"</code> 标签。这个看似无害的命名惯例，实际上折射了 OpenAI 在 Agent 训练数据生态中的深远影响——格式标准、角色命名、甚至数据结构，都带着 ChatGPT 时代的烙印。这是一个"技术惯例演变为生态锁定"的典型案例。</p>
+  </div>
+
+  <h3>batch_runner.py：数据工厂</h3>
+
+  <p>要训练一个好的 RL 模型，需要大量多样化的轨迹数据。<code class="inline">batch_runner.py</code> 就是 Hermes 的"数据工厂"——它用线程池并行运行大量 Agent 对话，自动收集执行轨迹：</p>
+
+  <div class="code-block">
+    <div class="code-label">batch_runner.py 工作原理（伪代码示意）</div>
+    <pre><span class="com"># 并行运行 Agent 对话，批量收集轨迹</span>
+<span class="kw">with</span> <span class="fn">ThreadPoolExecutor</span>(max_workers=<span class="num">32</span>) <span class="kw">as</span> executor:
+    <span class="var">futures</span> = []
+    <span class="kw">for</span> scenario <span class="kw">in</span> <span class="var">test_scenarios</span>:
+        <span class="com"># 每个 scenario 是一个预定义的任务场景</span>
+        <span class="var">future</span> = executor.<span class="fn">submit</span>(run_agent_dialogue, scenario)
+        <span class="var">futures</span>.<span class="fn">append</span>(<span class="var">future</span>)
+
+    <span class="com"># 收集所有轨迹</span>
+    <span class="var">all_trajectories</span> = [<span class="fn">f.result</span>() <span class="kw">for</span> f <span class="kw">in</span> <span class="var">futures</span>]
+
+<span class="com"># 导出为 ShareGPT 格式训练数据</span>
+<span class="fn">export_training_data</span>(<span class="var">all_trajectories</span>, format=<span class="str">"sharegpt"</span>)</pre>
+  </div>
+
+  <h3>戳破最大的误解</h3>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">⚠️ 关键澄清</div>
+    <p>关于 Hermes 的 RL 训练，有一个广泛流传的误解：<strong>"Hermes 会读取用户的实时对话数据，用来实时训练/微调模型权重。"</strong></p>
+    <p><strong>这是错误的。</strong>RL 训练的数据源<strong>默认</strong>是用 <code class="inline">claude-opus</code> 这类顶级模型作为 Teacher Model 合成的<strong>"示范动作"</strong>——而非普通用户的实时对话。</p>
+  </div>
+
+  <p>这个误解的来源可能是对"使用轨迹训练模型"这个说法的字面理解。但实际流程是：</p>
+
+  <ol style="margin-bottom: 18px; padding-left: 24px; line-height: 2;">
+    <li><strong>定义任务场景</strong>：预定义一批多样化的 Agent 任务。</li>
+    <li><strong>Teacher Model 生成示范</strong>：用 claude-opus 等顶级模型在这些场景中执行任务，产生高质量轨迹。</li>
+    <li><strong>收集和格式化</strong>：batch_runner.py 并行收集这些轨迹，转为 ShareGPT 格式。</li>
+    <li><strong>RL 训练</strong>：用这些高质量轨迹做强化学习，训练更强的 Hermes 模型。</li>
+  </ol>
+
+  <p>用户实时对话的轨迹<strong>可以</strong>被导出用于训练，但这不是默认行为，需要显式配置。而且即便使用用户轨迹，也是离线批量处理，而非"实时改权重"。</p>
+
+  <p>这个澄清的重要性在于：它划清了"从示范中学习"和"实时监控用户行为并改模型"的界限。前者是正常的模型训练流程，后者涉及隐私和安全问题——Hermes 做的是前者。</p>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>RL 训练是三层进化中最重的路径：trajectory.py 结构化记录执行轨迹，batch_runner.py 用线程池并行收集数据，最终导出为 ShareGPT 格式用于强化学习。关键澄清：训练数据源默认是 Teacher Model（claude-opus）合成的示范动作，而非用户实时对话——这与"读取用户数据实时改权重"是截然不同的两码事。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第七章 ============ -->
+<section class="chapter" id="ch7">
+  <div class="chapter-label">
+    <span class="ch-num">07</span>
+    <span class="ch-tag">全文高潮</span>
+  </div>
+  <h2>合体：三层飞轮如何协同</h2>
+
+  <p>前三章分别拆解了三层进化引擎。但 Hermes 的真正威力不在于任何单层，而在于<strong>三层构成的飞轮</strong>——它们互相喂养，形成正向循环。</p>
+
+  <div class="diagram-wrap">
+    <svg class="diagram" viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gradRuntime" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#00b894;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#00b894;stop-opacity:0.05"/>
+        </linearGradient>
+        <linearGradient id="gradSystem" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#0984e3;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#0984e3;stop-opacity:0.05"/>
+        </linearGradient>
+        <linearGradient id="gradModel" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#e17055;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#e17055;stop-opacity:0.05"/>
+        </linearGradient>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#6c5ce7"/>
+        </marker>
+        <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#00b894"/>
+        </marker>
+        <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#0984e3"/>
+        </marker>
+        <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#e17055"/>
+        </marker>
+      </defs>
+
+      <!-- 标题 -->
+      <text x="340" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#1a1a1a" font-family="-apple-system, sans-serif">Hermes 三层进化飞轮</text>
+
+      <!-- 中心圆 -->
+      <circle cx="340" cy="270" r="50" fill="rgba(108,92,231,0.08)" stroke="#6c5ce7" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="340" y="265" text-anchor="middle" font-size="13" font-weight="700" fill="#6c5ce7" font-family="-apple-system, sans-serif">飞轮</text>
+      <text x="340" y="282" text-anchor="middle" font-size="11" fill="#6c5ce7" font-family="-apple-system, sans-serif">自加速</text>
+
+      <!-- 运行时层 (左上) -->
+      <rect x="40" y="70" width="220" height="130" rx="14" fill="url(#gradRuntime)" stroke="#00b894" stroke-width="1.5"/>
+      <circle cx="65" cy="95" r="10" fill="#00b894"/>
+      <text x="65" y="99" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">1</text>
+      <text x="84" y="99" font-size="14" font-weight="700" fill="#00b894" font-family="-apple-system, sans-serif">运行时层 · Skill 闭环</text>
+      <text x="60" y="124" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 执行任务 → 沉淀 Skill</text>
+      <text x="60" y="142" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• Nudge 触发复盘 (~15 次调用)</text>
+      <text x="60" y="160" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• patch 式增量修正</text>
+      <text x="60" y="178" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 即时生效，最轻量</text>
+
+      <!-- 系统层 (右上) -->
+      <rect x="420" y="70" width="220" height="130" rx="14" fill="url(#gradSystem)" stroke="#0984e3" stroke-width="1.5"/>
+      <circle cx="445" cy="95" r="10" fill="#0984e3"/>
+      <text x="445" y="99" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">2</text>
+      <text x="464" y="99" font-size="14" font-weight="700" fill="#0984e3" font-family="-apple-system, sans-serif">系统层 · GEPA/DSPy</text>
+      <text x="440" y="124" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 批量优化技能/提示/工具</text>
+      <text x="440" y="142" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 读取轨迹理解"为什么失败"</text>
+      <text x="440" y="160" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 五层约束门控 + PR 审核</text>
+      <text x="440" y="178" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 离线运行，$2-10/次</text>
+
+      <!-- 模型层 (底部) -->
+      <rect x="190" y="370" width="300" height="120" rx="14" fill="url(#gradModel)" stroke="#e17055" stroke-width="1.5"/>
+      <circle cx="215" cy="395" r="10" fill="#e17055"/>
+      <text x="215" y="399" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">3</text>
+      <text x="234" y="399" font-size="14" font-weight="700" fill="#e17055" font-family="-apple-system, sans-serif">模型层 · RL 训练</text>
+      <text x="210" y="424" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 轨迹导出为训练数据 (ShareGPT 格式)</text>
+      <text x="210" y="442" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• Teacher Model 合成示范动作</text>
+      <text x="210" y="460" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• RL 训练更强的 Hermes 模型</text>
+      <text x="210" y="478" font-size="12" fill="#555" font-family="-apple-system, sans-serif">• 最重，根本性进化</text>
+
+      <!-- 飞轮箭头 -->
+      <!-- 运行时 → 系统层 (轨迹供给) -->
+      <path d="M 260 135 Q 340 100 420 135" fill="none" stroke="#00b894" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+      <text x="340" y="92" text-anchor="middle" font-size="11" fill="#00b894" font-family="-apple-system, sans-serif" font-style="italic">轨迹供给</text>
+
+      <!-- 系统层 → 模型层 (优化后轨迹) -->
+      <path d="M 530 200 Q 560 290 460 370" fill="none" stroke="#0984e3" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowBlue)"/>
+      <text x="575" y="290" text-anchor="middle" font-size="11" fill="#0984e3" font-family="-apple-system, sans-serif" font-style="italic">高质量</text>
+      <text x="575" y="304" text-anchor="middle" font-size="11" fill="#0984e3" font-family="-apple-system, sans-serif" font-style="italic">轨迹</text>
+
+      <!-- 模型层 → 运行时 (更强模型) -->
+      <path d="M 220 370 Q 120 290 150 200" fill="none" stroke="#e17055" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+      <text x="100" y="290" text-anchor="middle" font-size="11" fill="#e17055" font-family="-apple-system, sans-serif" font-style="italic">更强模型</text>
+      <text x="100" y="304" text-anchor="middle" font-size="11" fill="#e17055" font-family="-apple-system, sans-serif" font-style="italic">→ 更好轨迹</text>
+
+      <!-- 中心到各层的连接 (虚线) -->
+      <line x1="300" y1="240" x2="180" y2="200" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="380" y1="240" x2="500" y2="200" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="340" y1="320" x2="340" y2="370" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+    </svg>
+    <div class="diagram-caption">图：三层飞轮——运行时技能积累 → 系统级批量优化 → 模型级 RL 训练 → 更强模型产出更高质量轨迹 → 回馈运行时层</div>
+  </div>
+
+  <h3>飞轮如何转动</h3>
+
+  <p>理解这个飞轮的关键，是看清楚三层之间的"喂养"关系：</p>
+
+  <p><strong>第一圈：运行时层 → 模型层。</strong>用户在使用 Hermes 的过程中产生大量执行轨迹。这些轨迹——尤其是成功的、高效的轨迹——被导出为训练数据。轨迹越多、质量越高，RL 训练出来的模型就越强。</p>
+
+  <p><strong>第二圈：模型层 → 运行时层。</strong>更强的 Hermes 模型意味着什么？意味着它在执行任务时会产生更高质量的轨迹——更少的试错、更优的工具调用序列、更高的成功率。这些更高质量的轨迹又会被导出为更好的训练数据……循环加速。</p>
+
+  <p><strong>第三圈：系统层的加持。</strong>GEPA 在中间扮演"催化剂"角色。它从运行时轨迹中分析失败原因，优化技能文件和系统提示。优化后的技能和提示让运行时层的表现更好，产生更高质量的轨迹，进而让模型层的训练数据更好。GEPA 不直接参与模型训练，但它提升了飞轮每一圈的效率。</p>
+
+  <h3>为什么要同时做三条路线？</h3>
+
+  <p>这是最核心的问题。如果只做其中一条，会怎样？</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>只做一条</th>
+          <th>结果</th>
+          <th>局限</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>只做 Skill 闭环</td>
+          <td>能记住经验、复用流程</td>
+          <td>像一个<strong>"只会查手册的实习生"</strong>——手册再全，判断力和执行力受限于模型本身的智力。遇到手册没覆盖的新情况就抓瞎。</td>
+        </tr>
+        <tr>
+          <td>只做 RL 训练</td>
+          <td>模型本身变强</td>
+          <td>成本高、周期长，而且<strong>记不住你的具体偏好</strong>。每次 RL 训练都是"通用能力提升"，无法针对性地记住"你用 pnpm 不用 npm"这类个性化信息。</td>
+        </tr>
+        <tr>
+          <td>只做 GEPA</td>
+          <td>提示和工具描述变好</td>
+          <td>天花板受限于<strong>当前模型的智力</strong>。GEPA 优化的是"怎么用好当前模型"，但如果模型本身不够聪明，优化的边际收益会递减。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>三者互补才闭环：</p>
+
+  <ul style="margin-bottom: 18px; padding-left: 24px; line-height: 2;">
+    <li><strong>Skill 闭环</strong>解决"个性化记忆"——记住你的偏好、你的项目、你的工作流。</li>
+    <li><strong>GEPA</strong>解决"使用效率"——让当前模型被用得更好，榨干每一分智力。</li>
+    <li><strong>RL 训练</strong>解决"智力天花板"——让模型本身变强，突破当前能力上限。</li>
+  </ul>
+
+  <p>缺任何一层，飞轮都会"漏气"：只做 Skill，模型智力是天花板；只做 RL，个性化记忆缺失；只做 GEPA，优化空间受限于模型。三者同时运转，才能形成真正的自加速循环。</p>
+
+  <div class="callout callout-success">
+    <div class="callout-title">开源框架中的独特性</div>
+    <p>据我们所知，<strong>没有其他开源 Agent 框架把运行时行为当作下一代模型的训练素材</strong>。大多数框架的运行时和训练是完全割裂的——你用 Agent 做的事，不会回馈到模型本身。Hermes 的飞轮设计打破了这堵墙，让"使用"和"训练"形成闭环。这在开源生态中是独创的。</p>
+  </div>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>三层引擎构成自加速飞轮：运行时技能积累产出轨迹 → 轨迹导出为训练数据 → RL 训练更强模型 → 更强模型产出更高质量轨迹 → 回馈运行时层；GEPA 在中间催化每一圈的效率。只做任何单层都有致命局限——Skill 解决"记得住"、GEPA 解决"用得好"、RL 解决"变更强"，三者互补才闭环。这种"运行时行为喂养下一代模型"的设计在开源框架中是独创的。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 第八章 ============ -->
+<section class="chapter" id="ch8">
+  <div class="chapter-label">
+    <span class="ch-num">08</span>
+    <span class="ch-tag">批判性审视</span>
+  </div>
+  <h2>冷静下来：局限与适用边界</h2>
+
+  <p>前面的章节可能让人对 Hermes 的自进化能力充满期待。但一篇严肃的技术解读不能止步于赞美——客观性来自于对局限的诚实分析。这一章是让本文区别于营销软文的关键。</p>
+
+  <h3>局限一：效果高度依赖使用模式</h3>
+
+  <p>Hermes 的自进化机制——尤其是 Skill 闭环——本质上是从重复性工作流中提取模式。这意味着：</p>
+
+  <div class="callout callout-warn">
+    <div class="callout-title">回报不均匀</div>
+    <p><strong>重复性工作流回报最大</strong>：如果你每天部署 Vercel、每周跑 CI/CD、每月生成相同格式的报告——这些高频重复任务是 Skill 沉淀的理想场景，进化价值最大。</p>
+    <p><strong>一次性任务进化价值有限</strong>：如果你用 Hermes 做的是"写一篇全新的营销文案""分析一个从未见过的数据集"这类高度非重复的任务，Skill 沉淀几乎没有用武之地——因为你不会第二次遇到完全相同的任务。</p>
+  </div>
+
+  <p>这不是 Hermes 的设计缺陷，而是"从经验中学习"这一范式的固有边界。人类也是如此：一个每天做同类手术的外科医生会越做越熟练，但一个每次面对全新病例的研究型医生，"经验积累"的杠杆效应就小得多。</p>
+
+  <h3>局限二：对"约 40% 加速"数据保持审慎</h3>
+
+  <p>Nous Research 在发布时提到 Hermes 在某些场景下能实现"约 40% 的执行加速"。这个数字很有传播力，但需要审慎看待：</p>
+
+  <ul style="margin-bottom: 18px; padding-left: 24px; line-height: 2;">
+    <li><strong>它来自单一案例</strong>：40% 的加速很可能是在特定任务类型（高重复性、已有技能沉淀）下的最优表现，不宜当作普遍结论。</li>
+    <li><strong>没有公开的基准测试</strong>：缺乏标准化的评估方法、对照组和统计显著性数据。在学术意义上，这个数字目前更接近"营销数据"而非"研究数据"。</li>
+    <li><strong>"加速"的定义不明确</strong>：是减少了 40% 的工具调用次数？减少了 40% 的 token 消耗？还是减少了 40% 的墙钟时间？不同的定义对应完全不同的实际价值。</li>
+  </ul>
+
+  <p>合理的做法是：<strong>把它当作"可能的上界"而非"典型表现"</strong>。在实际使用中，加速效果会因任务类型、使用频率、技能库成熟度等因素大幅波动。</p>
+
+  <h3>局限三：评估数据集质量决定进化效果</h3>
+
+  <p>无论是 GEPA 还是 RL 训练，进化的效果都取决于"用什么数据来评估和训练"。如果评估数据集本身有偏差——比如只覆盖了部分任务类型、只包含简单场景——那么进化出来的技能和模型也会带有同样的偏差。</p>
+
+  <blockquote>Garbage in, garbage out. 这个古老的计算原则在 Agent 自进化中依然适用——进化算法再精巧，也无法从有偏差的数据中进化出无偏差的能力。</blockquote>
+
+  <h3>局限四：进化算法可能陷局部最优</h3>
+
+  <p>GEPA 用遗传算法 + Pareto 前沿来探索优化空间。但遗传算法有一个已知的局限：<strong>可能陷入局部最优</strong>——找到一个"比当前好一点"的变体后就停止探索，错过"好很多"的全局最优解。尤其当搜索空间较大、评估样本较少时，这个风险更显著。</p>
+
+  <p>Hermes 的约束门控（测试 100% 通过、语义不偏移）在保证安全的同时，也<strong>可能过度收紧了搜索空间</strong>——一些"方向正确但暂时无法通过所有测试"的候选变体会被过滤掉，错失了潜在的更优解。</p>
+
+  <h3>局限五：人工审核可能成为瓶颈</h3>
+
+  <p>GEPA 的所有变体都需要以 PR 形式提交人工审核。这在项目初期是合理的——安全第一。但随着技能库增长、进化频率提升，人工审核的工作量会线性增长。如果审核速度跟不上进化速度，PR 积压会成为瓶颈，反而拖慢进化节奏。</p>
+
+  <p>这个问题可能的解决方向包括：自动审核（用另一个 LLM 做初审）、分级审核（低风险变更自动通过、高风险变更人工审核）、社区审核（开源社区共同审核 PR）。但这些方案目前都还在探索阶段。</p>
+
+  <div class="chapter-summary">
+    <div class="summary-label">本章小结</div>
+    <p>Hermes 自进化有明确的适用边界：重复性工作流回报最大，一次性任务价值有限；"约 40% 加速"来自单一案例，不宜当普遍结论；评估数据集质量、进化算法局部最优、人工审核瓶颈都是潜在风险。诚实面对这些局限，恰恰是技术成熟度的体现。</p>
+  </div>
+</section>
+
+<div class="divider"><span class="divider-dot"></span></div>
+
+<!-- ============ 结语 ============ -->
+<section class="chapter" id="epilogue">
+  <div class="epilogue">
+    <div class="chapter-label" style="justify-content: center; margin-bottom: 16px;">
+      <span class="ch-num">09</span>
+      <span class="ch-tag" style="color: rgba(255,255,255,0.6);">结语 · 升维</span>
+    </div>
+    <h2>这代表 AI Agent 工程化的什么方向</h2>
+
+    <p style="margin-bottom: 24px;">从"被手动调教的静态工具"到"在实战中主动进化的数字资产"——这是 Hermes 所代表的 AI Agent 工程化方向。</p>
+
+    <p style="margin-bottom: 24px;">传统 Agent 的能力曲线是平的：无论你用多久，它的表现不会随时间增长。Hermes 打破了这个天花板，让 Agent 的能力随使用经验持续增长。这不是通过修改模型权重实现的——<strong>进化的不是"大脑"，而是"工作方法"</strong>。</p>
+
+    <p style="margin-bottom: 24px;">正因为进化发生在策略层而非模型层，Hermes 对模型选择不敏感、兼容任何提供商。你今天用 GPT-4，明天换成 Claude，后天换成开源 Llama——Skill 库、记忆系统、GEPA 优化的提示词都不受影响。这让 Hermes 的进化成果成为一种<strong>与模型解耦的数字资产</strong>，而非绑定在某个特定模型上的"一次性投资"。</p>
+
+    <p style="margin-bottom: 24px;">回扣全文题眼：<strong>不改模型权重，只改"怎么用模型"。</strong>这句话既是 Hermes 的技术宣言，也是它的设计哲学——你不需要拥有模型的所有权来让 Agent 变强，你只需要让"使用模型的方式"持续进化。</p>
+
+    <div class="open-question">
+      <div class="oq-label">🔮 留给读者的开放问题</div>
+      <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.8; margin: 0;">当运行时行为持续喂养下一代模型，当每一次工具调用、每一次成功或失败都在塑造 Agent 的未来能力——Agent 的进化会走向何处？它会不会最终到达一个"自我改进的奇点"，还是会在某个能力平台期稳定下来？更重要的是：<strong>当 Agent 的进化深度依赖于用户的使用数据，谁真正"拥有"这些进化成果——是用户、是框架开发者、还是训练出来的模型本身？</strong></p>
+    </div>
+  </div>
+</section>
+
+</article>
+
+<!-- ============ 页脚 ============ -->
+<footer class="footer">
+  <p>Hermes Agent 自进化深度解读 · 基于 Nous Research 2026 年开源项目分析</p>
+  <p style="margin-top: 8px;">本文为技术解读文章，所引用的技术细节基于公开信息整理，不代表官方立场。</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器学习 → 神经网络 → LLM 学习路径</title>
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --text-secondary: #6b7c93;
+    --accent-ml: #3498db;
+    --accent-nn: #9b59b6;
+    --accent-llm: #e74c3c;
+    --border: #e8ecf1;
+    --code-bg: #f4f6f9;
+    --highlight: #fff3cd;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .header .subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+  .roadmap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 28px auto 0;
+    max-width: 540px;
+  }
+  .roadmap-step {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .roadmap-step.ml { background: var(--accent-ml); }
+  .roadmap-step.nn { background: var(--accent-nn); }
+  .roadmap-step.llm { background: var(--accent-llm); }
+  .roadmap-arrow {
+    font-size: 20px;
+    color: var(--text-secondary);
+    padding: 0 6px;
+  }
+  /* Sections */
+  .section {
+    margin-bottom: 52px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-badge {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+  }
+  .section-badge.ml { background: var(--accent-ml); }
+  .section-badge.nn { background: var(--accent-nn); }
+  .section-badge.llm { background: var(--accent-llm); }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .section-desc {
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+  /* Concept cards */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .concept-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .concept-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .concept-card.ml h3 { color: var(--accent-ml); }
+  .concept-card.nn h3 { color: var(--accent-nn); }
+  .concept-card.llm h3 { color: var(--accent-llm); }
+  .concept-card p {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .concept-card.full {
+    grid-column: 1 / -1;
+  }
+  /* Diagram block */
+  .diagram-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+  .diagram-block h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .diagram-block svg {
+    display: block;
+    margin: 0 auto;
+  }
+  /* Flow */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .flow-step {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .flow-arrow {
+    color: var(--text-secondary);
+    font-size: 16px;
+  }
+  /* Key term list */
+  .term-list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .term-list h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .term-row {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .term-row:last-child { border-bottom: none; }
+  .term-name {
+    font-weight: 600;
+    min-width: 110px;
+  }
+  .term-def {
+    color: var(--text-secondary);
+  }
+  /* Code inline */
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    font-family: 'Menlo', 'Consolas', monospace;
+  }
+  /* Note block */
+  .note {
+    background: var(--highlight);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+  }
+  .note strong { color: #856404; }
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 2px dashed var(--border);
+    margin: 40px 0;
+  }
+  /* Responsive */
+  @media (max-width: 600px) {
+    .concept-grid { grid-template-columns: 1fr; }
+    .roadmap { flex-direction: column; gap: 6px; }
+    .roadmap-arrow { transform: rotate(90deg); }
+    body { padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>从机器学习到大语言模型</h1>
+  <div class="subtitle">一条清晰的学习路径 — 只保留必要的知识</div>
+  <div class="roadmap">
+    <span class="roadmap-step ml">① 机器学习</span>
+    <span class="roadmap-arrow">→</span>
+    <span class="roadmap-step nn">② 神经网络</span>
+    <span class="roadmap-arrow">→</span>
+    <span class="roadmap-step llm">③ LLM</span>
+  </div>
+</div>
+
+<!-- ═══════════════ SECTION 1: ML ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-badge ml">①</span>
+    <span class="section-title">机器学习</span>
+  </div>
+  <div class="section-desc">让计算机从数据中自动学习规律，而非靠人工编写规则。</div>
+
+  <div class="concept-grid">
+    <div class="concept-card ml">
+      <h3>监督学习</h3>
+      <p>数据带标签。模型学习输入→输出的映射关系。<br>例：给图片标注"猫/狗"，训练分类器。</p>
+    </div>
+    <div class="concept-card ml">
+      <h3>无监督学习</h3>
+      <p>数据无标签。模型自行发现数据内部结构。<br>例：将用户按行为聚类成不同群体。</p>
+    </div>
+    <div class="concept-card ml">
+      <h3>强化学习</h3>
+      <p>智能体在环境中行动，通过奖惩信号学习策略。<br>例：围棋AI通过胜负反馈优化走法。</p>
+    </div>
+    <div class="concept-card ml">
+      <h3>核心范式</h3>
+      <p><strong>训练</strong>：用数据调整模型参数<br><strong>推理</strong>：用训练好的模型对新数据做预测<br>整个过程 = 找一个函数，使预测尽量接近真实值</p>
+    </div>
+  </div>
+
+  <div class="term-list">
+    <h3>关键术语</h3>
+    <div class="term-row">
+      <span class="term-name">特征 (Feature)</span>
+      <span class="term-def">数据的可度量属性，如房屋面积、图片像素值</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">标签 (Label)</span>
+      <span class="term-def">监督学习中的目标值，如房价、类别名</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">损失函数</span>
+      <span class="term-def">衡量预测与真实值的差距，训练的目标就是最小化它</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">梯度下降</span>
+      <span class="term-def">沿损失函数的梯度反方向逐步更新参数，使损失收敛</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">过拟合 / 欠拟合</span>
+      <span class="term-def">过拟合：模型死记数据，泛化差；欠拟合：模型太简单，学不到位</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>为什么学 ML：</strong>神经网络和 LLM 都是机器学习的子领域。理解"数据→模型→训练→推理"这一范式，是后续所有知识的基石。
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ═══════════════ SECTION 2: Neural Networks ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-badge nn">②</span>
+    <span class="section-title">神经网络</span>
+  </div>
+  <div class="section-desc">一种由"神经元"层层堆叠的机器学习模型，能自动提取数据的深层特征。</div>
+
+  <!-- Neuron diagram -->
+  <div class="diagram-block">
+    <h3>单个神经元</h3>
+    <svg viewBox="0 0 540 140" width="540" height="140">
+      <!-- Inputs -->
+      <text x="10" y="28" font-size="13" fill="#6b7c93" font-family="sans-serif">x₁</text>
+      <line x1="30" y1="24" x2="220" y2="70" stroke="#3498db" stroke-width="1.5"/>
+      <text x="100" y="50" font-size="11" fill="#3498db" font-family="sans-serif">w₁</text>
+
+      <text x="10" y="68" font-size="13" fill="#6b7c93" font-family="sans-serif">x₂</text>
+      <line x1="30" y1="64" x2="220" y2="70" stroke="#3498db" stroke-width="1.5"/>
+      <text x="100" y="78" font-size="11" fill="#3498db" font-family="sans-serif">w₂</text>
+
+      <text x="10" y="108" font-size="13" fill="#6b7c93" font-family="sans-serif">x₃</text>
+      <line x1="30" y1="104" x2="220" y2="70" stroke="#3498db" stroke-width="1.5"/>
+      <text x="100" y="106" font-size="11" fill="#3498db" font-family="sans-serif">w₃</text>
+
+      <!-- Neuron body -->
+      <circle cx="240" cy="70" r="28" fill="#f4f6f9" stroke="#9b59b6" stroke-width="2"/>
+      <text x="228" y="64" font-size="10" fill="#9b59b6" font-family="sans-serif">Σ + b</text>
+      <text x="228" y="78" font-size="10" fill="#9b59b6" font-family="sans-serif">f(·)</text>
+
+      <!-- Output -->
+      <line x1="270" y1="70" x2="420" y2="70" stroke="#e74c3c" stroke-width="2"/>
+      <text x="430" y="74" font-size="14" fill="#e74c3c" font-family="sans-serif">y</text>
+
+      <!-- Labels -->
+      <text x="30" y="135" font-size="11" fill="#6b7c93" font-family="sans-serif">输入 × 权重</text>
+      <text x="210" y="135" font-size="11" fill="#6b7c93" font-family="sans-serif">求和 + 激活</text>
+      <text x="380" y="135" font-size="11" fill="#6b7c93" font-family="sans-serif">输出</text>
+    </svg>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card nn">
+      <h3>神经元</h3>
+      <p>计算 <code>y = f(w·x + b)</code><br><code>w</code> 权重控制每个输入的重要程度<br><code>b</code> 偏置是阈值偏移<br><code>f</code> 激活函数引入非线性</p>
+    </div>
+    <div class="concept-card nn">
+      <h3>激活函数</h3>
+      <p>没有激活函数，多层网络 = 一个线性变换，毫无意义。<br>常用：<code>ReLU</code>（max(0,x)，简单高效）<br>旧式：<code>Sigmoid</code>（挤压到0~1）</p>
+    </div>
+    <div class="concept-card nn">
+      <h3>网络结构</h3>
+      <p><strong>输入层</strong>：接收原始特征<br><strong>隐藏层</strong>：逐层提取更高阶特征<br><strong>输出层</strong>：给出最终预测<br>层数越多 → 表达能力越强 → "深度学习"</p>
+    </div>
+    <div class="concept-card nn">
+      <h3>前向 & 反向传播</h3>
+      <p><strong>前向</strong>：数据从输入→输出逐层计算<br><strong>反向</strong>：从输出→输入逐层计算梯度<br>梯度 = 每个参数对损失的影响程度<br>反向传播是训练的核心算法</p>
+    </div>
+  </div>
+
+  <!-- Training flow -->
+  <div class="flow-row">
+    <span class="flow-step" style="background:#9b59b6;">① 前向传播</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step" style="background:#9b59b6;">② 计算损失</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step" style="background:#9b59b6;">③ 反向传播</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step" style="background:#9b59b6;">④ 更新参数</span>
+    <span class="flow-arrow">→</span>
+    <span style="font-size:12px;color:#6b7c93;">循环直到收敛</span>
+  </div>
+
+  <div class="term-list">
+    <h3>关键术语</h3>
+    <div class="term-row">
+      <span class="term-name">学习率</span>
+      <span class="term-def">每步参数更新的幅度，太大震荡、太慢收敛</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">批量 (Batch)</span>
+      <span class="term-def">每次更新使用的一小批样本，兼顾效率与稳定性</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">Epoch</span>
+      <span class="term-def">遍历全部训练数据一次，训练通常需数十到数百个 epoch</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">参数量</span>
+      <span class="term-def">模型中所有权重+偏置的总数，决定模型容量</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>为什么学神经网络：</strong>LLM 本质上是一个超大规模的神经网络（Transformer）。理解前向/反向传播、激活函数、参数训练，才能理解 LLM 是怎么"学"的。
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ═══════════════ SECTION 3: LLM ═══════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-badge llm">③</span>
+    <span class="section-title">大语言模型 (LLM)</span>
+  </div>
+  <div class="section-desc">以 Transformer 为架构、以海量文本为燃料的超大规模神经网络，能理解和生成自然语言。</div>
+
+  <!-- Transformer core diagram -->
+  <div class="diagram-block">
+    <h3>Transformer 核心架构</h3>
+    <svg viewBox="0 0 540 220" width="540" height="220">
+      <!-- Input tokens -->
+      <rect x="10" y="40" width="100" height="30" rx="6" fill="#fde8e8" stroke="#e74c3c" stroke-width="1.5"/>
+      <text x="28" y="60" font-size="11" fill="#e74c3c" font-family="sans-serif">Token 嵌入</text>
+
+      <rect x="10" y="85" width="100" height="30" rx="6" fill="#fde8e8" stroke="#e74c3c" stroke-width="1.5"/>
+      <text x="18" y="105" font-size="11" fill="#e74c3c" font-family="sans-serif">位置编码</text>
+
+      <!-- Combine -->
+      <line x1="115" y1="55" x2="160" y2="100" stroke="#6b7c93" stroke-width="1"/>
+      <line x1="115" y1="100" x2="160" y2="100" stroke="#6b7c93" stroke-width="1"/>
+      <circle cx="168" cy="100" r="12" fill="#f4f6f9" stroke="#6b7c93" stroke-width="1.5"/>
+      <text x="163" y="104" font-size="10" fill="#6b7c93" font-family="sans-serif">+</text>
+
+      <!-- Self-Attention -->
+      <rect x="195" y="60" width="130" height="80" rx="8" fill="#fde8e8" stroke="#e74c3c" stroke-width="2"/>
+      <text x="210" y="85" font-size="12" fill="#e74c3c" font-family="sans-serif" font-weight="600">自注意力</text>
+      <text x="210" y="102" font-size="10" fill="#6b7c93" font-family="sans-serif">每个token关注</text>
+      <text x="210" y="115" font-size="10" fill="#6b7c93" font-family="sans-serif">所有其他token</text>
+
+      <!-- MLP -->
+      <rect x="340" y="60" width="110" height="80" rx="8" fill="#f4f6f9" stroke="#9b59b6" stroke-width="2"/>
+      <text x="358" y="85" font-size="12" fill="#9b59b6" font-family="sans-serif" font-weight="600">MLP</text>
+      <text x="358" y="102" font-size="10" fill="#6b7c93" font-family="sans-serif">逐token非线性</text>
+      <text x="358" y="115" font-size="10" fill="#6b7c93" font-family="sans-serif">变换</text>
+
+      <!-- Output -->
+      <rect x="465" y="70" width="60" height="55" rx="6" fill="#fde8e8" stroke="#e74c3c" stroke-width="1.5"/>
+      <text x="476" y="95" font-size="11" fill="#e74c3c" font-family="sans-serif">输出</text>
+
+      <!-- Arrows -->
+      <line x1="182" y1="100" x2="195" y2="100" stroke="#6b7c93" stroke-width="1.5"/>
+      <line x1="327" y1="100" x2="340" y2="100" stroke="#6b7c93" stroke-width="1.5"/>
+      <line x1="452" y1="100" x2="465" y2="95" stroke="#6b7c93" stroke-width="1.5"/>
+
+      <!-- N× label -->
+      <text x="240" y="155" font-size="11" fill="#6b7c93" font-family="sans-serif">↑ 堆叠 N 层（GPT-3: 96层）</text>
+
+      <!-- Multi-head label -->
+      <text x="195" y="175" font-size="10" fill="#e74c3c" font-family="sans-serif">多头注意力 = 并行做多组注意力再合并</text>
+
+      <!-- Residual -->
+      <text x="340" y="195" font-size="10" fill="#9b59b6" font-family="sans-serif">每层有残差连接 + LayerNorm</text>
+    </svg>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card llm">
+      <h3>自注意力机制</h3>
+      <p>Transformer 的灵魂。每个 token 生成三个向量：<br><code>Q</code>（查询）、<code>K</code>（键）、<code>V</code>（值）<br>注意力 = softmax(Q·Kᵀ) · V<br>效果：每个词"看到"整段话，决定关注谁</p>
+    </div>
+    <div class="concept-card llm">
+      <h3>位置编码</h3>
+      <p>自注意力本身没有顺序概念。<br>位置编码给每个 token 注入位置信息，<br>让模型区分"猫吃鱼"和"鱼吃猫"。</p>
+    </div>
+    <div class="concept-card llm">
+      <h3>Token化</h3>
+      <p>文本 → token序列 → 数字ID → 嵌入向量<br>token 可以是词、子词或字符<br>常用方案：BPE（字节对编码）</p>
+    </div>
+    <div class="concept-card llm">
+      <h3>生成式推理</h3>
+      <p>LLM 逐 token 生成：<br>每次基于已有上下文预测下一个 token<br>采样策略决定多样性和质量<br>（贪心 / top-k / top-p / 温度）</p>
+    </div>
+  </div>
+
+  <!-- Training pipeline -->
+  <div class="diagram-block">
+    <h3>LLM 训练三阶段</h3>
+    <svg viewBox="0 0 540 80" width="540" height="80">
+      <rect x="10" y="15" width="160" height="50" rx="8" fill="#fde8e8" stroke="#e74c3c" stroke-width="1.5"/>
+      <text x="30" y="38" font-size="12" fill="#e74c3c" font-family="sans-serif" font-weight="600">① 预训练</text>
+      <text x="30" y="55" font-size="10" fill="#6b7c93" font-family="sans-serif">海量无标注文本 · 预测下一个token</text>
+
+      <line x1="175" y1="40" x2="200" y2="40" stroke="#6b7c93" stroke-width="1.5"/>
+      <text x="180" y="36" font-size="12" fill="#6b7c93" font-family="sans-serif">→</text>
+
+      <rect x="200" y="15" width="150" height="50" rx="8" fill="#f4e6ff" stroke="#9b59b6" stroke-width="1.5"/>
+      <text x="220" y="38" font-size="12" fill="#9b59b6" font-family="sans-serif" font-weight="600">② 微调 (SFT)</text>
+      <text x="220" y="55" font-size="10" fill="#6b7c93" font-family="sans-serif">指令-回答数据 · 学会遵循指令</text>
+
+      <line x1="355" y1="40" x2="380" y2="40" stroke="#6b7c93" stroke-width="1.5"/>
+      <text x="360" y="36" font-size="12" fill="#6b7c93" font-family="sans-serif">→</text>
+
+      <rect x="380" y="15" width="150" height="50" rx="8" fill="#e8f4fd" stroke="#3498db" stroke-width="1.5"/>
+      <text x="400" y="38" font-size="12" fill="#3498db" font-family="sans-serif" font-weight="600">③ 对齐 (RLHF)</text>
+      <text x="400" y="55" font-size="10" fill="#6b7c93" font-family="sans-serif">人类偏好反馈 · 更安全有用</text>
+    </svg>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card llm">
+      <h3>预训练</h3>
+      <p>在万亿级 token 上做"下一个 token 预测"。这是自监督学习——不需要人工标注，文本本身就是标签。模型由此获得语言知识和世界知识。</p>
+    </div>
+    <div class="concept-card llm">
+      <h3>微调 (SFT)</h3>
+      <p>用人工编写的"指令-回答"数据继续训练。让模型从"续写文本"变为"按指令回答问题"。数据量小但质量高。</p>
+    </div>
+    <div class="concept-card llm">
+      <h3>对齐 (RLHF)</h3>
+      <p>人类给模型输出打分，训练一个奖励模型，再用强化学习优化 LLM 使其输出更符合人类偏好（安全、诚实、有帮助）。</p>
+    </div>
+    <div class="concept-card llm">
+      <h3>涌现能力</h3>
+      <p>参数规模超过一定阈值后，模型突然展现出小模型不具备的能力（推理、编程、数学等）。目前尚无完整理论解释。</p>
+    </div>
+  </div>
+
+  <div class="term-list">
+    <h3>关键术语</h3>
+    <div class="term-row">
+      <span class="term-name">上下文窗口</span>
+      <span class="term-def">模型一次能处理的 token 数，决定"记忆长度"（如 4K/8K/128K）</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">参数量</span>
+      <span class="term-def">模型权重总数，7B = 70亿，175B = GPT-3规模，直接决定能力和成本</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">Temperature</span>
+      <span class="term-def">控制采样随机性。低=确定/枯燥，高=多样/不可控，0=贪心</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">Top-p / Top-k</span>
+      <span class="term-def">只从概率最高的前 k 个或累积概率前 p 的 token 中采样，过滤低质量选项</span>
+    </div>
+    <div class="term-row">
+      <span class="term-name">In-context Learning</span>
+      <span class="term-def">在提示词中给出示例，模型无需更新参数即可适应新任务（GPT-3 核心能力）</span>
+    </div>
+  </div>
+
+  <!-- Architecture comparison -->
+  <div class="diagram-block">
+    <h3>主流 LLM 架构对比</h3>
+    <svg viewBox="0 0 540 110" width="540" height="110">
+      <!-- GPT -->
+      <rect x="10" y="10" width="160" height="90" rx="8" fill="#fde8e8" stroke="#e74c3c" stroke-width="1.5"/>
+      <text x="40" y="32" font-size="13" fill="#e74c3c" font-family="sans-serif" font-weight="600">GPT 系列</text>
+      <text x="30" y="50" font-size="10.5" fill="#6b7c93" font-family="sans-serif">解码器-only</text>
+      <text x="30" y="65" font-size="10.5" fill="#6b7c93" font-family="sans-serif">自回归生成（逐token）</text>
+      <text x="30" y="80" font-size="10.5" fill="#6b7c93" font-family="sans-serif">代表：GPT-4, LLaMA</text>
+
+      <!-- BERT -->
+      <rect x="190" y="10" width="160" height="90" rx="8" fill="#e8f4fd" stroke="#3498db" stroke-width="1.5"/>
+      <text x="220" y="32" font-size="13" fill="#3498db" font-family="sans-serif" font-weight="600">BERT</text>
+      <text x="210" y="50" font-size="10.5" fill="#6b7c93" font-family="sans-serif">编码器-only</text>
+      <text x="210" y="65" font-size="10.5" fill="#6b7c93" font-family="sans-serif">理解文本（非生成）</text>
+      <text x="210" y="80" font-size="10.5" fill="#6b7c93" font-family="sans-serif">代表：搜索、分类</text>
+
+      <!-- T5 -->
+      <rect x="370" y="10" width="160" height="90" rx="8" fill="#f4e6ff" stroke="#9b59b6" stroke-width="1.5"/>
+      <text x="400" y="32" font-size="13" fill="#9b59b6" font-family="sans-serif" font-weight="600">T5 / BART</text>
+      <text x="390" y="50" font-size="10.5" fill="#6b7c93" font-family="sans-serif">编码器+解码器</text>
+      <text x="390" y="65" font-size="10.5" fill="#6b7c93" font-family="sans-serif">输入→输出序列变换</text>
+      <text x="390" y="80" font-size="10.5" fill="#6b7c93" font-family="sans-serif">代表：翻译、摘要</text>
+    </svg>
+  </div>
+
+  <div class="note">
+    <strong>知识链总结：</strong>机器学习建立了"数据→模型→训练→推理"范式 → 神经网络用层层堆叠的神经元实现特征自动提取 → Transformer 架构用自注意力突破序列长度瓶颈 → 在超大规模数据和参数下训练，诞生了能理解与生成语言的大语言模型。
+  </div>
+</div>
+
+</body>
+</html>

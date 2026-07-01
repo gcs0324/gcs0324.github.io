@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>装修家电清单 & 施工注意事项</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f5f0;
+    color: #2c2c2a;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 920px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 48px 24px 40px;
+    background: #fff;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    border: 1px solid #e8e6de;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    color: #888780;
+  }
+  .header .tag-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #f1efe8;
+    color: #5f5e5a;
+  }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    padding-left: 14px;
+    border-left: 4px solid #0f6e56;
+  }
+  .section-subtitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333;
+    margin: 24px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-subtitle .icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    color: #fff;
+  }
+
+  /* Table */
+  .table-wrap {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e8e6de;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead { background: #f8f7f2; }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #444441;
+    font-size: 13px;
+    border-bottom: 1px solid #e8e6de;
+    white-space: nowrap;
+  }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0eee6;
+    color: #555;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf6; }
+  .item-name { font-weight: 600; color: #1a1a1a; }
+  .price-range { color: #0f6e56; font-weight: 600; white-space: nowrap; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .badge-must { background: #e1f5ee; color: #0f6e56; }
+  .badge-optional { background: #faeeda; color: #854f0b; }
+
+  /* Budget Cards */
+  .budget-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .budget-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 20px;
+    border: 1px solid #e8e6de;
+    text-align: center;
+  }
+  .budget-card.featured {
+    border: 2px solid #0f6e56;
+    position: relative;
+  }
+  .budget-card.featured::after {
+    content: "推荐";
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    background: #0f6e56;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .budget-card .level {
+    font-size: 13px;
+    color: #888780;
+    margin-bottom: 8px;
+  }
+  .budget-card .amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .budget-card .amount .unit { font-size: 14px; font-weight: 400; color: #888780; }
+  .budget-card .desc {
+    font-size: 12px;
+    color: #888780;
+    margin-top: 8px;
+  }
+
+  /* Tips cards */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .tips-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e8e6de;
+  }
+  .tips-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tips-card ul { list-style: none; }
+  .tips-card li {
+    font-size: 13px;
+    color: #555;
+    padding: 5px 0 5px 18px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .tips-card li::before {
+    content: "";
+    position: absolute;
+    left: 4px; top: 12px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #0f6e56;
+  }
+  .tips-card li.warn::before { background: #d85a30; }
+  .tips-card li .highlight { color: #d85a30; font-weight: 600; }
+
+  /* Stage banner */
+  .stage-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid #e8e6de;
+    margin-bottom: 16px;
+  }
+  .stage-num {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .stage-info h3 {
+    font-size: 16px; font-weight: 600; color: #1a1a1a;
+  }
+  .stage-info p {
+    font-size: 13px; color: #888780; margin-top: 2px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    font-size: 13px;
+    color: #888780;
+  }
+
+  /* Color sets */
+  .c-water { background: #185fa5; }
+  .c-elec { background: #ba7517; }
+  .c-tile { background: #0f6e56; }
+  .c-wood { background: #993556; }
+  .c-paint { background: #534ab7; }
+
+  @media (max-width: 700px) {
+    .budget-cards { grid-template-columns: 1fr; }
+    .tips-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    th, td { padding: 10px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>装修家电清单 & 施工注意事项</h1>
+    <p class="subtitle">实用为主 · 性价比优先 · 以 100㎡ 三室两厅为参考</p>
+    <div class="tag-row">
+      <span class="tag">价格基于 2024-2025 主流电商平台</span>
+      <span class="tag">品牌以国产一线为主</span>
+      <span class="tag">仅供参考，实际以当地为准</span>
+    </div>
+  </div>
+
+  <!-- ===== Part 1: 家电清单 ===== -->
+  <div class="section">
+    <h2 class="section-title">一、家电采购清单</h2>
+
+    <!-- 大家电 -->
+    <h3 class="section-subtitle">
+      <span class="icon c-tile">大</span>
+      大家电（必买清单）
+    </h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%">品类</th>
+            <th style="width:14%">参考价格</th>
+            <th style="width:10%">是否必买</th>
+            <th>选购建议 & 性价比品牌</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="item-name">空调（挂机）<br><span style="font-size:12px;color:#888">1.5匹 变频</span></td>
+            <td class="price-range">2000~3000<br><span style="font-size:12px;color:#888">元/台</span></td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>卧室用 1.5匹变频一级能效。推荐<b>美的风酷/酷省电</b>、<b>格力云佳</b>、<b>海尔静悦</b>。3个卧室≈7500~9000元。别买定频，费电。</td>
+          </tr>
+          <tr>
+            <td class="item-name">空调（柜机）<br><span style="font-size:12px;color:#888">2~3匹 变频</span></td>
+            <td class="price-range">4000~6500<br><span style="font-size:12px;color:#888">元/台</span></td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>客厅用 2匹（20㎡内）或 3匹（30㎡内）。推荐<b>美的锐爽</b>、<b>格力品悦</b>。圆柱柜机省空间，方形柜机风量大。</td>
+          </tr>
+          <tr>
+            <td class="item-name">冰箱<br><span style="font-size:12px;color:#888">风冷无霜 300~500L</span></td>
+            <td class="price-range">2500~4000<br><span style="font-size:12px;color:#888">元</span></td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>三口之家选 400L 左右双门/十字门。必须<b>风冷无霜</b>、一级能效。推荐<b>容声</b>、<b>美的</b>、<b>海尔</b>。别买直冷，除霜很痛苦。</td>
+          </tr>
+          <tr>
+            <td class="item-name">洗衣机<br><span style="font-size:12px;color:#888">滚筒 10kg</span></td>
+            <td class="price-range">2000~3500<br><span style="font-size:12px;color:#888">元</span></td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>首选<b>滚筒</b>，对衣物损伤小。预算够上洗烘一体（+1000元）。推荐<b>小天鹅水魔方</b>、<b>海尔精华洗</b>。别买波轮，缠绕伤衣。</td>
+          </tr>
+          <tr>
+            <td class="item-name">电视<br><span style="font-size:12px;color:#888">55~65寸 4K</span></td>
+            <td class="price-range">2000~4000<br><span style="font-size:12px;color:#888">元</span></td>
+            <td><span class="badge badge-optional">选买</span></td>
+            <td>客厅 3米观看距离选 65寸。推荐<b>小米ES系列</b>、<b>TCL V8H</b>、<b>海信vidda</b>。认准<b>4K分辨率 + MEMC运动补偿</b>。不追剧可不买。</td>
+          </tr>
+          <tr>
+            <td class="item-name">热水器<br><span style="font-size:12px;color:#888">燃气 13~16L</span></td>
+            <td class="price-range">1500~3000<br><span style="font-size:12px;color:#888">元</span></td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>有天然气选<b>燃气热水器</b>（恒温出水、无限量）。一厨一卫选 13L，一厨两卫选 16L。推荐<b>万和</b>、<b>海尔</b>、<b>美的</b>。没天然气选电热水器 60~80L。</td>
+          </tr>
+          <tr>
+            <td class="item-name">油烟机+燃气灶<br><span style="font-size:12px;color:#888">套装</span></td>
+            <td class="price-range">2500~4500<br><span style="font-size:12px;color:#888">元</span></td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>建议买<b>套装</b>比单买便宜。风量≥20m³/min，风压≥400Pa。推荐<b>美的</b>、<b>华帝</b>性价比高；预算够上<b>方太/老板</b>。侧吸不碰头，顶吸拢烟好。</td>
+          </tr>
+          <tr>
+            <td class="item-name">洗碗机<br><span style="font-size:12px;color:#888">嵌入式 8~13套</span></td>
+            <td class="price-range">2500~4000<br><span style="font-size:12px;color:#888">元</span></td>
+            <td><span class="badge badge-optional">强烈推荐</span></td>
+            <td>用过都说真香。4人以上选 13套。推荐<b>美的 RX600</b>、<b>海尔 W30</b>。<b>装修前必须预留橱柜位置和水电路</b>，后装很麻烦。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 小家电 -->
+    <h3 class="section-subtitle">
+      <span class="icon c-amber">小</span>
+      小家电（实用清单）
+    </h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%">品类</th>
+            <th style="width:14%">参考价格</th>
+            <th style="width:10%">优先级</th>
+            <th>选购建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="item-name">微波炉</td>
+            <td class="price-range">400~600元</td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>热饭必备。选<b>变频微波炉</b>加热均匀。推荐美的、格兰仕。嵌入式比台式贵一倍，没必要。</td>
+          </tr>
+          <tr>
+            <td class="item-name">电饭煲</td>
+            <td class="price-range">300~600元</td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>选<b>IH加热</b>比底盘加热好太多。4L 够 3~5 人。推荐<b>美的赤焰</b>、<b>苏泊尔本釜</b>。</td>
+          </tr>
+          <tr>
+            <td class="item-name">扫地机器人</td>
+            <td class="price-range">1500~3000元</td>
+            <td><span class="badge badge-must">强烈推荐</span></td>
+            <td>养宠/忙人必备。选<b>激光导航+自动集尘</b>。推荐<b>追觅</b>、<b>石头</b>、<b>科沃斯</b>。别买视觉导航，容易迷路。</td>
+          </tr>
+          <tr>
+            <td class="item-name">净水器</td>
+            <td class="price-range">1500~3000元</td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>选<b>厨下式 RO反渗透</b>，直饮级别。<b>装修时预留厨下插座和水管</b>。推荐美的、小米、海尔。换芯成本也要算进去。</td>
+          </tr>
+          <tr>
+            <td class="item-name">空气炸锅</td>
+            <td class="price-range">200~400元</td>
+            <td><span class="badge badge-optional">推荐</span></td>
+            <td>使用率超高，烤鸡翅红薯很方便。选 5L 以上。推荐山本、美的、九阳。</td>
+          </tr>
+          <tr>
+            <td class="item-name">电水壶</td>
+            <td class="price-range">100~200元</td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>选<b>316不锈钢内胆</b>，1.7L。推荐美的、苏泊尔。别买塑料的。</td>
+          </tr>
+          <tr>
+            <td class="item-name">吹风机</td>
+            <td class="price-range">150~400元</td>
+            <td><span class="badge badge-must">必买</span></td>
+            <td>选<b>负离子+恒温</b>。推荐徕芬（性价比之王）、小米。戴森太贵，实用角度没必要。</td>
+          </tr>
+          <tr>
+            <td class="item-name">破壁机</td>
+            <td class="price-range">300~600元</td>
+            <td><span class="badge badge-optional">选买</span></td>
+            <td>做豆浆、果汁、辅食。选<b>静音款</b>，否则像电钻。推荐九阳、美的、西屋。</td>
+          </tr>
+          <tr>
+            <td class="item-name">电烤箱</td>
+            <td class="price-range">500~1000元</td>
+            <td><span class="badge badge-optional">选买</span></td>
+            <td>烘焙爱好者才买。选 32L 以上、上下管独立控温。有微波炉+空气炸锅的可不买。</td>
+          </tr>
+          <tr>
+            <td class="item-name">智能门锁</td>
+            <td class="price-range">1000~2000元</td>
+            <td><span class="badge badge-optional">推荐</span></td>
+            <td>告别钥匙。选<b>指纹+密码+NFC+临时密码</b>。推荐凯迪仕、小米、鹿客。认准<b>半导体指纹头</b>。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 预算汇总 -->
+    <h3 class="section-subtitle">
+      <span class="icon c-water">算</span>
+      预算总览（以 100㎡ 三室两厅为例）
+    </h3>
+    <div class="budget-cards">
+      <div class="budget-card">
+        <div class="level">经济版</div>
+        <div class="amount">2.5~3.2<span class="unit">万</span></div>
+        <div class="desc">国产二线品牌<br>砍掉洗碗机/扫地机<br>挂机×3+柜机×1</div>
+      </div>
+      <div class="budget-card featured">
+        <div class="level">标准版（推荐）</div>
+        <div class="amount">3.5~4.5<span class="unit">万</span></div>
+        <div class="desc">国产一线品牌<br>全量配置含洗碗机<br>洗烘一体+扫地机</div>
+      </div>
+      <div class="budget-card">
+        <div class="level">品质版</div>
+        <div class="amount">5~6.5<span class="unit">万</span></div>
+        <div class="desc">部分合资/高端<br>方太/老板/追觅旗舰<br>中央空调可选</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:12px;padding:20px 24px;border:1px solid #e8e6de;margin-top:8px;">
+      <p style="font-size:14px;color:#555;line-height:1.8;">
+        <b style="color:#d85a30;">省钱建议：</b><br>
+        1. 大家电赶<b>618/双11</b>买，比平时便宜 10~20%；<br>
+        2. 油烟机灶具买<b>套装</b>比单买省 500~800元；<br>
+        3. 空调买<b>同品牌同系列</b>，售后统一，有时有满减；<br>
+        4. <b>洗碗机、净水器、扫地机</b>的基座/管路在装修时就要预留，后期加装费钱费力；<br>
+        5. 小家电不急着一次买齐，住进去再根据实际需求添置。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Part 2: 施工注意事项 ===== -->
+  <div class="section">
+    <h2 class="section-title">二、水电瓦木油施工注意事项</h2>
+    <p style="font-size:14px;color:#888780;margin-bottom:20px;">装修施工按"<b>水电→瓦工→木工→油漆</b>"顺序进行，每个环节都有坑，以下逐项拆解。</p>
+
+    <!-- 水电 -->
+    <div class="stage-banner">
+      <div class="stage-num c-water">1</div>
+      <div class="stage-info">
+        <h3>水电阶段（隐蔽工程，最重要！）</h3>
+        <p>一旦封墙就改不了，必须一次到位</p>
+      </div>
+    </div>
+    <div class="tips-grid">
+      <div class="tips-card">
+        <h4>水路改造</h4>
+        <ul>
+          <li><b>水管走顶不走地</b>：漏水易发现、好维修，走地漏水殃及楼下</li>
+          <li>冷热水管间距 <b>≥15cm</b>，交叉处用过桥弯头</li>
+          <li>水管施工完必须<b>打压测试</b>：0.8MPa 保压 30 分钟，压降≤0.05MPa</li>
+          <li>下水管做<b>隔音包管</b>（橡塑海绵），否则楼上冲水吵死人</li>
+          <li class="warn">提前预留<b>洗碗机、净水器、洗衣机、热水器</b>的进水和排水点位</li>
+          <li class="warn">卫生间冷热水管<b>左热右冷</b>，别搞反</li>
+        </ul>
+      </div>
+      <div class="tips-card">
+        <h4>电路改造</h4>
+        <ul>
+          <li><b>强弱电分管</b>铺设，间距≥30cm，防止信号干扰</li>
+          <li>电线规格：照明 1.5㎡、普通插座 2.5㎡、空调/厨房/卫生间 <b>4㎡</b></li>
+          <li>开关插座<b>宁多勿少</b>，尤其是沙发两侧、床头、马桶旁、厨房台面</li>
+          <li>厨房台面上方留 <b>3~4 个插座</b>（电饭煲、破壁机、水壶、空气炸锅）</li>
+          <li>卫生间插座必须带<b>防溅盒</b>，洗衣机插座也要带</li>
+          <li class="warn">网线走<b>六类线（CAT6）</b>，弱电箱别太小，光猫和路由要放得下</li>
+          <li class="warn">空调<b>单独回路</b>，冰箱建议单独回路（出差可只留冰箱电）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 瓦工 -->
+    <div class="stage-banner">
+      <div class="stage-num c-tile">2</div>
+      <div class="stage-info">
+        <h3>瓦工阶段（贴砖 & 防水）</h3>
+        <p>防水做不好，楼下找上门</p>
+      </div>
+    </div>
+    <div class="tips-grid">
+      <div class="tips-card">
+        <h4>防水工程</h4>
+        <ul>
+          <li>卫生间墙面防水<b>做到 1.8m 高</b>（淋浴区），干区做到 30cm</li>
+          <li>厨房地面做防水，阳台做防水</li>
+          <li>防水刷<b>2~3 遍</b>，每遍干透再刷下一遍，方向交叉</li>
+          <li class="warn">防水做完必须<b>闭水试验 48 小时</b>：蓄水 3~5cm，去楼下看有无渗漏</li>
+          <li>门槛石处防水要<b>翻卷上来</b>，否则水从门框底下渗到客厅</li>
+        </ul>
+      </div>
+      <div class="tips-card">
+        <h4>贴砖工艺</h4>
+        <ul>
+          <li>吸水率＞3% 的瓷砖（如瓷片）贴前必须<b>泡水 2 小时</b>，否则吸走水泥水分空鼓</li>
+          <li>贴砖工艺选<b>墙压地</b>（墙砖压地砖），防水更好看</li>
+          <li>地漏处做<b>回字型放坡</b>，坡度 1~3%，水才排得快</li>
+          <li>瓷砖留缝 <b>1.5~2mm</b>，别密贴，热胀冷缩会拱起</li>
+          <li class="warn">贴完砖用空鼓锤<b>逐块敲</b>，空鼓率＜5%，单块空鼓面积＜15%</li>
+          <li class="warn">先贴墙砖还是先贴地砖？<b>先墙后地</b>更常见，但先地后墙防水更好</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 木工 -->
+    <div class="stage-banner">
+      <div class="stage-num c-wood">3</div>
+      <div class="stage-info">
+        <h3>木工阶段（吊顶 & 柜体）</h3>
+        <p>板材和五金决定柜子寿命</p>
+      </div>
+    </div>
+    <div class="tips-grid">
+      <div class="tips-card">
+        <h4>吊顶施工</h4>
+        <ul>
+          <li>厨卫用<b>铝扣板吊顶</b>（防潮好拆），客厅用<b>石膏板吊顶</b></li>
+          <li>轻钢龙骨比木龙骨好，不变形不虫蛀</li>
+          <li>石膏板吊顶转角处必须做<b>L 型整板</b>，防止开裂</li>
+          <li>石膏板接缝处贴<b>嵌缝带 + 刮嵌缝石膏</b>，否则后期必裂</li>
+          <li class="warn">吊顶里要装<b>新风/中央空调</b>的，木工进场前管道必须先装好</li>
+        </ul>
+      </div>
+      <div class="tips-card">
+        <h4>柜体（定制/现场打）</h4>
+        <ul>
+          <li>板材选<b>ENF 级</b>（甲醛最低），至少 E0 级，认准检测报告</li>
+          <li>板材类型：柜体用<b>颗粒板/多层板</b>，门板用<b> PET/吸塑</b>好打理</li>
+          <li class="warn"><b>五金是灵魂</b>！铰链/滑轨选<b>百隆(Blum)或海蒂诗</b>，国产 DTC 也可，别用杂牌</li>
+          <li>柜体背板厚度<b>≥9mm</b>，5mm 的太薄易变形</li>
+          <li>衣柜深度<b>≥55cm</b>（挂衣区），不然大衣门关不上</li>
+          <li>定制柜量尺要在<b>贴砖/地板完成后</b>复尺，否则尺寸有偏差</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 油漆 -->
+    <div class="stage-banner">
+      <div class="stage-num c-paint">4</div>
+      <div class="stage-info">
+        <h3>油漆阶段（墙面工程）</h3>
+        <p>基层没做好，再贵的漆也开裂</p>
+      </div>
+    </div>
+    <div class="tips-grid">
+      <div class="tips-card">
+        <h4>基层处理</h4>
+        <ul>
+          <li class="warn"><b>铲除开发商的大白墙</b>！那个质量极差，不铲后期必起皮</li>
+          <li>铲完后刷<b>墙固/界面剂</b>，增加附着力</li>
+          <li>墙面找平用<b>粉刷石膏</b>打底，差距大的地方先挂<b>玻纤网格布</b>防裂</li>
+          <li>阴阳角贴<b>PVC 角条</b>，保证横平竖直，还防磕碰</li>
+          <li>开槽处、石膏板接缝处必须挂网，否则开裂</li>
+        </ul>
+      </div>
+      <div class="tips-card">
+        <h4>腻子 & 刷漆</h4>
+        <ul>
+          <li>腻子刮 <b>2~3 遍</b>，每遍干透再刮下一遍（至少隔一天）</li>
+          <li>腻子选<b>耐水型</b>（N型），潮湿地区尤其重要</li>
+          <li>打磨用<b>细砂纸（240~320目）</b>，晚上拿手电筒贴墙照，看阴影找不平</li>
+          <li class="warn"><b>底漆不能省！</b>1遍底漆 + 2遍面漆。底漆封闭基层、省面漆</li>
+          <li>面漆推荐<b>立邦/多乐士</b>中端系列，认准十环认证</li>
+          <li>刷漆温度 <b>5℃以上</b>，雨天/湿度大别刷，会发霉起泡</li>
+          <li>有色漆建议<b>电脑调色</b>，人工调色有色差且补漆难</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 全流程避坑 -->
+    <div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #e8e6de;margin-top:16px;">
+      <h4 style="font-size:16px;font-weight:600;color:#d85a30;margin-bottom:16px;">全流程避坑总结</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;font-size:13px;color:#555;">
+        <div><b>1.</b> 水电完工<b>拍照存档</b>（管线走向），以后打孔不打错</div>
+        <div><b>2.</b> 每个工序完工都要<b>验收签字</b>再付下一笔款</div>
+        <div><b>3.</b> 材料进场要<b>对照清单验货</b>，防止偷换品牌</div>
+        <div><b>4.</b> 厨卫瓷砖留几块<b>备砖</b>，后期维修同批次不色差</div>
+        <div><b>5.</b> 开关插座位置<b>自己到场</b>定，图纸和实际差很远</div>
+        <div><b>6.</b> 美缝别用白水泥，用<b>环氧彩砂/聚脲</b>不变黑</div>
+        <div><b>7.</b> 入住前测<b>甲醛</b>，达标（≤0.08mg/m³）再住</div>
+        <div><b>8.</b> 总预算建议留 <b>10~15% 备用金</b>，装修必有超支</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    以上价格和建议基于 2024-2025 年主流电商平台及市场行情，仅供参考<br>
+    具体以当地实际价格和个人需求为准 · 祝装修顺利
+  </div>
+
+</div>
+</body>
+</html>
