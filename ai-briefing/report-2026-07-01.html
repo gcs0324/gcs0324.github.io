@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Intelligence Briefing - 2026-07-01</title>
+<style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --accent-blue: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d29922;
+  --accent-red: #f85149;
+  --accent-purple: #bc8cff;
+  --border: #30363d;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border); }
+header h1 { font-size: 2em; margin-bottom: 10px; }
+header .tagline { font-size: 1.2em; color: var(--accent-blue); font-style: italic; }
+header .date { color: var(--text-secondary); margin-top: 10px; }
+section { padding: 30px 0; border-bottom: 1px solid var(--border); }
+section h2 { font-size: 1.5em; margin-bottom: 20px; color: var(--accent-blue); }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.card h3 { margin-bottom: 10px; }
+.card h3 a { color: var(--text-primary); }
+.meta { color: var(--text-secondary); font-size: 0.85em; margin-bottom: 8px; }
+.score { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; margin-right: 6px; }
+.score-high { background: var(--accent-green); color: #000; }
+.score-medium { background: var(--accent-orange); color: #000; }
+.score-low { background: var(--accent-red); color: #fff; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin-right: 4px; background: var(--bg-secondary); border: 1px solid var(--border); }
+.signal-bar { height: 8px; border-radius: 4px; background: var(--bg-secondary); margin: 8px 0; overflow: hidden; }
+.signal-fill { height: 100%; border-radius: 4px; }
+.trend-map { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.trend-stage { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.trend-stage h4 { color: var(--accent-purple); margin-bottom: 12px; }
+.trend-stage ul { padding-left: 18px; font-size: 0.92em; }
+.trend-stage li { margin-bottom: 8px; }
+.action-priority { border-left: 4px solid; padding-left: 16px; margin-bottom: 16px; }
+.action-p0 { border-color: var(--accent-red); }
+.action-p1 { border-color: var(--accent-orange); }
+.action-p2 { border-color: var(--accent-blue); }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--text-secondary); font-weight: 600; }
+a { color: var(--accent-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.stars { color: var(--accent-orange); }
+.note { color: var(--text-secondary); font-size: 0.85em; margin-top: 8px; }
+.caveat { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 0.9em; color: var(--text-secondary); }
+@media (max-width: 768px) {
+  .trend-map { grid-template-columns: 1fr; }
+  .container { padding: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🔬 AI Intelligence Briefing</h1>
+    <div class="tagline">MCP 正从"协议"长成"基础设施"：代码记忆、云厂商官方工具箱、Agent 记忆层同时在这周冒头</div>
+    <div class="date">2026-07-01</div>
+  </header>
+
+  <section id="caveats">
+    <div class="caveat">
+      <strong>数据源说明：</strong> 本期 GitHub Trending / 猫猫新闻 / Arxiv 三个数据源均采集成功，无失败源。
+      需要提醒：GitHub Trending 抓取结果中，<code>msitarzewski/agency-agents</code>（12万+ star，Shell 语言）、<code>ZhuLinsen/daily_stock_analysis</code>、<code>NanmiCoder/MediaCrawler</code>、<code>Panniantong/Agent-Reach</code> 等项目的 star 数与"trending 新增量"明显偏离正常量级（对比同榜其他项目），怀疑是页面解析噪声或该榜单本身存在异常刷榜，本报告中对这几项的评分做了保守下修，未计入 GitHub 高价值项目与信号雷达。
+    </div>
+  </section>
+
+  <!-- Section 1: 今日Top10动态 -->
+  <section id="top10">
+    <h2>📰 Section 1: 今日Top10动态</h2>
+
+    <div class="card">
+      <h3>1. <a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">DeusData/codebase-memory-mcp</a></h3>
+      <div class="meta">GitHub Trending（本周）· C · ⭐23,145（本周 +10,031）</div>
+      <span class="score score-high">重要性 74</span><span class="score score-high">ROI 高</span>
+      <span class="tag">MCP</span><span class="tag">Context Engineering</span>
+      <p>高性能代码智能 MCP Server，把代码库索引进持久化知识图谱，号称"平均仓库毫秒级"响应。本质是把"给 Agent 看代码"这件事从每次现查现读，变成预建索引 + 结构化查询——和当前不少团队自建的 codegraph 类方案思路一致，但以 MCP Server 形式标准化输出，意味着可以被任意支持 MCP 的客户端（Claude Code、Cursor 等）直接复用，而不必绑定单一 IDE 插件。对于大型单体仓库尤其有价值：减少 Agent "读文件读半天"的 token 浪费。</p>
+    </div>
+
+    <div class="card">
+      <h3>2. <a href="https://github.com/obra/superpowers" target="_blank">obra/superpowers</a></h3>
+      <div class="meta">GitHub Trending（今日）· Shell · ⭐242,859（今日 +890）</div>
+      <span class="score score-high">重要性 72</span><span class="score score-high">ROI 高</span>
+      <span class="tag">Agent Skill</span><span class="tag">Coding Agent</span>
+      <p>面向软件开发的 Agentic 技能框架与方法论。核心思路是把"怎么用好编码 Agent"这件本来靠个人经验积累的隐性知识，沉淀成可复用、可组合的 Skill 包——这与 Claude Code 的 Skill 机制、以及本报告所属技能体系是同一方向。star 基数极高说明"Agent Skill 化"已经从个别团队实践变成社区共识，值得直接借鉴其 Skill 拆分粒度。</p>
+    </div>
+
+    <div class="card">
+      <h3>3. <a href="https://github.com/topoteretes/cognee" target="_blank">topoteretes/cognee</a></h3>
+      <div class="meta">GitHub Trending（本周）· Python · ⭐26,190（本周 +6,417）</div>
+      <span class="score score-high">重要性 70</span><span class="score score-high">ROI 高</span>
+      <span class="tag">Agent Memory</span><span class="tag">Knowledge Graph</span>
+      <p>开源 AI 记忆平台，基于自托管知识图谱引擎为 Agent 提供跨会话长期记忆。和 codebase-memory-mcp 对比：cognee 面向的是"Agent 对用户/任务的记忆"（长期偏好、历史决策），而 codebase-memory-mcp 面向的是"Agent 对代码库的记忆"，两者互补而非竞争，合起来正在补齐当前 Agent 框架（LangGraph/AutoGen/AgentScope）普遍薄弱的持久记忆层。</p>
+    </div>
+
+    <div class="card">
+      <h3>4. 论文：Building Effective AI Coding Agents for the Terminal <a href="https://arxiv.org/pdf/2603.05344" target="_blank">arXiv:2603.05344</a></h3>
+      <div class="meta">Arxiv · 2026</div>
+      <span class="score score-high">重要性 68</span><span class="score score-high">ROI 高</span>
+      <span class="tag">Context Engineering</span><span class="tag">Coding Agent</span>
+      <p>系统总结终端类编码 Agent（如 Claude Code 一类工具）的脚手架（scaffolding）、执行环境（harness）设计与 context engineering 的实践经验教训。这是少见的"总结型"论文而非单点技术突破，但对正在自建或定制编码 Agent 工作流的团队直接可用——本质上是把大量团队试错后才摸到的坑，提前写成了清单。</p>
+    </div>
+
+    <div class="card">
+      <h3>5. <a href="https://github.com/google-labs-code/design.md" target="_blank">google-labs-code/design.md</a></h3>
+      <div class="meta">GitHub Trending（本周）· TypeScript · ⭐23,833（本周 +7,524）</div>
+      <span class="score score-high">重要性 62</span><span class="score score-high">ROI 高</span>
+      <span class="tag">Context Engineering</span><span class="tag">Design System</span>
+      <p>面向 coding agent 的视觉设计系统规范格式，目标是让 AI Agent"持久理解"一套设计体系，而不是每次生成 UI 都凭训练数据里的默认审美现做。相当于给前端场景补一个"agent 可读的设计 context"标准，思路上和 MCP 补"数据/工具 context"是同一类问题的不同切面。</p>
+    </div>
+
+    <div class="card">
+      <h3>6. <a href="https://github.com/aws/agent-toolkit-for-aws" target="_blank">aws/agent-toolkit-for-aws</a></h3>
+      <div class="meta">GitHub Trending（本周）· Python · ⭐1,657（本周 +684）</div>
+      <span class="score score-high">重要性 62</span><span class="score score-high">ROI 高</span>
+      <span class="tag">MCP</span><span class="tag">云厂商官方</span>
+      <p>AWS 官方出品的 MCP Server + Skill 插件集合，帮助 Agent 在 AWS 上完成开发构建。信号意义大于工具本身：云厂商开始把 MCP 当作官方一等公民接口来维护，说明 MCP 已经从"Anthropic 生态的协议"变成"跨厂商都要跟的基础设施标准"。</p>
+    </div>
+
+    <div class="card">
+      <h3>7. 论文：Inside the Scaffold: A Source-Code Taxonomy of Coding Agent Architectures <a href="https://arxiv.org/pdf/2604.03515" target="_blank">arXiv:2604.03515</a></h3>
+      <div class="meta">Arxiv · 2026</div>
+      <span class="score score-medium">重要性 60</span><span class="score score-high">ROI 高</span>
+      <span class="tag">Coding Agent 架构</span>
+      <p>从源码层面对现有编码 Agent 架构做分类学梳理，并引用了 MetaGPT、Saving SWE-Bench（CAIN 2026）等多篇同期工作。适合作为"编码 Agent 架构选型"的索引型资料，而不是本身提出新方法——价值在于帮你快速定位该看哪些具体实现。</p>
+    </div>
+
+    <div class="card">
+      <h3>8. <a href="https://github.com/diegosouzapw/OmniRoute" target="_blank">diegosouzapw/OmniRoute</a></h3>
+      <div class="meta">GitHub Trending（今日）· TypeScript · ⭐8,861（今日 +387）</div>
+      <span class="score score-medium">重要性 60</span><span class="score score-medium">ROI 中</span>
+      <span class="tag">AI Gateway</span>
+      <p>支持 231+ 模型提供商的 AI 网关，可接入 Claude Code、Codex、Cursor、Cline、Copilot，内置智能压缩与自动回退。对多模型混用的团队有直接实用价值，但技术路线（网关聚合）本身不算新，属于"把已有思路做扎实"的类型。</p>
+    </div>
+
+    <div class="card">
+      <h3>9. <a href="https://github.com/stablyai/orca" target="_blank">stablyai/orca</a></h3>
+      <div class="meta">GitHub Trending（本周）· TypeScript · ⭐9,859（本周 +3,311）</div>
+      <span class="score score-medium">重要性 60</span><span class="score score-medium">ROI 中</span>
+      <span class="tag">Agent 编排</span>
+      <p>"ADE"（Agent 开发环境），用于管理一支并行运行的 Agent 舰队，支持桌面/移动端，可接入自有订阅的编码 Agent。反映的趋势是：单 Agent 会话正在被"多 Agent 并行任务队列"的管理界面取代，值得关注这类编排层工具是否会成为下一代 IDE 的标配面板。</p>
+    </div>
+
+    <div class="card">
+      <h3>10. Claude Code 隐写术曝光：AI 编程助手被发现暗中标记用户内容</h3>
+      <div class="meta">猫猫新闻 · 钛媒体 · 2026-07-01 14:22</div>
+      <span class="score score-medium">重要性 52</span><span class="score score-high">ROI 高（信任/合规相关）</span>
+      <span class="tag">Coding Agent</span><span class="tag">隐私/信任</span>
+      <p>报道称在 Anthropic 面向中国用户开放的同一天，被发现其编码工具存在隐性追踪标记行为，引发隐私争议。本条技术细节尚不充分（原文未展开具体标记机制），重要性打分因此不高，但因直接涉及大量研发团队日常使用的工具，对"是否需要审视公司内部使用政策/合规边界"有直接影响，故保留入选并建议作为 P0 行动项跟进核实。</p>
+    </div>
+
+    <p class="note">未入选但可关注：ogulcancelik/herdr（终端 Agent 多路复用器，重要性 54）、alibaba/page-agent（浏览器 GUI Agent，重要性 54）、mukul975/Anthropic-Cybersecurity-Skills（817 个安全技能包，重要性 50）——详见 Section 2。</p>
+  </section>
+
+  <!-- Section 2: GitHub高价值项目 -->
+  <section id="github">
+    <h2>🐙 Section 2: GitHub高价值项目</h2>
+    <table>
+      <tr><th>项目</th><th>定位</th><th>学习价值</th><th>推荐指数</th><th>立即关注</th></tr>
+      <tr>
+        <td><a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">codebase-memory-mcp</a></td>
+        <td>MCP 化的代码知识图谱索引服务，对标团队内部的 codegraph 类方案</td>
+        <td>9/10</td><td>9/10</td><td>是</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/obra/superpowers" target="_blank">superpowers</a></td>
+        <td>编码 Agent Skill 方法论与框架，Skill 拆分粒度可直接借鉴</td>
+        <td>8/10</td><td>8/10</td><td>是</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/topoteretes/cognee" target="_blank">cognee</a></td>
+        <td>Agent 跨会话长期记忆平台，知识图谱驱动</td>
+        <td>8/10</td><td>7/10</td><td>是</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/google-labs-code/design.md" target="_blank">design.md</a></td>
+        <td>面向 Agent 的持久化设计系统规范格式</td>
+        <td>7/10</td><td>6/10</td><td>否</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/aws/agent-toolkit-for-aws" target="_blank">agent-toolkit-for-aws</a></td>
+        <td>AWS 官方 MCP Server + Skill 插件集合</td>
+        <td>6/10</td><td>7/10（限 AWS 技术栈）</td><td>否</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/diegosouzapw/OmniRoute" target="_blank">OmniRoute</a></td>
+        <td>多 Provider AI 网关，接 Claude Code/Codex/Cursor 等</td>
+        <td>5/10</td><td>6/10</td><td>否</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/stablyai/orca" target="_blank">orca</a></td>
+        <td>多 Agent 并行任务编排 ADE</td>
+        <td>6/10</td><td>6/10</td><td>否</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/ogulcancelik/herdr" target="_blank">herdr</a></td>
+        <td>终端 Agent 多路复用器（Rust）</td>
+        <td>5/10</td><td>5/10</td><td>否</td>
+      </tr>
+    </table>
+    <p class="note">同类对比：codebase-memory-mcp / cognee 与 LangGraph、AutoGen、AgentScope 等主流 Agent 框架的关系是"补充"而非"替代"——后者管的是 Agent 的推理/编排循环，前两者管的是 Agent 的记忆与上下文供给层，两条能力可以叠加使用。</p>
+  </section>
+
+  <!-- Section 3: Signal Radar -->
+  <section id="signals">
+    <h2>📡 Section 3: Signal Radar</h2>
+
+    <div class="card">
+      <h3>Agent 持久记忆 / 知识图谱层 ★★★★☆</h3>
+      <div class="meta">信号分数 80 · 高价值趋势 · 基于 1/3 项数据源输入（仅 GitHub，猫猫新闻与 Arxiv 本次未采集到直接对应数据）</div>
+      <div class="signal-bar"><div class="signal-fill" style="width:80%; background: var(--accent-green);"></div></div>
+      <p>cognee（+6,417/周）与 codebase-memory-mcp（+10,031/周）同一周内双双高速上榜，一个管"任务/用户记忆"，一个管"代码记忆"，共同指向同一个缺口：主流 Agent 框架的记忆层还很薄。6-12 个月内值得跟踪其是否会被 LangChain/LangGraph 等主流框架收编为标准组件。</p>
+    </div>
+
+    <div class="card">
+      <h3>MCP 从协议走向"官方基础设施" ★★★★☆</h3>
+      <div class="meta">信号分数 75 · 高价值趋势 · 基于 1/3 项数据源输入（仅 GitHub）</div>
+      <div class="signal-bar"><div class="signal-fill" style="width:75%; background: var(--accent-green);"></div></div>
+      <p>本周 GitHub Trending 中同时出现 aws 官方 MCP 工具箱与第三方代码智能 MCP Server，说明 MCP 的采用者已经从"早期玩家自建"扩展到"云厂商官方维护"。</p>
+    </div>
+
+    <div class="card">
+      <h3>编码 Agent 的 Scaffolding / Context Engineering 研究热 ★★★☆☆</h3>
+      <div class="meta">信号分数 70 · 高价值趋势 · 基于 1/3 项数据源输入（仅 Arxiv）</div>
+      <div class="signal-bar"><div class="signal-fill" style="width:70%; background: var(--accent-orange);"></div></div>
+      <p>本次 Arxiv 检索一次性命中 3 篇聚焦"编码 Agent 脚手架/harness/context engineering"的 2026 年论文（2603.05344、2604.03515，以及作为引用来源出现的多篇同主题工作），说明学术界正在系统化总结这两年编码 Agent 工程实践中积累的经验，而不仅是发布新模型/新基准。</p>
+    </div>
+
+    <div class="card">
+      <h3>Agentic 视频生产爆发式增长（观察中，非核心研发方向）★★☆☆☆</h3>
+      <div class="meta">信号分数 90（数据可能受单周新品冷启动效应影响，建议下期复核）· 基于 1/3 项数据源输入（仅 GitHub）</div>
+      <div class="signal-bar"><div class="signal-fill" style="width:90%; background: var(--accent-red);"></div></div>
+      <p>calesthio/OpenMontage 一周内新增 15,353 star，声称"12 条 pipeline、52 个工具、500+ agent skill"的开源 Agentic 视频生产系统。分数看似"下一代方向"级别，但仅基于单周首次上榜的数据，缺乏持续性验证，且方向偏内容生产而非研发工具链，标注为观察信号，暂不建议投入学习时间，待下期报告确认是否持续在榜。</p>
+    </div>
+
+    <div class="card">
+      <h3>AI 编程工具信任/隐私争议 ★★☆☆☆</h3>
+      <div class="meta">信号分数 40 · 弱信号 · 基于 1/3 项数据源输入（仅猫猫新闻）</div>
+      <div class="signal-bar"><div class="signal-fill" style="width:40%; background: var(--accent-orange);"></div></div>
+      <p>Claude Code 隐写术曝光报道目前只有单一新闻源、技术细节未展开，暂列为弱信号。但因直接关系工具信任与合规，建议对应 P0 行动项优先核实，不必等信号升级再处理。</p>
+    </div>
+  </section>
+
+  <!-- Section 4: 趋势地图 -->
+  <section id="trends">
+    <h2>🗺️ Section 4: 趋势地图</h2>
+    <div class="trend-map">
+      <div class="trend-stage">
+        <h4>🌱 萌芽</h4>
+        <ul>
+          <li>Agent 可读的设计系统规范（design.md）</li>
+          <li>编码 Agent Scaffolding/Context Engineering 系统化研究</li>
+          <li>AI 编程工具信任与隐私争议关注</li>
+        </ul>
+      </div>
+      <div class="trend-stage">
+        <h4>📈 成长</h4>
+        <ul>
+          <li>Agent 持久记忆 / 知识图谱层（cognee、codebase-memory-mcp）</li>
+          <li>MCP 被云厂商官方采纳（aws agent-toolkit）</li>
+          <li>编码 Agent Skill 化方法论（superpowers 及同类安全技能包）</li>
+        </ul>
+      </div>
+      <div class="trend-stage">
+        <h4>💥 爆发</h4>
+        <ul>
+          <li>Agentic 内容生产（OpenMontage 视频、voicebox 语音）</li>
+          <li>多 Agent 并行编排 ADE（stablyai/orca）</li>
+          <li>多 Provider AI 网关聚合（OmniRoute）</li>
+        </ul>
+      </div>
+      <div class="trend-stage">
+        <h4>🏛️ 成熟</h4>
+        <ul>
+          <li>浏览器 GUI Agent（page-agent 一类自然语言操控 Web）</li>
+          <li>通用大模型军备竞赛（DeepSeek V4、GPT-5.6 等发布节奏）</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: 学习建议 -->
+  <section id="learning">
+    <h2>📚 Section 5: 学习建议</h2>
+    <div class="card">
+      <h3>本周：精读《Building Effective AI Coding Agents for the Terminal》</h3>
+      <p>直接对照团队内部编码 Agent 使用现状，重点看其 harness 设计与 context engineering 的经验教训章节，输出一份 1 页纸的适用性笔记。</p>
+    </div>
+    <div class="card">
+      <h3>本周：拆解 topoteretes/cognee 的知识图谱记忆架构</h3>
+      <p>关注它如何做记忆的写入触发、检索召回与遗忘策略——这三点是自建 Agent 记忆层时最容易踩坑的部分。</p>
+    </div>
+    <div class="card">
+      <h3>本月：跟进 MCP 生态官方化进程</h3>
+      <p>对比 aws/agent-toolkit-for-aws 与 DeusData/codebase-memory-mcp 两种 MCP Server 的封装方式，评估现有工具链是否值得迁移为 MCP Server 对外暴露。</p>
+    </div>
+  </section>
+
+  <!-- Section 6: 实验项目推荐 -->
+  <section id="projects">
+    <h2>🧪 Section 6: 实验项目推荐</h2>
+    <div class="card">
+      <h3>1. 为自己的项目搭一个代码智能 MCP Server</h3>
+      <p>参考 codebase-memory-mcp 思路，为手头项目建一个轻量代码索引 MCP Server，接入 Claude Code 实测：相比现有查文件的方式，Agent 定位代码的准确率/耗时是否有明显改善。</p>
+    </div>
+    <div class="card">
+      <h3>2. 把团队开发流程写成 Agent Skill 包</h3>
+      <p>参考 obra/superpowers 的 Skill 拆分粒度，为团队 1-2 个高频重复流程（如提测前检查清单、发版流程）写成可复用 Skill，周末即可验证效果。</p>
+    </div>
+    <div class="card">
+      <h3>3. 用 design.md 规范给前端项目写"Agent 可读"设计文档</h3>
+      <p>选一个小型前端项目，按 design.md 格式补一份设计系统描述，对比编码 Agent 生成 UI 前后的风格一致性差异。</p>
+    </div>
+  </section>
+
+  <!-- Section 7: 工具推荐 -->
+  <section id="tools">
+    <h2>🔧 Section 7: 工具推荐</h2>
+    <div class="card"><h3>1. DeusData/codebase-memory-mcp</h3><p>代码智能 MCP Server，适合大型仓库的 Agent 上下文优化。</p></div>
+    <div class="card"><h3>2. topoteretes/cognee</h3><p>Agent 长期记忆平台，适合需要跨会话保留上下文的场景。</p></div>
+    <div class="card"><h3>3. obra/superpowers</h3><p>编码 Agent Skill 方法论参考实现。</p></div>
+    <div class="card"><h3>4. aws/agent-toolkit-for-aws</h3><p>AWS 技术栈团队的官方 MCP/Skill 起点。</p></div>
+    <div class="card"><h3>5. diegosouzapw/OmniRoute</h3><p>多模型/多编码工具网关，适合需要灵活切换 Provider 的团队。</p></div>
+  </section>
+
+  <!-- Section 8: 行动清单 -->
+  <section id="actions">
+    <h2>✅ Section 8: 行动清单</h2>
+
+    <div class="action-priority action-p0">
+      <h3>P0 · 核实 Claude Code 隐写术曝光报道的实际影响范围</h3>
+      <p><strong>原因：</strong>直接涉及团队日常使用的核心编码工具的信任与合规边界；<strong>收益：</strong>规避潜在的数据合规风险，必要时调整内部使用规范；<strong>投入：</strong>约 1 小时确认信息来源与官方回应。</p>
+    </div>
+
+    <div class="action-priority action-p1">
+      <h3>P1 · 验证 codebase-memory-mcp 一类 MCP 代码记忆方案</h3>
+      <p><strong>原因：</strong>MCP 代码智能层是本期评分最高、且有多数据点支撑的上升趋势；<strong>收益：</strong>可能显著提升 Agent 在大型代码库中的定位效率；<strong>投入：</strong>半天技术验证 + 与现有 codegraph 方案对比。</p>
+    </div>
+    <div class="action-priority action-p1">
+      <h3>P1 · 精读并落地《Building Effective AI Coding Agents for the Terminal》的经验清单</h3>
+      <p><strong>原因：</strong>论文直接总结的是团队本就在做的事（终端编码 Agent 使用/定制）；<strong>收益：</strong>少走弯路，改进现有 Agent 协作效率；<strong>投入：</strong>2 小时阅读 + 输出适用性笔记。</p>
+    </div>
+
+    <div class="action-priority action-p2">
+      <h3>P2 · 持续观察 cognee / superpowers 等项目的社区活跃度</h3>
+      <p><strong>原因：</strong>处于成长期，是否成为事实标配仍需时间验证；<strong>收益：</strong>保持对 Agent 记忆层/Skill 化方向的敏感度；<strong>投入：</strong>每周约 10 分钟关注更新。</p>
+    </div>
+    <div class="action-priority action-p2">
+      <h3>P2 · 下期复核 Agentic 视频生产信号是否持续在榜</h3>
+      <p><strong>原因：</strong>本期信号分数基于单周数据，存在冷启动虚高风险；<strong>收益：</strong>避免对短期噪音过度反应，节省无效学习投入；<strong>投入：</strong>下次简报生成时对比即可，无需额外投入。</p>
+    </div>
+  </section>
+</div>
+</body>
+</html>

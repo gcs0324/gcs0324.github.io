@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Intelligence Briefing - 2026-06-23</title>
+<style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --accent-blue: #58a6ff;
+  --accent-green: #3fb950;
+  --accent-orange: #d29922;
+  --accent-red: #f85149;
+  --accent-purple: #bc8cff;
+  --border: #30363d;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+header {
+  text-align: center;
+  padding: 40px 20px;
+  border-bottom: 1px solid var(--border);
+}
+header h1 { font-size: 2em; margin-bottom: 10px; }
+header .tagline {
+  font-size: 1.2em;
+  color: var(--accent-blue);
+  font-style: italic;
+  margin: 0 auto;
+  max-width: 800px;
+}
+header .date { color: var(--text-secondary); margin-top: 10px; }
+section { padding: 30px 0; border-bottom: 1px solid var(--border); }
+section h2 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: var(--accent-blue);
+}
+section h3.section-sub {
+  font-size: 1.1em;
+  margin: 20px 0 10px;
+  color: var(--accent-purple);
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card h3 { margin-bottom: 10px; font-size: 1.1em; }
+.card .meta { color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px; }
+.card p { margin: 8px 0; }
+.card .reason { color: var(--text-secondary); font-size: 0.9em; border-left: 3px solid var(--accent-purple); padding-left: 10px; margin-top: 10px; }
+.score {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.85em;
+  margin-right: 6px;
+}
+.score-high { background: var(--accent-green); color: #000; }
+.score-medium { background: var(--accent-orange); color: #000; }
+.score-low { background: var(--accent-red); color: #fff; }
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.78em;
+  margin-right: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.signal-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  margin: 8px 0;
+  overflow: hidden;
+}
+.signal-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); }
+.trend-map {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.trend-stage {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.trend-stage h4 {
+  color: var(--accent-purple);
+  margin-bottom: 12px;
+  font-size: 1em;
+}
+.trend-stage ul { list-style: none; padding: 0; }
+.trend-stage li { padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 0.9em; }
+.trend-stage li:last-child { border-bottom: none; }
+.action-priority {
+  border-left: 4px solid;
+  padding-left: 16px;
+  margin-bottom: 20px;
+}
+.action-p0 { border-color: var(--accent-red); }
+.action-p1 { border-color: var(--accent-orange); }
+.action-p2 { border-color: var(--accent-blue); }
+.action-priority h4 { margin-bottom: 8px; }
+.action-priority p { margin: 4px 0; font-size: 0.92em; }
+.action-priority .meta-line { color: var(--text-secondary); font-size: 0.85em; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92em;
+}
+th { color: var(--text-secondary); font-weight: 600; }
+a { color: var(--accent-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.stars { color: var(--accent-orange); }
+.failed-source { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 10px; border-radius: 6px; margin: 10px 0; font-size: 0.9em; }
+.rank { color: var(--accent-orange); font-weight: bold; margin-right: 8px; }
+@media (max-width: 768px) {
+  .trend-map { grid-template-columns: 1fr; }
+  .container { padding: 10px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🔬 AI Intelligence Briefing</h1>
+  <div class="tagline">Skills 正在成为 Agent 的可执行接口；Codebase Memory + Procedural Memory 把"上下文工程"推上日程；Loop Engineering 让 Agent 第一次开始"独立交付"</div>
+  <div class="date">2026-06-23 · 数据源：GitHub Trending (daily/weekly) · 猫猫新闻 · Arxiv cs.AI</div>
+</header>
+
+<!-- Section 1: 今日Top10动态 -->
+<section id="top10">
+<h2>📰 Section 1: 今日 Top 10 动态</h2>
+
+<div class="card">
+<h3><span class="rank">#1</span><a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">DeusData/codebase-memory-mcp</a> · 高性能代码智能 MCP Server</h3>
+<div class="meta">GitHub Trending · 本周 +7,560 ⭐ · 总 11,955 ⭐ · C · <span class="score score-high">重要性 92</span><span class="score score-high">ROI 95</span></div>
+<p><strong>核心：</strong>把整个 codebase 用 tree-sitter 解析后写入一个持久化的知识图谱，毫秒级返回 caller/callee/impact/symbol 查询；以 MCP server 形态对外提供，被 Claude Code / Cursor / Cline 直接当作"代码检索后端"挂载。</p>
+<p><strong>为什么重要：</strong>Coding Agent 长期被 grep+Read 循环卡脖子——单次回答要做几十次文件读，token 和延迟双爆。把"代码索引"做成可被 Agent 调用的 MCP，本质上是给 Agent 加了"专用搜索引擎"。这是继 Skills 之后，第二个稳定的 Agent-OS 级原语。</p>
+<div class="reason">同类对比：相比 Sourcegraph SCIP（重、需要服务端）和 LSP（每次需要打开文件），这个方案是 SQLite 本地化的——零基础设施成本是它一周冲到第一的根本原因。</div>
+</div>
+
+<div class="card">
+<h3><span class="rank">#2</span><a href="https://github.com/mattpocock/skills" target="_blank">mattpocock/skills</a> · Skills for Real Engineers</h3>
+<div class="meta">GitHub Trending · 今日 +2,051 ⭐ · 总 142,213 ⭐ · Shell · <span class="score score-high">重要性 88</span><span class="score score-high">ROI 92</span></div>
+<p><strong>核心：</strong>Matt Pocock（TypeScript 圈意见领袖）公开了自己 <code>.claude/skills/</code> 目录下所有真实在用的 skill，涵盖代码审查、PR 描述、测试生成、迁移脚本等。</p>
+<p><strong>为什么重要：</strong>这是 Skills 这个抽象从 Anthropic 内部走向公共工程实践的关键一步——和 <a href="https://github.com/addyosmani/agent-skills" target="_blank">addyosmani/agent-skills</a>（+5,277/周）一起，让 Skills 在两周内从"Anthropic 私货"变成"任何 Agent harness 都得支持的开放接口"。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#3</span>📄 <a href="https://arxiv.org/abs/2606.22953" target="_blank">Plans Don't Persist: Why Context Management Is Load Bearing for LLM Agents</a></h3>
+<div class="meta">Arxiv · cs.AI · <span class="score score-high">重要性 87</span><span class="score score-high">ROI 90</span></div>
+<p><strong>核心论点：</strong>当任务超出单次 context window 时，Agent 给自己写的 plan 会在 summary/compact 过程中悄无声息地丢失锚点（hidden constraints、subtle invariants）。论文给出一种把 plan 当成"一等公民持久状态"的方案，独立于对话历史存储与重注入。</p>
+<p><strong>为什么重要：</strong>这是 Context Engineering 第一次有论文级证据——"long-context 模型不能替代 memory 工程"。和 Claude Code 把 plan/task/memory 分层的产品设计一拍即合，下半年这个方向的论文会井喷。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#4</span>📄 <a href="https://arxiv.org/abs/2606.23127" target="_blank">Managing Procedural Memory in LLM Agents: Control, Adaptation, and Evaluation</a></h3>
+<div class="meta">Arxiv · cs.AI · <span class="score score-high">重要性 84</span><span class="score score-high">ROI 88</span></div>
+<p><strong>核心：</strong>区分 LLM Agent 的 4 类记忆中"程序性记忆"（怎么做事）的存储/更新/评估范式，提供首个针对 procedural memory 的 benchmark。</p>
+<p><strong>为什么重要：</strong>Skills 文件本质就是"程序性记忆"——这篇论文给出了如何系统度量"Agent 用了对的 skill 没"的方法论。如果你在做 Agent 平台，这是评测体系的关键论文。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#5</span>🗞️ Loop Engineering 火了：AI Agent 开始自己干活</h3>
+<div class="meta">猫猫新闻 · 2026-06-23 12:56 · <span class="score score-high">重要性 80</span><span class="score score-high">ROI 84</span></div>
+<p><strong>核心：</strong>"Loop Engineering" 作为新词被多家媒体引用——指 Agent 通过 plan→execute→observe→re-plan 的闭环独立交付任务，而非传统的"人在每步审查"。文章重点其实在权责重构：产品、测试、研发、PM 之间的边界被打散。</p>
+<p><strong>为什么重要：</strong>这是 2026 年继 Vibe Coding 后第二个真正进入企业工程语言体系的词。研发工程师需要立刻理解的不是技术，而是"我手里哪些工作正在被 Loop 化"。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#6</span><a href="https://github.com/bytedance/deer-flow" target="_blank">bytedance/deer-flow</a> · 开源长程 SuperAgent harness</h3>
+<div class="meta">GitHub · 今日 +738 ⭐ · 总 73,472 ⭐ · Python · <span class="score score-high">重要性 78</span><span class="score score-high">ROI 82</span></div>
+<p><strong>核心：</strong>字节开源的长程 Agent 框架，做调研、写代码、做 deliverable 三件事；自带任务分解、子 Agent 池、失败 backtrack 机制。</p>
+<p><strong>为什么重要：</strong>这是国内大厂第一个把"长程 SuperAgent"完整开源——对标 Manus / OpenHands / Devin。架构借鉴价值远大于直接使用价值：value 在 plan tree + subagent budget 的实现细节。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#7</span>🗞️ 智谱 GLM-5.2 开源：1M 无损上下文，Code Arena 全球第一</h3>
+<div class="meta">猫猫新闻 · 6 天前 · <span class="score score-high">重要性 76</span><span class="score score-high">ROI 80</span></div>
+<p><strong>核心：</strong>智谱开源 GLM-5.2，宣称 1M token 无损上下文，Code Arena 上排到"全球可用模型第一"——这条简报的执行环境本身就是 GLM-5.2[1M]。</p>
+<p><strong>为什么重要：</strong>国产开源模型第一次在编程基准上拿到全球第一，且把长上下文做到 1M。对工程师而言：Claude/GPT 之外终于有一个真正可对标的开源选项——尤其在私有部署/数据敏感场景。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#8</span><a href="https://github.com/Panniantong/Agent-Reach" target="_blank">Panniantong/Agent-Reach</a> · 给 Agent 装互联网的眼睛</h3>
+<div class="meta">GitHub · 本周 +8,108 ⭐ · 总 38,064 ⭐ · Python · <span class="score score-high">重要性 74</span><span class="score-medium score">ROI 72</span></div>
+<p><strong>核心：</strong>一个 CLI 工具，让 Agent 用零 API 费用读取/搜索 Twitter / Reddit / YouTube / GitHub / Bilibili / 小红书。爬虫层做了反检测和速率自适应。</p>
+<p><strong>为什么重要：</strong>"Agent 接入社交平台"是过去半年最大的合规黑洞——这个项目把灰色地带做成开源工具一周冲到 8k 星，意味着市场需求远超供给。下半年会触发各平台反爬升级。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#9</span><a href="https://github.com/NVIDIA/SkillSpector" target="_blank">NVIDIA/SkillSpector</a> · AI Agent Skills 安全扫描器</h3>
+<div class="meta">GitHub · 本周 +3,302 ⭐ · 总 9,478 ⭐ · Python · <span class="score score-high">重要性 72</span><span class="score score-high">ROI 78</span></div>
+<p><strong>核心：</strong>NVIDIA 出品，专门扫描 Skill 文件中的恶意 prompt 注入、潜在 RCE 模式、不安全的工具调用链。</p>
+<p><strong>为什么重要：</strong>NVIDIA 亲自下场做 Skill 安全扫描——这是 Skills 生态被"工业级认可"的最强信号。同时也预告了下一阶段问题：Skills 会有 supply chain 攻击。</p>
+</div>
+
+<div class="card">
+<h3><span class="rank">#10</span>🗞️ 美光深度绑定 Anthropic · 美国机构集体重注 Agent 基建</h3>
+<div class="meta">猫猫新闻 · 2026-06-23 13:57 · <span class="score score-medium">重要性 62</span><span class="score-medium score">ROI 58</span></div>
+<p><strong>核心：</strong>美光与 Anthropic 达成战略协议，覆盖架构联合设计、内存供需绑定、内部全面采用 Claude、战略投资。同期英伟达发"机器人 OS"（具身版安卓）、特斯拉发"算力积木"。</p>
+<p><strong>为什么重要：</strong>三家硬件巨头同周押注 AI 基建上下游不同环节——存储（美光）、机器人（英伟达）、分布式算力（特斯拉）。这是市场层面看到 Loop Engineering 即将到来的预热动作。</p>
+</div>
+</section>
+
+<!-- Section 2: GitHub 高价值项目 -->
+<section id="github">
+<h2>🐙 Section 2: GitHub 高价值项目深析</h2>
+
+<table>
+<tr><th>项目</th><th>定位</th><th>学习价值</th><th>推荐指数</th><th>立即关注</th></tr>
+<tr><td><a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">codebase-memory-mcp</a></td><td>Coding Agent 的代码索引后端</td><td>9.5/10</td><td>10/10</td><td>是</td></tr>
+<tr><td><a href="https://github.com/mattpocock/skills" target="_blank">mattpocock/skills</a></td><td>真实工程师在用的 Skill 集合</td><td>9/10</td><td>10/10</td><td>是</td></tr>
+<tr><td><a href="https://github.com/addyosmani/agent-skills" target="_blank">addyosmani/agent-skills</a></td><td>生产级 Coding Agent skills</td><td>8.5/10</td><td>9/10</td><td>是</td></tr>
+<tr><td><a href="https://github.com/NVIDIA/SkillSpector" target="_blank">NVIDIA/SkillSpector</a></td><td>Skill 安全扫描器</td><td>8/10</td><td>8/10</td><td>是（如做平台）</td></tr>
+<tr><td><a href="https://github.com/bytedance/deer-flow" target="_blank">bytedance/deer-flow</a></td><td>长程 SuperAgent harness</td><td>9/10</td><td>8/10</td><td>是（架构参考）</td></tr>
+<tr><td><a href="https://github.com/withastro/flue" target="_blank">withastro/flue</a></td><td>"沙箱式" Agent framework</td><td>7.5/10</td><td>7/10</td><td>否</td></tr>
+<tr><td><a href="https://github.com/LMCache/LMCache" target="_blank">LMCache/LMCache</a></td><td>LLM KV Cache 加速层</td><td>8/10</td><td>7/10</td><td>否（推理侧才需）</td></tr>
+<tr><td><a href="https://github.com/Panniantong/Agent-Reach" target="_blank">Panniantong/Agent-Reach</a></td><td>Agent 抓社交平台</td><td>6.5/10</td><td>6/10</td><td>否（合规风险）</td></tr>
+<tr><td><a href="https://github.com/calesthio/OpenMontage" target="_blank">calesthio/OpenMontage</a></td><td>开源 agentic 视频生产</td><td>7/10</td><td>6/10</td><td>否</td></tr>
+<tr><td><a href="https://github.com/asgeirtj/system_prompts_leaks" target="_blank">system_prompts_leaks</a></td><td>主流厂商系统 prompt 泄露汇总</td><td>8/10（用作阅读）</td><td>7/10</td><td>是（仅学习）</td></tr>
+</table>
+
+<h3 class="section-sub">同类对比：codebase-memory-mcp vs Sourcegraph vs LSP vs grep+Read</h3>
+<div class="card">
+<table>
+<tr><th>方案</th><th>索引方式</th><th>查询延迟</th><th>部署成本</th><th>对 Agent 友好度</th></tr>
+<tr><td>codebase-memory-mcp</td><td>tree-sitter→SQLite KG</td><td>&lt;1ms</td><td>零（本地）</td><td>高（MCP 原生）</td></tr>
+<tr><td>Sourcegraph SCIP</td><td>SCIP graph</td><td>10-50ms</td><td>高（需服务）</td><td>中（需 REST 适配）</td></tr>
+<tr><td>LSP</td><td>逐文件 AST</td><td>50-200ms</td><td>低</td><td>低（需开文件）</td></tr>
+<tr><td>grep + Read</td><td>无索引</td><td>每次重扫</td><td>零</td><td>低（token 爆炸）</td></tr>
+</table>
+</div>
+</section>
+
+<!-- Section 3: Signal Radar -->
+<section id="signals">
+<h2>📡 Section 3: Signal Radar（信号雷达）</h2>
+
+<div class="card">
+<h3>🟢 Signal 1：Skills 作为 Agent 一等扩展机制（基于 3/3 项数据源输入）</h3>
+<div class="meta"><span class="score score-high">Signal Score 92</span> 关注等级 ★★★★★ · 下一代方向</div>
+<div class="signal-bar"><div class="signal-fill" style="width:92%"></div></div>
+<p><strong>证据：</strong>GitHub 本周 +addyosmani/agent-skills (5,277⭐)、+mattpocock/skills (2,051⭐/日)、+NVIDIA/SkillSpector (3,302⭐)、+mukul975/Anthropic-Cybersecurity-Skills (956⭐/日) — 同时新闻面 DeepSeek/Anthropic 都在招 skill engineer，Arxiv 上 procedural memory 论文同步出现。</p>
+<p><strong>判断：</strong>3 个月内 Skills 会从"Anthropic 私货"变成所有 Agent harness 的通用接口（OpenAI Agent SDK、Google ADK 都会跟进）。研发工程师需要在 Q3 之内学会"写 skill"的能力。</p>
+</div>
+
+<div class="card">
+<h3>🟢 Signal 2：Codebase Memory / Code Intelligence as MCP（基于 2/3 项数据源输入）</h3>
+<div class="meta"><span class="score score-high">Signal Score 86</span> 关注等级 ★★★★★ · 高价值趋势</div>
+<div class="signal-bar"><div class="signal-fill" style="width:86%"></div></div>
+<p><strong>证据：</strong>GitHub 本周第一（codebase-memory-mcp，11,955 总⭐，7 天破万）；Arxiv 上"Plans Don't Persist"和 "Managing Procedural Memory" 同周出现。猫猫新闻本期无直接覆盖，按 2/3 输入归一化计算。</p>
+<p><strong>判断：</strong>过去 6 个月 RAG 失败的真正原因是"代码不是文档，没法分 chunk 嵌入"。把代码 AST 化做成可被 Agent 查询的图谱，是下一阶段 Coding Agent 的标配。</p>
+</div>
+
+<div class="card">
+<h3>🟡 Signal 3：Loop Engineering / 自治 Agent 流程（基于 2/3 项数据源输入）</h3>
+<div class="meta"><span class="score score-high">Signal Score 76</span> 关注等级 ★★★★ · 高价值趋势</div>
+<div class="signal-bar"><div class="signal-fill" style="width:76%"></div></div>
+<p><strong>证据：</strong>猫猫新闻"Loop Engineering 火了"+"DeepSeek 缺 Agent 人才"两条；GitHub 上 deer-flow / OpenMontage / Agent-Reach 同周冲榜。Arxiv 此名词未直接出现，按 2/3 归一化。</p>
+<p><strong>判断：</strong>这是产品/HR 词汇而非纯技术词，但它定义了未来 6 个月 Agent 项目的考核口径——"是否能独立闭环交付"。研发工程师需要主动把自己的项目"loop 化"，否则会被 prompt 出身的产品经理倒灌。</p>
+</div>
+
+<div class="card">
+<h3>🟡 Signal 4：长程 Agent 的 Plan / Memory 分层（基于 2/3 项数据源输入）</h3>
+<div class="meta"><span class="score score-medium">Signal Score 68</span> 关注等级 ★★★★ · 值得跟踪</div>
+<div class="signal-bar"><div class="signal-fill" style="width:68%"></div></div>
+<p><strong>证据：</strong>Arxiv 同周出现 4 篇：Plans Don't Persist、Managing Procedural Memory、ENVS、When Agents Commit Too Soon；GitHub deer-flow 同期冲榜。新闻面未直接出现。</p>
+<p><strong>判断：</strong>2026 下半年 Agent 学术界主线就是"如何让上下文不丢、计划不漂移、不过早决策"——这是把 long-context 模型工程化的核心。</p>
+</div>
+
+<div class="card">
+<h3>🟡 Signal 5：Skills 生态的安全攻防（基于 2/3 项数据源输入）</h3>
+<div class="meta"><span class="score score-medium">Signal Score 62</span> 关注等级 ★★★ · 值得关注</div>
+<div class="signal-bar"><div class="signal-fill" style="width:62%"></div></div>
+<p><strong>证据：</strong>NVIDIA/SkillSpector (本周 +3,302⭐) 和 mukul975/Anthropic-Cybersecurity-Skills (今日 +956⭐) 同周出现；asgeirtj/system_prompts_leaks (45k+⭐) 在本周 weekly 榜。新闻无直接报道。</p>
+<p><strong>判断：</strong>Skill 文件 = 可执行 prompt + 工具调用清单，本质就是"远程代码"。下半年会出现第一起"恶意 Skill 供应链攻击"，并催生 skill-signing 标准。</p>
+</div>
+</section>
+
+<!-- Section 4: 趋势地图 -->
+<section id="trends">
+<h2>🗺️ Section 4: 趋势地图</h2>
+<div class="trend-map">
+<div class="trend-stage">
+<h4>🌱 萌芽</h4>
+<ul>
+<li>Skill 安全审计 / 供应链</li>
+<li>Procedural Memory benchmark</li>
+<li>具身 OS（NVIDIA Robot OS）</li>
+<li>Agent 间通信协议（A2A）</li>
+</ul>
+</div>
+<div class="trend-stage">
+<h4>📈 成长</h4>
+<ul>
+<li>Codebase Memory MCP</li>
+<li>长程 SuperAgent harness</li>
+<li>Loop Engineering 工作流</li>
+<li>多模型聚合 / 拼好模</li>
+<li>1M 上下文国产模型</li>
+</ul>
+</div>
+<div class="trend-stage">
+<h4>💥 爆发</h4>
+<ul>
+<li>Skills 作为 Agent 扩展机制</li>
+<li>MCP server 生态</li>
+<li>Coding Agent IDE（Claude Code / Cursor / Codex）</li>
+<li>System Prompt 公开/逆向</li>
+</ul>
+</div>
+<div class="trend-stage">
+<h4>🏛️ 成熟</h4>
+<ul>
+<li>RAG 向量检索（被 codebase memory 取代）</li>
+<li>裸 prompt engineering</li>
+<li>单轮 ChatBot</li>
+<li>无 plan 的 ReAct loop</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- Section 5: 学习建议 -->
+<section id="learning">
+<h2>📚 Section 5: 学习建议</h2>
+
+<div class="card">
+<h3>本周最值得学（3 选 1）</h3>
+<p><strong>1. 读 codebase-memory-mcp 源码（2-3 小时）</strong>：重点看它如何把 tree-sitter 输出转 SQLite schema、如何设计 caller/callee/impact 三个查询的索引。这是未来一年所有"Coding Agent 增强"项目的参考实现。</p>
+<p><strong>2. 通读 mattpocock/skills 全部 skill 文件（1 小时）</strong>：不为了用，为了感受"一个高产工程师怎样把自己的工作流分解成 skill"。学到的不是技术，是 decomposition 的品味。</p>
+<p><strong>3. 精读 "Plans Don't Persist" 论文（90 分钟）</strong>：理解为什么 long-context 不能替代 memory，给你的项目找出"plan 在哪一步会丢"。</p>
+</div>
+
+<div class="card">
+<h3>本月主线（4 周计划）</h3>
+<p><strong>Week 1：</strong>把你最常做的 3 个研发动作（CR、写测试、写迁移脚本）写成 skill，挂到自己的 Claude Code 上跑通。</p>
+<p><strong>Week 2：</strong>把你当前主仓库用 codebase-memory-mcp 索引一遍，对比"加索引前 vs 后"Agent 改 bug 的 token 消耗。</p>
+<p><strong>Week 3：</strong>读 deer-flow 的 plan tree 实现，写一份 200 行的 mini-superagent 跑 3 个 sample 任务。</p>
+<p><strong>Week 4：</strong>给团队做一次"Loop Engineering 影响地图"分享——你部门哪些任务可以闭环、哪些不行、为什么。</p>
+</div>
+</section>
+
+<!-- Section 6: 实验项目推荐 -->
+<section id="projects">
+<h2>🧪 Section 6: 周末可完成的 Side Project</h2>
+
+<div class="card">
+<h3>项目 1：个人版 codebase-memory-mcp lite（约 1 个周末）</h3>
+<p><strong>目标：</strong>用 200 行 Python + tree-sitter + SQLite 实现 callers/callees 两个查询，封装成 MCP server 挂载到 Claude Code。</p>
+<p><strong>收获：</strong>理解 Agent-friendly API 设计的核心约束（token 紧凑、返回稳定、可分页）；下一步可扩展为多语言索引。</p>
+<p><strong>风险点：</strong>tree-sitter 多语言绑定的安装坑，预留 1-2 小时给 macOS arm64 编译。</p>
+</div>
+
+<div class="card">
+<h3>项目 2：把你的 Claude Code 日常变成 3 个 skill（半天）</h3>
+<p><strong>目标：</strong>挑 3 件每周做 5+ 次的事（如：写 conventional commit、生成 PR 描述、跑 lint 自动 fix），写成 markdown skill 文件。</p>
+<p><strong>收获：</strong>体感 skill 抽象的成本/收益，掌握"description 字段如何写才能被准确触发"——这是写 skill 真正难的地方。</p>
+</div>
+
+<div class="card">
+<h3>项目 3：mini-superagent on deer-flow（1.5 天）</h3>
+<p><strong>目标：</strong>fork deer-flow，替换其默认 model 为 GLM-5.2[1M]，跑 3 个 long-horizon 任务（如"调研 A 库并写出 demo+测试+README"），记录 plan tree 的崩溃模式。</p>
+<p><strong>收获：</strong>真实体感"长程 Agent 在哪一步最容易失败"——这是你后续做产品决策的关键直觉。</p>
+</div>
+</section>
+
+<!-- Section 7: 工具推荐 -->
+<section id="tools">
+<h2>🔧 Section 7: 本周值得尝鲜的工具（最多 5 个）</h2>
+
+<div class="card">
+<h3>1. <a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">codebase-memory-mcp</a></h3>
+<p>立刻装上挂到 Claude Code / Cursor。本周第一推荐。</p>
+</div>
+
+<div class="card">
+<h3>2. <a href="https://github.com/NVIDIA/SkillSpector" target="_blank">NVIDIA SkillSpector</a></h3>
+<p>如果你团队的 Agent 平台允许用户上传 skill，立刻接入 SkillSpector 做扫描。</p>
+</div>
+
+<div class="card">
+<h3>3. <a href="https://github.com/LMCache/LMCache" target="_blank">LMCache</a></h3>
+<p>自部署 LLM 推理且关心 prompt cache 命中率的团队建议跑一遍 benchmark。</p>
+</div>
+
+<div class="card">
+<h3>4. <a href="https://github.com/bytedance/deer-flow" target="_blank">deer-flow</a></h3>
+<p>不一定用，但本周必读其 plan tree + subagent budget 实现。</p>
+</div>
+
+<div class="card">
+<h3>5. GLM-5.2 1M（智谱开源）</h3>
+<p>想做长上下文 Coding Agent 但被 Claude API 成本卡住的团队，本周值得做一次替换实验。</p>
+</div>
+</section>
+
+<!-- Section 8: 行动清单 -->
+<section id="actions">
+<h2>✅ Section 8: 行动清单</h2>
+
+<div class="action-priority action-p0">
+<h4>🔴 P0 · 本周必做</h4>
+<p><strong>1. 把 codebase-memory-mcp 接到你的主 IDE/Agent。</strong></p>
+<p class="meta-line">原因：解决 Coding Agent 最大瓶颈（代码检索）。收益：单次任务 token 降 30-60%。投入：30 分钟安装+调试。</p>
+<p><strong>2. 通读 1 份开源 skills 库（mattpocock 或 addyosmani）。</strong></p>
+<p class="meta-line">原因：Skills 在 3 个月内会变成 Agent 的通用接口，晚学一个月就要补两个月的债。投入：60 分钟。</p>
+</div>
+
+<div class="action-priority action-p1">
+<h4>🟡 P1 · 本月内做</h4>
+<p><strong>3. 写出你自己的 3 个 skill 并真实用一周。</strong></p>
+<p class="meta-line">原因：从读到写之间有巨大鸿沟，只有真用才能掌握 description 字段的触发规律。投入：半天写 + 一周用。</p>
+<p><strong>4. 读 "Plans Don't Persist" 论文并 review 自己的 Agent 项目的 plan 持久化策略。</strong></p>
+<p class="meta-line">原因：当前你项目里 90% 概率有"context 截断时 plan 丢失"的隐藏 bug。投入：90 分钟读论文 + 2 小时复盘自己项目。</p>
+<p><strong>5. 跑一遍 GLM-5.2[1M] 对比 Claude 的 Coding 体验。</strong></p>
+<p class="meta-line">原因：国产开源模型第一次有真正可对标的方案，必须自己跑过才有发言权。投入：2-3 小时。</p>
+</div>
+
+<div class="action-priority action-p2">
+<h4>🔵 P2 · 季度内关注</h4>
+<p><strong>6. 跟踪 Skill Supply Chain Security 的演化。</strong></p>
+<p class="meta-line">原因：NVIDIA 已下场，下半年大概率出第一起恶意 skill 事件。投入：每周扫一次 SkillSpector 的 issues。</p>
+<p><strong>7. 跟团队对齐 Loop Engineering 的语言体系。</strong></p>
+<p class="meta-line">原因：当老板问"哪些工作可以 Agent 化"，你要能用一张图回答。投入：1 小时画图 + 一次 30 分钟分享。</p>
+<p><strong>8. 关注英伟达机器人 OS 的开放接口。</strong></p>
+<p class="meta-line">原因：如果"具身 Agent"成立，软件工程师可以走进的最近端口就是它。投入：低，订阅 release 即可。</p>
+</div>
+</section>
+
+<footer style="text-align:center; padding:30px 0; color:var(--text-secondary); font-size:0.85em;">
+Generated by /ai-briefing · 2026-06-23 · Data sources: GitHub Trending · 猫猫新闻 · Arxiv cs.AI
+</footer>
+
+</div>
+</body>
+</html>
