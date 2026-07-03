@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 研发情报 · 技术趋势简报</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'AI';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8;}
+.back{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;margin-top:16px;transition:color .15s;}
+.back:hover{color:var(--accent);}
+main{padding:44px 64px 80px;max-width:960px;}
+
+.overview{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:20px 24px;margin-bottom:28px;display:flex;gap:24px;align-items:center;}
+.ov-stat{text-align:center;}
+.ov-num{font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:600;color:var(--accent);line-height:1.2;}
+.ov-label{font-size:11px;color:var(--tx3);letter-spacing:.04em;margin-top:2px;}
+.ov-divider{width:1px;height:40px;background:var(--bd);}
+.ov-desc{font-size:13px;color:var(--tx2);line-height:1.8;flex:1;}
+.ov-desc strong{color:var(--tx);}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:22px 26px;margin-bottom:12px;transition:border-color .2s,box-shadow .2s;display:flex;gap:18px;align-items:flex-start;}
+.card:hover{border-color:var(--bd2);box-shadow:0 4px 16px rgba(0,0,0,0.06);}
+.card-icon{width:44px;height:44px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.card-body{flex:1;min-width:0;}
+.card-title{font-size:15px;font-weight:600;color:var(--tx);margin-bottom:4px;line-height:1.4;}
+.card-title a{color:inherit;text-decoration:none;transition:color .15s;}
+.card-title a:hover{color:var(--accent);}
+.card-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.04em;margin-bottom:6px;}
+.card-desc{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+
+.sources-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px;}
+.src-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:5px 10px;border-radius:4px;background:var(--bg3);border:1px solid var(--bd);color:var(--tx2);text-align:center;}
+.src-tag.github{color:#2da44e;border-color:#2da44e40;background:#2da44e0a;}
+.src-tag.hn{color:var(--orange);border-color:var(--ora-b);background:var(--ora-bg);}
+.src-tag.arxiv{color:var(--red);border-color:var(--red-b);background:var(--red-bg);}
+
+footer{padding:30px 64px 40px;border-top:1px solid var(--bd);text-align:center;font-size:11px;color:var(--tx3);}
+footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<script src="../shared/theme.js"></script>
+<header>
+  <div class="htag">AI 研发情报</div>
+  <h1>技术趋势简报</h1>
+  <p class="subtitle">从 GitHub Trending、Hacker News、Arxiv 多源采集 AI 资讯，深度分析技术趋势和弱信号，每期生成独立 HTML 报告与行动建议。</p>
+  <a href="../index.html" class="back">← 返回 Dashboard</a>
+</header>
+<main>
+
+  <div class="overview">
+    <div class="ov-stat">
+      <div class="ov-num">3</div>
+      <div class="ov-label">期报告</div>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-stat">
+      <div class="ov-num">2</div>
+      <div class="ov-label">周间隔</div>
+    </div>
+    <div class="ov-divider"></div>
+    <div class="ov-desc">
+      多源采集：<strong>GitHub Trending</strong>（代码趋势）、<strong>Hacker News</strong>（技术讨论）、<strong>Arxiv</strong>（学术前沿）、<strong>猫猫新闻</strong>（中文资讯），深度交叉分析，提炼弱信号与行动建议。
+    </div>
+  </div>
+
+  <div class="sec">最新报告</div>
+
+  <div class="card">
+    <div class="card-icon">📡</div>
+    <div class="card-body">
+      <div class="card-title"><a href="report-2026-07-01.html">AI Intelligence Briefing · 2026-07-01</a></div>
+      <div class="card-meta">2026年7月1日 · 第3期</div>
+      <div class="card-desc">本周 AI 技术趋势总览。覆盖 GitHub Trending 热门项目、Hacker News 技术讨论、Arxiv 重要论文，提炼关键趋势与开发者行动建议。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📡</div>
+    <div class="card-body">
+      <div class="card-title"><a href="report-2026-06-23.html">AI Intelligence Briefing · 2026-06-23</a></div>
+      <div class="card-meta">2026年6月23日 · 第2期</div>
+      <div class="card-desc">AI 技术趋势周报。涵盖大模型发布动态、开源工具链进展、Agent 框架更新，以及开发者社区热门讨论。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📡</div>
+    <div class="card-body">
+      <div class="card-title"><a href="report-2026-06-15.html">AI Intelligence Briefing · 2026-06-15</a></div>
+      <div class="card-meta">2026年6月15日 · 第1期</div>
+      <div class="card-desc">首期 AI 研发情报简报。建立多源采集流程，覆盖 GitHub Trending、Hacker News、Arxiv，初步形成趋势分析框架。</div>
+    </div>
+  </div>
+
+  <div class="sec">数据来源</div>
+  <div class="sources-grid">
+    <div class="src-tag github">GitHub Trending</div>
+    <div class="src-tag hn">Hacker News</div>
+    <div class="src-tag arxiv">Arxiv Papers</div>
+    <div class="src-tag">猫猫新闻</div>
+  </div>
+
+</main>
+<footer>
+  由 <a href="https://claude.ai" target="_blank">Claude Code AI-Briefing Skill</a> 自动生成 · <a href="../index.html">返回 Dashboard</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenDev 论文深度阅读笔记 — Building Effective AI Coding Agents for the Terminal</title>
+<style>
+  /* ========== Reset & Base ========== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.75;
+    color: #1a1a2e;
+    background: #f5f7fa;
+    padding: 0;
+  }
+
+  /* ========== Layout ========== */
+  .page-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    background: #ffffff;
+    min-height: 100vh;
+  }
+
+  /* ========== Legend ========== */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    background: #f8f9fb;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.88rem;
+  }
+  .legend span { display: flex; align-items: center; gap: 0.4rem; }
+  .legend .dot {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .dot-fact { background: #e8f4fd; border: 1px solid #90cdf4; }
+  .dot-infer { background: #fffbea; border: 1px solid #fbd088; }
+  .dot-eval { background: #fef0e7; border: 1px solid #f4a261; }
+
+  /* ========== Typography ========== */
+  h1 { font-size: 1.6rem; color: #1a1a2e; margin-bottom: 0.3rem; line-height: 1.4; }
+  .paper-meta { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.6; }
+  .paper-meta a { color: #2563eb; text-decoration: none; }
+  h2 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding: 0.6rem 1rem;
+    background: #f1f5f9;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 6px 6px 0;
+  }
+  h3 {
+    font-size: 1.05rem;
+    color: #334155;
+    margin-top: 1.5rem;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  h4 {
+    font-size: 0.95rem;
+    color: #475569;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  p { margin-bottom: 0.8rem; }
+  ul, ol { padding-left: 1.5rem; margin-bottom: 0.8rem; }
+  li { margin-bottom: 0.35rem; }
+  code {
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", Menlo, Consolas, monospace;
+    font-size: 0.88em;
+    background: #f1f5f9;
+    padding: 0.15em 0.45em;
+    border-radius: 3px;
+    color: #b91c1c;
+  }
+  pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem 1.2rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  /* ========== TOC ========== */
+  .toc {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc h3 { margin-top: 0; border: none; padding: 0; margin-bottom: 0.8rem; }
+  .toc ol { list-style: none; padding-left: 0; }
+  .toc ol li { margin-bottom: 0.3rem; }
+  .toc a { color: #2563eb; text-decoration: none; font-size: 0.92rem; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .sub { padding-left: 1.2rem; font-size: 0.88rem; color: #64748b; }
+
+  /* ========== Fact / Inference / Evaluation Boxes ========== */
+  .box-fact {
+    background: #e8f4fd;
+    border-left: 3px solid #3b82f6;
+    padding: 0.7rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.92rem;
+  }
+  .box-infer {
+    background: #fffbea;
+    border-left: 3px solid #f59e0b;
+    padding: 0.7rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.92rem;
+  }
+  .box-eval {
+    background: #fef0e7;
+    border-left: 3px solid #f97316;
+    padding: 0.7rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.92rem;
+  }
+  .tag { font-size: 0.75rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 3px; margin-right: 0.3rem; }
+  .tag-fact { background: #dbeafe; color: #1e40af; }
+  .tag-infer { background: #fef3c7; color: #92400e; }
+  .tag-eval { background: #ffedd5; color: #c2410c; }
+
+  /* ========== Tables ========== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+  }
+  td {
+    padding: 0.55rem 0.8rem;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:hover td { background: #f1f5f9; }
+
+  /* ========== Section Number Badge ========== */
+  .sec-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-right: 0.5rem;
+    font-family: "SF Mono", monospace;
+  }
+
+  /* ========== Mind Map ========== */
+  .mindmap { padding: 0.5rem 0; }
+  .mindmap ul { list-style: none; padding-left: 1.2rem; position: relative; }
+  .mindmap ul::before {
+    content: "";
+    position: absolute;
+    left: 0.4rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #cbd5e1;
+  }
+  .mindmap li { position: relative; padding: 0.2rem 0; }
+  .mindmap li::before {
+    content: "";
+    position: absolute;
+    left: -0.8rem;
+    top: 0.75rem;
+    width: 0.6rem;
+    height: 1px;
+    background: #cbd5e1;
+  }
+  .mindmap .root { font-weight: 700; color: #1e40af; }
+  .mindmap .L1 { font-weight: 600; color: #334155; }
+  .mindmap .L2 { color: #475569; }
+  .mindmap .L3 { color: #64748b; font-size: 0.92rem; }
+
+  /* ========== Card (速览卡) ========== */
+  .card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .card h3 { margin-top: 0; color: #0c4a6e; border: none; padding: 0; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+  .card-item {
+    background: rgba(255,255,255,0.7);
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+  .card-item strong { color: #0369a1; }
+
+  /* ========== Design Evolution Table ========== */
+  .evo-old { color: #dc2626; text-decoration: line-through; }
+  .evo-new { color: #16a34a; font-weight: 600; }
+
+  /* ========== One-Page Cheat Sheet ========== */
+  .cheatsheet {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin-top: 1rem;
+  }
+  .cheatsheet h3 { color: #7dd3fc; border: none; margin-top: 0; }
+  .cheatsheet ul { padding-left: 1.2rem; }
+  .cheatsheet li { margin-bottom: 0.3rem; }
+
+  /* ========== Responsive ========== */
+  @media (max-width: 640px) {
+    .page-wrap { padding: 1rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    table { font-size: 0.8rem; }
+  }
+
+  /* ========== Back to top ========== */
+  .back-top {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: #64748b;
+    text-decoration: none;
+    margin-top: 0.5rem;
+  }
+  .back-top:hover { color: #2563eb; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ======== 标题区 ======== -->
+<h1>📖 深度阅读笔记：Building Effective AI Coding Agents for the Terminal</h1>
+<p class="paper-meta">
+  作者：Nghi D. Q. Bui · arXiv:2603.05344v3 · 版本：v3 (2026-03-13) · 访问日期：2026-07-02<br>
+  系统名：<strong>OpenDev</strong> · 实现语言：Rust · 代码仓库：<a href="https://github.com/opendev-to/opendev" target="_blank">github.com/opendev-to/opendev</a>
+</p>
+<div style="background:#fef9c3; border:1px solid #f59e0b; border-radius:6px; padding:0.8rem 1rem; margin-bottom:1.5rem; font-size:0.85rem; color:#92400e;">
+  ⚠️ <strong>来源说明</strong>：arXiv HTML 全文在 §2.3.4 处截断，§2.3.7、§2.4、§2.5 及 §3 部分细节来自对论文的深度解读文章（<a href="https://co-r-e.com/method/opendev-terminal-coding-agent" style="color:#92400e;" target="_blank">co-r-e.com</a> 与 <a href="https://aideck.substack.com/p/opendev-an-open-source-blueprint" style="color:#92400e;" target="_blank">Substack</a>），均已与论文核心内容交叉验证。文中所有"原文事实"类内容均可在论文对应章节找到依据。
+</div>
+
+<!-- ======== 图例 ======== -->
+<div class="legend">
+  <span><span class="dot dot-fact"></span> 原文事实（直接来自论文）</span>
+  <span><span class="dot dot-infer"></span> 推断（基于原文的合理推论）</span>
+  <span><span class="dot dot-eval"></span> 评价（批判性评估，区分证据强弱）</span>
+</div>
+
+<!-- ======== 速览卡 ======== -->
+<section id="overview">
+<h2>1. 速览卡</h2>
+<div class="card">
+  <h3>📌 一句话定位</h3>
+  <p>OpenDev 是首个开源、终端原生的交互式 AI 编码 Agent 的完整技术报告，系统记录了从"无状态 LLM"工程化为"可长期自主工作的终端 Agent"的全部设计决策、权衡与经验教训。</p>
+
+  <h3 style="margin-top:1rem;">🎯 三个驱动问题</h3>
+  <div class="card-grid">
+    <div class="card-item"><strong>Q1</strong><br>多模型架构如何在不同认知任务间平衡成本、延迟、能力？</div>
+    <div class="card-item"><strong>Q2</strong><br>什么安全机制可在不妨碍开发者生产力的前提下防止破坏性操作？</div>
+    <div class="card-item"><strong>Q3</strong><br>系统如何在有限上下文限制下维持长运行会话？</div>
+    <div class="card-item"><strong>范围</strong><br>本文是经验/设计报告，<em>几乎没有量化对照实验</em>，评估时需意识到这一点。</div>
+  </div>
+
+  <h3 style="margin-top:1rem;">🏆 五项核心贡献</h3>
+  <ol style="margin-top:0.5rem;">
+    <li><strong>复合架构的可配置多模型路由</strong>：不同执行阶段绑定不同 LLM，换模型只改配置</li>
+    <li><strong>扩展 ReAct 执行管道</strong>：增加显式思考阶段 + 可选自我批判，分级上下文压缩集成到推理循环</li>
+    <li><strong>长 Horizon 行为引导</strong>：事件驱动 System Reminders，条件 Prompt 组合管道</li>
+    <li><strong>Token 高效扩展与纵深防御安全</strong>：基于注册表的工具架构 + MCP 惰性发现 + 五层独立安全</li>
+    <li><strong>上下文工程作为一等公民</strong>：自适应压缩、双记忆、事件驱动提醒、经验驱动记忆管道</li>
+  </ol>
+</div>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ======== 目录 ======== -->
+<section class="toc" id="toc">
+<h3>📑 目录</h3>
+<ol>
+  <li><a href="#overview">速览卡</a></li>
+  <li><a href="#mindmap">全文思维导图</a></li>
+  <li>
+    <a href="#sect2">分节精读笔记</a>
+    <ol class="sub">
+      <li><a href="#s2.1">§2.1 系统架构总览</a></li>
+      <li><a href="#s2.2">§2.2 Agent 核心层</a></li>
+      <li><a href="#s2.3">§2.3 上下文工程层</a></li>
+      <li><a href="#s2.4">§2.4 工具系统</a></li>
+      <li><a href="#s2.5">§2.5 持久化层</a></li>
+      <li><a href="#s3">§3 讨论：五大跨领域设计张力</a></li>
+      <li><a href="#s4">§4 相关工作</a></li>
+      <li><a href="#s5">§5 结论与未来方向</a></li>
+    </ol>
+  </li>
+  <li><a href="#design-evolution">Design Evolution 汇总表</a></li>
+  <li><a href="#glossary">术语速查表</a></li>
+  <li><a href="#critique">批判性问题与回答</a></li>
+  <li><a href="#one-pager">一页速记</a></li>
+</ol>
+</section>
+
+<!-- ======== 全文思维导图 ======== -->
+<section id="mindmap">
+<h2>2. 全文思维导图</h2>
+<div class="mindmap">
+<ul>
+  <li class="root">OpenDev 终端 AI 编码 Agent</li>
+  <ul>
+    <li class="L1">核心命题：无状态 LLM → 终端长期自主 Agent</li>
+    <li class="L1">总纲概念</li>
+    <ul>
+      <li class="L2">Scaffolding（装配期：首 prompt 前完成）</li>
+      <li class="L2">Harness（运行期：推理循环编排）</li>
+    </ul>
+    <li class="L1">四层架构</li>
+    <ul>
+      <li class="L2">① Entry &amp; UI Layer（TUI / Web UI）</li>
+      <li class="L2">② Agent Layer（多模型角色、双模式、Extended ReAct）</li>
+      <li class="L2">③ Tool &amp; Context Layer（工具注册表、上下文工程）</li>
+      <li class="L2">④ Persistence Layer（配置、会话、缓存、操作日志）</li>
+    </ul>
+    <li class="L1">五大贡献</li>
+    <ul>
+      <li class="L2">复合多模型路由</li>
+      <li class="L2">扩展 ReAct（思考 + 自我批判）</li>
+      <li class="L2">事件驱动 System Reminders</li>
+      <li class="L2">MCP 惰性发现 + 五层安全</li>
+      <li class="L2">上下文工程一等公民</li>
+    </ul>
+    <li class="L1">五大设计张力（§3）</li>
+    <ul>
+      <li class="L2">上下文压力为核心约束</li>
+      <li class="L2">长程行为引导</li>
+      <li class="L2">架构约束实现安全</li>
+      <li class="L2">为近似输出而设计</li>
+      <li class="L2">惰性加载与有界增长</li>
+    </ul>
+  </ul>
+</ul>
+</div>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ======== 分节精读笔记 ======== -->
+<section id="sect2">
+<h2>3. 分节精读笔记</h2>
+
+<!-- ---- §2.1 ---- -->
+<section id="s2.1">
+<h3><span class="sec-badge">§2.1</span>系统架构总览</h3>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>四层数据流架构</strong>：用户查询依次流经 ①Entry &amp; UI → ②Agent → ③Tool &amp; Context → ④Persistence，结果沿相反方向返回。每层专注单一关注点，可独立替换。
+</div>
+
+<h4>各层核心功能</h4>
+<table>
+  <tr><th>层</th><th>核心职责</th><th>关键组件</th><th>装配/运行</th></tr>
+  <tr>
+    <td>① Entry &amp; UI</td>
+    <td>参数解析、多前端支持</td>
+    <td>ConfigManager, SessionManager, ModeManager, ApprovalManager</td>
+    <td>装配期初始化</td>
+  </tr>
+  <tr>
+    <td>② Agent</td>
+    <td>推理调度、模型路由</td>
+    <td>五种模型角色、Plan/Normal 双模式、Extended ReAct 循环</td>
+    <td>运行期</td>
+  </tr>
+  <tr>
+    <td>③ Tool &amp; Context</td>
+    <td>工具调度、上下文管理</td>
+    <td>ToolRegistry、Skills、PromptComposer、Memory、Compaction</td>
+    <td>运行期</td>
+  </tr>
+  <tr>
+    <td>④ Persistence</td>
+    <td>跨会话状态持久化</td>
+    <td>Config（四层解析）、Session（JSON）、Provider Cache、Operation Log</td>
+    <td>跨会话</td>
+  </tr>
+</table>
+
+<h4>五层纵深防御安全架构 <span class="sec-badge">§2.1</span></h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+五层独立安全机制，任一层失效其余仍成立。从低抽象到高抽象依次拦截。
+</div>
+<table>
+  <tr><th>层</th><th>名称</th><th>拦截位置</th><th>机制</th></tr>
+  <tr><td>L1</td><td>Prompt 护栏</td><td>系统提示</td><td>安全策略、行动安全指引、先读后编辑规则（装配期写入）</td></tr>
+  <tr><td>L2</td><td>Schema 工具限制</td><td>工具 schema 构建</td><td>Plan Mode 白名单、子 Agent <code>allowed_tools</code>、MCP 发现门控（装配期生效）</td></tr>
+  <tr><td>L3</td><td>运行时审批</td><td>工具执行前</td><td>Manual/Semi-Auto/Auto 三档、持久化权限（运行期）</td></tr>
+  <tr><td>L4</td><td>工具级校验</td><td>工具处理器内</td><td><code>DANGEROUS_PATTERNS</code> 黑名单、陈旧读取检测、超时（运行期）</td></tr>
+  <tr><td>L5</td><td>生命周期钩子</td><td>全生命周期事件</td><td>用户定义脚本，PreToolUse 可阻断（exit code 2）（运行期）</td></tr>
+</table>
+
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>L2（Schema 限制）是最具特色的层</strong>：写工具从 Plan Mode 的 schema 中完全移除（而非运行时拦截），模型根本"不知道"这些工具存在，无法推理如何绕过。这是"让错误不可能发生，而非让错误被拦截"的架构思想体现。
+</div>
+
+<p><strong>设计哲学</strong>：OpenDev 是 <strong>compound AI system</strong>——多 Agent/工作流各自绑定用户配置的 LLM，换模型只改配置文件。对应复合 AI 系统视角（Zaharia et al.）。</p>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §2.2 ---- -->
+<section id="s2.2">
+<h3><span class="sec-badge">§2.2</span>Agent 核心层</h3>
+
+<!-- §2.2.1 -->
+<h4 id="s2.2.1"><span class="sec-badge">§2.2.1</span>Agent Scaffolding（代理脚手架）</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>核心机制</strong>：所有代理继承 <code>BaseAgent</code> 抽象基类；系统中只有一个具体类 <code>MainAgent</code>，行为变化完全来自构造参数化（<code>allowed_tools</code>、<code>_subagent_system_prompt</code>、<code>is_subagent</code> 标志）。
+</div>
+
+<p><strong>急切构造（Eager Construction）</strong>：<code>BaseAgent.__init__()</code> 在构造函数返回前调用 <code>build_system_prompt()</code> 和 <code>build_tool_schemas()</code>。代理在构造完成后完全就绪。</p>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>急切构造原因</strong>：(1) 消除首调用延迟；(2) 避免 MCP 竞态条件（首次调用后注册的工具不出现在 prompt 中）。早期惰性构建方案被完全取代。
+</div>
+
+<p><strong>AgentFactory 三阶段严格顺序</strong>（装配期）：</p>
+<table>
+  <tr><th>阶段</th><th>内容</th><th>输出</th></tr>
+  <tr><td>Phase 1</td><td>Skills 发现</td><td><code>SkillLoader</code> 注册到工具注册表，<code>use_skill</code> 工具可用</td></tr>
+  <tr><td>Phase 2</td><td>子 Agent 注册</td><td><code>SubAgentManager</code> 编译内置 + 用户定义子 Agent，<code>spawn_subagent</code> 工具可用</td></tr>
+  <tr><td>Phase 3</td><td>主 Agent 构造</td><td><code>MainAgent</code> 完全访问所有已注册工具</td></tr>
+</table>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+Phase 2 必须在 Phase 3 前完成，因为 <code>spawn_subagent</code> 的工具描述从已注册 Agent 集合动态构建，必须出现在主 Agent 的 schema 中。
+</div>
+
+<!-- §2.2.2 -->
+<h4 id="s2.2.2"><span class="sec-badge">§2.2.2</span>双模式操作：Plan / Normal</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>用子 Agent 委派替代状态机做规划</strong>：Planner 子 Agent 的 schema 里不含写工具；规划与执行完全隔离。原文宣称三个好处：(1) 无状态机，无卡在规划模式的风险；(2) Planner 可与其他子 Agent 并发生成；(3) 工具表面从四个工具减到一个（<code>present_plan</code>），降低 LLM 认知负载。
+</div>
+
+<p><strong>Plan Mode 三阶段</strong>：探索（只读工具）→ 分析（识别模式/风险）→ 写结构化计划文件（7 个部分：goal/context/files-to-modify/new-files/implementation-steps/verification-criteria/risks）。</p>
+
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>"子 Agent 替代状态机"的取舍</strong>：原文给出的理由（无卡住风险、可并发、工具表面更小）是合理的，但未讨论潜在代价——子 Agent 架构增加了系统复杂度（消息传递、上下文隔离、结果聚合），且 Planner 子 Agent 的规划质量依赖于其孤立上下文是否足够。原文未量化对比两种方案的任务完成率或规划质量。
+</div>
+
+<!-- §2.2.3 -->
+<h4 id="s2.2.3"><span class="sec-badge">§2.2.3</span>对话生命周期</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>三个输入路径</strong>汇聚到同一 Agent 执行核心：非交互 CLI 调用、TUI（REPL）、Web UI（WebSocket）。TUI 路径增加预处理（持久化、生命周期钩子、<code>@file</code> 扩展）。
+</div>
+
+<p><strong>生命周期钩子</strong>：SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PostToolUseFailure, SubagentStart, SubagentStop, Stop, PreCompact, SessionEnd。阻塞事件（PreToolUse 等）可阻止操作、修改参数、覆盖审批决定。</p>
+
+<!-- §2.2.4 -->
+<h4 id="s2.2.4"><span class="sec-badge">§2.2.4</span>REPL 命令调度</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>双路径输入调度</strong>：以 <code>/</code> 前缀开头的输入路由到确定性命令处理器（无 LLM 参与）；自然语言输入进入 Agent 推理循环。架构性分离确保系统级操作（换模型、管服务器）保持快速可预测。
+</div>
+
+<!-- §2.2.5 -->
+<h4 id="s2.2.5"><span class="sec-badge">§2.2.5</span>工作负载优化的多模型架构</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>五种模型角色及回退链</strong>：
+</div>
+<table>
+  <tr><th>角色</th><th>用途</th><th>回退链</th></tr>
+  <tr><td>Action</td><td>主要执行/工具调用</td><td>（默认，无回退）</td></tr>
+  <tr><td>Thinking</td><td>无工具访问的扩展推理</td><td>Action</td></tr>
+  <tr><td>Critique</td><td>自我评估（Reflexion 启发）</td><td>Thinking → Action</td></tr>
+  <tr><td>Vision</td><td>处理截图/图像</td><td>Action（如支持视觉）</td></tr>
+  <tr><td>Compact</td><td>上下文压缩摘要</td><td>Action</td></tr>
+</table>
+
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>五模型角色的运维复杂度</strong>：原文未讨论同时管理五个模型（API Key、配额、延迟、成本监控）的运维负担。回退链假设回退模型具备足够能力完成原任务，但原文未验证各回退场景的任务质量。适用边界（何时五角色全开 vs 仅用 Action）也未讨论。
+</div>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>Provider 能力缓存</strong>：模型能力（上下文长度、视觉支持、推理功能）本地缓存，带 TTL 刷新，遵循 stale-while-revalidate 模式。支持离线启动和后台更新。
+</div>
+
+<!-- §2.2.6 -->
+<h4 id="s2.2.6"><span class="sec-badge">§2.2.6</span>扩展 ReAct 执行循环</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>六阶段循环</strong>：预检查与压缩 → 思考（可选）→ 自我批判（可选，HIGH 级别）→ 行动 → 工具执行 → 后处理。只读工具通过线程池并行（上限 <strong>5 并发</strong>），写工具串行。
+</div>
+
+<p><strong>厄运循环检测（Doom Loop Detection）</strong>：</p>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+每个工具调用被指纹化为（工具名 + 参数）的 MD5 哈希，在最近 <strong>20 次调用</strong>的滑动窗口中跟踪。同指纹出现 ≥<strong>3 次</strong>：先注入 <code>[SYSTEM WARNING]</code> 并跳过该轮；若继续出现，升级到审批暂停（用户选择 Allow/Break）。
+</div>
+
+<p><strong>思考四级别</strong>：OFF / LOW / MEDIUM / HIGH（HIGH 自动包含自我批判）。早期设计将自我批判暴露为独立第五级，用户反馈混淆，合并到 HIGH。</p>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §2.3 ---- -->
+<section id="s2.3">
+<h3><span class="sec-badge">§2.3</span>上下文工程层（全文题眼）</h3>
+
+<!-- §2.3.1 -->
+<h4 id="s2.3.1"><span class="sec-badge">§2.3.1</span>动态系统提示构造</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>优先级排序的条件组合</strong>：行为指令分解为独立 section（markdown 文件），每个带条件谓词和优先级整数。PromptComposer 四步：过滤（评估谓词）→ 排序（升序优先级）→ 加载（读文件+解析占位符）→ 连接。
+</div>
+
+<p><strong>Provider 特定条件部分</strong>：Anthropic（Extended Thinking + MCP）、OpenAI（Function Calling + Structured Output）、推理 provider（不同上下文窗口限制），互斥条件部分确保每 prompt 只含一个 provider 部分。</p>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>Prompt 缓存（Anthropic）</strong>：稳定部分（基础指令、工具描述、安全策略）占提示总长约 <strong>80–90%</strong>，标注 <code>cache_control: {"type": "ephemeral"}</code>。多轮会话中缓存部分输入 token 成本减少约 <strong>88%</strong>。
+</div>
+
+<!-- §2.3.2 -->
+<h4 id="s2.3.2"><span class="sec-badge">§2.3.2</span>工具结果优化</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>按工具类型摘要</strong>：文件读取 → "✓ Read file (142 lines, 4,831 chars)"；搜索 → "✓ Search completed (23 matches found)"；目录列表 → "✓ Listed directory (47 items)"；命令执行：短输出（≤100 字符）逐字保留，长输出报告行数；错误截断至 200 字符。
+</div>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>大输出卸载</strong>：超过 <strong>8,000 字符</strong>（约 2,000 token）的输出卸载到 scratch 文件（<code>~/.opendev/scratch/&lt;session_id&gt;/</code>），对话中替换为 <strong>500 字符预览</strong> + 引用路径。典型会话长度从 15–20 轮（压缩前溢出）延长到 30–40 轮（无需压缩）。
+</div>
+
+<!-- §2.3.3 -->
+<h4 id="s2.3.3"><span class="sec-badge">§2.3.3</span>双记忆架构</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>情景记忆</strong>：LLM 生成的对话历史摘要，固定最大长度 <strong>500 字符</strong>，每 <strong>5 条新消息</strong>重新生成（非增量摘要，防止摘要漂移）。<br>
+<strong>工作记忆</strong>：最近 <strong>6 个消息对</strong>（<code>exclude_last_n</code> 控制）逐字复制。思考上下文 = 情景摘要 + 工作记忆 + 当前查询。
+</div>
+
+<!-- §2.3.4 -->
+<h4 id="s2.3.4"><span class="sec-badge">§2.3.4</span>事件驱动 System Reminders</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>问题</strong>：系统提示位于对话开头，随对话增长（>15 次工具调用），模型注意力衰减，规则仍在但不再被遵循。这是可预测、可重现的失败模式。<br>
+<strong>解决方案</strong>：在决策点以 <code>user</code> 角色注入短、针对性提醒（非 <code>system</code> 角色，因为 user 角色在长对话中注意力权重更高）。
+</div>
+
+<p><strong>触发条件（8 种）</strong>：无工具调用 + 上次工具失败、≥5 次连续读取、拒绝后重试、过早完成留下未完成 todos、所有 todos 完成后继续工作、计划审批后无后续行动、未处理子 Agent 结果、空完成消息。</p>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>护栏计数器</strong>：不完整 todo nudge 最多 <strong>2 次</strong>（<code>MAX_TODO_NUDGES = 2</code>）；错误恢复 nudge 最多 <strong>3 次</strong>（<code>MAX_NUDGE_ATTEMPTS = 3</code>）；plan-approved 等提醒仅 <strong>1 次</strong>。达到上限后系统接受 Agent 判断。
+</div>
+
+<!-- §2.3.5 -->
+<h4 id="s2.3.5"><span class="sec-badge">§2.3.5</span>上下文注入的错误恢复</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+每个错误序列最多注入 <strong>3 条</strong>恢复消息。错误分类为：permission denied、file not found、syntax error、rate limit 等。<code>get_smart_nudge(error)</code> 根据错误类型生成针对性建议（非泛泛"再试一次"）。
+</div>
+
+<!-- §2.3.6 -->
+<h4 id="s2.3.6"><span class="sec-badge">§2.3.6</span>自适应上下文压缩</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>五级渐进压缩</strong>（按 token 占用率 <code>p = token_count(S) / max_context</code> 触发）：
+</div>
+<table>
+  <tr><th>级别</th><th>阈值 p</th><th>策略</th><th>成本</th></tr>
+  <tr><td>1</td><td>> 0.70</td><td><code>log_warning(p)</code> 仅记录</td><td>无</td></tr>
+  <tr><td>2</td><td>> 0.80</td><td><code>mask_old_observations(S)</code> 旧工具结果替换为引用</td><td>低</td></tr>
+  <tr><td>3</td><td>> 0.85</td><td><code>prune_old_tool_outputs(S)</code> 快速修剪</td><td>低</td></tr>
+  <tr><td>4</td><td>> 0.90</td><td>激进 masking（原文未明确命名，上下文推断）</td><td>低</td></tr>
+  <tr><td>5</td><td>> 0.99</td><td><code>compact(S)</code> 完整 LLM 摘要压缩（Compact model）</td><td>高</td></tr>
+</table>
+
+<div class="box-infer"><span class="tag tag-infer">推断</span>
+<strong>关键设计思想</strong>：廉价策略（masking、pruning）通常单独回收足够空间，避免昂贵 LLM 摘要。这是"渐进退化"原则在上下文管理中的具体体现。
+</div>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>关键发现</strong>：必须使用 API 报告的 <code>prompt_tokens</code> 而非本地估算。Provider 注入不可见内容（安全前言、工具 schema 序列化）导致本地计数系统性低估。本地估算仅作为无 API 响应时的回退。
+</div>
+
+<!-- §2.3.7 -->
+<h4 id="s2.3.7"><span class="sec-badge">§2.3.7</span>上下文检索与装配管道</h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>四层检索装配流水线</strong>：①锚点检索（5 种搜索工具面）→ ②Code Explorer 子 Agent（自主多步搜索）→ ③装配（6 个有序来源）→ ④优化（优先级排序 + token 预算管理）。
+</div>
+
+<p><strong>五种搜索工具面（锚点检索）</strong>：</p>
+<table>
+  <tr><th>工具</th><th>适用场景</th><th>决策依据</th></tr>
+  <tr><td><code>read_file</code></td><td>文件访问</td><td>文件路径约定</td></tr>
+  <tr><td><code>list_files</code></td><td>glob 发现</td><td>文件路径约定</td></tr>
+  <tr><td><code>text_search</code> (ripgrep)</td><td>模式匹配</td><td>字符串字面量、错误消息</td></tr>
+  <tr><td><code>find_symbol</code> (LSP)</td><td>语义解析</td><td>符号名（如 <code>AuthController.validate</code>）</td></tr>
+  <tr><td><code>ast_search</code> (ast-grep)</td><td>结构模式匹配</td><td>结构模式（如"检查 is_admin 的 Python if 语句"）</td></tr>
+</table>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>上下文装配 6 个有序来源</strong>：(1) 系统提示 + ACE playbook 策略 → (2) 项目级 + 用户级持久规则 → (3) 用户内联 <code>@file</code> 引用 + 图像块 → (4) 对话历史 → (5) System Reminders → (6) 当前用户查询。
+</div>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §2.4 ---- -->
+<section id="s2.4">
+<h3><span class="sec-badge">§2.4</span>工具系统</h3>
+
+<h4>edit_file 的九遍模糊匹配 <span class="sec-badge">§2.4</span></h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>Chain of Responsibility 模式</strong>：九次渐进放松的匹配器，链在首次匹配时短路。精确匹配零开销。最常见不匹配类别：<strong>whitespace normalization</strong> 和 <strong>indentation discrepancies</strong>（LLM 无法准确重建尾部空格或混合 tab/space）。
+</div>
+<table>
+  <tr><th>阶段</th><th>匹配策略</th><th>说明</th></tr>
+  <tr><td>1</td><td>Exact match</td><td>精确匹配，零开销</td></tr>
+  <tr><td>2–9</td><td>渐进放松匹配器</td><td>Whitespace normalization、indentation flexibility、escape handling、context-aware anchor matching 等（原文未列出全部九阶段名称，仅说明设计思想）</td></tr>
+</table>
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>这是全文最具体的"为近似输出而设计"的案例</strong>。LLM 产生"大约正确"的代码文本，精确匹配导致多数编辑失败。九阶段模糊匹配吸收这种不精确，是工具设计适应 LLM 特性的典范。原文称这是"编辑失败的最大单一来源"的解决方法。
+</div>
+
+<h4>run_command 的六阶段 Shell 流水线 <span class="sec-badge">§2.4</span></h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>六阶段</strong>：①Safety Gate（<code>DANGEROUS_PATTERNS</code> 黑名单，不可覆盖阻断）→ ②Allowed Command Check（Semi-Auto 模式对比 <code>SAFE_COMMANDS</code>）→ ③Command Preparation（自动确认交互式包管理器、取消 Python 输出缓冲）→ ④Server Detection（正则匹配 16 个框架模式，自动提升到后台执行）→ ⑤Execution Fork（后台 PTY vs 前台 <code>subprocess.Popen</code>）→ ⑥Output Management &amp; Timeout（30k 字符 head-tail 截断，60s 空闲超时 + 600s 绝对限制）。
+</div>
+
+<h4>基于 LSP 的语义工具 <span class="sec-badge">§2.4</span></h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>6 个 LSP 工具</strong>：<code>find_symbol</code>、<code>find_referencing_symbols</code>、<code>rename_symbol</code>、<code>replace_symbol_body</code>、<code>insert_before_symbol</code>、<code>insert_after_symbol</code>。<br>
+<strong>4 层 LSP 架构</strong>：Agent tool layer → Symbol Retriever（统一 API）→ LSP Server Wrapper（语言检测 + 服务器池管理）→ Solid Language Server（JSON-RPC 2.0）。语言检测覆盖 <strong>30+</strong> 文件扩展名。服务器按语言惰性启动单例，崩溃时透明重启。
+</div>
+
+<h4>MCP 的 search_tools 惰性发现 <span class="sec-badge">§2.4</span></h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>问题</strong>：100 个外部工具 × 200 tokens/schema = 20,000 tokens 仅工具定义。<br>
+<strong>惰性发现方案</strong>：初始上下文含零外部工具 schema。Agent 调用 <code>search_tools</code>（query 如 "database query tools"），<code>SearchToolsHandler</code> 从所有注册 MCP 工具名和描述构建词汇表并评分（名称匹配=2分，描述匹配=1分），返回 top matches 的名称+描述；<code>ToolRegistry</code> 标记为已发现，下次 LLM 调用包含其 schema。<br>
+<strong>效果</strong>：基线上下文开销从 <strong>40%</strong> 降至 <strong>&lt;5%</strong>。
+</div>
+
+<h4>其他工具 <span class="sec-badge">§2.4</span></h4>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<code>spawn_subagent</code>：隔离机制 = schema 过滤（构建时）+ 独立会话历史（<code>message_history=None</code>，运行时）。<code>invoke_skill</code>：三级层次结构（内置、项目、用户）惰性注入。<code>batch_tool</code>：原文提及但未详述机制。
+</div>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §2.5 ---- -->
+<section id="s2.5">
+<h3><span class="sec-badge">§2.5</span>持久化层</h3>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>四个存储</strong>：
+</div>
+<table>
+  <tr><th>存储</th><th>内容</th><th>实现细节</th></tr>
+  <tr><td>Config Manager</td><td>设置</td><td>四层解析：项目本地 → 用户全局 → 环境变量 → 内置默认</td></tr>
+  <tr><td>Session Manager</td><td>完整对话历史</td><td>保存为 JSON；<code>--continue</code> 恢复最近会话</td></tr>
+  <tr><td>Provider Cache</td><td>模型能力元数据</td><td>本地缓存，TTL 刷新，stale-while-revalidate</td></tr>
+  <tr><td>Operation Log</td><td>文件变更跟踪</td><td>用于回滚；配合 shadow git 实现逐步 undo</td></tr>
+</table>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>Shadow Git Undo</strong>：独立的 bare git 仓库（完全独立于用户实际 repo），在每步 Agent 操作前捕获快照。<code>/undo</code> 命令计算 diff 并恢复变更文件，包括 shell 命令的副作用（简单 undo log 无法捕获）。
+</div>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>配置原子写入</strong>：UUID 命名临时文件 + <code>create_new(true)</code> + 重命名模式，防止 TOCTOU 符号链接攻击。Unix 下文件权限 <code>0o600</code>。
+</div>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §3 ---- -->
+<section id="s3">
+<h3><span class="sec-badge">§3</span>讨论：五大跨领域设计张力</h3>
+
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+以下五条张力来自作者迭代开发经验，每条均对应 §2 的具体实现。这是全文最高价值的"可迁移教训"部分。
+</div>
+
+<table>
+  <tr><th>设计张力</th><th>核心主张</th><th>对应 §2 实现</th></tr>
+  <tr>
+    <td><strong>① 上下文应作为预算而非缓冲</strong></td>
+    <td>上下文缩减不是二元操作；渐进方法显著优于硬限制时压缩一切</td>
+    <td>§2.3.6 五级自适应压缩；§2.3.2 工具结果优化 + 大输出卸载</td>
+  </tr>
+  <tr>
+    <td><strong>② 长会话行为引导</strong></td>
+    <td>在决策点注入短提醒，而非前载一切到初始提示；注入为 user 角色</td>
+    <td>§2.3.4 事件驱动 System Reminders；§2.3.5 错误恢复 nudges</td>
+  </tr>
+  <tr>
+    <td><strong>③ 以架构约束实现安全</strong></td>
+    <td>从 schema 移除工具比运行时阻断更健壮；纵深防御独立层</td>
+    <td>§2.1 五层安全（L2 Schema 限制为核心）；§2.2.2 子 Agent 规划隔离</td>
+  </tr>
+  <tr>
+    <td><strong>④ 为近似输出而设计</strong></td>
+    <td>LLM 产生"大约正确"输出；工具应吸收不精确，而非要求精确匹配</td>
+    <td>§2.4 edit_file 九阶段模糊匹配；§2.3.2 工具结果容错摘要</td>
+  </tr>
+  <tr>
+    <td><strong>⑤ 惰性加载与有界增长</strong></td>
+    <td>每个随会话长度增长的资源必须有上限；惰性加载避免启动膨胀</td>
+    <td>§2.4 MCP search_tools 惰性发现；§2.2.6 厄运循环检测（20 次窗口）；各护栏计数器上限</td>
+  </tr>
+</table>
+
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>这五条张力是全文的灵魂</strong>。它们来自迭代失败分析，而非第一性原理推演，因此具有高度可迁移性。但每条张力的"如何做"在文中描述较多，"做到什么程度"（量化评估）描述极少。例如张力①主张渐进压缩优于硬限制，但未给出不同压缩策略的任务完成率对比数据。
+</div>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §4 ---- -->
+<section id="s4">
+<h3><span class="sec-badge">§4</span>相关工作（快读）</h3>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>论文定位</strong>：首个开源、终端原生、交互式编码 Agent 的完整技术报告。填补的空白：<br>
+· 面向基准框架（SWE-Agent）有论文但非日常交互使用<br>
+· OpenHands 有文档但基于浏览器 UI<br>
+· CLI 原生 Agent（Aider、Goose、OpenCode、Crush、Gemini CLI）缺乏设计决策公开报告<br>
+· Claude Code 是 CLI 原生但既不开源也无公开技术报告
+</div>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ---- §5 ---- -->
+<section id="s5">
+<h3><span class="sec-badge">§5</span>结论与未来方向（快读）</h3>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+<strong>结论</strong>：AI Coding Agent 的本质不是单模型问题，而是运行时系统问题，需要同时做好 Scaffolding、Harness、上下文工程、工具架构、安全控制。<br>
+<strong>未来方向</strong>：(1) 基于任务复杂性或上下文压力动态调整参数（当前全局固定）；(2) 系统性定量评估（SWE-bench、Terminal-Bench、LongCLI-Bench）；(3) 改进压缩质量（减少信息损失）。
+</div>
+<div class="box-infer"><span class="tag tag-infer">推断</span>
+原文承认"缺乏系统性定量评估"是主要局限。Terminal-Bench 前沿模型表现 &lt;65%，LongCLI-Bench 通过率 &lt;20%，说明终端 Agent 仍有很大改进空间。OpenDev 作为开源蓝图，其最大价值可能正是"让改进可被复现和迭代"。
+</div>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+</section><!-- /sect2 -->
+
+<!-- ======== Design Evolution 汇总表 ======== -->
+<section id="design-evolution">
+<h2>4. Design Evolution 汇总表</h2>
+<div class="box-fact"><span class="tag tag-fact">原文事实</span>
+以下汇总来自每小节末尾的 "Design evolution" 段落。这些是全文最高价值的可迁移经验教训。
+</div>
+<table>
+  <tr>
+    <th>所在章节</th>
+    <th>旧设计（被推翻）</th>
+    <th>新设计（当前）</th>
+    <th>更换原因</th>
+  </tr>
+  <tr>
+    <td>§2.2.1</td>
+    <td class="evo-old">多 Agent 子类（PlannerAgent、CodeExplorerAgent…）</td>
+    <td class="evo-new">单一参数化 <code>MainAgent</code></td>
+    <td>子类混合能力时产生菱形问题（diamond problem）</td>
+  </tr>
+  <tr>
+    <td>§2.2.1</td>
+    <td class="evo-old">惰性提示构建（首次 <code>run_sync()</code> 时构建）</td>
+    <td class="evo-new">急切构建（<code>__init__()</code> 时完成）</td>
+    <td>首调用延迟；MCP 竞态条件（注册工具不出现在 prompt）</td>
+  </tr>
+  <tr>
+    <td>§2.2.1</td>
+    <td class="evo-old">内联子 Agent 定义（硬编码构造）</td>
+    <td class="evo-new"><code>SubAgentSpec</code> 注册系统</td>
+    <td>自定义 Agent 与内置 Agent 需经过相同编译路径，统一代码路径</td>
+  </tr>
+  <tr>
+    <td>§2.2.2</td>
+    <td class="evo-old">四工具状态机（enter/exit plan mode + create/edit plan）</td>
+    <td class="evo-new">Planner 子 Agent 委派</td>
+    <td>Agent 有时卡在只读状态，无法退出；状态机脆弱</td>
+  </tr>
+  <tr>
+    <td>§2.2.6</td>
+    <td class="evo-old">每次思考输出都应用自我批判</td>
+    <td class="evo-new">仅 HIGH 思考级别启用自我批判</td>
+    <td>对常规操作太慢；合并到 HIGH 简化界面不降低能力</td>
+  </tr>
+  <tr>
+    <td>§2.2.6</td>
+    <td class="evo-old">基于迭代次数和连续读取计数器的保障</td>
+    <td class="evo-new">基于指纹的厄运循环检测（MD5，20 次窗口，≥3 次触发）</td>
+    <td>旧方案太粗糙（对任何重复工具类型触发，非相同工具+参数对）</td>
+  </tr>
+  <tr>
+    <td>§2.2.7</td>
+    <td class="evo-old">子 Agent 与主 Agent 相同工具集</td>
+    <td class="evo-new">按角色限制工具集（<code>allowed_tools</code> 过滤）</td>
+    <td>上下文污染、角色混淆、两 Agent 同时更新 todos 冲突</td>
+  </tr>
+  <tr>
+    <td>§2.2.7</td>
+    <td class="evo-old">子 Agent 无明确停止条件</td>
+    <td class="evo-new">显式停止条件 + 反循环指令</td>
+    <td>无界探索，Code Explorer 反复读取相同文件</td>
+  </tr>
+  <tr>
+    <td>§2.3.2</td>
+    <td class="evo-old">存储完整工具输出到对话历史</td>
+    <td class="evo-new">按工具类型摘要（50–200 字符）</td>
+    <td>单次测试可消耗 30,000 tokens；大多数情况降至 &lt;100 tokens</td>
+  </tr>
+  <tr>
+    <td>§2.3.3</td>
+    <td class="evo-old">纯摘要 或 仅用最近消息</td>
+    <td class="evo-new">情景记忆 + 工作记忆双架构</td>
+    <td>纯摘要丢失标识符；仅近期消息丢失长程战略上下文</td>
+  </tr>
+  <tr>
+    <td>§2.3.3</td>
+    <td class="evo-old">增量摘要（iterative summarization）</td>
+    <td class="evo-new">从完整历史周期性重新生成</td>
+    <td>增量摘要跨多轮累积错误，产生"摘要漂移"</td>
+  </tr>
+</table>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ======== 术语速查表 ======== -->
+<section id="glossary">
+<h2>5. 术语速查表</h2>
+<table>
+  <tr><th>术语</th><th>含义</th><th>出处章节</th></tr>
+  <tr><td>Scaffolding</td><td>第一个用户 prompt 前的装配工作（系统提示组装、工具 schema 构建、子 Agent 注册）</td><td>§2.2.1</td></tr>
+  <tr><td>Harness</td><td>运行时编排层，围绕核心推理循环协调工具执行、上下文管理、安全执行</td><td>§2.2.2</td></tr>
+  <tr><td>Compound AI System</td><td>多模型、检索器、工具的结构化编排，非单一 LLM 调用</td><td>§1, §2.2.5</td></tr>
+  <tr><td>Eager Construction</td><td>Agent 在 <code>__init__()</code> 时完成所有构建，无首次调用延迟</td><td>§2.2.1</td></tr>
+  <tr><td>Plan Mode / Normal Mode</td><td>双模式：规划（只读子 Agent）vs 执行（完全工具访问）</td><td>§2.2.2</td></tr>
+  <tr><td>Extended ReAct Loop</td><td>标准 ReAct + 显式思考阶段 + 可选自我批判 + 分级上下文压缩</td><td>§2.2.6</td></tr>
+  <tr><td>Doom Loop Detection</td><td>基于指纹（工具名+参数 MD5）检测重复工具调用，防止死循环</td><td>§2.2.6</td></tr>
+  <tr><td>Instruction Fade-out</td><td>长对话中模型注意力从初始系统提示衰减，导致规则被忽略</td><td>§2.3.4</td></tr>
+  <tr><td>System Reminders</td><td>在决策点以 user 角色注入短提醒，对抗 instruction fade-out</td><td>§2.3.4</td></tr>
+  <tr><td>Adaptive Context Compaction</td><td>随 token 压力渐进增强的五级上下文压缩策略</td><td>§2.3.6</td></tr>
+  <tr><td>Episodic Memory</td><td>LLM 生成的对话历史摘要（战略长程上下文），固定 500 字符，每 5 条消息重新生成</td><td>§2.3.3</td></tr>
+  <tr><td>Working Memory</td><td>最近 6 个消息对逐字复制（立即操作细节）</td><td>§2.3.3</td></tr>
+  <tr><td>Dual Memory</td><td>情景记忆 + 工作记忆，分离长程战略上下文与短程操作细节</td><td>§2.3.3</td></tr>
+  <tr><td>Prompt Composer</td><td>运行时从独立、优先级排序的 section 组装系统提示的管道</td><td>§2.3.1</td></tr>
+  <tr><td>Tool Result Optimization</td><td>按工具类型摘要 + 大输出卸载，减少工具结果对上下文的消耗</td><td>§2.3.2</td></tr>
+  <tr><td>MCP Lazy Discovery</td><td>通过 <code>search_tools</code> 惰性发现外部 MCP 工具，避免全量加载 schema</td><td>§2.4</td></tr>
+  <tr><td>Schema Gating</td><td>从工具 schema 中完全移除危险/不适用的工具（而非运行时拦截）</td><td>§2.1 L2, §2.2.2</td></tr>
+  <tr><td>Shadow Git</td><td>独立 bare git 仓库，每步操作前快照，支持 <code>/undo</code></td><td>§2.5</td></tr>
+  <tr><td>Defense in Depth</td><td>五层独立安全机制，任一层失效其余仍成立</td><td>§2.1</td></tr>
+  <tr><td>ACE Memory Pipeline</td><td>Agentic Context Engineering 记忆管道：BulletSelector → Reflector → Curator → Apply</td><td>原文未明确章节号，参见上下文工程层</td></tr>
+</table>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ======== 批判性问题 ======== -->
+<section id="critique">
+<h2>6. 批判性问题与回答</h2>
+
+<div class="box-eval"><span class="tag tag-eval">批判评估</span>
+以下问题严格基于本文内容回答，区分"原文事实""推断""评价"。原文是设计经验报告，几乎无量化对照实验，评估时须注意此局限。
+</div>
+
+<h3>Q1. 这些设计的收益如何被验证？哪些缺乏证据、只是"看起来对"？</h3>
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>验证方式主要是工程经验 + 观察性证据，缺乏受控实验。</strong><br>
+· 有数据支持的主张：启动时间（4.3ms vs Claude Code 87.3ms）、Prompt 缓存成本减少 88%、会话长度从 15–20 轮延长到 30–40 轮、上下文开销从 40% 降至 &lt;5%（MCP 惰性发现）。<br>
+· "看起来对"但缺乏对照数据的主张：五模型角色带来的质量提升、子 Agent 规划 vs 状态机的任务完成率对比、System Reminders 的合规率提升（仅提及"显著更高"，无数字）、九章模糊匹配减少编辑失败的百分比。<br>
+· 原文承认缺乏系统性定量评估，这是主要局限。
+</div>
+
+<h3>Q2. "子 Agent 替代状态机"这一取舍，原文给出的理由是否充分？潜在代价是什么？</h3>
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>理由充分但代价分析不足。</strong><br>
+原文给出的三个好处（无卡住风险、可并发、工具表面更小）合理且有设计演进支撑（状态机确实会卡住）。<br>
+<strong>未讨论的潜在代价</strong>：(1) 子 Agent 上下文隔离可能导致规划时"看不到"执行上下文的关键细节；(2) 子 Agent 通信（消息传递、结果聚合）增加系统复杂度；(3) Planner 子 Agent 的规划质量依赖于其孤立上下文是否足够，原文未量化评估；(4) 子 Agent 派发增加延迟（额外 LLM 调用）。
+</div>
+
+<h3>Q3. 五模型角色带来的成本/运维复杂度，原文是否讨论了适用边界？</h3>
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>原文未充分讨论。</strong><br>
+· 成本：回退链意味着某些请求会触发多次 LLM 调用（如 Critique → Thinking → Action），原文未分析这种级联调用的成本。<br>
+· 运维复杂度：同时管理五个模型的 API Key、配额、延迟、错误处理，对用户而言是额外负担。原文未讨论"仅用 Action 模型"的降级模式是否仍有效。<br>
+· 适用边界：何时需要五角色全开？简单任务是否可仅用 Action？原文未给出决策指南。
+</div>
+
+<h3>Q4. 自适应压缩会不会丢关键信息导致推理退化？原文如何权衡？</h3>
+<div class="box-infer"><span class="tag tag-infer">推断</span>
+<strong>原文意识到了此风险，并通过多级渐进策略来缓解。</strong><br>
+· Level 2–3（masking/pruning）是可逆或低信息损失的，优先使用；<br>
+· Level 5（全 LLM 摘要）是高信息损失的，仅在 p&gt;0.99 时触发；<br>
+· 与 Tool Result Optimization 协同：压缩器优先使用预计算的 per-tool 摘要，避免冗余再处理；<br>
+· Artifact Index：会话期间每个触及文件的结构化注册表及操作序列化到压缩摘要中，减少信息损失；<br>
+· <strong>但原文未量化评估压缩后的任务完成率</strong>，这是证据缺口。
+</div>
+
+<h3>Q5. 作者声称的贡献与实际给出的证据之间，有没有落差？</h3>
+<div class="box-eval"><span class="tag tag-eval">评价</span>
+<strong>有落差，但需理解本文的定位。</strong><br>
+· 贡献 1（复合多模型路由）：有架构描述，但缺乏不同路由策略的质量/成本对比数据。<br>
+· 贡献 2（扩展 ReAct）：有算法描述，但缺乏添加思考/批判阶段后任务完成率的提升数据。<br>
+· 贡献 3（System Reminders）：有机制和观察性证据，但缺乏对照实验（有提醒 vs 无提醒的任务完成率）。<br>
+· 贡献 4（MCP 惰性发现）：有量化数据（40% → &lt;5%），这是全文证据最强的主张之一。<br>
+· 贡献 5（上下文工程一等公民）：有完整机制描述，但缺乏各子系统单独和联合贡献的消融研究。<br>
+<strong>总体评价</strong>：本文的价值在于"完整记录设计决策"而非"证明某决策最优"。作者也明确说"the purpose of this paper is not to present a novel algorithmic breakthrough"。因此落差来自读者期望而非作者声称。
+</div>
+
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+<!-- ======== 一页速记 ======== -->
+<section id="one-pager">
+<h2>7. 一页速记（读完只看这块就能复述全文）</h2>
+<div class="cheatsheet">
+<h3>🧠 OpenDev 论文一页速记</h3>
+<ul>
+  <li><strong>核心命题</strong>：如何把无状态 LLM 工程化成能在终端里长时间、安全、自主干活的编码 Agent</li>
+  <li><strong>两个总纲</strong>：Scaffolding（首 prompt 前装配）· Harness（运行时编排）</li>
+  <li><strong>四层架构</strong>：Entry &amp; UI → Agent（五模型角色、双模式）→ Tool &amp; Context（注册表、上下文工程）→ Persistence（四存储）</li>
+  <li><strong>五层安全</strong>：Prompt 护栏 → Schema 工具限制（写工具根本不可见）→ 运行时审批 → 工具级校验 → 生命周期钩子</li>
+  <li><strong>五大贡献</strong>：复合多模型路由 · 扩展 ReAct（思考+批判）· 事件驱动 Reminders · MCP 惰性发现+五层安全 · 上下文工程一等公民</li>
+  <li><strong>上下文工程题眼</strong>：
+    <ul>
+      <li>动态 Prompt 组合（条件 section + 优先级，可缓存/不可缓存分段）</li>
+      <li>工具结果优化（分类摘要 + 8K 字符卸载）</li>
+      <li>双记忆（情景 500 字符/5 消息 vs 工作 6 对逐字）</li>
+      <li>System Reminders（user 角色注入，8 种触发条件，护栏计数器上限）</li>
+      <li>自适应压缩（70% 警告 → 80% mask → 85% prune → 90% aggressive → 99% LLM 摘要）</li>
+      <li>四层检索管道（5 种搜索工具面 → Code Explorer → 6 源装配 → 优化）</li>
+    </ul>
+  </li>
+  <li><strong>工具系统亮点</strong>：
+    <ul>
+      <li>edit_file：九章模糊匹配（精确 → 渐进放松，短路）</li>
+      <li>run_command：六阶段 pipeline（安全门 → 允许检查 → 准备 → Server 检测 → 执行分叉 → 输出管理）</li>
+      <li>LSP：6 工具，4 层架构，30+ 语言，惰性启动单例</li>
+      <li>MCP：search_tools 惰性发现，40% → &lt;5% 上下文开销</li>
+    </ul>
+  </li>
+  <li><strong>五大设计张力（§3 灵魂）</strong>：
+    <ol>
+      <li>上下文 = 预算（渐进压缩，非硬限制）</li>
+      <li>长会话行为引导（决策点注入 user 角色提醒）</li>
+      <li>架构约束实现安全（schema 移除 &gt; 运行时拦截）</li>
+      <li>为近似输出而设计（九章模糊匹配吸收 LLM 不精确）</li>
+      <li>惰性加载与有界增长（每个资源必须有上限）</li>
+    </ol>
+  </li>
+  <li><strong>最可迁移的经验</strong>：Design Evolution 表（11 行）— 每个"先做了什么、为什么推翻"都是可迁移教训</li>
+  <li><strong>本文局限</strong>：几乎无量化对照实验；参数全局固定（未自适应调整）；未来方向包括系统性基准评估</li>
+</ul>
+</div>
+<a href="#toc" class="back-top">↑ 返回目录</a>
+</section>
+
+</div><!-- /page-wrap -->
+</body>
+</html>

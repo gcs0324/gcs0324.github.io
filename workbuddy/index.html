@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkBuddy 产物 · AI 深度研究 & 技术长文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'WB';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8;}
+.back{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;margin-top:16px;transition:color .15s;}
+.back:hover{color:var(--accent);}
+main{padding:44px 64px 80px;max-width:960px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:22px 26px;margin-bottom:12px;transition:border-color .2s,box-shadow .2s;display:flex;gap:18px;align-items:flex-start;}
+.card:hover{border-color:var(--bd2);box-shadow:0 4px 16px rgba(0,0,0,0.06);}
+.card-icon{width:44px;height:44px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.card-body{flex:1;min-width:0;}
+.card-title{font-size:15px;font-weight:600;color:var(--tx);margin-bottom:4px;line-height:1.4;}
+.card-title a{color:inherit;text-decoration:none;transition:color .15s;}
+.card-title a:hover{color:var(--accent);}
+.card-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.04em;margin-bottom:6px;}
+.card-desc{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;margin-right:6px;border:1px solid;}
+.tag.html{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.tag.md{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+
+.stats{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:16px;letter-spacing:.03em;}
+.stats strong{color:var(--tx);}
+
+footer{padding:30px 64px 40px;border-top:1px solid var(--bd);text-align:center;font-size:11px;color:var(--tx3);}
+footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+<script src="../shared/theme.js"></script>
+<header>
+  <div class="htag">WORKBUDDY 产物</div>
+  <h1>AI 深度研究 & 技术长文</h1>
+  <p class="subtitle">由 WorkBuddy（Claude Code 驱动）生成的技术深度研究报告、学习路径规划与实用工具清单。每篇均为独立 HTML 长文，支持目录导航。</p>
+  <a href="../index.html" class="back">← 返回 Dashboard</a>
+</header>
+<main>
+  <div class="stats"><strong>9</strong> 篇产物 · 持续更新</div>
+
+  <div class="sec">AI & 技术深度研究</div>
+
+  <div class="card">
+    <div class="card-icon">🔬</div>
+    <div class="card-body">
+      <div class="card-title"><a href="hermes-self-evolution-deep-dive.html">Hermes 自进化 · Agent 如何在实战中进化工作方法而非大脑</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-07-01 · 深度解读</div>
+      <div class="card-desc">深入分析 Hermes 系统的自进化机制——Agent 如何通过反思、经验积累和方法论迭代，在不改变模型权重的前提下持续提升工作能力。覆盖 Skill 进化、记忆沉淀、Workflow 优化等核心主题。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">🦌</div>
+    <div class="card-body">
+      <div class="card-title"><a href="deerflow-deep-dive.html">DeerFlow 深度技术长文 · 从 Deep Research 到 Super Agent Harness</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-07-02 · 架构解析</div>
+      <div class="card-desc">完整解析 DeerFlow 的架构设计：从 Deep Research 能力出发，逐步构建 Super Agent Harness，涵盖多 Agent 编排、工具调用、状态管理等关键技术决策。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">🖥️</div>
+    <div class="card-body">
+      <div class="card-title"><a href="deerflow-deep-research.html">DeerFlow 2.0 深度研究 · 从 Framework 到 Harness</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-07-02 · 深度研究</div>
+      <div class="card-desc">聚焦 DeerFlow 2.0 的核心升级：给 Agent 一台真正的计算机——文件系统、Shell、进程管理等完整计算环境抽象，实现从"框架"到"马具"的范式跃迁。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📖</div>
+    <div class="card-body">
+      <div class="card-title"><a href="opendev-reading-notes.html">OpenDev 论文深度阅读笔记 · Building Effective AI Coding Agents for the Terminal</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-07-02 · 论文精读</div>
+      <div class="card-desc">精读 OpenDev 论文，分析如何在终端环境中构建高效的 AI 编程 Agent。涵盖命令行交互模式、代码编辑策略、上下文管理等关键设计。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">💼</div>
+    <div class="card-body">
+      <div class="card-title"><a href="ai-coding-business-model-report.html">AI Coding 行业商业模式演变深度研究报告（2023-2026）</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-06-12 · 行业研究</div>
+      <div class="card-desc">从代码补全到自主代理，梳理 AI Coding 行业 2023-2026 年的关键转折与驱动因素。分析 Cursor、Copilot、Devin 等产品的商业模式演变。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">🧭</div>
+    <div class="card-body">
+      <div class="card-title"><a href="llm-learning-path.html">机器学习 → 神经网络 → LLM 学习路径</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-06-17 · 学习规划</div>
+      <div class="card-desc">一条清晰的大模型学习路径，只保留必要的知识。从机器学习基础到神经网络，再到 Transformer 和 LLM，去除冗余内容。</div>
+    </div>
+  </div>
+
+  <div class="sec">Agent & 记忆系统</div>
+
+  <div class="card">
+    <div class="card-icon">🧠</div>
+    <div class="card-body">
+      <div class="card-title"><a href="AI-Agent记忆系统技术调研报告.md">AI Agent 记忆系统（Memory System）技术调研报告</a></div>
+      <div class="card-meta"><span class="tag md">Markdown</span> 76.8K · 技术调研</div>
+      <div class="card-desc">全面调研 AI Agent 记忆系统的技术方案：短期/长期记忆、向量检索、摘要压缩、上下文工程。覆盖 Mem0、MemGPT、LangChain Memory 等主流方案对比。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📋</div>
+    <div class="card-body">
+      <div class="card-title"><a href="memory-system-cheatsheet.md">AI Agent 记忆系统速查手册</a></div>
+      <div class="card-meta"><span class="tag md">Markdown</span> 7.4K · 速查</div>
+      <div class="card-desc">记忆系统核心概念的快速参考：记忆类型、存储策略、检索方法、框架 API 对比。适合面试前速览和日常查阅。</div>
+    </div>
+  </div>
+
+  <div class="sec">实用工具</div>
+
+  <div class="card">
+    <div class="card-icon">🏠</div>
+    <div class="card-body">
+      <div class="card-title"><a href="装修家电清单与施工注意事项.html">装修家电清单 & 施工注意事项</a></div>
+      <div class="card-meta"><span class="tag html">HTML</span> 2026-06-30 · 实用清单</div>
+      <div class="card-desc">装修全流程家电选购清单与施工避坑指南，涵盖厨房、卫浴、客厅、卧室各区域的家电配置建议和施工验收要点。</div>
+    </div>
+  </div>
+
+</main>
+<footer>
+  由 <a href="https://claude.ai" target="_blank">Claude Code WorkBuddy</a> 生成 · <a href="../index.html">返回 Dashboard</a>
+</footer>
+</body>
+</html>

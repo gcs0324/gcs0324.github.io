@@ -1133,6 +1133,8 @@
             <li><a href="doc/agent-memory-system.html" target="_blank">Agent 记忆系统 · 理论到工程</a></li>
             <li><a href="doc/agent-memory-interview.html" target="_blank">Agent 记忆系统 · 面试题整理</a></li>
             <li><a href="doc/llm-kv-cache.html" target="_blank">LLM 缓存机制 · KV Cache / Prompt Cache</a></li>
+            <li><a href="workbuddy/index.html" target="_blank">WorkBuddy · AI 深度研究产物</a></li>
+            <li><a href="ai-briefing/index.html" target="_blank">AI 研发情报 · 趋势简报</a></li>
           </ul>
         </div>
 
@@ -1505,11 +1507,11 @@
       <div class="plan-group">
         <div class="plan-group-title">21 · Agent 工程实践 <span class="pg-num">5 files</span></div>
         <ul class="plan-list">
-          <li><span>agent-21-multi-agent.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>agent-22-evaluation.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>agent-23-security.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>agent-24-cost-control.html <span class="badge-todo">TODO</span></span></li>
-          <li><span>agent-25-cicd.html <span class="badge-todo">TODO</span></span></li>
+          <li><a href="doc/java/agent-21-multi-agent.html" target="_blank">agent-21-multi-agent.html ✅</a></li>
+          <li><a href="doc/java/agent-22-evaluation.html" target="_blank">agent-22-evaluation.html ✅</a></li>
+          <li><a href="doc/java/agent-23-security.html" target="_blank">agent-23-security.html ✅</a></li>
+          <li><a href="doc/java/agent-24-cost-control.html" target="_blank">agent-24-cost-control.html ✅</a></li>
+          <li><a href="doc/java/agent-25-cicd.html" target="_blank">agent-25-cicd.html ✅</a></li>
         </ul>
       </div>
 
@@ -1739,8 +1741,20 @@
         { text: 'Gamma（AI 幻灯片）', url: 'https://gamma.app' },
       ]},
       { icon: '📡', title: 'AI 研发情报', links: [
+        { text: '📋 情报汇总页', url: 'ai-briefing/index.html' },
+        { text: '2026-07-01 · AI 技术趋势简报', url: 'ai-briefing/report-2026-07-01.html' },
         { text: '2026-06-23 · AI 技术趋势简报', url: 'ai-briefing/report-2026-06-23.html' },
         { text: '2026-06-15 · AI 技术趋势简报', url: 'ai-briefing/report-2026-06-15.html' },
+      ]},
+      { icon: '🤖', title: 'WorkBuddy 产物', links: [
+        { text: '📋 产物汇总页', url: 'workbuddy/index.html' },
+        { text: 'Hermes 自进化 · 深度解读', url: 'workbuddy/hermes-self-evolution-deep-dive.html' },
+        { text: 'DeerFlow 深度技术长文', url: 'workbuddy/deerflow-deep-dive.html' },
+        { text: 'DeerFlow 2.0 深度研究', url: 'workbuddy/deerflow-deep-research.html' },
+        { text: 'OpenDev 论文阅读笔记', url: 'workbuddy/opendev-reading-notes.html' },
+        { text: 'AI Agent 记忆系统技术调研', url: 'workbuddy/AI-Agent记忆系统技术调研报告.md' },
+        { text: 'AI Coding 商业模式研究报告', url: 'workbuddy/ai-coding-business-model-report.html' },
+        { text: 'LLM 学习路径', url: 'workbuddy/llm-learning-path.html' },
       ]},
       { icon: '📚', title: '考研备考', links: [
         { text: '学习清单 · 章节要不要学', url: 'doc/kaoyan-plan.html' },
@@ -1748,7 +1762,7 @@
       ]},
     ];
 
-    var CARDS_VERSION = 2;
+    var CARDS_VERSION = 3;
 
     function getCards() {
       try {
