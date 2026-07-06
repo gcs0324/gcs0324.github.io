@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Intelligence Briefing - 2026-07-06</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #21262d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --accent-cyan: #39d2c0;
+      --border: #30363d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { font-size: 2em; margin-bottom: 10px; }
+    header .tagline { font-size: 1.2em; color: var(--accent-blue); font-style: italic; margin-bottom: 8px; }
+    header .date { color: var(--text-secondary); margin-top: 10px; }
+    header .meta { color: var(--text-secondary); font-size: 0.85em; margin-top: 8px; }
+    section { padding: 30px 0; border-bottom: 1px solid var(--border); }
+    section h2 { font-size: 1.5em; margin-bottom: 20px; color: var(--accent-blue); }
+    section h3 { font-size: 1.15em; margin: 16px 0 10px; color: var(--text-primary); }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h3 { margin-bottom: 10px; }
+    .card h3 a { color: var(--accent-blue); }
+    .card .meta-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0; align-items: center; }
+    .score {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.85em;
+    }
+    .score-high { background: var(--accent-green); color: #000; }
+    .score-medium { background: var(--accent-orange); color: #000; }
+    .score-low { background: var(--accent-red); color: #fff; }
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.78em;
+      margin-right: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+    }
+    .tag-blue { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .tag-green { border-color: var(--accent-green); color: var(--accent-green); }
+    .tag-purple { border-color: var(--accent-purple); color: var(--accent-purple); }
+    .tag-orange { border-color: var(--accent-orange); color: var(--accent-orange); }
+    .signal-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      margin: 8px 0;
+      overflow: hidden;
+    }
+    .signal-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .signal-fill-high { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+    .signal-fill-mid { background: linear-gradient(90deg, var(--accent-orange), var(--accent-green)); }
+    .signal-fill-low { background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); }
+    .trend-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .trend-stage {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .trend-stage h4 { color: var(--accent-purple); margin-bottom: 12px; }
+    .trend-stage ul { list-style: none; padding: 0; }
+    .trend-stage li { padding: 4px 0; font-size: 0.9em; border-bottom: 1px solid var(--border); }
+    .trend-stage li:last-child { border-bottom: none; }
+    .action-priority {
+      border-left: 4px solid;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      background: var(--bg-card);
+      border-radius: 0 8px 8px 0;
+    }
+    .action-p0 { border-color: var(--accent-red); }
+    .action-p1 { border-color: var(--accent-orange); }
+    .action-p2 { border-color: var(--accent-blue); }
+    .action-priority h4 { margin-bottom: 4px; }
+    .action-priority .reason { color: var(--text-secondary); font-size: 0.85em; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-secondary); font-weight: 600; font-size: 0.85em; }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .stars { color: var(--accent-orange); letter-spacing: 1px; }
+    .analysis-block { margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.9em; }
+    .analysis-block p { margin-bottom: 8px; }
+    .analysis-block .label { color: var(--accent-purple); font-weight: 600; }
+    .roi-badge { font-size: 0.8em; padding: 1px 6px; border-radius: 3px; }
+    .roi-high { background: var(--accent-green); color: #000; }
+    .roi-mid { background: var(--accent-orange); color: #000; }
+    .summary-box {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-blue);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .summary-box p { font-size: 1.05em; }
+    .failed-source {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-orange);
+      border-radius: 6px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
+      font-size: 0.85em;
+      color: var(--accent-orange);
+    }
+    .highlight { color: var(--accent-cyan); font-weight: 600; }
+    @media (max-width: 768px) {
+      .trend-map { grid-template-columns: 1fr 1fr; }
+      .container { padding: 10px; }
+      .card .meta-row { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .trend-map { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔬 AI Intelligence Briefing</h1>
+      <div class="tagline">Agent Engineering 从"拼 Prompt"进入"拼 Infrastructure"时代 — Context Engineering、Agent Memory、Harness 修复成为新基础设施层</div>
+      <div class="date">2026-07-06</div>
+      <div class="meta">数据源：GitHub Trending（每日+每周）✅ · 猫猫新闻 ✅ · Arxiv（通过 Tavily 搜索补充）⚠️</div>
+    </header>
+
+    <!-- 数据源说明 -->
+    <div class="failed-source">
+      ⚠️ <strong>数据源说明</strong>：Arxiv 原始 WebSearch 查询（site:arxiv.org）返回空结果，已通过 Tavily Search 补充获取论文数据。猫猫新闻当日仅 10 条条目，其中 AI/技术相关 6 条。GitHub Trending 数据完整。
+    </div>
+
+    <!-- Section 1: Top10动态 -->
+    <section id="top10">
+      <h2>📰 Section 1: 今日 Top 10 动态</h2>
+
+      <!-- #1 -->
+      <div class="card">
+        <h3>#1 Meta Context Engineering：Context Assembly 即优化问题，SWE-bench 达 89.1%</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 88</span>
+          <span class="tag tag-green">Context Engineering</span>
+          <span class="tag tag-blue">论文</span>
+          <span>来源：arXiv (Ye et al., 2026)</span>
+        </div>
+        <p>将 Context Assembly 形式化为优化问题，在 SWE-bench Verified 上达到 <strong>89.1%</strong>（对比手工工程化的 70.7%）。这是 Context Engineering 从"经验调参"走向"可优化系统"的关键转折——不再是"多塞点上下文试试"，而是有理论框架指导的最优上下文组装。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>Context Engineering 正在成为 Agent 系统的核心差异化能力。这篇论文给出了形式化框架和可复现的实验结果，标志着这个方向从工程技巧升格为可研究的学科。对研发工程师来说，理解 Context Engineering 将像理解数据库索引一样成为必备技能。</p>
+        </div>
+      </div>
+
+      <!-- #2 -->
+      <div class="card">
+        <h3>#2 HarnessFix：Agent Harness 的"调试器"来了 — 诊断级修复框架</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 78</span>
+          <span class="tag tag-green">Agent Engineering</span>
+          <span class="tag tag-blue">论文</span>
+          <span>来源：arXiv 2026</span>
+        </div>
+        <p>现有 Agent 自改进方法（prompt 优化、workflow 搜索）只能基于最终结果做粗粒度调整。HarnessFix 提出 <strong>trace-grounded + diagnosis-driven</strong> 的修复框架：先定位失败轨迹中的责任证据，再确定是哪个 harness 实现机制导致了不可靠行为，最后精准修复。这是 Agent 可靠性工程的重要突破。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>Agent harness（运行时基础设施）的可靠性是生产级 Agent 系统的最大瓶颈之一。HarnessFix 提供了系统化的诊断和修复方法，类比于传统软件工程中的 debugger + profiler。如果你在做 Agent 生产化，这篇论文必读。</p>
+        </div>
+      </div>
+
+      <!-- #3 -->
+      <div class="card">
+        <h3>#3 "软件工程的终结"：Agentic Engineering 正式成为新范式</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 78</span>
+          <span class="tag tag-purple">范式变革</span>
+          <span class="tag tag-blue">论文</span>
+          <span>来源：arXiv 2606.05608</span>
+        </div>
+        <p>论文提出三个核心主张：(1) 当 LLM 能动态生成和丢弃代码时，代码从"系统本身"变为"推理的临时工具"；(2) Agentic Engineering 定义为"多 Agent 协作模型，每个 Agent 有角色、共享记忆、统一可观测层"；(3) 软件工程的复杂度缩放定律在 Agent 范式下根本性改变。LangChain 已在 2026 年 4 月正式提出 Agentic Engineering 概念。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>这不是危言耸听。当 Claude Code、Codex 等工具已经能完成完整的开发任务时，软件工程师的角色确实在从"代码编写者"转向"Agent 编排者"。这篇论文给出了系统化的论证框架，值得每个研发工程师认真阅读和思考。</p>
+        </div>
+      </div>
+
+      <!-- #4 -->
+      <div class="card">
+        <h3>#4 USEagent：统一软件工程 Agent，ICSE 2026 接收</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 74</span>
+          <span class="tag tag-green">Coding Agent</span>
+          <span class="tag tag-blue">论文（ICSE 2026）</span>
+          <span>来源：arXiv 2506.14683</span>
+        </div>
+        <p>提出 Meta-Agent 架构，动态构建 workflow（而非预定义），统一处理多种 SE 任务类型（修复、生成、重构等）。与 SWE-Agent、OpenHands、CodeAct、Agentless 等主流方案做了系统对比。核心创新：<strong>workflow 由 Meta-Agent 动态决定，而非预先编码</strong>。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>动态 workflow vs 预定义 workflow 是 Coding Agent 架构的核心分水岭。USEagent 在 ICSE 2026 的接收说明这个方向获得了学术界认可。对于构建自己的 Coding Agent 系统有直接参考价值。</p>
+        </div>
+      </div>
+
+      <!-- #5 -->
+      <div class="card">
+        <h3>#5 AgentFlow：首个 Agent 程序静态分析框架</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 72</span>
+          <span class="tag tag-green">Agent Engineering</span>
+          <span class="tag tag-blue">论文</span>
+          <span>来源：arXiv 2026</span>
+        </div>
+        <p>Agent 程序的行为不仅取决于传统控制流和数据流，还依赖 agent 构造函数、tool 装饰器、agent handoff 声明等框架语义——现有静态分析工具无法处理这些。AgentFlow 是首个针对 Agent 程序的静态分析框架，能恢复和分析这些 <strong>agent 依赖</strong>。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>类比传统软件工程的 ESLint/SonarQube，Agent 程序也需要自己的静态分析工具。AgentFlow 是这块的开创性工作，对构建大型 Agent 系统的团队有直接工程价值。</p>
+        </div>
+      </div>
+
+      <!-- #6 -->
+      <div class="card">
+        <h3>#6 WAIC 2026 核心信号：后 Scaling 时代，智能体生产力时代到来</h3>
+        <div class="meta-row">
+          <span class="score score-medium">重要性 70</span>
+          <span class="tag tag-purple">行业趋势</span>
+          <span class="tag tag-orange">猫猫新闻</span>
+          <span>来源：WAIC 2026 报道</span>
+        </div>
+        <p>WAIC 2026 的核心议题明确指向：<strong>从模型能力竞赛转向 Agent 生产力落地</strong>。"后 Scaling 时代范式重构，迈入智能体生产力时代"——这意味着行业共识已经形成：大模型本身不再是差异化来源，如何用 Agent 系统将模型能力转化为生产力才是关键。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>WAIC 是中国 AI 行业的风向标。今年的主题定调意味着接下来 6-12 个月，Agent 工程化人才将成为最稀缺资源。研发工程师需要从"调模型"思维转向"建 Agent 系统"思维。</p>
+        </div>
+      </div>
+
+      <!-- #7 -->
+      <div class="card">
+        <h3>#7 Cognee：开源 Agent Memory 平台，给 Agent 持久化长期记忆</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 76</span>
+          <span class="tag tag-green">Agent Memory</span>
+          <span class="tag tag-purple">GitHub</span>
+          <span>⭐ 27,131 · Python</span>
+        </div>
+        <p>Cognee 是开源 AI Memory 平台，为 Agent 提供跨会话的持久化长期记忆。基于知识图谱的图记忆结构，支持多种 LLM 和向量数据库。解决了 Agent 系统的核心痛点：<strong>每次对话都从零开始</strong>。</p>
+        <div class="analysis-block">
+          <p><span class="label">核心设计：</span>Graph-based memory → 不是简单的向量检索，而是构建实体和关系的知识图谱。Pipeline 模式：ingest → categorize → enrich → graph-build → retrieve。</p>
+          <p><span class="label">同类对比：</span>vs Mem0（偏向量检索）、vs LangChain Memory（偏会话窗口）、vs Lettuce（偏简单 KV）。Cognee 的图结构在关系推理场景有明显优势。</p>
+          <p><span class="label">学习价值：</span>9/10 · <span class="label">推荐指数：</span>9/10 · <span class="label">立即关注：</span>✅</p>
+        </div>
+      </div>
+
+      <!-- #8 -->
+      <div class="card">
+        <h3>#8 Steerability via Constraints：用约束而非 Prompt 引导 Coding Agent</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 70</span>
+          <span class="tag tag-green">Coding Agent</span>
+          <span class="tag tag-blue">论文（ICML 2026 Workshop）</span>
+        </div>
+        <p>提出用 <strong>约束（constraints）替代 prompt 指令</strong>来引导 Coding Agent 行为。约束是可验证的、可组合的、不依赖模型理解能力的——这比"请生成安全代码"这类软性 prompt 可靠得多。被 ICML 2026 Deep Learning for Code Workshop 接收。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>Prompt 的不可靠性是 Agent 系统的阿喀琉斯之踵。用形式化约束替代自然语言指令，是提升 Agent 可靠性的正确方向。与 HarnessFix 互补——一个从约束角度，一个从诊断修复角度。</p>
+        </div>
+      </div>
+
+      <!-- #9 -->
+      <div class="card">
+        <h3>#9 ContextNest：可验证的 Agent Context 治理框架</h3>
+        <div class="meta-row">
+          <span class="score score-high">重要性 70</span>
+          <span class="tag tag-green">Context Engineering</span>
+          <span class="tag tag-blue">论文</span>
+          <span>来源：arXiv 2026 (PromptOwl + Emory + IBM Research)</span>
+        </div>
+        <p>提出可验证的 Context Governance 框架，确保自主 Agent 的上下文不被污染、不被越权修改、可审计。在 Agent 安全性和合规性场景下非常重要。</p>
+        <div class="analysis-block">
+          <p><span class="label">为什么重要：</span>Context 是 Agent 的"世界模型"。如果 context 被污染，Agent 的所有决策都不可信。ContextNest 提供的是 Agent 安全的基础设施层能力。</p>
+        </div>
+      </div>
+
+      <!-- #10 -->
+      <div class="card">
+        <h3>#10 Page-Agent (Alibaba)：浏览器内 GUI Agent，自然语言操控网页</h3>
+        <div class="meta-row">
+          <span class="score score-medium">重要性 68</span>
+          <span class="tag tag-purple">GUI Agent</span>
+          <span class="tag tag-orange">GitHub</span>
+          <span>⭐ 23,964 · TypeScript · Alibaba 开源</span>
+        </div>
+        <p>阿里开源的 JavaScript 页面内 GUI Agent，纯前端方案，无需后端服务。用自然语言操控网页界面——点击、填表、导航等。与 browser-use 等方案不同，Page-Agent 在页面内运行，直接操作 DOM。</p>
+        <div class="analysis-block">
+          <p><span class="label">核心设计：</span>In-page agent → 直接操作 DOM + 可访问性树，比截图+视觉方案更快更准。纯 JS 实现，可嵌入任何网页。</p>
+          <p><span class="label">同类对比：</span>vs browser-use（Python + Playwright，截图驱动）、vs Playwright MCP（需要外部 server）。Page-Agent 的 in-page 方案延迟最低，但能力受浏览器沙箱限制。</p>
+          <p><span class="label">学习价值：</span>8/10 · <span class="label">推荐指数：</span>8/10 · <span class="label">立即关注：</span>✅</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: GitHub高价值项目 -->
+    <section id="github">
+      <h2>🐙 Section 2: GitHub 高价值项目</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>Stars</th>
+            <th>定位</th>
+            <th>学习价值</th>
+            <th>推荐指数</th>
+            <th>立即关注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://github.com/topoteretes/cognee">cognee</a></td>
+            <td>27,131</td>
+            <td>Agent Memory 平台（图结构持久记忆）</td>
+            <td><span class="score score-high">9/10</span></td>
+            <td><span class="score score-high">9/10</span></td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/DeusData/codebase-memory-mcp">codebase-memory-mcp</a></td>
+            <td>26,770</td>
+            <td>代码智能 MCP Server（知识图谱索引）</td>
+            <td><span class="score score-high">8/10</span></td>
+            <td><span class="score score-high">9/10</span></td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/NickM-27/planning-with-files">planning-with-files</a></td>
+            <td>24,739</td>
+            <td>文件持久化 Agent 规划（Markdown 状态管理）</td>
+            <td><span class="score score-high">8/10</span></td>
+            <td><span class="score score-high">8/10</span></td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/alibaba/page-agent">page-agent</a> <span class="tag tag-purple">Alibaba</span></td>
+            <td>23,964</td>
+            <td>浏览器内 GUI Agent（自然语言操控网页）</td>
+            <td><span class="score score-high">8/10</span></td>
+            <td><span class="score score-high">8/10</span></td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/usestrix/strix">strix</a></td>
+            <td>37,187</td>
+            <td>开源 AI 渗透测试工具</td>
+            <td><span class="score score-high">7/10</span></td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td>✅</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/ogulcancelik/herdr">herdr</a></td>
+            <td>12,122</td>
+            <td>终端 Agent 多路复用器</td>
+            <td><span class="score score-high">7/10</span></td>
+            <td><span class="score score-high">7/10</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/stablyai/orca">orca</a></td>
+            <td>12,410</td>
+            <td>并行 Agent 舰队 ADE（桌面+移动端）</td>
+            <td><span class="score score-medium">7/10</span></td>
+            <td><span class="score score-high">7/10</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/0xnoid/gastown">gastown</a></td>
+            <td>16,398</td>
+            <td>多 Agent 工作空间管理器</td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/browser-use/video-use">video-use</a></td>
+            <td>15,052</td>
+            <td>Coding Agent 驱动视频编辑</td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/allenai/olmocr">olmocr</a></td>
+            <td>18,796</td>
+            <td>PDF 线性化工具包（LLM 训练数据）</td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td><span class="score score-medium">6/10</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>📊 Claude Code 生态观察（趋势信号）</h3>
+      <div class="card">
+        <p>本期 GitHub Trending 出现了显著的 <strong>Claude Code 生态爆发</strong>迹象。以下项目全部上榜每日/每周 Trending：</p>
+        <table>
+          <thead><tr><th>项目</th><th>Stars</th><th>类型</th></tr></thead>
+          <tbody>
+            <tr><td>claude-code</td><td>136,321</td><td>核心 CLI</td></tr>
+            <tr><td>caveman</td><td>84,920</td><td>Token 优化 Skill</td></tr>
+            <tr><td>taste-skill</td><td>57,603</td><td>设计品味 Skill</td></tr>
+            <tr><td>system_prompts_leaks</td><td>50,061</td><td>System Prompt 提取</td></tr>
+            <tr><td>awesome-claude-code</td><td>48,403</td><td>资源合集</td></tr>
+            <tr><td>marketingskills</td><td>36,472</td><td>营销 Skill 集</td></tr>
+            <tr><td>codex-plugin-cc</td><td>25,537</td><td>Codex ↔ Claude Code 桥接</td></tr>
+            <tr><td>claude-skills</td><td>20,615</td><td>337 个 Skill 合集</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 12px;"><span class="label">趋势判断：</span>Claude Code 正在形成类似 VS Code 的插件生态。Skill 作为 Agent 能力扩展的标准单元（类似 VS Code Extension），正在被社区快速采用。这对研发工程师的启示：<strong>学习如何编写和分发 Agent Skill 正在成为新的"开发者基础技能"</strong>。</p>
+      </div>
+    </section>
+
+    <!-- Section 3: Signal Radar -->
+    <section id="signals">
+      <h2>📡 Section 3: Signal Radar（信号雷达）</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 16px;">基于 GitHub Trending + 猫猫新闻 + Arxiv 论文三维数据。信号分数 = GitHub热度×0.4 + 新闻热度×0.2 + 论文增长率×0.3 + 持续时间×0.1</p>
+
+      <!-- Signal 1 -->
+      <div class="card">
+        <h3>🔴 Context Engineering <span class="stars">★★★★★</span> <span class="score score-high">Signal 86</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-high" style="width:86%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-green">下一代方向</span>
+          <span class="tag tag-blue">GitHub 热度 85</span>
+          <span class="tag tag-orange">新闻热度 70</span>
+          <span class="tag tag-purple">论文增长率 95</span>
+        </div>
+        <p><strong>判断：</strong>Context Engineering 正在从"工程技巧"升格为"系统学科"。Meta Context Engineering 论文给出了形式化框架和 89.1% SWE-bench 结果；ContextNest 从治理角度切入；HarnessFix 从诊断修复角度切入。三个维度同时推进，加上 codebase-memory-mcp、cognee 等工具落地，这是当前最强的信号。</p>
+        <p><strong>爆发时间：</strong>3-6 个月。预计 2026 年底前会出现 Context Engineering 的最佳实践指南和标准化工具链。</p>
+      </div>
+
+      <!-- Signal 2 -->
+      <div class="card">
+        <h3>🟡 Agent Memory & Persistence <span class="stars">★★★★</span> <span class="score score-high">Signal 78</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-high" style="width:78%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-green">高价值趋势</span>
+          <span class="tag tag-blue">GitHub 热度 80</span>
+          <span class="tag tag-orange">新闻热度 60</span>
+          <span class="tag tag-purple">论文增长率 85</span>
+        </div>
+        <p><strong>判断：</strong>Cognee（图记忆）、planning-with-files（文件记忆）、codebase-memory-mcp（代码知识图谱）从不同角度解决同一个问题——Agent 不能每次都从零开始。论文方面，"From Signals to Structure"研究记忆架构如何驱动 Agent 语言涌现，DRIFTLENS 研究记忆诱导的推理漂移。Agent Memory 正在从"一个向量数据库"进化为"结构化持久记忆系统"。</p>
+        <p><strong>爆发时间：</strong>6-9 个月。记忆方案将收敛到图结构 + 向量检索的混合架构。</p>
+      </div>
+
+      <!-- Signal 3 -->
+      <div class="card">
+        <h3>🟡 Agent Infrastructure & Reliability <span class="stars">★★★★</span> <span class="score score-high">Signal 75</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-high" style="width:75%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-green">高价值趋势</span>
+          <span class="tag tag-blue">GitHub 热度 65</span>
+          <span class="tag tag-orange">新闻热度 55</span>
+          <span class="tag tag-purple">论文增长率 90</span>
+        </div>
+        <p><strong>判断：</strong>HarnessFix（诊断修复）、AgentFlow（静态分析）、Steerability via Constraints（约束引导）——这三个工作从不同角度构建 Agent 可靠性基础设施。类比传统软件工程的 debugger + linter + type system，Agent 工程正在形成自己的质量保障工具链。</p>
+        <p><strong>爆发时间：</strong>6-12 个月。生产级 Agent 部署的痛点将推动这块快速成熟。</p>
+      </div>
+
+      <!-- Signal 4 -->
+      <div class="card">
+        <h3>🟡 Agent Skill 标准化 <span class="stars">★★★★</span> <span class="score score-medium">Signal 68</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-mid" style="width:68%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-orange">值得关注</span>
+          <span class="tag tag-blue">GitHub 热度 90</span>
+          <span class="tag tag-orange">新闻热度 40</span>
+          <span class="tag tag-purple">论文增长率 55</span>
+        </div>
+        <p><strong>判断：</strong>Claude Code Skills 生态的爆发式增长（337+ Skills，多个 Skill 项目上榜 Trending）表明 Agent Skill 正在成为标准化的 Agent 能力扩展单元。论文方面也有 Agent Skills 的系统研究（238 个真实 skill 的分类学分析）。Skill 正在从"一个 markdown 文件"走向"有规范的软件制品"。</p>
+        <p><strong>爆发时间：</strong>3-6 个月。Skill 市场/注册中心可能出现。</p>
+      </div>
+
+      <!-- Signal 5 -->
+      <div class="card">
+        <h3>🟢 Multi-Agent Framework 成熟化 <span class="stars">★★★</span> <span class="score score-medium">Signal 62</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-mid" style="width:62%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-orange">值得关注</span>
+          <span class="tag tag-blue">GitHub 热度 55</span>
+          <span class="tag tag-orange">新闻热度 50</span>
+          <span class="tag tag-purple">论文增长率 75</span>
+        </div>
+        <p><strong>判断：</strong>MASFactory（图中心化编排）、Adoption and Ecosystem Health 论文（开源 MAS 框架纵向分析）、Institutional AI（多 Agent 治理）——多 Agent 框架正在从"能跑就行"进入"可治理、可扩展、可观测"的成熟阶段。框架差异化不再靠 feature checklist，而是靠设计哲学。</p>
+        <p><strong>爆发时间：</strong>6-12 个月。预计会出现多 Agent 框架的收敛和标准化。</p>
+      </div>
+
+      <!-- Signal 6 -->
+      <div class="card">
+        <h3>🟢 GUI Agent <span class="stars">★★★</span> <span class="score score-medium">Signal 58</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-mid" style="width:58%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-orange">值得关注</span>
+          <span class="tag tag-blue">GitHub 热度 70</span>
+          <span class="tag tag-orange">新闻热度 45</span>
+          <span class="tag tag-purple">论文增长率 50</span>
+        </div>
+        <p><strong>判断：</strong>Page-Agent（阿里，23K+ stars）、video-use（15K stars）、unity-mcp（12K stars）——GUI/界面 Agent 在多个垂直领域开花。从网页到视频编辑到游戏引擎，自然语言操控界面的范式正在渗透。</p>
+        <p><strong>爆发时间：</strong>6-9 个月。浏览器自动化 + Agent 的组合可能出现 killer app。</p>
+      </div>
+
+      <!-- Signal 7 - 弱信号 -->
+      <div class="card">
+        <h3>🟡 Agentic Engineering 范式转移 <span class="stars">★★★</span> <span class="score score-medium">Signal 55</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-mid" style="width:55%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-orange">值得关注</span>
+          <span class="tag tag-blue">GitHub 热度 50</span>
+          <span class="tag tag-orange">新闻热度 75</span>
+          <span class="tag tag-purple">论文增长率 45</span>
+        </div>
+        <p><strong>判断：</strong>WAIC 2026 定调"智能体生产力时代" + "The End of Software Engineering"论文引发讨论。这不是说软件工程师要失业，而是角色在转变：从写代码到编排 Agent。这是一个弱信号但影响深远。</p>
+      </div>
+
+      <!-- Signal 8 - 弱信号 -->
+      <div class="card">
+        <h3>🟢 Agent 安全测试 <span class="stars">★★</span> <span class="score score-medium">Signal 42</span></h3>
+        <div class="signal-bar"><div class="signal-fill signal-fill-low" style="width:42%"></div></div>
+        <div class="meta-row">
+          <span class="tag tag-orange">弱信号</span>
+          <span class="tag tag-blue">GitHub 热度 55</span>
+          <span class="tag tag-orange">新闻热度 25</span>
+          <span class="tag tag-purple">论文增长率 35</span>
+        </div>
+        <p><strong>判断：</strong>Strix（37K stars, AI 渗透测试）的快速增长暗示 Agent 安全测试需求正在形成。但目前论文和新闻覆盖仍较少，属于早期弱信号。</p>
+      </div>
+    </section>
+
+    <!-- Section 4: 趋势地图 -->
+    <section id="trends">
+      <h2>🗺️ Section 4: 趋势地图</h2>
+      <div class="trend-map">
+        <div class="trend-stage">
+          <h4>🌱 萌芽</h4>
+          <ul>
+            <li>Agent Security Testing（Strix）</li>
+            <li>Agent 静态分析（AgentFlow）</li>
+            <li>Agent Context 治理（ContextNest）</li>
+            <li>多 Agent 治理（Institutional AI）</li>
+            <li>Agent Skill 规范化</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>📈 成长</h4>
+          <ul>
+            <li><strong>Context Engineering</strong></li>
+            <li><strong>Agent Memory 系统</strong></li>
+            <li>Agent Harness 修复（HarnessFix）</li>
+            <li>Coding Agent Benchmark（SWE-EVO）</li>
+            <li>GUI Agent（Page-Agent）</li>
+            <li>Agent 约束引导</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>💥 爆发</h4>
+          <ul>
+            <li><strong>Claude Code 生态/Skills</strong></li>
+            <li>Multi-Agent 框架成熟化</li>
+            <li>Coding Agent 生产化</li>
+            <li>Agentic Engineering 概念</li>
+            <li>MCP 协议生态</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>🏛️ 成熟</h4>
+          <ul>
+            <li>LLM API 基础设施</li>
+            <li>RAG 系统</li>
+            <li>Prompt Engineering</li>
+            <li>向量数据库</li>
+            <li>Agent 框架基础（LangGraph/AutoGen/CrewAI）</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: 学习建议 -->
+    <section id="learning">
+      <h2>📚 Section 5: 学习建议</h2>
+
+      <h3>🔥 本周最值得学习（7月6日-7月12日）</h3>
+      <div class="card">
+        <h3>1. Meta Context Engineering 论文精读</h3>
+        <p>理解 Context Assembly 如何被形式化为优化问题，掌握 89.1% SWE-bench 的实现思路。这是理解"Context Engineering 为什么是下一步"的关键文献。</p>
+        <p><span class="tag tag-green">投入：3-4小时精读 + 笔记</span> <span class="tag tag-blue">前置：了解 SWE-bench、Agent 基础架构</span></p>
+      </div>
+      <div class="card">
+        <h3>2. Cognee 源码阅读 + 本地部署</h3>
+        <p>Clone 并运行 Cognee，理解图结构 Agent Memory 的设计。重点关注：ingest pipeline、graph build 策略、retrieval 机制。这是 Agent Memory 方向的最佳学习材料。</p>
+        <p><span class="tag tag-green">投入：4-6小时</span> <span class="tag tag-blue">前置：Python、图数据库基础（Neo4j/NetworkX）</span></p>
+      </div>
+      <div class="card">
+        <h3>3. HarnessFix 论文 + USEagent 架构对比</h3>
+        <p>将 HarnessFix（诊断修复视角）和 USEagent（Meta-Agent 架构）对照阅读，理解 Agent 系统可靠性问题的两个解决思路：事后修复 vs 架构设计。</p>
+        <p><span class="tag tag-green">投入：2-3小时</span> <span class="tag tag-blue">前置：了解 Agent harness 概念</span></p>
+      </div>
+
+      <h3>📅 本月值得深入学习（7月）</h3>
+      <div class="card">
+        <h3>1. Context Engineering 全栈</h3>
+        <p>系统学习 Context Engineering 的四个维度：Assembly（Meta Context Engineering）、Memory（Cognee + planning-with-files）、Governance（ContextNest）、Repair（HarnessFix）。</p>
+        <p><span class="tag tag-green">投入：2周，每天2小时</span></p>
+      </div>
+      <div class="card">
+        <h3>2. Agent Skill 开发实战</h3>
+        <p>学习 Claude Code Skill 开发规范，阅读 Agent Skills 论文中的分类学，编写 3-5 个实用的 Agent Skill。理解 Skill 作为 Agent 能力扩展单元的设计模式。</p>
+        <p><span class="tag tag-green">投入：1周，每天1-2小时</span></p>
+      </div>
+      <div class="card">
+        <h3>3. Multi-Agent 框架设计哲学对比</h3>
+        <p>阅读 "Adoption and Ecosystem Health" 论文 + MASFactory 论文，对比 LangGraph/CrewAI/AutoGen/OpenAI Agents SDK 的设计哲学差异。理解"图 vs 角色 vs 对话 vs 手递手"四种编排范式的取舍。</p>
+        <p><span class="tag tag-green">投入：1周，每天1小时</span></p>
+      </div>
+    </section>
+
+    <!-- Section 6: 实验项目推荐 -->
+    <section id="projects">
+      <h2>🧪 Section 6: 实验项目推荐（周末可完成）</h2>
+
+      <div class="card">
+        <h3>1. 用 Cognee 给你的 Agent 加记忆 🧠</h3>
+        <p><strong>目标：</strong>为一个已有的 Agent（如 LangChain/LangGraph Agent）集成 Cognee，实现跨会话记忆。</p>
+        <p><strong>步骤：</strong>(1) 部署 Cognee + Neo4j/Postgres (2) 编写 ingest pipeline 将对话历史转为图记忆 (3) 实现 retrieval-augmented Agent 响应 (4) 对比有/无记忆的 Agent 表现差异。</p>
+        <p><strong>收获：</strong>深入理解 Agent Memory 的图结构方案，获得可复用的记忆集成代码。</p>
+        <p><span class="tag tag-green">难度：中等</span> <span class="tag tag-blue">时间：6-8小时</span></p>
+      </div>
+
+      <div class="card">
+        <h3>2. 用 Page-Agent 做一个网页自动化助手 🤖</h3>
+        <p><strong>目标：</strong>基于 Page-Agent 构建一个自动化助手，完成特定网页任务（如自动填表、数据采集、表单测试）。</p>
+        <p><strong>步骤：</strong>(1) Clone page-agent (2) 编写自定义 action space（针对目标网站） (3) 添加错误恢复逻辑 (4) 对比与 Playwright 方案的性能差异。</p>
+        <p><strong>收获：</strong>理解 in-page GUI Agent 的设计模式，获得浏览器自动化新工具。</p>
+        <p><span class="tag tag-green">难度：中等</span> <span class="tag tag-blue">时间：5-7小时</span></p>
+      </div>
+
+      <div class="card">
+        <h3>3. 用 planning-with-files 改进你的 Agent 长任务能力 📋</h3>
+        <p><strong>目标：</strong>将 planning-with-files 模式集成到你的日常 Agent 使用中，让 Agent 在长任务中保持上下文。</p>
+        <p><strong>步骤：</strong>(1) 理解 planning-with-files 的 Markdown 状态管理模式 (2) 为一个复杂任务（如多文件重构）创建规划文件 (3) 对比有/无文件规划的任务完成质量 (4) 总结最佳实践。</p>
+        <p><strong>收获：</strong>掌握 Agent 长任务管理的关键技巧，提升日常 Agent 使用效率。</p>
+        <p><span class="tag tag-green">难度：简单</span> <span class="tag tag-blue">时间：3-4小时</span></p>
+      </div>
+    </section>
+
+    <!-- Section 7: 工具推荐 -->
+    <section id="tools">
+      <h2>🔧 Section 7: 工具尝鲜推荐</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>工具</th>
+            <th>类型</th>
+            <th>推荐理由</th>
+            <th>上手难度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="https://github.com/topoteretes/cognee">Cognee</a></td>
+            <td>Agent Memory 平台</td>
+            <td>图结构 Agent 记忆，当前最成熟的开源方案。Pipeline 清晰，文档完善。</td>
+            <td>⭐⭐</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="https://github.com/DeusData/codebase-memory-mcp">codebase-memory-mcp</a></td>
+            <td>MCP Server</td>
+            <td>毫秒级代码库索引为知识图谱。直接集成 Claude Code/Codex，即装即用。</td>
+            <td>⭐</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="https://github.com/alibaba/page-agent">Page-Agent</a></td>
+            <td>GUI Agent</td>
+            <td>阿里开源，纯前端方案。适合网页自动化、测试、数据采集场景。</td>
+            <td>⭐⭐</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="https://github.com/NickM-27/planning-with-files">planning-with-files</a></td>
+            <td>Agent 规划工具</td>
+            <td>Markdown 文件持久化 Agent 规划，简单但极其有效。Claude Code 可直接使用。</td>
+            <td>⭐</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="https://github.com/usestrix/strix">Strix</a></td>
+            <td>AI 安全测试</td>
+            <td>开源 AI 渗透测试，适合在 CI/CD 中集成安全扫描。Python，易于扩展。</td>
+            <td>⭐⭐</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 8: 行动清单 -->
+    <section id="actions">
+      <h2>✅ Section 8: 行动清单</h2>
+
+      <div class="action-priority action-p0">
+        <h4>🔴 P0 — 立即执行（本周内）</h4>
+        <p><strong>1. 阅读 Meta Context Engineering 论文</strong></p>
+        <p class="reason"><strong>原因：</strong>Context Engineering 是当前最重要的技术趋势，这篇论文给出了形式化框架和 SOTA 结果。<strong>收益：</strong>建立对 Context Engineering 的系统理解，领先 90% 的开发者。<strong>投入：</strong>3-4 小时。</p>
+        <p style="margin-top:8px;"><strong>2. 部署 Cognee 并做一次 Hands-on</strong></p>
+        <p class="reason"><strong>原因：</strong>Agent Memory 是 Agent 系统从 Demo 到生产的关键瓶颈。Cognee 是当前最佳学习材料。<strong>收益：</strong>掌握 Agent Memory 的图结构方案，可直接用于项目。<strong>投入：</strong>4-6 小时。</p>
+        <p style="margin-top:8px;"><strong>3. 在 Claude Code 中启用 planning-with-files</strong></p>
+        <p class="reason"><strong>原因：</strong>这是提升日常 Agent 使用效率最简单有效的改进。<strong>收益：</strong>复杂任务完成质量显著提升。<strong>投入：</strong>30 分钟配置 + 日常使用。</p>
+      </div>
+
+      <div class="action-priority action-p1">
+        <h4>🟠 P1 — 本月内完成</h4>
+        <p><strong>1. 阅读 HarnessFix + AgentFlow 论文，理解 Agent 可靠性基础设施</strong></p>
+        <p class="reason"><strong>原因：</strong>Agent 可靠性是生产化的最大障碍。这两篇论文分别从诊断修复和静态分析角度提供了解决方案。<strong>收益：</strong>建立 Agent 质量保障的思维框架。<strong>投入：</strong>4-5 小时。</p>
+        <p style="margin-top:8px;"><strong>2. 学习 Agent Skill 开发，编写 3 个实用 Skill</strong></p>
+        <p class="reason"><strong>原因：</strong>Agent Skill 正在成为标准化的能力扩展单元，类比 VS Code Extension。<strong>收益：</strong>掌握 Agent 扩展开发技能，可复用、可分享。<strong>投入：</strong>1 周，每天 1-2 小时。</p>
+        <p style="margin-top:8px;"><strong>3. 搭建 Page-Agent Demo，评估在项目中的应用场景</strong></p>
+        <p class="reason"><strong>原因：</strong>GUI Agent 在网页自动化测试、数据采集、表单填写等场景有直接应用价值。<strong>收益：</strong>获得新的自动化工具，可能在具体项目中节省大量时间。<strong>投入：</strong>5-7 小时。</p>
+      </div>
+
+      <div class="action-priority action-p2">
+        <h4>🔵 P2 — 持续关注</h4>
+        <p><strong>1. 跟踪 Multi-Agent Framework 收敛趋势</strong></p>
+        <p class="reason"><strong>原因：</strong>LangGraph、CrewAI、AutoGen、OpenAI Agents SDK 的差异化正在固化。理解各框架的设计哲学有助于做出正确的技术选型。<strong>投入：</strong>每月 2 小时跟踪。</p>
+        <p style="margin-top:8px;"><strong>2. 关注 Agent Security Testing 方向</strong></p>
+        <p class="reason"><strong>原因：</strong>Strix 的快速增长暗示 Agent 安全测试需求正在形成。虽然当前是弱信号，但 6-12 个月后可能爆发。<strong>投入：</strong>每月 1 小时跟踪。</p>
+        <p style="margin-top:8px;"><strong>3. 阅读 "The End of Software Engineering" 论文 + USEagent 论文</strong></p>
+        <p class="reason"><strong>原因：</strong>理解 Agentic Engineering 范式对个人职业发展的长期影响。<strong>投入：</strong>2-3 小时。</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <section style="text-align: center; padding: 30px 0; border: none;">
+      <p style="color: var(--text-secondary); font-size: 0.85em;">
+        AI Intelligence Briefing · 2026-07-06 · Generated by Claude Code AI-Briefing Skill<br>
+        数据源：GitHub Trending ✅ · 猫猫新闻 ✅ · Arxiv（Tavily 补充）⚠️<br>
+        评分体系：重要性(0-100) = (技术价值+创新性+实用价值+研发工程师影响+半年影响力)×2
+      </p>
+    </section>
+  </div>
+</body>
+</html>
