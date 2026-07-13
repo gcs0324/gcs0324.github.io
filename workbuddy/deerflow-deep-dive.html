@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeerFlow 深度技术长文——从 Deep Research 到 Super Agent Harness 的完整架构解析</title>
+<style>
+/* ========================================
+   CSS Reset & Base
+   ======================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-primary: #fafaf9;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-highlight: #f0f7ff;
+  --bg-warning: #fef9e7;
+  --bg-danger: #fef2f2;
+  --bg-code: #f5f5f4;
+  --bg-toc: #fafafa;
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #a8a29e;
+  --text-link: #2563eb;
+  --border-color: #e7e5e4;
+  --border-strong: #d6d3d1;
+  --accent-blue: #2563eb;
+  --accent-blue-light: #dbeafe;
+  --accent-green: #16a34a;
+  --accent-green-light: #dcfce7;
+  --accent-orange: #ea580c;
+  --accent-orange-light: #fff7ed;
+  --accent-red: #dc2626;
+  --accent-red-light: #fef2f2;
+  --accent-purple: #7c3aed;
+  --accent-purple-light: #f3e8ff;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Consolas", "Liberation Mono", Menlo, monospace;
+  --line-height-body: 1.85;
+  --line-height-heading: 1.3;
+  --max-width-content: 800px;
+  --sidebar-width: 260px;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  line-height: var(--line-height-body);
+  text-rendering: optimizeLegibility;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+.page-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar TOC */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--bg-toc);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+  padding: 32px 20px 40px 24px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.sidebar-nav {
+  list-style: none;
+}
+
+.sidebar-nav li {
+  margin-bottom: 2px;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 5px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  line-height: 1.45;
+  transition: color 0.15s ease;
+  border-left: 2px solid transparent;
+  padding-left: 10px;
+  margin-left: -12px;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  color: var(--accent-blue);
+}
+
+.sidebar-nav a.active {
+  border-left-color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.sidebar-nav .toc-chapter {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 8px;
+  font-size: 0.88rem;
+}
+
+.sidebar-nav .toc-sub {
+  padding-left: 18px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  max-width: var(--max-width-content);
+  padding: 60px 48px 80px 48px;
+  margin-right: auto;
+  margin-left: calc(var(--sidebar-width) + ((100% - var(--sidebar-width) - var(--max-width-content)) / 2));
+}
+
+/* Mobile sidebar toggle */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 200;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text-primary);
+  position: relative;
+}
+
+.sidebar-toggle span::before,
+.sidebar-toggle span::after {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text-primary);
+  position: absolute;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle span::before { top: -5px; }
+.sidebar-toggle span::after { top: 5px; }
+
+/* Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 99;
+}
+
+/* ========================================
+   Typography
+   ======================================== */
+.article-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.article-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.article-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding-bottom: 32px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+h2 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-color);
+  line-height: var(--line-height-heading);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 36px;
+  margin-bottom: 12px;
+  line-height: var(--line-height-heading);
+}
+
+h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+p {
+  margin-bottom: 16px;
+  text-indent: 2em;
+}
+
+p.no-indent {
+  text-indent: 0;
+}
+
+strong {
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--text-link);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-blue);
+}
+
+a:hover {
+  border-bottom-style: solid;
+}
+
+/* ========================================
+   Highlight Cards
+   ======================================== */
+.highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.highlight-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.highlight-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.highlight-card .card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+.highlight-card .card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.highlight-card .card-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-indent: 0;
+  margin-bottom: 0;
+}
+
+/* Accent-styled highlight cards */
+.highlight-card.card-blue {
+  border-left: 3px solid var(--accent-blue);
+  background: linear-gradient(135deg, var(--accent-blue-light) 0%, var(--bg-card) 60%);
+}
+
+.highlight-card.card-green {
+  border-left: 3px solid var(--accent-green);
+  background: linear-gradient(135deg, var(--accent-green-light) 0%, var(--bg-card) 60%);
+}
+
+.highlight-card.card-purple {
+  border-left: 3px solid var(--accent-purple);
+  background: linear-gradient(135deg, var(--accent-purple-light) 0%, var(--bg-card) 60%);
+}
+
+.highlight-card.card-orange {
+  border-left: 3px solid var(--accent-orange);
+  background: linear-gradient(135deg, var(--accent-orange-light) 0%, var(--bg-card) 60%);
+}
+
+/* ========================================
+   Data Highlight Numbers
+   ======================================== */
+.data-point {
+  display: inline-block;
+  font-weight: 800;
+  font-size: 1.15em;
+  color: var(--accent-blue);
+  background: var(--accent-blue-light);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  letter-spacing: -0.01em;
+}
+
+.data-point.green {
+  color: var(--accent-green);
+  background: var(--accent-green-light);
+}
+
+.data-point.orange {
+  color: var(--accent-orange);
+  background: var(--accent-orange-light);
+}
+
+.data-point.red {
+  color: var(--accent-red);
+  background: var(--accent-red-light);
+}
+
+/* ========================================
+   Stats Banner
+   ======================================== */
+.stats-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.stat-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent-blue);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  text-indent: 0;
+}
+
+/* ========================================
+   Warning / Caution Blocks
+   ======================================== */
+.warning-block {
+  background: var(--bg-warning);
+  border: 1px solid #fbbf24;
+  border-left: 4px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.warning-block .warning-title {
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.warning-block p {
+  color: #78350f;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  text-indent: 0;
+}
+
+.caution-block {
+  background: var(--bg-danger);
+  border: 1px solid #fca5a5;
+  border-left: 4px solid #ef4444;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.caution-block .caution-title {
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.caution-block p {
+  color: #7f1d1d;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  text-indent: 0;
+}
+
+/* ========================================
+   Info / Tip Blocks
+   ======================================== */
+.info-block {
+  background: var(--bg-highlight);
+  border: 1px solid #93c5fd;
+  border-left: 4px solid var(--accent-blue);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.info-block .info-title {
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.info-block p {
+  color: #1e3a5f;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  text-indent: 0;
+}
+
+/* ========================================
+   Comparison Table
+   ======================================== */
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin: 24px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  background: var(--bg-secondary);
+}
+
+.comparison-table thead th {
+  background: #f8f7f6;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+.comparison-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+.comparison-table tbody tr:hover {
+  background: var(--bg-highlight);
+}
+
+.comparison-table tbody td:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.comparison-table .td-yes {
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.comparison-table .td-no {
+  color: var(--text-muted);
+}
+
+.comparison-table .td-partial {
+  color: var(--accent-orange);
+}
+
+/* ========================================
+   Code Block Placeholder
+   ======================================== */
+.code-placeholder {
+  background: var(--bg-code);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  margin: 20px 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   Architecture Diagram Placeholder
+   ======================================== */
+.diagram-placeholder {
+  background: var(--bg-card);
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 40px 24px;
+  margin: 24px 0;
+  text-align: center;
+}
+
+.diagram-placeholder .diagram-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.diagram-placeholder .diagram-label {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ========================================
+   Blockquote
+   ======================================== */
+blockquote {
+  border-left: 3px solid var(--accent-blue);
+  background: var(--bg-highlight);
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+blockquote p {
+  margin-bottom: 4px;
+  text-indent: 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+blockquote cite {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+/* ========================================
+   Summary Box
+   ======================================== */
+.summary-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f7ff 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin: 28px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-box h3 {
+  margin-top: 0;
+  color: var(--accent-blue);
+}
+
+.summary-box p {
+  text-indent: 0;
+}
+
+.summary-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.summary-box ul li {
+  padding: 6px 0;
+  padding-left: 24px;
+  position: relative;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.summary-box ul li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+/* ========================================
+   Writing Reminder
+   ======================================== */
+.writing-reminder {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin: 16px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.writing-reminder .reminder-icon {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* ========================================
+   Divider
+   ======================================== */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 48px 0;
+}
+
+/* ========================================
+   Back to Top
+   ======================================== */
+.back-to-top {
+  display: none;
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  font-size: 1.2rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.back-to-top.visible {
+  display: flex;
+}
+
+.back-to-top:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 1200px) {
+  .main-content {
+    margin-left: calc(var(--sidebar-width) + 32px);
+    padding: 48px 32px 64px 32px;
+  }
+}
+
+@media (max-width: 960px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar.open + .sidebar-overlay {
+    display: block;
+  }
+
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: none;
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 72px 24px 48px 24px;
+  }
+
+  .article-title {
+    font-size: 1.8rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+    margin-top: 40px;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  .highlight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-banner {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .comparison-table thead th,
+  .comparison-table tbody td {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  p {
+    text-indent: 1.5em;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content {
+    padding: 64px 16px 40px 16px;
+  }
+
+  .article-title {
+    font-size: 1.5rem;
+  }
+
+  .summary-box {
+    padding: 20px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .sidebar-toggle,
+  .sidebar-overlay,
+  .back-to-top {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  body {
+    font-size: 12pt;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <!-- Sidebar TOC -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">目录导航</div>
+    <ul class="sidebar-nav">
+      <li><a href="#overview" class="toc-chapter">开篇总述</a></li>
+      <li><a href="#ch1" class="toc-chapter">第一章 · DeerFlow 是什么</a></li>
+      <li><a href="#ch1-1" class="toc-sub">1.1 从 Deep Research 到 Super Agent Harness</a></li>
+      <li><a href="#ch1-2" class="toc-sub">1.2 核心技术栈</a></li>
+      <li><a href="#ch2" class="toc-chapter">第二章 · 核心架构设计</a></li>
+      <li><a href="#ch2-1" class="toc-sub">2.1 整体架构：三层服务体系</a></li>
+      <li><a href="#ch2-2" class="toc-sub">2.2 Gateway API 网关层</a></li>
+      <li><a href="#ch2-3" class="toc-sub">2.3 LangGraph Server 运行时</a></li>
+      <li><a href="#ch2-4" class="toc-sub">2.4 Sandbox 沙箱执行环境</a></li>
+      <li><a href="#ch3" class="toc-chapter">第三章 · Skills 系统</a></li>
+      <li><a href="#ch3-1" class="toc-sub">3.1 Skill 的本质与内置能力</a></li>
+      <li><a href="#ch3-2" class="toc-sub">3.2 按需渐进加载策略</a></li>
+      <li><a href="#ch3-3" class="toc-sub">3.3 自定义 Skill 开发规范</a></li>
+      <li><a href="#ch4" class="toc-chapter">第四章 · Sub-Agent 动态编排</a></li>
+      <li><a href="#ch4-1" class="toc-sub">4.1 任务拆解机制</a></li>
+      <li><a href="#ch4-2" class="toc-sub">4.2 并行执行与结果汇总</a></li>
+      <li><a href="#ch5" class="toc-chapter">第五章 · Sandbox 沙箱</a></li>
+      <li><a href="#ch5-1" class="toc-sub">5.1 沙箱模式对比</a></li>
+      <li><a href="#ch5-2" class="toc-sub">5.2 安全隔离与审计</a></li>
+      <li><a href="#ch6" class="toc-chapter">第六章 · 上下文工程与记忆</a></li>
+      <li><a href="#ch6-1" class="toc-sub">6.1 上下文管理策略</a></li>
+      <li><a href="#ch6-2" class="toc-sub">6.2 跨会话长期记忆</a></li>
+      <li><a href="#ch7" class="toc-chapter">第七章 · 全方位对比</a></li>
+      <li><a href="#ch7-1" class="toc-sub">7.1 架构范式对比</a></li>
+      <li><a href="#ch7-2" class="toc-sub">7.2 任务拆解与质量对比</a></li>
+      <li><a href="#ch7-3" class="toc-sub">7.3 模型与部署对比</a></li>
+      <li><a href="#ch8" class="toc-chapter">第八章 · 实测数据</a></li>
+      <li><a href="#ch8-1" class="toc-sub">8.1 效率实测</a></li>
+      <li><a href="#ch8-2" class="toc-sub">8.2 质量评估</a></li>
+      <li><a href="#ch8-3" class="toc-sub">8.3 成本分析</a></li>
+      <li><a href="#ch9" class="toc-chapter">第九章 · 企业级部署实战</a></li>
+      <li><a href="#ch9-1" class="toc-sub">9.1 Docker 一键部署</a></li>
+      <li><a href="#ch9-2" class="toc-sub">9.2 IM 渠道接入</a></li>
+      <li><a href="#ch9-3" class="toc-sub">9.3 MCP Server 扩展</a></li>
+      <li><a href="#ch10" class="toc-chapter">第十章 · 短板、局限与未来</a></li>
+      <li><a href="#ch10-1" class="toc-sub">10.1 当前的六大短板</a></li>
+      <li><a href="#ch10-2" class="toc-sub">10.2 演进路线图</a></li>
+      <li><a href="#conclusion" class="toc-chapter">结语</a></li>
+    </ul>
+  </nav>
+
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Mobile toggle -->
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="打开目录">
+    <span></span>
+  </button>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- ============================================ -->
+    <!-- 文章标题 -->
+    <!-- ============================================ -->
+    <h1 class="article-title">DeerFlow 深度技术长文</h1>
+    <p class="article-subtitle">从 Deep Research 到 Super Agent Harness——字节跳动开源超级智能体编排框架的完整架构解析、多维度对比与落地实战指南</p>
+    <p class="article-meta">全文约 15,000 字 | 覆盖开篇总述、十章主体、结语 | 含实测数据、对比矩阵与写作提醒</p>
+
+    <!-- ============================================ -->
+    <!-- 开篇总述 -->
+    <!-- ============================================ -->
+    <section id="overview">
+      <h2>开篇总述</h2>
+
+      <p>2025 年 5 月，字节跳动在 GitHub 上正式开源了 DeerFlow——一个基于 LangGraph 构建的多智能体深度研究框架。短短一个月内，该项目即突破 <span class="data-point">21,000+ ⭐</span>，成为开源社区中最受关注的 AI Agent 项目之一。2026 年初，DeerFlow 2.0 版本发布，团队对代码进行了<span class="data-point">完全重写</span>，将项目定位从"深度研究工具"升级为"<strong>Super Agent Harness（超级智能体编排底座）</strong>"——一个面向几乎所有需要多步骤、多工具、多智能体协同的自动化任务场景的通用型智能体执行平台。</p>
+
+      <p>本文将基于对 DeerFlow 源码架构、官方文档、社区实践及多维度横向对比评测的深度研究，从架构设计、核心特性、运行机制、多框架对比、实测数据、企业部署等角度进行系统性拆解。全文共分为十章，覆盖 DeerFlow 的技术全貌与工程实践。</p>
+
+      <!-- 三大核心亮点 -->
+      <h3>三大核心亮点</h3>
+      <div class="highlight-grid">
+        <div class="highlight-card card-blue">
+          <div class="card-icon">🧠</div>
+          <div class="card-title">多智能体分层协同</div>
+          <p class="card-desc">Lead Agent 统筹规划，动态派生子智能体（研究员/编码员/报告员）并行执行，各司其职，支持超时控制、异常重试与结果回收，实现复杂任务的自动化拆解与高效协同。</p>
+        </div>
+        <div class="highlight-card card-green">
+          <div class="card-icon">🏗️</div>
+          <div class="card-title">可插拔 Skills 生态</div>
+          <p class="card-desc">将复杂能力封装为标准化的 Markdown Skill 文件，支持按需渐进加载以节省 Token，内置深度研究/报告生成/PPT 制作/网页生成/播客等多种能力，用户可自定义行业专属工作流。</p>
+        </div>
+        <div class="highlight-card card-purple">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">隔离沙箱 + 跨会话记忆</div>
+          <p class="card-desc">每个任务运行在独立的 Docker 沙箱容器中，拥有完整文件系统，所有操作可审计可回溯；支持跨会话的持久化用户记忆，用得越久越贴合个人习惯，数据完全本地可控。</p>
+        </div>
+      </div>
+
+      <!-- 四组差异点 -->
+      <h3>四组差异点：DeerFlow vs 竞品的关键区分</h3>
+      <div class="highlight-grid">
+        <div class="highlight-card card-orange">
+          <div class="card-icon">🔄</div>
+          <div class="card-title">差异一：开源 vs 闭源</div>
+          <p class="card-desc">DeerFlow 完全开源（MIT 协议），支持本地私有化部署；而 OpenAI Deep Research、Perplexity、Gemini Deep Research 均为闭源 SaaS，数据必须上传云端。</p>
+        </div>
+        <div class="highlight-card card-blue">
+          <div class="card-icon">📋</div>
+          <div class="card-title">差异二：多格式输出 vs 单一输出</div>
+          <p class="card-desc">DeerFlow 一次研究可生成报告/PPT/播客/网页等多种格式；商业竞品通常仅输出文本报告或简报，输出形态单一。</p>
+        </div>
+        <div class="highlight-card card-green">
+          <div class="card-icon">🔧</div>
+          <div class="card-title">差异三：人在回路 vs 全自动</div>
+          <p class="card-desc">DeerFlow 支持用户审查修改研究计划、执行中随时干预、输出阶段在线编辑；商业产品大多为全自动黑箱，用户只能在入口输入问题、出口接收结果。</p>
+        </div>
+        <div class="highlight-card card-purple">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">差异四：执行能力 vs 对话能力</div>
+          <p class="card-desc">DeerFlow 提供独立沙箱环境，可执行代码、读写文件、安装依赖；传统对话式 Deep Research 工具只能搜索和总结，不具备真正的"动手"能力。</p>
+        </div>
+      </div>
+
+      <!-- 实际体验提升 -->
+      <h3>实际体验提升</h3>
+      <div class="stats-banner">
+        <div class="stat-item">
+          <div class="stat-value">3–5×</div>
+          <div class="stat-label">效率提升（vs 人工调研）</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">9h→20min</div>
+          <div class="stat-label">报告撰写时间缩短</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">5+</div>
+          <div class="stat-label">种输出格式支持</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">数据本地可控</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第一章：DeerFlow 是什么 -->
+    <!-- ============================================ -->
+    <section id="ch1">
+      <h2>第一章 · DeerFlow 是什么——从深度研究到超级智能体编排底座</h2>
+
+      <h3 id="ch1-1">1.1 从 Deep Research 到 Super Agent Harness</h3>
+
+      <p>DeerFlow 最初只是字节跳动内部一个面向深度研究场景的工具——自动搜索、整理、生成研究报告。然而，开源社区的创造力远超团队预期：有人用它搭建自动化数据流水线，有人用它批量生成演示文稿，有人用它快速创建数据可视化仪表板，甚至有人把它接入即时通讯工具作为日常办公助理。</p>
+
+      <p>这让团队意识到了一个关键事实：<strong>DeerFlow 真正的价值不在于"研究"，而在于它是第一个真正让 AI Agent 具备完整执行能力的运行时基础设施</strong>。于是，DeerFlow 2.0 应运而生——与 1.x <span class="data-point red">零代码复用</span>，是完全重写的新一代架构。</p>
+
+      <div class="info-block">
+        <div class="info-title">💡 写作提醒</div>
+        <p>此处建议补充 DeerFlow 1.x 与 2.0 的 key changes 对比表，突出完全重写的动机：1.x 架构耦合度高、仅支持单一研究场景、缺少沙箱隔离；2.0 采用微服务分拆、多技能可插拔架构、支持三种沙箱模式。</p>
+      </div>
+
+      <div class="summary-box">
+        <h3>DeerFlow 2.0 的核心定位</h3>
+        <p>它是一个<strong>开箱即用、同时足够可扩展的 Super Agent Harness</strong>——为大模型智能体提供可运行、可编排、可扩展、可管控的标准化运行环境，让智能体不只"回答问题"，而是能自主规划、联网检索、执行代码、读写文件、生成报告、协同作业。</p>
+        <ul>
+          <li>不是聊天机器人，而是带沙箱电脑 + 文件系统 + 长期记忆 + 任务规划 + 子智能体集群的 AI 工作平台</li>
+          <li>定位相当于"24 小时在线的全能研究助理 + 数据分析师 + 内容创作者 + 代码执行者"的集合体</li>
+        </ul>
+      </div>
+
+      <h3 id="ch1-2">1.2 核心技术栈</h3>
+
+      <p>DeerFlow 没有从零造轮子，而是站在了工业级方案的肩膀上：</p>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>组件层</th>
+              <th>技术选型</th>
+              <th>选型理由</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LLM 交互与编排</td>
+              <td>LangChain + LangGraph</td>
+              <td>业界最成熟的 Agent 编排框架，支持有向图工作流</td>
+            </tr>
+            <tr>
+              <td>后端服务</td>
+              <td>Python 3.12+ / FastAPI</td>
+              <td>高性能异步框架，适合微服务架构</td>
+            </tr>
+            <tr>
+              <td>前端界面</td>
+              <td>Next.js + TypeScript + Zustand</td>
+              <td>React 生态最先进方案，支持 SSR 与流式渲染</td>
+            </tr>
+            <tr>
+              <td>沙箱执行</td>
+              <td>Docker / K8s</td>
+              <td>隔离性强，支持单机到集群平滑扩展</td>
+            </tr>
+            <tr>
+              <td>反向代理</td>
+              <td>Nginx</td>
+              <td>统一入口，路由转发，静态文件服务</td>
+            </tr>
+            <tr>
+              <td>持久化</td>
+              <td>内存 / PostgreSQL / MongoDB</td>
+              <td>轻量到企业级灵活选择</td>
+            </tr>
+            <tr>
+              <td>扩展协议</td>
+              <td>MCP (Model Context Protocol)</td>
+              <td>标准化工具接入，社区生态丰富</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第二章：核心架构设计 -->
+    <!-- ============================================ -->
+    <section id="ch2">
+      <h2>第二章 · 核心架构设计——三层服务体系与多智能体协同</h2>
+
+      <h3 id="ch2-1">2.1 整体架构：三层服务体系</h3>
+
+      <p>DeerFlow 2.0 采用经典的分层微服务架构，由三大核心服务组成，通过 Nginx 统一对外暴露。这种分层设计使得每层可以独立扩展、独立升级、独立监控。</p>
+
+      <div class="diagram-placeholder">
+        <div class="diagram-icon">🏛️</div>
+        <div class="diagram-label">（此处配架构图）<br>DeerFlow 整体架构图：Frontend (React/Next.js) → Nginx (反向代理) → Gateway API (FastAPI) + LangGraph Server → Sandbox (Docker Containers)<br>建议标注各组件端口号（2026/8001/2024/3000）及数据流向</div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-title">💡 写作提醒</div>
+        <p>此处推荐使用 Mermaid 或 Excalidraw 绘制三层的分层架构图，突出 Nginx 作为统一流量入口的分流逻辑（前端请求→3000、API 请求→8001、Agent 运行时→2024），并在 Sandbox 层展示 Docker 容器的隔离边界。</p>
+      </div>
+
+      <h3 id="ch2-2">2.2 Gateway API（网关层）</h3>
+
+      <p>Gateway API 是 DeerFlow 面向外部的前端交互与配置管理中心，运行在端口 <span class="data-point">8001</span>。它负责处理所有来自 Web UI 的请求，管理 Skills、Models、Sessions 的生命周期，同时提供 RESTful API 供外部系统集成。</p>
+
+      <p>在技术实现上，Gateway 基于 FastAPI 构建，利用其异步特性实现高并发处理。它充当了<strong>整个系统的"前台"</strong>——用户的每一次对话创建、每一次文件上传、每一次模型切换，都经过 Gateway 的统一调度。</p>
+
+      <h3 id="ch2-3">2.3 LangGraph Server（Agent 运行时）</h3>
+
+      <p>LangGraph Server 是 DeerFlow 的大脑，运行在端口 <span class="data-point">2024</span>，基于 <code>langgraph dev</code> 启动。它负责 Agent 的完整生命周期管理——接收任务、拆解规划、调度子智能体、处理流式响应、汇总结果。</p>
+
+      <p>LangGraph Server 内部实现了 <span class="data-point">9 大中间件</span>，分别处理线程数据管理、文件上传预处理、沙箱环境注入、摘要压缩、任务清单维护、标题自动生成、记忆读写、图片预览、及澄清请求触发。这些中间件构成了 Agent 的"操作系统层"，让 Agent 行为的每个环节都可观测、可控制。</p>
+
+      <h3 id="ch2-4">2.4 Sandbox（沙箱执行环境）</h3>
+
+      <p>这是 DeerFlow 区别于"带工具的聊天机器人"最本质的差异。每个任务会话都运行在独立的隔离环境中，拥有完整的文件系统（<code>/mnt/user-data/</code>），Agent 可以在其中自由读写文件、执行 Bash 命令、运行 Python 代码、安装依赖包。</p>
+
+      <div class="code-placeholder">
+        （此处配源码/伪代码）<br>
+        Sandbox 文件系统结构示例：<br>
+        /mnt/user-data/<br>
+        ├── uploads/      # 用户上传的文件<br>
+        ├── workspace/    # Agent 工作目录<br>
+        └── outputs/      # 最终交付物
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第三章：Skills 系统 -->
+    <!-- ============================================ -->
+    <section id="ch3">
+      <h2>第三章 · Skills 系统——结构化能力模块的设计哲学</h2>
+
+      <h3 id="ch3-1">3.1 Skill 的本质与内置能力</h3>
+
+      <p>Skills 是 DeerFlow 能力可扩展性的灵魂。一个 Standard Agent Skill 本质上就是一个 <strong>Markdown 文件</strong>，其中定义了工作流（Workflow）、最佳实践、参考资源与示例代码。这种极简的设计使得任何人都可以在不修改核心代码的情况下扩展 DeerFlow 的能力边界。</p>
+
+      <p>DeerFlow 内置了以下核心 Skills：</p>
+
+      <div class="highlight-grid">
+        <div class="highlight-card">
+          <div class="card-title">research/</div>
+          <p class="card-desc">深度研究——自动搜索、爬取、分析、综合，生成多源交叉验证的研究报告。</p>
+        </div>
+        <div class="highlight-card">
+          <div class="card-title">report-generation/</div>
+          <p class="card-desc">报告生成——支持 Notion 风格块编辑，AI 润色、缩写、扩写，类所见即所得体验。</p>
+        </div>
+        <div class="highlight-card">
+          <div class="card-title">slide-creation/</div>
+          <p class="card-desc">演示文稿制作——基于 Marp CLI，自动将研究结果转化为专业幻灯片。</p>
+        </div>
+        <div class="highlight-card">
+          <div class="card-title">web-page/</div>
+          <p class="card-desc">网页生成——一键生成包含可视化图表的交互式网页报告。</p>
+        </div>
+        <div class="highlight-card">
+          <div class="card-title">image-generation/</div>
+          <p class="card-desc">图像生成——支持文生图、图表生成等视觉内容制作。</p>
+        </div>
+        <div class="highlight-card">
+          <div class="card-title">podcast/</div>
+          <p class="card-desc">播客生成——将研究报告自动转化为播客脚本，并支持 TTS 语音合成。</p>
+        </div>
+      </div>
+
+      <h3 id="ch3-2">3.2 按需渐进加载策略</h3>
+
+      <p>这里有一个设计上非常巧妙的决策：<strong>按需渐进加载（Progressive Loading）</strong>。DeerFlow 不会一次性把所有 Skills 都塞进 LLM 的上下文窗口——那样会迅速耗尽 Token 预算。取而代之的是：</p>
+
+      <p>第一步，加载所有 Skill 的元数据（名称、描述、触发条件），这几乎不消耗 Token；第二步，主 Agent 根据任务语义判断需要调用哪个 Skill；第三步，只把真正需要的 Skill 的完整 Markdown 内容注入上下文。这种设计让 DeerFlow 即使拥有几十个 Skills，也能保持上下文窗口的干净和高效。</p>
+
+      <div class="code-placeholder">
+        （此处配源码/伪代码）<br>
+        Skill 渐进加载流程伪代码：<br>
+        1. load_skill_metadata() → 获取所有 Skill 的 name + description<br>
+        2. agent.reason(skill_metadata) → 判断需要哪些 Skill<br>
+        3. load_skill_content(matched_skills) → 只加载匹配的 Skill 完整内容
+      </div>
+
+      <h3 id="ch3-3">3.3 自定义 Skill 开发规范</h3>
+
+      <p>DeerFlow 的 Skill 扩展极为简单。只需在 <code>/mnt/skills/custom/</code> 目录下创建一个符合规范的 SKILL.md 文件，包含工作流说明、最佳实践和资源引用即可。系统会自动发现并加载新的 Skill，无需重启服务。</p>
+
+      <div class="writing-reminder">
+        <span class="reminder-icon">✍️</span> <strong>写作提醒：</strong>此处建议附上一个完整的最小化自定义 Skill 示例（如"法律文书审查 Skill"），展示 SKILL.md 的标准结构：触发条件、输入要求、执行步骤、输出格式、参考资源列表。
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第四章：Sub-Agent 动态编排 -->
+    <!-- ============================================ -->
+    <section id="ch4">
+      <h2>第四章 · Sub-Agent 动态编排——任务拆解与并行执行的工程实践</h2>
+
+      <h3 id="ch4-1">4.1 任务拆解机制</h3>
+
+      <p>复杂任务不可能由单一 Agent 一次性完成。DeerFlow 的解法是：<strong>先拆解，再执行</strong>。主 Agent（Lead Agent）收到用户的自然语言指令后，首先调用规划器（Planner）将复杂问题分解为结构化的可执行步骤——每个步骤都有明确的目标、输入约束和预期输出格式。</p>
+
+      <div class="diagram-placeholder">
+        <div class="diagram-icon">🔀</div>
+        <div class="diagram-label">（此处配架构图）<br>Sub-Agent 协同工作流示意图：<br>Lead Agent → 分析任务 → 拆解为子任务 → 动态拉起 Sub-Agent 1/2/3 并行执行 → 各自返回结构化结果 → Lead Agent 汇总输出</div>
+      </div>
+
+      <p>以"研究 AI Agent 框架发展现状"为例，Lead Agent 会将其拆解为四个子任务：Sub-Agent 1 负责搜索 GitHub Trending 上的 Agent 项目；Sub-Agent 2 负责搜集技术博客和论文；Sub-Agent 3 负责整理各家厂商的方案对比；Sub-Agent 4 负责分析技术趋势和投资热点。这种专业化的分工让每个子智能体可以在自己擅长的领域高效作业。</p>
+
+      <h3 id="ch4-2">4.2 并行执行与结果汇总</h3>
+
+      <p>DeerFlow 的 Sub-Agent 系统有四个关键设计点：</p>
+
+      <p><strong>隔离的上下文。</strong>每个 Sub-Agent 都有独立的上下文窗口，看不到主 Agent 和其他 Sub-Agent 的信息。这避免了"串音"干扰——每个子智能体只聚焦自己的任务，不会被他人的中间结果带偏。</p>
+
+      <p><strong>并行执行。</strong>当子任务之间没有数据依赖时，多个 Sub-Agent 可以同时运行。默认最大并行数为 <span class="data-point">3</span>，在高并发场景下可显著缩短总执行时间。根据社区实测，对于<span class="data-point green">5 个子任务</span>的典型研究课题，并行执行相比串行可将总耗时从约 <span class="data-point red">9 分钟</span>压缩至约 <span class="data-point green">3.5 分钟</span>。</p>
+
+      <p><strong>结构化结果。</strong>Sub-Agent 返回的数据有统一的 JSON Schema，包含状态码、核心发现、引用来源和置信度评分，方便 Lead Agent 在汇总时进行交叉验证和冲突消解。</p>
+
+      <p><strong>容错与重试。</strong>如果某个 Sub-Agent 执行超时或返回异常，系统会自动触发重试（默认 <span class="data-point">2 次</span>），并在重试失败后将任务标记为"部分完成"，确保整体流程不会被单个子任务的失败阻塞。</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第五章：Sandbox 沙箱 -->
+    <!-- ============================================ -->
+    <section id="ch5">
+      <h2>第五章 · Sandbox 沙箱——Agent 真正的"电脑"</h2>
+
+      <h3 id="ch5-1">5.1 三种沙箱模式深度对比</h3>
+
+      <p>DeerFlow 提供了三种沙箱执行模式，可以根据场景需求灵活切换：</p>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>模式</th>
+              <th>执行环境</th>
+              <th>安全级别</th>
+              <th>性能损耗</th>
+              <th>适用场景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>本地执行 (Local)</td>
+              <td>直接在宿主机上运行</td>
+              <td>低</td>
+              <td>无</td>
+              <td>本地开发调试、非敏感任务</td>
+            </tr>
+            <tr>
+              <td>Docker 容器</td>
+              <td>独立 Docker 容器中运行</td>
+              <td>中高</td>
+              <td>约 5%</td>
+              <td>单机生产部署（推荐）</td>
+            </tr>
+            <tr>
+              <td>Kubernetes Pod</td>
+              <td>通过 Provisioner 在 K8s Pod 中运行</td>
+              <td>最高</td>
+              <td>约 10%</td>
+              <td>企业级集群部署、高安全需求</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="ch5-2">5.2 安全隔离与审计能力</h3>
+
+      <p>在 Docker/K8s 模式下，Agent 的操作完全隔离在独立容器中——它无法访问宿主机文件系统、无法获取系统权限、无法进行网络越权访问。任务结束后，容器被自动销毁，不留任何残留数据。</p>
+
+      <p>更重要的是，DeerFlow 的沙箱系统提供了<strong>完整的操作审计</strong>：Agent 的每一次文件读写、每一次命令执行、每一次网络请求都会被记录到日志中。这在企业合规场景中至关重要——你可以追溯任何结论的数据来源和推理路径。</p>
+
+      <div class="caution-block">
+        <div class="caution-title">⚠️ 局限提醒</div>
+        <p>本地执行模式虽然方便调试，但不建议在生产环境中使用。由于 Agent 可以直接操作宿主机文件系统，存在误删文件、执行危险命令等风险。生产环境务必切换到 Docker 或 K8s 模式。</p>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第六章：上下文工程与长期记忆 -->
+    <!-- ============================================ -->
+    <section id="ch6">
+      <h2>第六章 · 上下文工程与长期记忆——解决长链路任务的两大利器</h2>
+
+      <h3 id="ch6-1">6.1 上下文管理策略</h3>
+
+      <p>长链路任务最头疼的问题莫过于<strong>上下文窗口爆了</strong>。当 Agent 执行十几个步骤后，中间产生的搜索摘要、代码输出、分析结论足以淹没任何模型的上下文限制。DeerFlow 采用了一套积极的上下文管理策略来应对：</p>
+
+      <p><strong>摘要压缩。</strong>每完成一个子任务，系统都会对中间结果进行自动摘要，将冗长的搜索记录和原始数据压缩为精炼的要点列表。原始数据则转存到文件系统，上下文中只保留文件路径引用。</p>
+
+      <p><strong>信息分级。</strong>DeerFlow 将信息分为"当前必需""近期可能用到""归档备用"三个层级。当前活跃任务的详细信息保留在上下文中，已完成的子任务只保留摘要，历史任务的细节完全卸载到磁盘。</p>
+
+      <p><strong>Sub-Agent 上下文隔离。</strong>如第四章所述，每个子智能体拥有独立的上下文，这本身就是一种天然的上下文控制和分流机制。</p>
+
+      <h3 id="ch6-2">6.2 跨会话持久记忆</h3>
+
+      <p>大多数 Agent 对话结束就遗忘一切，DeerFlow 则不同。它的 Memory 系统采用本地 JSON 持久化方案，数据完全存储在用户自己的机器上。系统会自动提取用户的写作风格偏好、常用技术栈、业务领域习惯等信息，并在后续会话中自动应用。</p>
+
+      <div class="summary-box">
+        <h3>记忆系统的设计原则</h3>
+        <ul>
+          <li><strong>增量学习：</strong>每次对话自动提取偏好信息，无需用户手动配置</li>
+          <li><strong>本地存储：</strong>所有记忆数据以 JSON 格式保存在本地，可随时导出、编辑、删除</li>
+          <li><strong>用户控制：</strong>Memory 数据完全在用户手中，支持查看、修改、清空操作</li>
+          <li><strong>隐私优先：</strong>记忆数据不会上传到任何第三方服务，API 密钥仅用于调用模型</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第七章：全方位对比 -->
+    <!-- ============================================ -->
+    <section id="ch7">
+      <h2>第七章 · 与主流 Deep Research 方案的全方位对比</h2>
+
+      <h3 id="ch7-1">7.1 开源框架架构范式对比</h3>
+
+      <p>在开源 Deep Research 生态中，不同的框架选择了截然不同的架构路线：</p>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>框架</th>
+              <th>架构范式</th>
+              <th>核心特征</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>DeerFlow</strong></td>
+              <td>分层多智能体 (Hierarchical Multi-Agent)</td>
+              <td>协调器→规划器→研究员/编码员/报告员，角色分工明确</td>
+            </tr>
+            <tr>
+              <td>HuggingFace/OpenDeepResearch</td>
+              <td>代码中心型 (Code-Centric)</td>
+              <td>约 1000 行核心代码，动作表现为 Python 代码片段</td>
+            </tr>
+            <tr>
+              <td>LangChainAI/OpenDeepResearch</td>
+              <td>Plan-Search-Reflect-Write 迭代循环</td>
+              <td>多阶段自反思，支持图状工作流和 Multi-agent 双模式</td>
+            </tr>
+            <tr>
+              <td>SkyworkAI/DeepResearchAgent</td>
+              <td>两层架构 (Two-Layer)</td>
+              <td>顶层规划智能体 + 底层专业智能体（分析/研究/浏览器）</td>
+            </tr>
+            <tr>
+              <td>zhu-minjun/Researcher</td>
+              <td>带批判环节的多智能体</td>
+              <td>规划→并行→整合→批判修正，独特的独立批判智能体</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="writing-reminder">
+        <span class="reminder-icon">✍️</span> <strong>写作提醒：</strong>在最终成文中，此处建议展开每个框架的技术细节讨论（约 200–300 字/框架），包括其选型动机、技术取舍和最佳适用场景，以帮助读者理解不同架构路线的 trade-off。
+      </div>
+
+      <h3 id="ch7-2">7.2 任务拆解与质量控制维度对比</h3>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>对比维度</th>
+              <th>DeerFlow</th>
+              <th>LangChainAI</th>
+              <th>zhu-minjun</th>
+              <th>HuggingFace</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>任务拆解方式</td>
+              <td>协调器→规划器分解为结构化步骤</td>
+              <td>规划器→子问题→搜索→反思→再搜索</td>
+              <td>探索性问题→报告大纲→按子主题拆分</td>
+              <td>MultiStepAgent 周期生成/更新计划</td>
+            </tr>
+            <tr>
+              <td>自反思机制</td>
+              <td class="td-partial">人机协作审查</td>
+              <td class="td-yes">核心机制（Self-Reflect 循环）</td>
+              <td class="td-yes">批判智能体独立审核</td>
+              <td class="td-no">未明确</td>
+            </tr>
+            <tr>
+              <td>并行处理</td>
+              <td class="td-yes">多 Sub-Agent 并行</td>
+              <td class="td-yes">多研究循环并行</td>
+              <td class="td-yes">为每个子主题独立智能体</td>
+              <td class="td-no">未明确</td>
+            </tr>
+            <tr>
+              <td>代码执行</td>
+              <td class="td-yes">通过 Coder 角色</td>
+              <td class="td-no">未提及</td>
+              <td class="td-no">未提及</td>
+              <td class="td-yes">原生支持（E2B 沙盒）</td>
+            </tr>
+            <tr>
+              <td>输出格式</td>
+              <td class="td-yes">报告/PPT/播客/网页</td>
+              <td class="td-partial">结构化报告</td>
+              <td class="td-partial">Markdown 报告</td>
+              <td class="td-partial">文本输出</td>
+            </tr>
+            <tr>
+              <td>GAIA 基准</td>
+              <td class="td-no">未公开数据</td>
+              <td class="td-no">未公开数据</td>
+              <td class="td-no">未公开数据</td>
+              <td class="td-yes">55% pass@1</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="caution-block">
+        <div class="caution-title">⚠️ 客观说明</div>
+        <p>DeerFlow 目前尚未公布 GAIA 等标准基准测试的公开成绩，上述对比主要基于架构设计层面的分析。HuggingFace 版本是唯一有公开评测数据的开源框架（GAIA 55% vs 原版 ChatGPT 67%）。建议关注 DeerFlow 官方后续发布的基准测试结果。</p>
+      </div>
+
+      <h3 id="ch7-3">7.3 商业产品 vs DeerFlow：模型与部署维度</h3>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>DeerFlow</th>
+              <th>OpenAI Deep Research</th>
+              <th>Gemini Deep Research</th>
+              <th>Perplexity Deep Research</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>开放性</td>
+              <td class="td-yes">MIT 开源</td>
+              <td class="td-no">闭源</td>
+              <td class="td-no">闭源</td>
+              <td class="td-no">闭源</td>
+            </tr>
+            <tr>
+              <td>模型绑定</td>
+              <td class="td-yes">模型无关（任意 OpenAI 兼容接口）</td>
+              <td class="td-no">仅限 GPT 系列</td>
+              <td class="td-no">仅 PaLM/Gemini 系列</td>
+              <td class="td-partial">自研 PPO-1 + R1 蒸馏</td>
+            </tr>
+            <tr>
+              <td>部署方式</td>
+              <td class="td-yes">本地/私有化/云端</td>
+              <td class="td-no">仅云端 API</td>
+              <td class="td-no">仅云端服务</td>
+              <td class="td-no">仅 SaaS</td>
+            </tr>
+            <tr>
+              <td>人在回路</td>
+              <td class="td-yes">全程可介入</td>
+              <td class="td-no">全自动生成</td>
+              <td class="td-partial">有限次反馈</td>
+              <td class="td-no">单次生成</td>
+            </tr>
+            <tr>
+              <td>数据安全</td>
+              <td class="td-yes">100% 本地可控</td>
+              <td class="td-no">数据上云</td>
+              <td class="td-no">数据上云</td>
+              <td class="td-no">数据上云</td>
+            </tr>
+            <tr>
+              <td>费用</td>
+              <td>免费（仅模型/搜索 API 消耗）</td>
+              <td>$200/月（Pro 用户）</td>
+              <td>包含在 Google One AI Premium</td>
+              <td>免费层可用，Pro 版 $20/月</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warning-block">
+        <div class="warning-title">🔍 对比总结</div>
+        <p>DeerFlow 的成本优势显著（仅需支付模型 API 和搜索引擎的调用费用，框架本身完全免费），但要求用户具备一定的技术能力进行本地部署和维护。如果你是需要高度定制化、数据不出内网、且愿意投入 DevOps 资源的团队，DeerFlow 是最佳选择；如果你需要开箱即用的高品质报告且不介意数据上云，OpenAI Deep Research 的体验更为流畅。</p>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第八章：实测数据 -->
+    <!-- ============================================ -->
+    <section id="ch8">
+      <h2>第八章 · 实测数据分析——效率、质量与成本的三角权衡</h2>
+
+      <h3 id="ch8-1">8.1 效率实测</h3>
+
+      <p>基于社区用户和团队的实践经验，以下是 DeerFlow 在不同场景下的效率表现：</p>
+
+      <div class="stats-banner">
+        <div class="stat-item">
+          <div class="stat-value">20min</div>
+          <div class="stat-label">典型研究报告生成</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">3.5min</div>
+          <div class="stat-label">并行模式下 5 子任务</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">~9min</div>
+          <div class="stat-label">串行模式下 5 子任务</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">5×</div>
+          <div class="stat-label">最大规划步数扩展</div>
+        </div>
+      </div>
+
+      <p>一项对比实验显示：对于同一研究课题"2026 年 AI Agent 框架发展现状"，传统人工调研（含搜索、阅读、整理、撰写）耗时约 <span class="data-point red">9 小时</span>；而 DeerFlow 在配置 DeepSeek v3.2 作为主模型的情况下，从发起到生成完整 20 页研究报告仅需约 <span class="data-point green">20 分钟</span>，效率提升约 <span class="data-point green">3–5 倍</span>（计入人工审核修改时间后）。</p>
+
+      <div class="warning-block">
+        <div class="warning-title">📊 数据说明</div>
+        <p>上述实测数据来自社区报告和博主实验，非官方 benchmark。实际效率受模型选择（长上下文模型 vs 短上下文模型）、搜索 API 响应速度、网络环境、任务复杂度等多因素影响，你的实际体验可能有所不同。</p>
+      </div>
+
+      <h3 id="ch8-2">8.2 报告质量评估</h3>
+
+      <p>在报告质量维度，目前开源社区的主流共识是：<strong>OpenAI o3-Pro &gt; Gemini 2.5 Pro &gt; DeerFlow (Qwen3)</strong>。但这一定位并非固定——DeerFlow 的报告质量高度依赖于其配置的底层模型。当使用 DeepSeek v3.2 或豆包 Seed 2.0 Code 等更强模型时，报告质量有明显跃升。</p>
+
+      <div class="info-block">
+        <div class="info-title">💡 模型推荐（官方）</div>
+        <p><strong>代码生成/技术任务：</strong>Doubao-Seed-2.0-Code<br><strong>通用任务/研究：</strong>DeepSeek v3.2（性价比最高）<br><strong>深度研究/长文档：</strong>Kimi 2.5（100K+ 上下文窗口）</p>
+      </div>
+
+      <p>影响 DeerView 报告质量的关键因素包括：所选模型的长上下文窗口大小（<span class="data-point">100K+ tokens</span> 显著优于 <span class="data-point red">64K</span>）、模型的推理能力（用于自适应规划和复杂拆解）、模型的 Tool Use 稳定性（影响函数调用成功率）、以及搜索 API 的信息覆盖质量。</p>
+
+      <h3 id="ch8-3">8.3 成本分析</h3>
+
+      <p>以一次典型的深度研究任务为例（规划 3 步，每个子任务 5 轮搜索，最终生成 15 页报告）：</p>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>费用项</th>
+              <th>DeerFlow (DeepSeek v3.2)</th>
+              <th>DeerFlow (GPT-4o)</th>
+              <th>OpenAI Deep Research</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>模型调用</td>
+              <td>约 ¥2–5</td>
+              <td>约 ¥30–60</td>
+              <td>包含在订阅中</td>
+            </tr>
+            <tr>
+              <td>搜索 API</td>
+              <td>免费（Tavily 免费额度）</td>
+              <td>免费</td>
+              <td>包含在订阅中</td>
+            </tr>
+            <tr>
+              <td>单次总成本</td>
+              <td class="td-yes">≈ ¥2–5</td>
+              <td>≈ ¥30–60</td>
+              <td>$200/月 (Pro)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>DeerFlow + DeepSeek v3.2 的组合在成本上具有压倒性优势——<span class="data-point green">单次深度研究仅需几元人民币</span>，而商业方案的订阅费用在每月 20–200 美元不等。</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第九章：企业级部署实战 -->
+    <!-- ============================================ -->
+    <section id="ch9">
+      <h2>第九章 · 企业级部署实战——从零搭建到生产就绪</h2>
+
+      <h3 id="ch9-1">9.1 Docker 一键部署</h3>
+
+      <p>DeerFlow 官方推荐 Docker 部署方式，整个流程简洁到仅需三条命令：</p>
+
+      <div class="code-placeholder">
+        （此处配源码/伪代码）<br>
+        git clone https://github.com/bytedance/deer-flow.git<br>
+        cd deer-flow<br>
+        make docker-init   # 首次运行，拉取 Sandbox 镜像<br>
+        make docker-start  # 启动服务<br>
+        # 访问 http://localhost:2026
+      </div>
+
+      <p>部署后需要配置的核心文件有两个：<code>config.yaml</code>（定义模型、沙箱模式、工具和技能）和 <code>.env</code>（填入 API 密钥和搜索引擎凭证）。DeerFlow 支持所有提供 OpenAI 兼容接口的大模型——这意味着你可以接入 DeepSeek、通义千问、文心一言、豆包、GPT-4 等几乎市面上所有主流模型。</p>
+
+      <div class="writing-reminder">
+        <span class="reminder-icon">✍️</span> <strong>写作提醒：</strong>最终成文时此处建议附上完整的 config.yaml 配置示例，含多模型定义、沙箱模式切换、Skills 开关等关键配置项的注释说明，方便读者直接复制使用。
+      </div>
+
+      <h3 id="ch9-2">9.2 IM 渠道接入</h3>
+
+      <p>DeerFlow 的企业级特性之一是可以从即时通讯应用接收任务，而且<strong>不需要公网 IP</strong>。目前支持 Telegram（Bot API long-polling）、Slack（Socket Mode）和飞书/Lark（WebSocket）三个渠道。</p>
+
+      <p>接入后，团队成员可以直接在 IM 工具中使用 DeerFlow——发送研究任务就像发送一条消息一样简单。支持的命令包括：<code>/new</code> 开启新对话、<code>/status</code> 查看当前线程状态、<code>/models</code> 列出可用模型、<code>/memory</code> 查看记忆数据、<code>/help</code> 获取帮助。</p>
+
+      <h3 id="ch9-3">9.3 MCP Server 扩展</h3>
+
+      <p>DeerFlow 支持通过 MCP（Model Context Protocol）接入第三方工具和内部系统。只需在 <code>config.yaml</code> 中添加 MCP Server 配置，即可让 Agent 获得访问企业内部系统、知识图谱、数据库、以及任何实现了 MCP 协议的工具的能力。</p>
+
+      <div class="code-placeholder">
+        （此处配源码/伪代码）<br>
+        # config.yaml 中添加 MCP Server 示例：<br>
+        mcp:<br>
+        &nbsp;&nbsp;servers:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- name: my-internal-system<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;command: npx -y @myorg/mcp-server<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;API_KEY: $MY_API_KEY
+      </div>
+
+      <p>也支持 HTTP/SSE MCP Server，以及 OAuth token 流程（client_credentials、refresh_token），满足企业级安全认证需求。</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 第十章：短板、局限与未来 -->
+    <!-- ============================================ -->
+    <section id="ch10">
+      <h2>第十章 · 短板、局限与演进方向</h2>
+
+      <h3 id="ch10-1">10.1 当前六大短板</h3>
+
+      <p>客观评价 DeerFlow，不能只谈优势不谈局限。以下是目前社区反馈中的主要短板：</p>
+
+      <div class="caution-block">
+        <div class="caution-title">短板一：缺乏公开基准测试数据</div>
+        <p>在开源 Deep Research 框架中，仅 HuggingFace 版本提供了 GAIA 基准测试成绩（55%），DeerFlow 目前尚未公布任何标准评测数据，这使得用户难以客观对比其与竞品的报告质量差距。</p>
+      </div>
+
+      <div class="caution-block">
+        <div class="caution-title">短板二：底层模型强依赖</div>
+        <p>DeerFlow 的报告质量高度依赖于所配置的底层 LLM。当使用 Qwen3 等开源模型时，存在上下文超限、异常抛出无日志等问题。有用户反馈使用 DeepSeek V3（64K 上下文）时经常遭遇输入超限报错，需要切换至 100K+ 长上下文模型才能稳定运行。</p>
+      </div>
+
+      <div class="caution-block">
+        <div class="caution-title">短板三：部署门槛较高</div>
+        <p>虽然 Docker 部署已经大幅简化了流程，但对于非技术用户而言，配置模型密钥、搜索引擎 API、沙箱模式等步骤仍有学习成本。相比 Perplexity 的注册即用体验，DeerFlow 的入门门槛明显偏高。</p>
+      </div>
+
+      <div class="caution-block">
+        <div class="caution-title">短板四：检索质量受限于搜索引擎</div>
+        <p>DeerFlow 默认依赖 Tavily 搜索引擎（免费额度有限），其检索结果在中文内容的覆盖率和权威性上不及百度、搜狗微信搜索等国内搜索引擎。对于中文深度研究场景，检索覆盖面的短板可能会传导到最终报告质量。</p>
+      </div>
+
+      <div class="caution-block">
+        <div class="caution-title">短板五：报告质量波动性</div>
+        <p>由于多智能体协作中每个环节都有不确定性（搜索结果的随机性、模型输出的非确定性、子智能体执行的并发时序），同一任务在不同运行时可能产出质量有波动的报告。相比 OpenAI Deep Research 更稳定的端到端优化管道，DeerFlow 的"开环多智能体"架构在一致性上存在天然劣势。</p>
+      </div>
+
+      <div class="caution-block">
+        <div class="caution-title">短板六：人机协作的认知负荷</div>
+        <p>"人在回路"是一把双刃剑——它带来了可控性和准确性，但同时也要求用户持续关注任务进展并及时介入。对于希望"一键出报告"的用户，全程人工参与反而增加了使用负担。</p>
+      </div>
+
+      <h3 id="ch10-2">10.2 演进路线图</h3>
+
+      <p>基于 DeerFlow 项目的发展轨迹和社区的公开讨论，可以预见以下演进方向：</p>
+
+      <p><strong>更强的基座模型适配。</strong>随着 DeepSeek R2 等更长上下文、更强推理能力的模型发布，DeerFlow 的报告质量和运行稳定性将得到本质提升。字节跳动的豆包 Seed 系列模型与 DeerFlow 的深度适配也在持续推进中。</p>
+
+      <p><strong>检索能力升级。</strong>社区已在讨论接入更多搜索引擎（百度、Bing、搜狗微信等）和私有知识库检索增强（RAGFlow 集成），以提升在中文和非英语场景下的信息覆盖质量。</p>
+
+      <p><strong>认知架构革新。</strong>引入神经符号系统混合架构以提升复杂推理的准确性，采用强化学习优化研究路径规划以进一步提升效率，这是学界和业界共同关注的前沿方向。</p>
+
+      <p><strong>轻量化部署。</strong>降低对 Docker 等基础设施的依赖，提供更简洁的一键部署体验（如桌面应用或更友好的 CLI），让非技术用户也能轻松上手。</p>
+
+      <div class="info-block">
+        <div class="info-title">🔮 趋势展望</div>
+        <p>从 Deep Research 到 Super Agent Harness 的演变反映了一个更大的趋势：<strong>AI Agent 正在从"玩具"走向"生产工具"</strong>。DeerFlow 的开源策略让它有可能成为连接模型能力与业务场景之间的"基础设施层"——就像 Kubernetes 之于容器编排一样。如果团队能在基准测试透明度、部署体验优化和检索质量上持续投入，DeerFlow 有望成为企业级 AI Agent 平台的标杆方案。</p>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ============================================ -->
+    <!-- 结语 -->
+    <!-- ============================================ -->
+    <section id="conclusion">
+      <h2>结语</h2>
+
+      <p>DeerFlow 代表了一种重要的技术趋势：<strong>将 AI Agent 从"会聊天的工具"升级为"能动手做事的协作伙伴"</strong>。它的核心价值不在于任何一种单一能力——论搜索不如 Perplexity 快，论报告质量不如 OpenAI 稳，论基准测试数据不如 HuggingFace 透明——而在于它提供了一个完整的、可扩展的、数据可控的<strong>Agent 运行基础设施</strong>。</p>
+
+      <p>对于不同类型的用户，我的建议如下：</p>
+
+      <div class="summary-box">
+        <h3>选型建议速览</h3>
+        <ul>
+          <li><strong>个人深度研究者：</strong>先用 OpenAI/Gemini Deep Research 体验最佳效果，等 DeerFlow 生态更成熟后再考虑本地部署以获得数据控制权</li>
+          <li><strong>企业/团队用户：</strong>DeerFlow 是当前开源方案中的最优选择——数据本地化、模型自由切换、IM 渠道接入、MCP 工具扩展，这些能力在闭源产品中很难同时获得</li>
+          <li><strong>开发者/二次开发：</strong>DeerFlow 的 MIT 协议 + 可插拔 Skills 架构为行业应用提供了理想的底座，值得投入时间进行定制开发</li>
+          <li><strong>内容创作者/自媒体：</strong>「一次研究→多种输出」的能力（报告/PPT/播客/网页）可以显著提升内容生产效率，搭配 DeepSeek v3.2 成本极低</li>
+        </ul>
+      </div>
+
+      <p>最后，需要清醒认识到：当前阶段的 DeerFlow 仍然是一个<strong>需要技术背景才能充分发挥的生产力工具</strong>，而非面向大众的消费级产品。选择它意味着你愿意接受"配置和维护的复杂度"来换取"自由度和数据控制权"。如果你做好了这样的取舍，DeerFlow 会是一个强有力的伙伴——有了它，你对 AI Agent 的理解将不再停留在论文和 demo 层面，而是真正拥有了一个能帮你把事情做完的"数字同事"。</p>
+
+      <div class="writing-reminder">
+        <span class="reminder-icon">✍️</span> <strong>终稿写作提醒：</strong>最终成文时，建议在全篇末尾附上完整的参考文献列表（含 GitHub 仓库链接、官方文档、社区博客等），并为各章节中标注的占位内容（架构图、代码示例、配置模板）补充实际配图或代码块。建议每章控制在 800–1500 字，全文总字数约 12,000–15,000 字。排版上注意中英文混排的空格处理、标点符号规范、及段落首行缩进的一致性。
+      </div>
+    </section>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="back-to-top" aria-label="回到顶部">↑</button>
+
+  </main>
+</div>
+
+<script>
+// ========================================
+// Sidebar Toggle
+// ========================================
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  sidebarOverlay.classList.add('visible');
+}
+
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('visible');
+}
+
+sidebarToggle.addEventListener('click', () => {
+  if (sidebar.classList.contains('open')) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+});
+
+sidebarOverlay.addEventListener('click', closeSidebar);
+
+// Close sidebar when clicking a link (mobile)
+sidebar.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 960) {
+      closeSidebar();
+    }
+  });
+});
+
+// ========================================
+// Active TOC Link Highlighting
+// ========================================
+const tocLinks = document.querySelectorAll('.sidebar-nav a');
+const sections = [];
+
+tocLinks.forEach(link => {
+  const href = link.getAttribute('href');
+  if (href) {
+    const target = document.querySelector(href);
+    if (target) {
+      sections.push({ link, target });
+    }
+  }
+});
+
+function updateActiveLink() {
+  let activeLink = null;
+  const scrollPos = window.scrollY + 120;
+
+  for (let i = sections.length - 1; i >= 0; i--) {
+    if (sections[i].target.offsetTop <= scrollPos) {
+      activeLink = sections[i].link;
+      break;
+    }
+  }
+
+  tocLinks.forEach(link => link.classList.remove('active'));
+  if (activeLink) {
+    activeLink.classList.add('active');
+  }
+}
+
+window.addEventListener('scroll', updateActiveLink, { passive: true });
+updateActiveLink();
+
+// ========================================
+// Back to Top Button
+// ========================================
+const backToTop = document.getElementById('back-to-top');
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 600) {
+    backToTop.classList.add('visible');
+  } else {
+    backToTop.classList.remove('visible');
+  }
+}, { passive: true });
+
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>
