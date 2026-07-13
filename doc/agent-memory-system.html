@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 记忆系统 · 理论框架 · 工程实现 · 框架对比</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'MEMORY';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:100px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.speech{background:linear-gradient(135deg,#fffef4,#fffff9);border:1px solid var(--yel-b);border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:14px;}
+.speech-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.speech-lbl::before{content:'💬 ';}
+.speech p{font-size:13px;color:var(--tx2);line-height:1.9;margin-bottom:8px;}
+.speech p:last-child{margin-bottom:0;}
+.speech strong{color:var(--tx);font-weight:600;}
+.speech em{color:var(--blue);font-style:normal;font-weight:500;}
+
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.steps{padding:18px 22px;display:flex;flex-direction:column;}
+.step{display:flex;gap:14px;padding-bottom:18px;}
+.step:last-child{padding-bottom:0;}
+.sl{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:26px;}
+.sn{width:24px;height:24px;border-radius:50%;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;}
+.sline{width:1.5px;flex:1;margin-top:3px;opacity:0.2;}
+.step:last-child .sline{display:none;}
+.sb{padding-top:1px;}
+.st{font-size:13px;font-weight:600;margin-bottom:3px;}
+.sd{font-size:12.5px;color:var(--tx2);line-height:1.75;}
+.sd strong{color:var(--tx);font-weight:600;}
+.sc{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:5px;padding:10px 14px;color:var(--tx2);line-height:1.75;white-space:pre;overflow-x:auto;}
+.cm{color:var(--tx3);}
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.good{background:#edf9f3;border:1px solid #90d4b4;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.good .nlbl{color:var(--green);background:var(--grn-bg);border-color:var(--grn-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+
+.ovc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ovh{padding:16px 20px 12px;}
+.ovtag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;display:inline-block;margin-bottom:8px;}
+.ovname{font-size:15px;font-weight:700;margin-bottom:4px;}
+.ovsub{font-size:12px;color:var(--tx2);line-height:1.7;}
+.ovbody{border-top:1px solid var(--bd);padding:12px 20px;}
+.ovbody ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.ovbody li{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:14px;position:relative;}
+.ovbody li::before{content:'·';position:absolute;left:2px;color:var(--tx3);}
+.ovbody strong{color:var(--tx);font-weight:600;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+
+.arch{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:20px 24px;margin:10px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx2);line-height:1.9;white-space:pre;}
+.arch strong{color:var(--blue);font-weight:600;}
+
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.c-t{--ac:var(--teal);--ab:var(--teal-bg);--ac-b:var(--teal-b);}
+.ovc .ovtag,.fw .fwb{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.ovc .ovname,.fw .fwt{color:var(--ac);}
+.fw .sn{background:var(--ab);color:var(--ac);border-color:var(--ac-b);}
+.fw .st{color:var(--ac);}
+.fw .sline{background:var(--ac);}
+
+.phase-row{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.phase{flex:1;padding:14px 16px;border-right:1px solid var(--bd);background:var(--bg2);}
+.phase:last-child{border-right:none;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;margin-bottom:6px;}
+.phase-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.phase-items li{font-size:12px;color:var(--tx2);padding-left:12px;position:relative;line-height:1.65;}
+.phase-items li::before{content:'▸';position:absolute;left:0;color:var(--tx3);font-size:10px;top:2px;}
+.phase-items strong{color:var(--tx);font-weight:600;}
+
+.formula{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:12px 16px;margin:10px 0;color:var(--tx);white-space:pre;line-height:1.8;}
+.formula .k{color:var(--blue);}
+.formula .n{color:var(--orange);}
+.formula .s{color:var(--green);}
+.formula .cmt{color:var(--tx3);}
+
+.milestone{display:flex;gap:0;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ms-node{flex:1;padding:16px 18px;border-right:1px solid var(--bd);background:var(--bg2);position:relative;}
+.ms-node:last-child{border-right:none;}
+.ms-year{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.06em;margin-bottom:6px;}
+.ms-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.ms-desc{font-size:12px;color:var(--tx2);line-height:1.7;}
+
+@media(max-width:860px){
+  header,nav,main{padding-left:28px;padding-right:28px;}
+  header::before{font-size:60px;right:16px;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .phase-row,.milestone{flex-direction:column;}
+  .phase,.ms-node{border-right:none;border-bottom:1px solid var(--bd);}
+  .phase:last-child,.ms-node:last-child{border-bottom:none;}
+}
+</style>
+</head>
+<body>
+
+<script src="../shared/theme.js"></script>
+
+<header>
+  <div class="htag">AI AGENT</div>
+  <h1>Agent 记忆系统：从理论到工程</h1>
+  <p class="subtitle">
+    为什么 LLM 有了 1M token 上下文窗口，Agent 仍然需要独立的记忆系统？
+    本文梳理 CoALA 理论框架、9 个主流框架的实现方案、检索评分算法、存储选型和关键设计决策。
+  </p>
+</header>
+
+<nav>
+  <a href="#why">为什么需要记忆</a>
+  <a href="#coala">CoALA 框架</a>
+  <a href="#generative-agents">三维评分</a>
+  <a href="#frameworks">框架对比</a>
+  <a href="#scoring">检索评分</a>
+  <a href="#storage">存储与检索</a>
+  <a href="#decisions">设计决策</a>
+  <a href="#papers">论文地图</a>
+</nav>
+
+<main>
+
+<!-- ═══════════ 为什么需要记忆 ═══════════ -->
+<div class="sec" id="why">为什么需要记忆</div>
+
+<div class="speech">
+  <div class="speech-lbl">核心矛盾</div>
+  <p>LLM 的上下文窗口是 <strong>固定大小的工作区</strong>，而真实协作中的信息是<strong>无限增长的</strong>。即使窗口扩大到 1M token，"大海捞针"测试也只能测单事实检索——多事实场景下平均召回率仅约 <strong>60%</strong>，且模型在窗口中间位置的注意力显著下降（Lost in the Middle 效应）。</p>
+  <p>记忆系统的本质任务：<em>从无限信息流中，把对当前决策最有价值的那一小撮信息捞出来，塞进有限的上下文窗口。</em></p>
+</div>
+
+<div class="g2">
+  <div class="ovc c-b">
+    <div class="ovh"><div class="ovtag">没有记忆系统</div><div class="ovname">单次问答模式</div><div class="ovsub">每次对话从零开始。Agent 不记得你的偏好、项目背景、上次讨论到哪了。适合一次性任务，无法支撑长期协作。</div></div>
+  </div>
+  <div class="ovc c-g">
+    <div class="ovh"><div class="ovtag">有记忆系统</div><div class="ovname">长期协作模式</div><div class="ovsub">Agent 记住你的技术栈偏好、项目架构、历史决策。新对话开始时自动加载相关上下文，越用越懂你。</div></div>
+  </div>
+</div>
+
+<div class="note info">
+  <div class="nlbl">关键数字</div>
+  <p>RAG（检索增强）vs 直接塞 1M token 长上下文的<strong>成本差距约 1,250 倍</strong>。1M token 缓存需要约 100GB GPU 显存。生产环境中，RAG 的实际可靠上限是 <strong>32K-64K token</strong>，而非模型宣传的最大值。</p>
+</div>
+
+<!-- ═══════════ CoALA ═══════════ -->
+<div class="sec" id="coala">CoALA · 认知架构理论框架</div>
+
+<div class="speech">
+  <div class="speech-lbl">为什么先讲理论</div>
+  <p>CoALA（Cognitive Architectures for Language Agents，Sumers & Yao, TMLR 2024）是<strong>第一篇系统化梳理 LLM Agent 认知架构的学术论文</strong>。它提出的四种记忆分类——Working / Episodic / Semantic / Procedural——已成为业内讨论 Agent 记忆的通用语言。理解 CoALA 后再看各框架实现，会发现它们都在这个框架的不同位置做了取舍。</p>
+  <p>CoALA 的理论来源是 <strong>SOAR 认知架构</strong>（非 ACT-R），核心创新是用<strong>自然语言统一所有内部表示</strong>，用 LLM 替代手写产生式规则。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+<thead><tr><th>记忆类型</th><th>存什么</th><th>生命周期</th><th>类比</th></tr></thead>
+<tbody>
+<tr><td>Working Memory<br><span style="font-weight:400;font-size:11px;color:var(--tx3)">工作记忆</span></td><td>当前决策循环中的活跃信息：感知输入、LLM 推理中间结果、从长期记忆检索到的内容、当前目标状态</td><td>每次决策循环后消失，除非显式写入长期记忆</td><td>RAM</td></tr>
+<tr><td>Episodic Memory<br><span style="font-weight:400;font-size:11px;color:var(--tx3)">情景记忆</span></td><td>过去的交互轨迹：输入-输出对、事件流、对话历史、Agent 自身行为记录</td><td>长期保留，可被后续检索与反思</td><td>个人日记</td></tr>
+<tr><td>Semantic Memory<br><span style="font-weight:400;font-size:11px;color:var(--tx3)">语义记忆</span></td><td>关于世界与自身的结构化知识：实体、关系、从经验中抽象出的规则</td><td>长期保留，可由外部知识库初始化</td><td>维基百科</td></tr>
+<tr><td>Procedural Memory<br><span style="font-weight:400;font-size:11px;color:var(--tx3)">程序性记忆</span></td><td>决定 Agent 如何行动的机制：隐式部分（LLM 权重）+ 显式部分（Agent 代码、推理策略、检索逻辑）</td><td>由设计者初始化，风险最高</td><td>OS 内核</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh"><span class="fwb">决策循环</span><span class="fwt">CoALA Decision Cycle</span></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">Observation（感知）</div><div class="sd">环境输入（用户消息、工具返回、API 响应）→ 写入 <strong>Working Memory</strong></div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">Planning（规划）</div><div class="sd">从长期记忆<strong>检索</strong>相关知识 → LLM <strong>推理</strong>生成候选动作 → 对候选动作<strong>评估</strong>打分 → <strong>选择</strong>最优动作</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">3</div><div class="sline"></div></div><div class="sb"><div class="st">Execution（执行）</div><div class="sd">执行选定动作——可能是<strong>外部动作</strong>（调工具、发消息）或<strong>内部学习动作</strong>（写记忆、更新知识）</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">4</div></div><div class="sb"><div class="st">Feedback（反馈）</div><div class="sd">动作结果返回 Working Memory，循环回到 Planning</div></div></div>
+  </div>
+</div>
+
+<div class="note info">
+  <div class="nlbl">认知心理学渊源</div>
+  <p>CoALA 对应 SOAR 的四个组件：Working Memory → 工作记忆，Procedural Memory → 产生式规则，Semantic Memory → 语义长期记忆，Episodic Memory → 情景长期记忆。决策循环对应 SOAR 的 propose → evaluate → select → execute。SOAR 的 Chunking（经验压缩）对应 CoALA 的 Learning actions。</p>
+</div>
+
+<!-- ═══════════ Generative Agents ═══════════ -->
+<div class="sec" id="generative-agents">Generative Agents · 三维评分与反思机制</div>
+
+<div class="speech">
+  <div class="speech-lbl">为什么重要</div>
+  <p>Park et al. (UIST 2023) 的 Generative Agents 是<strong>第一个完整实现 LLM Agent 长期记忆系统的工程</strong>。它提出的三维评分公式（recency + importance + relevance）已经成为后续几乎所有 Agent 记忆检索的<strong>事实标准</strong>。配套的 Reflection 机制首次实现了"记忆的记忆"——Agent 不仅能记住发生了什么，还能对自己的经历进行反思和抽象。</p>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh"><span class="fwb">评分公式</span><span class="fwt">Memory Stream 三维检索评分</span></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">R</div><div class="sline"></div></div><div class="sb"><div class="st">Recency（近因性）</div><div class="sd">公式：<code>0.995^h</code>，h = 自上次访问以来的游戏小时数。指数衰减，值域 [0, 1]。越近访问的记忆得分越高。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">I</div><div class="sline"></div></div><div class="sb"><div class="st">Importance（重要性）</div><div class="sd">LLM 打分 1-10。Prompt：「1=琐事（刷牙），10=极其重要（分手/录取）」。写入记忆时评分一次，后续不更新。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">R</div></div><div class="sb"><div class="st">Relevance（相关性）</div><div class="sd">当前查询 embedding 与记忆 embedding 的余弦相似度。值域 [-1, 1]，需 min-max 归一化到 [0, 1]。</div></div></div>
+  </div>
+</div>
+
+<div class="formula">
+<span class="cmt">// 三维加权求和，默认权重均为 1.0</span>
+score = <span class="k">α</span> · n(recency) + <span class="k">β</span> · n(importance) + <span class="k">γ</span> · n(relevance)
+
+<span class="cmt">// 关键配置</span>
+RECENCY_DECAY     = <span class="n">0.995</span>   <span class="cmt">// 每小时指数衰减因子</span>
+REFLECTION_THRESHOLD = <span class="n">150.0</span>   <span class="cmt">// 触发反思的累积 importance 阈值</span>
+</div>
+
+<div class="fw c-p">
+  <div class="fwh"><span class="fwb">反思机制</span><span class="fwt">Reflection · 记忆的记忆</span></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">触发条件</div><div class="sd">最近记忆的 importance 总分超过 <strong>150</strong></div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">生成问题</div><div class="sd">取最近 100 条记忆作为种子，LLM 提出 <strong>3 个高层次问题</strong></div></div></div>
+    <div class="step"><div class="sl"><div class="sn">3</div><div class="sline"></div></div><div class="sb"><div class="st">检索+综合</div><div class="sd">对每个问题检索相关记忆，LLM 综合生成 <strong>3-5 条 reflection statements</strong>（depth=2），30 天后过期</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">4</div></div><div class="sb"><div class="st">递归反思</div><div class="sd">反思产生的记忆可作为更高层反思的种子，形成记忆的树状结构</div></div></div>
+  </div>
+</div>
+
+<div class="note good">
+  <div class="nlbl">设计洞察</div>
+  <p>原始记忆（observation）和反思记忆（reflection）<strong>并存而非替代</strong>。检索时两者共同参与评分。这意味着 Agent 既能看到原始细节，也能利用高层抽象——类似人既记得"上周三下雨"（具体事件），也记得"最近天气不好"（抽象总结）。</p>
+</div>
+
+<!-- ═══════════ 框架对比 ═══════════ -->
+<div class="sec" id="frameworks">主流框架记忆实现</div>
+
+<div class="speech">
+  <div class="speech-lbl">怎么看这张表</div>
+  <p>每个框架对"记忆"的定义不同，分层数从 2 到 7 不等。关键是理解<strong>设计哲学的分歧</strong>：有人把记忆当作 Tool 让 LLM 主动调用，有人把记忆自动注入 prompt；有人用向量数据库做语义检索，有人用纯文件系统追求可审计性。没有银弹，只有取舍。</p>
+</div>
+
+<div class="tbl-wrap" style="overflow-x:auto;">
+<table class="tbl">
+<thead><tr><th>框架</th><th>分层数</th><th>存储后端</th><th>写入方式</th><th>检索方式</th><th>注入方式</th><th>跨会话</th></tr></thead>
+<tbody>
+<tr><td>HelloAgents</td><td>4 层</td><td>SQLite + Qdrant + Neo4j</td><td>手动 MemoryTool</td><td>混合多因子评分</td><td>Tool 调用</td><td>✅</td></tr>
+<tr><td>MemGPT / Letta</td><td>3 层</td><td>PostgreSQL + 向量库</td><td>LLM 自主函数调用</td><td>函数调用显式检索</td><td>Core 注入 + Tool</td><td>✅</td></tr>
+<tr><td>LangChain / LC4j</td><td>7 种类型</td><td>内存 + 向量库</td><td>自动（Chain 流程中）</td><td>窗口/摘要/向量</td><td>拼入 prompt</td><td>自定义</td></tr>
+<tr><td>CrewAI</td><td>统一 + Scope</td><td>LanceDB</td><td>手动 / 自动 / LLM</td><td>Composite 三因子</td><td>自动注入</td><td>✅</td></tr>
+<tr><td>AutoGPT</td><td>经典 + Dream Pass</td><td>Chroma/FAISS + Graphiti</td><td>自动 + 后台巩固</td><td>ANN + 知识图谱</td><td>自动注入</td><td>✅</td></tr>
+<tr><td>Claude Code</td><td>4 类作用域</td><td>Markdown 文件</td><td>手动 + 自动</td><td>LLM 扫描（无向量）</td><td>用户消息注入</td><td>✅ 本地</td></tr>
+<tr><td>ChatGPT</td><td>3 层子系统</td><td>OpenAI 托管</td><td>自动 + 后台异步</td><td>隐式 + 自动</td><td>System prompt</td><td>✅</td></tr>
+<tr><td>Gemini</td><td>2 层</td><td>Google 托管</td><td>自动 + 异步生成</td><td>相似度 + Scope</td><td>工具注入</td><td>✅</td></tr>
+<tr><td>Dify / Coze</td><td>2-3 层</td><td>内置 + PG/Pinecone</td><td>自动 + 关键词</td><td>语义 / 混合</td><td>模板注入</td><td>✅</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="g2">
+  <div class="fw c-b">
+    <div class="fwh"><span class="fwb">MemGPT / Letta</span><span class="fwt">OS 式分页记忆</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">1</div></div><div class="sb"><div class="st">核心洞察</div><div class="sd">把记忆从"存储问题"<strong>升级为"调度问题"</strong>。类比 OS 虚拟内存：主上下文 = RAM，外部存储 = 磁盘，LLM 通过函数调用自主决定何时换页。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">2</div></div><div class="sb"><div class="st">三层架构</div><div class="sd">Core Memory（始终在上下文，2000 字符/块）→ Recall Memory（完整对话历史，SQL + 向量双写）→ Archival Memory（无限容量，向量检索）</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">FIFO + 递归摘要</div><div class="sd">主上下文对话历史用 FIFO 队列。被逐出的消息在队首维护递归摘要，完整消息可通过 Recall Storage 重新检索回主上下文。</div></div></div>
+    </div>
+  </div>
+  <div class="fw c-o">
+    <div class="fwh"><span class="fwb">Claude Code</span><span class="fwt">文件式记忆 · 可审计优先</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">1</div></div><div class="sb"><div class="st">设计哲学</div><div class="sd"><strong>可审计性优于查询能力</strong>。不使用向量数据库，所有记忆都是纯 Markdown 文件，用户可直接阅读、编辑、删除。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">2</div></div><div class="sb"><div class="st">四类记忆</div><div class="sd">user（用户偏好）、feedback（行为纠正）、project（项目上下文）、reference（外部系统指针）。MEMORY.md 索引 + 按需 Read 主题文件。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">注入方式</div><div class="sd">作为<strong>用户消息</strong>注入（非 system prompt），概率性遵守。加载有优先级顺序：组织级 → 用户级 → 项目级 → 本地，越靠后优先级越高。</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="fw c-g">
+    <div class="fwh"><span class="fwb">ChatGPT</span><span class="fwt">Dreaming V3 · 后台异步合成</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">1</div></div><div class="sb"><div class="st">三层子系统</div><div class="sd">Recent Messages（当日连贯性）→ Chat History（摘要 + 向量检索）→ User Insights（跨多轮高阶分析，贡献 ~80% 个性化提升）</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">2</div></div><div class="sb"><div class="st">后台异步处理</div><div class="sd">不在对话中实时写入。对话结束后批量扫描：提取长期有效信息、丢弃临时噪声、处理冲突与更新、标注置信度。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">算力优化</div><div class="sd">服务免费用户所需算力降至旧版 <strong>1/5</strong>。美国 Plus/Pro 用户记忆容量 ×2。注意：Dreaming <strong>不对 API 开放</strong>。</div></div></div>
+    </div>
+  </div>
+  <div class="fw c-p">
+    <div class="fwh"><span class="fwb">CrewAI</span><span class="fwt">统一 Memory + 层级 Scope</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">1</div></div><div class="sb"><div class="st">统一 API</div><div class="sd">用单个 <code>Memory</code> 类取代传统四层分类，通过 <strong>Scope</strong>（/company/engineering, /project/alpha）实现层级隔离。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">2</div></div><div class="sb"><div class="st">双模式召回</div><div class="sd">Shallow（纯向量，~200ms）和 Deep（查询分析 → scope 选择 → 并行向量搜索 → 递归探索）。自适应深度，低分触发深度探索。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">非阻塞写入</div><div class="sd">写入异步非阻塞，但 <code>recall()</code> 前自动 <code>drain_writes()</code>（读屏障），保证读取时能看到之前所有写入。</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 检索评分 ═══════════ -->
+<div class="sec" id="scoring">检索评分算法</div>
+
+<div class="speech">
+  <div class="speech-lbl">评分公式是记忆系统的核心</div>
+  <p>记忆系统的好坏，最终体现在"给定当前查询，能不能把最相关的记忆捞出来"。各框架的评分公式看起来不同，但底层都在回答同一个问题：<strong>如何在语义相关性、时间近因性、内容重要性之间做权衡</strong>。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+<thead><tr><th>框架 / 论文</th><th>评分公式</th><th>权重</th><th>时间衰减</th></tr></thead>
+<tbody>
+<tr><td>Generative Agents</td><td>α·recency + β·importance + γ·relevance</td><td>α=β=γ=1.0</td><td>0.995^h（指数）</td></tr>
+<tr><td>HelloAgents 情景</td><td>(向量相似度×0.8 + 近因×0.2) × (0.8 + 重要性×0.4)</td><td>内嵌</td><td>e^(-0.1·age_hours/24)</td></tr>
+<tr><td>HelloAgents 语义</td><td>(向量相似度×0.7 + 图相似度×0.3) × (0.8 + 重要性×0.4)</td><td>内嵌</td><td>—</td></tr>
+<tr><td>CrewAI</td><td>semantic×0.5 + recency×0.3 + importance×0.2</td><td>可配置</td><td>0.5^(age/half_life)，默认 30 天</td></tr>
+<tr><td>FadeMem</td><td>α·rel(c_i,Q_t) + β·f_i/(1+f_i) + γ·recency(τ_i,t)</td><td>可调</td><td>拉伸指数 e^(-λ·t^β)，β=0.8(LML)/1.2(SML)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="fw c-b">
+  <div class="fwh"><span class="fwb">FadeMem</span><span class="fwt">生物学启发的遗忘机制（arXiv 2601.18642）</span></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div></div><div class="sb"><div class="st">双层记忆</div><div class="sd">LML（Long-term Memory Layer，慢遗忘，半衰期 ~11.25 天）和 SML（Short-term Memory Layer，快遗忘，半衰期 ~5.02 天）。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div></div><div class="sb"><div class="st">重要性调节衰减率</div><div class="sd">λ_i = λ_base · e^(-μ · I_i(t))。高重要性记忆衰减速度比 baseline <strong>慢 3-5 倍</strong>。23% 的低重要性记忆因高频访问被提升到 LML。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">实验数据</div><div class="sd">关键事实保留率 <strong>82.1%</strong>（vs LangChain 71.2%, Mem0 78.4%），存储用量仅 <strong>55%</strong>。</div></div></div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-o">
+    <div class="ovh"><div class="ovtag">时间衰减函数</div><div class="ovname">六种常见形式</div></div>
+    <div class="ovbody"><ul>
+      <li><strong>指数衰减</strong> e^(-λt) — Generative Agents</li>
+      <li><strong>幂律衰减</strong> 1/(1+αt) — MemoryBank</li>
+      <li><strong>半衰期</strong> 0.5^(t/half_life) — CrewAI</li>
+      <li><strong>拉伸指数</strong> e^(-λ·t^β) — FadeMem</li>
+      <li><strong>高斯衰减</strong> e^(-t²/2σ²) — 实验性</li>
+      <li><strong>饱和函数</strong> f/(1+f) — FadeMem 访问频率</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-b">
+    <div class="ovh"><div class="ovtag">重要度计算</div><div class="ovname">四种计算方式</div></div>
+    <div class="ovbody"><ul>
+      <li><strong>规则-based</strong>：关键词/长度/模式匹配，快但泛化差</li>
+      <li><strong>LLM-based</strong>：让 LLM 打 1-10 分，灵活但成本高、不稳定</li>
+      <li><strong>混合</strong>：规则初筛 + LLM 精评，Mem0 / FadeMem 采用</li>
+      <li><strong>频率-based</strong>：访问次数 + 时间衰减，自动无额外成本</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════ 存储与检索 ═══════════ -->
+<div class="sec" id="storage">存储与检索技术</div>
+
+<div class="speech">
+  <div class="speech-lbl">向量数据库选型</div>
+  <p>不是所有记忆系统都需要向量数据库（Claude Code 就是纯文件），但如果你要做语义检索，选对向量数据库影响很大。核心考量：数据规模、是否需要混合检索（BM25 + 向量）、延迟预算、运维意愿。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+<thead><tr><th>数据库</th><th>适合规模</th><th>混合检索</th><th>P99 延迟（千万级）</th><th>典型场景</th></tr></thead>
+<tbody>
+<tr><td>Qdrant</td><td>百万~十亿</td><td>✅ 原生 RRF</td><td>24ms</td><td>高性能生产、需要混合检索</td></tr>
+<tr><td>Milvus</td><td>亿~百亿</td><td>⚠️ 需配置</td><td>38ms</td><td>超大规模、有专职运维</td></tr>
+<tr><td>PGVector</td><td>&lt; 500 万</td><td>⚠️ 需 tsvector</td><td>良好</td><td>已有 PG，向量+SQL 同事务</td></tr>
+<tr><td>Chroma</td><td>&lt; 10 万</td><td>❌</td><td>2s+</td><td>原型验证、Demo</td></tr>
+<tr><td>Pinecone</td><td>十亿级</td><td>✅ Alpha</td><td>取决于方案</td><td>零运维 SaaS</td></tr>
+<tr><td>Weaviate</td><td>十亿级</td><td>✅ 原生</td><td>56ms</td><td>多模态搜索</td></tr>
+<tr><td>FAISS</td><td>十亿级</td><td>❌</td><td>N/A</td><td>学术研究、嵌入式场景</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="note info">
+  <div class="nlbl">选型决策树</div>
+  <p>原型验证 → <strong>Chroma</strong>；已有 PostgreSQL + 数据量 &lt; 500 万 → <strong>PGVector</strong>；不想管服务器 → <strong>Pinecone</strong>；百万~千万级 + 自托管 → <strong>Qdrant</strong>（性能与易用最佳平衡）；亿级以上 + 有专职运维 → <strong>Milvus</strong>；多模态搜索 → <strong>Weaviate</strong>。</p>
+</div>
+
+<div class="fw c-g">
+  <div class="fwh"><span class="fwb">生产级检索</span><span class="fwt">混合检索三阶段管道</span></div>
+  <div class="steps">
+    <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">双路并行检索</div><div class="sd">BM25（精确匹配，top-50~500）<strong>并行</strong> 稠密向量（语义匹配，top-50~500）。两者互补：BM25 擅长错误代码、SKU 编号；向量擅长模糊语义查询。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">RRF 融合排序</div><div class="sd">RRFscore(d) = Σ 1/(k + rank_i(d))，k=60。完全忽略原始分数差异，无需归一化。k=30~40 重视 top-1 精度，k=80~100 重视跨列表共识。</div></div></div>
+    <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">Cross-Encoder 重排序</div><div class="sd">top-50~200 → top-3~5。Benchmark 数据：混合+重排序 vs 纯稠密，Recall@5 提升 <strong>+39%</strong>（0.587 → 0.816）。代价：额外延迟 +100~300ms。</div></div></div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="ovc c-p">
+    <div class="ovh"><div class="ovtag">Embedding 模型</div><div class="ovname">选型建议</div></div>
+    <div class="ovbody"><ul>
+      <li><strong>质量优先</strong>：voyage-3-large（MTEB 67.1，32K 上下文）</li>
+      <li><strong>性价比</strong>：jina-embeddings-v3（65.5 分 / $0.02/1M token）</li>
+      <li><strong>生态成熟</strong>：text-embedding-3-small（最广泛集成）</li>
+      <li><strong>Matryoshka 降维</strong>：text-embedding-3-large（3072→256 维，质量损失 &lt; 2%）</li>
+      <li><strong>自托管</strong>：GTE-large-en-v1.5 / bge-m3（开源免费）</li>
+      <li><strong>中文</strong>：bge-large-zh-v1.5 / bge-m3</li>
+    </ul></div>
+  </div>
+  <div class="ovc c-t">
+    <div class="ovh"><div class="ovtag">知识图谱</div><div class="ovname">何时需要图</div></div>
+    <div class="ovbody"><ul>
+      <li><strong>需要多跳推理</strong>：「张三的经理的团队有哪些人？」</li>
+      <li><strong>需要可解释性</strong>：显式推理路径可追溯</li>
+      <li><strong>需要事实校验</strong>：三元组结构约束降低幻觉</li>
+      <li><strong>构建成本高</strong>：需要 LLM 提取实体+关系</li>
+      <li>代表：Microsoft GraphRAG、Mem0ᵍ、HelloAgents Neo4j</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════ 关键设计决策 ═══════════ -->
+<div class="sec" id="decisions">关键设计决策</div>
+
+<div class="g3">
+  <div class="fw c-r">
+    <div class="fwh"><span class="fwb">决策 1</span><span class="fwt">Tool 调用 vs 自动注入</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl" style="display:none;"></div><div class="sb"><div class="sd"><strong>自动注入</strong>：核心人格、稳定信息始终在 prompt 中（Letta Core Memory、ChatGPT Saved Memories）。简单但占用窗口。<br><br><strong>Tool 调用</strong>：长尾记忆按需检索（Letta Archival、HelloAgents MemoryTool）。精准但依赖 LLM 判断何时调用。<br><br><strong>最佳实践</strong>：混合。核心在场 + 长尾按需。</div></div></div>
+    </div>
+  </div>
+  <div class="fw c-o">
+    <div class="fwh"><span class="fwb">决策 2</span><span class="fwt">同步 vs 异步写入</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl" style="display:none;"></div><div class="sb"><div class="sd">现代系统（ChatGPT Dreaming V3、AutoGPT Dream Pass、Gemini Memory Bank）<strong>趋向异步后台处理</strong>——对话结束后批量提取、整合、去重。<br><br>好处：不增加实时延迟，可做批量成本优化（Anthropic Batch API 50% 折扣）。</div></div></div>
+    </div>
+  </div>
+  <div class="fw c-g">
+    <div class="fwh"><span class="fwb">决策 3</span><span class="fwt">向量 vs 文件 vs 图</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl" style="display:none;"></div><div class="sb"><div class="sd"><strong>向量</strong>：语义检索，适合大规模模糊匹配<br><strong>文件</strong>：可审计，适合开发者工具（Claude Code）<br><strong>图</strong>：关系推理，适合多跳查询和事实校验<br><br>Mem0 的方案是三路融合。</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="fw c-b">
+    <div class="fwh"><span class="fwb">记忆生命周期</span><span class="fwt">写入 → 检索 → 遗忘 → 整合</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">W</div><div class="sline"></div></div><div class="sb"><div class="st">写入策略</div><div class="sd">全量记录（早期 AutoGPT，已证明失败）→ 重要性过滤（LLM 打分）→ ADD-only（Mem0，不覆盖旧事实，新旧并存保留时间上下文）</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">F</div><div class="sline"></div></div><div class="sb"><div class="st">遗忘策略</div><div class="sd">重要性淘汰（Mem0 四操作 ADD/UPDATE/DELETE/NOOP）、时间淘汰（CrewAI 半衰期 30 天）、容量淘汰（FIFO/LRU）、搜索降权（不删除，仅降低权重）</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">C</div></div><div class="sb"><div class="st">整合 Consolidation</div><div class="sd">Working → Episodic → Semantic 的升级路径。Generative Agents 的 Reflection、CrewAI 的相似度合并（阈值 0.85）、AutoGPT Dream Pass 的三阶段巩固（NREM→REM→净化）</div></div></div>
+    </div>
+  </div>
+  <div class="fw c-p">
+    <div class="fwh"><span class="fwb">评测标准</span><span class="fwt">如何衡量记忆系统好坏</span></div>
+    <div class="steps">
+      <div class="step"><div class="sl"><div class="sn">1</div><div class="sline"></div></div><div class="sb"><div class="st">LoCoMo（Stanford）</div><div class="sd">10 段对话、~300 个问题，覆盖单跳/多跳/开放域/时间回忆。Mem0 新算法 91.6 vs 旧 71.4（+20.2）。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">2</div><div class="sline"></div></div><div class="sb"><div class="st">LongMemEval（ICLR 2025）</div><div class="sd">500 个问题，覆盖信息提取、多会话推理、时间推理、知识更新。关键发现：商业助手长期记忆准确率下降 <strong>30%</strong>。</div></div></div>
+      <div class="step"><div class="sl"><div class="sn">3</div></div><div class="sb"><div class="st">BEAM（Mem0 开源）</div><div class="sd">1M / 10M token 规模，10 个任务类别。10M 时时间推理、事件排序下降 16-26%——<strong>视为开放问题</strong>。</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 论文地图 ═══════════ -->
+<div class="sec" id="papers">论文地图</div>
+
+<div class="speech">
+  <div class="speech-lbl">如果只读 5 篇</div>
+  <p>按推荐顺序排列。这些论文覆盖了从理论到工程的全链路，读完能建立 Agent 记忆系统的完整心智模型。</p>
+</div>
+
+<div class="milestone">
+  <div class="ms-node"><div class="ms-year">UIST 2023</div><div class="ms-title">Generative Agents</div><div class="ms-desc">Park et al.<br>arXiv:2304.03442<br><br>第一个完整实现的 LLM Agent 长期记忆系统。三维评分公式（recency + importance + relevance）成为事实标准。Reflection 机制首次实现"记忆的记忆"。</div></div>
+  <div class="ms-node"><div class="ms-year">TMLR 2024</div><div class="ms-title">CoALA</div><div class="ms-desc">Sumers & Yao<br>arXiv:2309.02427<br><br>第一篇系统化 LLM Agent 认知架构论文。四种记忆分类（Working/Episodic/Semantic/Procedural）成为业内通用术语。将 SOAR 传统与 LLM 时代结合。</div></div>
+  <div class="ms-node"><div class="ms-year">2023</div><div class="ms-title">MemGPT</div><div class="ms-desc">Packer et al.<br>arXiv:2310.08560<br><br>第一个将 OS 虚拟内存类比引入 Agent 记忆。把记忆从"存储问题"升级为"调度问题"。Letta 已商业化，成为生产级 Agent 记忆的事实标准之一。</div></div>
+  <div class="ms-node"><div class="ms-year">2025</div><div class="ms-title">Mem0</div><div class="ms-desc">arXiv:2504.19413<br><br>当前最工程化的记忆系统设计。准确率 +26%、延迟 -91%、Token -90%。图记忆 + 向量记忆 + 文本记忆三路融合。生产级的 ADD-only、TTL、显式删除。</div></div>
+  <div class="ms-node"><div class="ms-year">2026</div><div class="ms-title">FadeMem</div><div class="ms-desc">arXiv:2601.18642<br><br>最先进的记忆评分算法。重要性调节衰减率 + 分层拉伸指数衰减。82.1% 关键事实保留率，仅用 55% 存储。未来遗忘机制设计的重要参考。</div></div>
+</div>
+
+<div class="note info">
+  <div class="nlbl">延伸阅读</div>
+  <p><strong>Lost in the Middle</strong>（arXiv:2307.03172）——长上下文的 U 型注意力曲线；<strong>LongMemEval</strong>（arXiv:2410.10813, ICLR 2025）——记忆评测 benchmark；<strong>A-MEM</strong>（arXiv:2502.12110）——Zettelkasten 笔记法启发的记忆架构；<strong>Microsoft GraphRAG</strong>（arXiv:2404.16130）——知识图谱 + 社区摘要的 RAG 方案。</p>
+</div>
+
+<div class="note good">
+  <div class="nlbl">框架选择决策树</div>
+  <p>需要完全托管 + 跨设备 → <strong>ChatGPT / Gemini</strong>；生产级 Agent 平台 → <strong>Letta / Mem0</strong>；多 Agent 协作 → <strong>CrewAI</strong>；自主任务驱动 → <strong>AutoGPT</strong>；开发者 Coding 助手 → <strong>Claude Code</strong>；低代码 / 业务人员 → <strong>Dify / Coze</strong>；自定义 / 快速原型 → <strong>LangChain / LangChain4j</strong>；中文社区 + 教学 → <strong>HelloAgents</strong>。</p>
+</div>
+
+</main>
+
+</body>
+</html>

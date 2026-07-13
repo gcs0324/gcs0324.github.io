@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 21 · 多 Agent 协作</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'MULTI'}
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 21 · MULTI-AGENT</div>
+  <h1>多 Agent 协作</h1>
+  <p class="sub">为什么需要多 Agent · 中心化 vs 去中心化 · Orchestrator-Worker · 通信机制 · 常见陷阱 · Java 实现</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#multi-concept"><span class="s-link-num">01</span>为什么需要多 Agent</a>
+    <a class="s-link" href="#multi-pattern"><span class="s-link-num">02</span>协作模式：中心化 vs 去中心化</a>
+    <a class="s-link" href="#orchestrator"><span class="s-link-num">03</span>Orchestrator-Worker（主从模式）</a>
+    <a class="s-link" href="#multi-comm"><span class="s-link-num">04</span>通信机制</a>
+    <a class="s-link" href="#multi-pitfall"><span class="s-link-num">05</span>常见陷阱与工程实践</a>
+    <a class="s-link" href="#multi-java"><span class="s-link-num">06</span>Java 实现</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#production">→ 面试题 · 生产实践篇</a>
+    <a class="s-link" href="agent-09-arch-patterns.html">→ 上一章：Agent 架构模式</a>
+    <a class="s-link" href="agent-22-evaluation.html">→ 下一章：评估体系</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="multi-concept"><span class="sec-num">01</span>为什么需要多 Agent</div>
+
+    <div class="card">
+      <div class="card-title">单 Agent 的瓶颈</div>
+      <p>单个 <span class="kw">Agent</span> 把所有职责（理解需求、规划步骤、调用工具、检查结果）塞进同一个 System Prompt 和同一段上下文里。任务简单时没问题，但当任务需要多种专业能力（比如既要写 SQL 又要写前端代码，还要做安全审查）时，单 Agent 会遇到明显瓶颈。</p>
+      <ul class="dl">
+        <li><span class="b">Prompt 膨胀</span>：单个 System Prompt 要覆盖所有职责的规则，越写越长，LLM 容易"顾此失彼"——记住了写代码规范，忘了安全审查要求</li>
+        <li><span class="b">上下文污染</span>：不相关任务的中间产物（比如调研阶段的搜索结果）会一直留在上下文里，干扰后续步骤的判断，也白白消耗 Token</li>
+        <li><span class="b">专业度打折</span>：一个"万能" Agent 在每个细分领域的表现，通常不如针对该领域单独调优 Prompt 的专用 Agent</li>
+        <li><span class="b">缺乏并行</span>：单 Agent 只能顺序执行，即使子任务之间没有依赖关系，也只能一步步排队做完</li>
+      </ul>
+      <div class="note info"><strong>类比理解</strong>：单 Agent 像一个人身兼产品经理、程序员、测试、运维四个角色；多 Agent 是把这四个角色拆给四个专人，每人只需要精通自己的领域，配合一个"项目经理"来协调。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">多 Agent 协作解决什么问题</div>
+      <ul class="dl">
+        <li><span class="b">职责分离</span>：每个 Agent 只负责一个领域（代码 Agent、检索 Agent、审查 Agent），System Prompt 更短更聚焦，指令遵循更准确</li>
+        <li><span class="b">上下文隔离</span>：每个子 Agent 有自己独立的上下文窗口，只保留跟自己任务相关的信息，不会被无关内容干扰</li>
+        <li><span class="b">并行执行</span>：互不依赖的子任务可以分给不同 Agent 同时跑，缩短整体耗时</li>
+        <li><span class="b">可组合、可替换</span>：某个子 Agent 效果不好，可以单独换模型或调 Prompt，不影响其他 Agent</li>
+      </ul>
+      <div class="note warn"><strong>不是万能药</strong>：多 Agent 会引入协调开销——Agent 之间传递结果需要额外的 LLM 调用，整体延迟和成本通常比单 Agent 更高。任务简单、步骤少于 5 步时，先用单 Agent，不要一上来就上多 Agent。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="multi-pattern"><span class="sec-num">02</span>协作模式：中心化 vs 去中心化</div>
+
+    <div class="card">
+      <div class="card-title">两种基本协作拓扑</div>
+      <p>多 Agent 系统按"谁来决定下一步该谁做"分成两大类：<span class="kw">中心化（Centralized）</span>由一个统一的调度者分配任务；<span class="kw">去中心化（Decentralized）</span>由 Agent 之间直接互相传递任务，没有固定的"总指挥"。</p>
+      <table class="tbl">
+        <tr><th>维度</th><th>中心化（Orchestrator）</th><th>去中心化（Peer-to-Peer）</th></tr>
+        <tr><td>决策方式</td><td>一个 Orchestrator Agent 统一分配任务、汇总结果</td><td>Agent 之间直接对话，动态决定交给谁处理</td></tr>
+        <tr><td>可控性</td><td>高，流程可预测，容易加日志和熔断</td><td>低，Agent 间的交接路径可能不固定</td></tr>
+        <tr><td>扩展性</td><td>新增 Agent 只需注册给 Orchestrator</td><td>新增 Agent 需要教会所有相关 Agent 何时把任务转给它</td></tr>
+        <tr><td>失败排查</td><td>容易定位是哪个环节出错（看 Orchestrator 的分配记录）</td><td>较难，需要还原整条 Agent 间的交接链路</td></tr>
+        <tr><td>典型场景</td><td>客服工单分诊、代码生成 + 审查流水线</td><td>多角色头脑风暴、开放式协作探索</td></tr>
+      </table>
+      <div class="note good"><strong>选型建议</strong>：绝大多数生产场景优先选中心化模式。它的可观测性和可控性远好于去中心化，出问题时能快速定位到具体环节，这在工程落地中比"更灵活的协作"更重要。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="orchestrator"><span class="sec-num">03</span>Orchestrator-Worker（主从模式）</div>
+
+    <div class="card">
+      <div class="card-title">主从模式的核心角色</div>
+      <p><span class="kw">Orchestrator-Worker</span>（也叫 Supervisor 模式）是工程落地中最常见的多 Agent 架构：一个 <span class="kw">Orchestrator（调度者）</span>负责理解用户目标、拆分子任务、决定交给哪个 <span class="kw">Worker（执行者）</span>处理，Worker 只管把分到的子任务做好，不需要理解全局目标。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">接收用户目标</div><div class="step-desc">Orchestrator 拿到用户的完整需求，例如"帮我写一个用户注册接口，包含参数校验和单元测试"</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">拆分子任务</div><div class="step-desc">Orchestrator 判断需要哪些专业能力：写代码 → Code Agent，写测试 → Test Agent，检查安全性 → Security Agent</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">分发给 Worker</div><div class="step-desc">把子任务和必要的上下文（不是全部历史，只给该 Worker 需要的部分）传给对应 Worker Agent 执行</div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">Worker 独立执行</div><div class="step-desc">每个 Worker 在自己独立的上下文里完成任务，不感知其他 Worker 的存在，返回结果给 Orchestrator</div></div></div>
+        <div class="step"><div class="step-num">⑤</div><div><div class="step-title">汇总与判断</div><div class="step-desc">Orchestrator 收集所有 Worker 的结果，判断是否需要再次分发（比如 Security Agent 发现漏洞，打回给 Code Agent 修复）</div></div></div>
+        <div class="step"><div><div class="step-title">生成最终结果</div><div class="step-desc">所有子任务完成后，Orchestrator 汇总输出给用户</div></div></div>
+      </div>
+      <div class="note info"><strong>关键点</strong>：Worker 不需要知道自己在一个多 Agent 系统里，也不需要知道其他 Worker 的存在——这种"信息隔离"正是多 Agent 相对单 Agent 的核心优势之一。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">串行 vs 并行分发</div>
+      <table class="tbl">
+        <tr><th>分发方式</th><th>适用场景</th><th>示例</th></tr>
+        <tr><td>串行（Sequential）</td><td>后一个 Worker 依赖前一个的输出</td><td>Code Agent 写完代码 → Test Agent 才能针对这份代码写测试</td></tr>
+        <tr><td>并行（Parallel）</td><td>多个 Worker 互不依赖，可同时执行</td><td>同时让三个 Research Agent 分别调研三个候选方案，再汇总对比</td></tr>
+        <tr><td>条件分发</td><td>根据前一步结果决定分发给谁</td><td>Security Agent 发现高危漏洞才触发 Fix Agent，否则直接结束</td></tr>
+      </table>
+      <div class="note tip"><strong>面试要点</strong>：面试常问"Orchestrator 怎么知道该并行还是串行"——答案是这是 Orchestrator Prompt 里显式设计好的策略（或者由 Orchestrator 的 LLM 根据任务描述动态判断依赖关系），不是框架自动推导的黑魔法。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="multi-comm"><span class="sec-num">04</span>通信机制</div>
+
+    <div class="card">
+      <div class="card-title">消息传递 vs 共享状态</div>
+      <p>Agent 之间怎么交换信息，直接决定了系统的耦合度和可调试性。主流做法有两种：<span class="kw">消息传递（Message Passing）</span>——Agent 之间显式传结构化消息；<span class="kw">共享状态（Shared State）</span>——所有 Agent 读写同一份共享的状态对象（也叫 Blackboard 模式）。</p>
+      <table class="tbl">
+        <tr><th>方式</th><th>数据流向</th><th>优点</th><th>缺点</th></tr>
+        <tr><td>消息传递</td><td>点对点，A 的输出结构化后作为 B 的输入</td><td>耦合低，每个 Agent 只关心自己的输入输出格式</td><td>需要为每对 Agent 定义消息格式，Agent 一多容易组合爆炸</td></tr>
+        <tr><td>共享状态 / Blackboard</td><td>所有 Agent 读写同一个共享对象</td><td>新增 Agent 不需要改动已有 Agent，直接读写共享状态即可</td><td>容易出现"谁改了这个字段"难排查，需要良好的状态 Schema 约束</td></tr>
+      </table>
+      <div class="note good"><strong>工程落地建议</strong>：给共享状态定义严格的 Schema（哪些字段谁能写、谁只能读），并且每次状态变更都落一条日志。这样既保留了 Blackboard 模式的低耦合优势，又不丢可观测性。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Handoff：Agent 间的任务交接</div>
+      <p><span class="kw">Handoff（交接）</span>指一个 Agent 主动把当前任务转交给另一个 Agent 处理的动作。实现上通常把"转交"包装成一种特殊的工具调用——Agent 输出"我要交给 XX Agent"，由框架层负责切换上下文和执行者。</p>
+      <ul class="dl">
+        <li><span class="b">交接信息最小化</span>：转交时只传递必要的上下文摘要，而不是把当前 Agent 的完整对话历史全部转发过去，否则下一个 Agent 的上下文会迅速膨胀</li>
+        <li><span class="b">交接可追溯</span>：每次 Handoff 都要记录"谁转交给谁、为什么转交"，方便事后排查是哪一步决策出了问题</li>
+        <li><span class="b">避免循环交接</span>：A 转给 B，B 又转回 A，如果没有终止条件会形成死循环，需要设置最大交接次数</li>
+      </ul>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="multi-pitfall"><span class="sec-num">05</span>常见陷阱与工程实践</div>
+
+    <div class="card">
+      <div class="card-title">生产环境中的典型问题</div>
+      <ul class="dl">
+        <li><span class="b">成本失控</span>：每个 Agent 都是一次独立的 LLM 调用，N 个 Agent 协作一次任务，成本约等于 N 倍单 Agent 调用。上线前要估算最坏情况下的调用次数上限</li>
+        <li><span class="b">死循环 / 无限交接</span>：Orchestrator 反复在两个 Worker 之间转发（比如 Test Agent 一直报错，Code Agent 一直"修复"却没修对），必须设置全局最大步数（通常 10-20 步）强制终止</li>
+        <li><span class="b">结果不一致</span>：并行执行的多个 Worker 各自输出的结果格式不统一，汇总阶段解析困难。需要在分发子任务时就约定好统一的返回 Schema</li>
+        <li><span class="b">上下文丢失</span>：Handoff 时如果传递的摘要遗漏了关键信息，下一个 Agent 会"凭空"做决策，导致结果偏离预期</li>
+        <li><span class="b">调试困难</span>：多 Agent 系统的执行路径是动态的，同样的输入两次运行可能走完全不同的 Agent 组合。必须给每次运行打全链路 Trace ID，记录每个 Agent 的输入输出</li>
+      </ul>
+      <div class="note warn"><strong>先问自己一个问题</strong>：这个任务真的需要多 Agent 吗？很多"看起来复杂"的任务，用一个写得足够好的单 Agent + 更细致的 Prompt 就能搞定，且成本、延迟、可调试性都更好。多 Agent 应该是解决"单 Agent 已经优化到位但仍然不够"的最后手段，不是默认选项。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">工程实践清单</div>
+      <ul class="dl">
+        <li><span class="b">设最大步数</span>：Orchestrator 的分发循环必须有硬上限，超过就强制终止并返回当前最优结果</li>
+        <li><span class="b">每步落日志</span>：记录每次分发/交接的输入、输出、耗时、Token 消耗，用于事后排查和成本分析</li>
+        <li><span class="b">Worker 无状态化</span>：Worker 尽量设计成无状态的——每次调用只依赖传入的上下文，不依赖上一次调用留下的隐藏状态，这样才能安全地并行和重试</li>
+        <li><span class="b">超时与降级</span>：单个 Worker 超时时，Orchestrator 要有降级策略（跳过该步骤 / 换个 Worker 重试 / 直接向用户报告部分结果），不能让整个流程卡死</li>
+      </ul>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="multi-java"><span class="sec-num">06</span>Java 实现</div>
+
+    <div class="card">
+      <div class="card-title">Orchestrator-Worker 的 Java 骨架</div>
+      <p>不依赖特定框架，用 <code>CompletableFuture</code> 实现一个最简单的 Orchestrator-Worker 结构：并行分发独立子任务，串行处理有依赖的子任务。</p>
+      <pre>// 1. Worker 接口：每个 Worker 只关心自己的输入输出
+public interface AgentWorker {
+    String name();
+    String execute(String taskContext);
+}
+
+// 2. Orchestrator：负责拆分任务、分发、汇总
+public class Orchestrator {
+
+    private final ChatClient plannerLlm;
+    private final Map&lt;String, AgentWorker&gt; workers;
+    private static final int MAX_STEPS = 15;
+
+    public String run(String userGoal) {
+        List&lt;SubTask&gt; plan = planTasks(userGoal);   // ① LLM 拆分子任务
+        Map&lt;String, String&gt; results = new HashMap&lt;&gt;();
+        int steps = 0;
+
+        for (SubTask task : plan) {
+            if (steps++ > MAX_STEPS) break;           // 防止无限循环
+
+            if (task.dependsOn() == null) {
+                results.put(task.id(), dispatch(task, results)); // 无依赖：直接执行
+            } else {
+                // 有依赖：等前置任务结果就绪后再执行（串行）
+                results.put(task.id(), dispatch(task, results));
+            }
+        }
+        return summarize(userGoal, results);           // ⑤ Orchestrator 汇总
+    }
+
+    // 并行分发一组互不依赖的子任务
+    private Map&lt;String, String&gt; dispatchParallel(List&lt;SubTask&gt; independentTasks,
+                                                    Map&lt;String, String&gt; ctx) {
+        Map&lt;String, CompletableFuture&lt;String&gt;&gt; futures = independentTasks.stream()
+            .collect(Collectors.toMap(SubTask::id,
+                t -&gt; CompletableFuture.supplyAsync(() -&gt; dispatch(t, ctx))));
+        futures.values().forEach(CompletableFuture::join);
+        return futures.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -&gt; e.getValue().join()));
+    }
+
+    private String dispatch(SubTask task, Map&lt;String, String&gt; ctx) {
+        AgentWorker worker = workers.get(task.workerName());
+        String minimalContext = buildHandoffContext(task, ctx); // 只传必要摘要，不传全部历史
+        return worker.execute(minimalContext);
+    }
+}</pre>
+      <ul class="dl">
+        <li><span class="b">Worker 接口最小化</span>：只暴露 <code>execute(context)</code>，Worker 内部各自维护自己的 System Prompt 和工具集，Orchestrator 不关心其实现细节</li>
+        <li><span class="b">buildHandoffContext</span>：Handoff 时只截取任务相关的字段，不是把 <code>results</code> 整个 Map 全部转发，避免下游 Worker 上下文膨胀</li>
+        <li><span class="b">并行用 CompletableFuture</span>：Spring AI / LangChain4j 场景下同样可以用这个模式包装多个 <code>ChatClient</code> 调用，实现互不依赖子任务的并发执行</li>
+        <li><span class="b">MAX_STEPS 硬编码上限</span>：无论 Orchestrator 的 LLM 怎么"决策"，代码层面的步数上限必须存在，这是最后一道防线</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：先用最朴素的 Java 代码把 Orchestrator-Worker 骨架跑通、加好日志和步数上限，再考虑要不要引入 LangChain4j / Spring AI 的多 Agent 编排能力。框架能省样板代码，但步数上限、成本监控、Trace 这些工程护栏永远需要自己把关。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

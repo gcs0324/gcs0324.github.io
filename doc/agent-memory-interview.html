@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 记忆系统面试题整理 · 基础概念 · 架构设计 · 技术实现 · 工程实践</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'Q&A';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:100px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--orange);background:var(--ora-bg);border:1px solid var(--ora-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8;}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:44px 64px 80px;max-width:1360px;}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.fw{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.fwh{padding:14px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.fwb{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.fwt{font-size:14px;font-weight:600;}
+.fwbx{padding:18px 22px;font-size:13px;color:var(--tx2);line-height:1.9;}
+.fwbx p{margin-bottom:10px;}
+.fwbx p:last-child{margin-bottom:0;}
+.fwbx strong{color:var(--tx);font-weight:600;}
+.fwbx em{color:var(--orange);font-style:normal;font-weight:500;}
+.fwbx code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+.fwbx ul,.fwbx ol{margin:6px 0 6px 18px;}
+.fwbx li{margin-bottom:4px;}
+
+code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);}
+
+.note{margin-top:10px;border-radius:7px;padding:12px 16px;display:flex;gap:9px;align-items:flex-start;}
+.note.info{background:#edf3fd;border:1px solid #a0c4f0;}
+.note.tip{background:#f5f0fa;border:1px solid #c4b0e4;}
+.note.warn{background:#fff7f0;border:1px solid #f0c898;}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;border:1px solid;font-weight:600;}
+.info .nlbl{color:var(--blue);background:var(--blu-bg);border-color:var(--blu-b);}
+.tip .nlbl{color:var(--purple);background:var(--pur-bg);border-color:var(--pur-b);}
+.warn .nlbl{color:var(--orange);background:var(--ora-bg);border-color:var(--ora-b);}
+.note p{font-size:12.5px;color:var(--tx2);line-height:1.8;}
+.note strong{color:var(--tx);font-weight:600;}
+
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.07em;color:var(--tx3);text-transform:uppercase;padding:8px 14px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);white-space:nowrap;}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+
+.arch{background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:20px 24px;margin:10px 0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx2);line-height:1.9;white-space:pre;overflow-x:auto;}
+.arch strong{color:var(--blue);font-weight:600;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+
+.c-o{--ac:var(--orange);--ab:var(--ora-bg);--ac-b:var(--ora-b);}
+.c-b{--ac:var(--blue);--ab:var(--blu-bg);--ac-b:var(--blu-b);}
+.c-g{--ac:var(--green);--ab:var(--grn-bg);--ac-b:var(--grn-b);}
+.c-p{--ac:var(--purple);--ab:var(--pur-bg);--ac-b:var(--pur-b);}
+.c-r{--ac:var(--red);--ab:var(--red-bg);--ac-b:var(--red-b);}
+.c-y{--ac:var(--yellow);--ab:var(--yel-bg);--ac-b:var(--yel-b);}
+.fw .fwb,.fw .fwt{color:var(--ac);}
+.fw .fwb{background:var(--ab);border-color:var(--ac-b);}
+
+@media(max-width:860px){
+  header,nav,main{padding-left:28px;padding-right:28px;}
+  header::before{font-size:50px;right:16px;}
+  .g2{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<script src="../shared/theme.js"></script>
+
+<header>
+  <div class="htag">INTERVIEW Q&A</div>
+  <h1>Agent 记忆系统面试题整理</h1>
+  <p class="subtitle">
+    涵盖：基础概念 → 架构设计 → 技术实现 → 工程实践 → 开放性系统设计。<br>附带面试官视角的追问自查清单，预演高频追问方向。
+  </p>
+</header>
+
+<nav>
+  <a href="#basics">基础概念</a>
+  <a href="#architecture">架构设计</a>
+  <a href="#implementation">技术实现</a>
+  <a href="#engineering">工程实践</a>
+  <a href="#open-design">系统设计</a>
+  <a href="#checklist">追问清单</a>
+</nav>
+
+<main>
+
+<!-- ═══════════ 一、基础概念类 ═══════════ -->
+<div class="sec" id="basics">一、基础概念类</div>
+
+<div class="note info">
+  <div class="nlbl">阅读提示</div>
+  <p>这一节的题目会反复出现"XX 和 YY 是不是一套分类"的追问，先建立一个<strong>总图</strong>，后面的题目都基于这张图展开，避免把不同维度的概念混着记。</p>
+</div>
+
+<!-- Q0 -->
+<div class="fw c-o">
+  <div class="fwh"><div class="fwb">Q0</div><div class="fwt">总览：记忆系统里几套常见"分类"到底是什么关系？</div></div>
+  <div class="fwbx">
+    <p>面试最容易踩的坑：把<strong>几个不同维度</strong>的概念，当成同一套并列分类来记，结果被追问"这两个是什么关系"时答不上来。记忆系统常见的其实是<strong>两条独立的轴</strong>，外加<strong>一个具体系统的实现案例</strong>：</p>
+    <div class="arch">
+记忆系统
+│
+├─ <strong>轴一：存储位置 / 生命周期</strong>（工程视角，类比计算机 RAM vs 磁盘）
+│   ├─ Working Memory（当前 context window）
+│   ├─ Short-term Memory（当前 session 内的滚动缓冲/摘要）
+│   └─ Long-term Memory（跨 session 持久化存储）
+│         │
+│         └─ <strong>轴二：内容类型 / 认知功能</strong>（借自认知心理学）—— 这是长期记忆内部再细分出来的，不是和上面平级的另一套分类
+│               ├─ Episodic（情景记忆：具体发生过的事）
+│               ├─ Semantic（语义记忆：抽象出的事实/知识）
+│               └─ Procedural（程序性记忆：技能/流程）
+│
+└─ <strong>案例：Generative Agents 论文的具体系统实现</strong>（不是分类法，是一套 pipeline）
+      Memory Stream（存）→ Retrieval（查）→ Reflection（提炼）
+    </div>
+    <p><strong>要点：</strong></p>
+    <ul>
+      <li><strong>轴一和轴二是正交的</strong>，同一条记忆可以同时归类。例如"用户上周三投诉过物流慢"：按生命周期是 <strong>long-term</strong>（被持久化了），按内容类型是 <strong>episodic</strong>（一次具体事件）。</li>
+      <li><strong>Episodic/Semantic/Procedural 只发生在 Long-term Memory 内部</strong>。Short-term/Working Memory 是未加工的原始对话流，谈不上"这段是事实性的还是经历性的"——区分类型这个动作，恰恰是信息从短期"沉淀"进长期记忆时才会发生的。</li>
+      <li><strong>Memory Stream/Retrieval/Reflection 根本不是"记忆分类"</strong>，是斯坦福那一篇论文里某个具体系统的<strong>架构模块名</strong>（存储模块、检索模块、提炼模块），回答"这套系统怎么运作"用的，不回答"这条记忆是什么类型"。后面 Q15 会单独展开，别和前面两条轴混在一起记。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q1 -->
+<div class="fw c-o">
+  <div class="fwh"><div class="fwb">Q1</div><div class="fwt">什么是 Agent 的记忆系统？为什么 LLM Agent 需要记忆？</div></div>
+  <div class="fwbx">
+    <p>LLM 本身是无状态的（stateless），每次调用只能"看到"输入的 context window 内容，不具备跨调用的持久记忆。而 context window 长度有限、成本随长度增长。记忆系统的作用是：</p>
+    <ul>
+      <li>让 Agent 能够<strong>跨多轮对话 / 跨 session</strong> 保留关键信息（用户偏好、历史决策、已完成的任务状态）</li>
+      <li>突破 context window 限制，把"全部历史"压缩/外置存储，按需检索注入</li>
+      <li>支撑<strong>个性化</strong>和<strong>长程一致性</strong>（不会"失忆"导致重复提问、自相矛盾）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="fw c-o">
+  <div class="fwh"><div class="fwb">Q2</div><div class="fwt">短期记忆 vs 长期记忆的区别？</div></div>
+  <div class="fwbx">
+    <p>这是 Q0 总览图里的<strong>轴一</strong>——按存储位置和生命周期划分：</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <tr><th>维度</th><th>短期记忆（Working Memory）</th><th>长期记忆（Long-term Memory）</th></tr>
+      <tr><td>载体</td><td>Context window / 对话缓冲区</td><td>外部存储（向量库、图数据库、KV store、SQL）</td></tr>
+      <tr><td>生命周期</td><td>单次 session 内</td><td>跨 session 持久化</td></tr>
+      <tr><td>容量</td><td>受限（token 数）</td><td>理论上无限</td></tr>
+      <tr><td>访问方式</td><td>直接在 prompt 中</td><td>需要检索（retrieval）后注入</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="fw c-o">
+  <div class="fwh"><div class="fwb">Q3</div><div class="fwt">Memory 的常见分类：Episodic / Semantic / Procedural —— 这是 Long-term Memory 内部的细分吗？</div></div>
+  <div class="fwbx">
+    <p><strong>是的。</strong> 这三者不是和 Short-term/Long-term 平级的另一套独立分类，而是 <strong>Long-term Memory 这个大类下面再切的一刀</strong>：</p>
+    <div class="arch">
+Long-term Memory
+├─ <strong>Episodic</strong>（情景记忆：具体发生过的事）
+├─ <strong>Semantic</strong>（语义记忆：抽象出的事实/知识）
+└─ <strong>Procedural</strong>（程序性记忆：技能/流程）
+    </div>
+    <p>之所以短期/工作记忆不参与这套细分：短期记忆就是当前对话缓冲区里<strong>未经加工的原始文本</strong>，本身还没被判断"这是一次具体经历"还是"一条稳定事实"——这个判断动作，恰好就是信息从短期"沉淀"进长期记忆时才发生的。</p>
+    <p>三者具体含义：</p>
+    <ul>
+      <li><strong>Episodic（情景记忆）</strong>：具体的交互事件，"什么时候发生了什么"，例如完整对话记录、用户某次的具体请求</li>
+      <li><strong>Semantic（语义记忆）</strong>：从经历中抽象出的事实/知识，例如"用户是素食者""用户偏好简洁回复"（注意它往往是从 Episodic 中反复出现的模式里提炼出来的，去掉了"哪一次说的"这种情景细节，只留纯事实）</li>
+      <li><strong>Procedural（程序性记忆）</strong>：how-to 类技能/流程，例如工具调用的最佳实践，通常固化在 system prompt 或代码逻辑里，而非动态检索</li>
+    </ul>
+    <p>面试中常被追问：<strong>这三类记忆在工程上分别怎么落地？</strong></p>
+    <p>→ Episodic 用时间序列日志/向量库存原始交互；Semantic 用结构化的 profile/三元组或单独的"事实库"；Procedural 一般不进检索系统，而是写进 prompt 模板或 skill/工具定义中——这也是三者中<strong>唯一一个工程上基本不会真去建检索库</strong>的，更多是借来的概念框架，用来提醒你"该往哪类内容设计存储"。</p>
+    <div class="note tip">
+      <div class="nlbl">小知识点</div>
+      <p>认知科学的原始分类里，Procedural 其实先和 Episodic+Semantic 分了开——先分成"外显记忆 Explicit/Declarative（说得出来的，包含 Episodic 和 Semantic）"和"内隐记忆 Implicit（说不出但会做的，即 Procedural）"两大支，三者不是完全同级的并列关系。但在 Agent 工程语境下，按三者并列来讲、答出"它们都是 Long-term Memory 的细分"这个结论即可，不需要纠结这层学术细节。</p>
+    </div>
+    <p>是不是只存在于理论中？分开说更准确：</p>
+    <ul>
+      <li><strong>Episodic vs Semantic 的拆分是真落地的</strong>——很多系统会把它们建成两个物理上不同的存储：一个结构化 user profile 表存 Semantic，一个向量库存对话片段当 Episodic。</li>
+      <li><strong>Procedural 几乎不会真的建一个可检索的库</strong>，更多停留在概念层面，提醒设计者"这类内容不该往检索系统里塞"。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="fw c-o">
+  <div class="fwh"><div class="fwb">Q4</div><div class="fwt">Memory 和 RAG 是什么关系？</div></div>
+  <div class="fwbx">
+    <p>本质机制相似（都是 retrieval-augmented generation），区别在于<strong>数据来源和动态性</strong>：</p>
+    <ul>
+      <li>RAG 通常检索<strong>静态、外部的知识库</strong>（文档、wiki），内容不由 Agent 自己生成</li>
+      <li>Memory 检索的是 <strong>Agent / 用户在交互过程中动态产生</strong>的内容（对话历史、用户反馈、过往决策）</li>
+    </ul>
+    <p>可以理解为：Memory 是"用户特定、持续写入的私有 RAG"。很多记忆系统（如 Zep、Mem0）底层确实就是用向量检索 + 元数据过滤实现的。</p>
+  </div>
+</div>
+
+<!-- ═══════════ 二、架构与设计类 ═══════════ -->
+<div class="sec" id="architecture">二、架构与设计类</div>
+
+<!-- Q5 -->
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">Q5</div><div class="fwt">如何设计一个 Agent 记忆系统的整体架构？</div></div>
+  <div class="fwbx">
+    <p>一个典型分层设计：</p>
+    <div class="arch">
+用户输入
+   │
+   ▼
+[<strong>Working Memory</strong>]  ← 当前对话缓冲区，直接进 context
+   │
+   ▼
+[<strong>Short-term Memory</strong>] ← 当前 session 的滚动摘要 / 最近 N 轮
+   │  (写入触发：每轮结束 / 达到 token 阈值)
+   ▼
+[<strong>Long-term Memory Store</strong>]
+   ├─ 向量库（语义检索，存 embedding）
+   ├─ 结构化 Profile / KV（用户偏好、实体属性）
+   └─ 知识图谱（实体关系，支持多跳查询）
+   │
+   ▼
+[<strong>Retrieval Layer</strong>] → 检索相关记忆 → 注入新一轮 prompt
+    </div>
+    <p>回答时要点出：<strong>写入路径</strong>和<strong>读取路径</strong>是分开设计的，且通常是异步的（不阻塞主响应）。</p>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">Q6</div><div class="fwt">记忆的写入（Write）策略：什么时候、如何决定写入记忆？</div></div>
+  <div class="fwbx">
+    <p>常见策略：</p>
+    <ul>
+      <li><strong>触发式</strong>：检测到关键信息（用户明确说"记住我喜欢…"）立即写入</li>
+      <li><strong>周期性总结</strong>：每隔 N 轮对话，用 LLM 做摘要后写入，而非存原始文本</li>
+      <li><strong>重要性评分（Importance Scoring）</strong>：参考斯坦福 Generative Agents 论文，用 LLM 给每条记忆打 1-10 分的重要性，分数高的优先持久化、低的可丢弃</li>
+      <li><strong>去重/合并</strong>：写入前检索是否已有相似记忆，避免冗余（这也是很多系统真正的难点）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">Q7</div><div class="fwt">记忆的检索（Retrieval）策略？</div></div>
+  <div class="fwbx">
+    <p>Generative Agents 论文给出的经典公式（面试高频考点）：</p>
+    <div class="arch">
+<strong>score = α · relevance + β · recency + γ · importance</strong>
+    </div>
+    <ul>
+      <li><strong>Relevance（相关性）</strong>：query 与记忆 embedding 的余弦相似度</li>
+      <li><strong>Recency（时效性）</strong>：指数衰减，越久远权重越低</li>
+      <li><strong>Importance（重要性）</strong>：写入时打的分数</li>
+    </ul>
+    <p>实践中还会加：<strong>频次（被访问次数）</strong>、<strong>元数据过滤</strong>（按用户/时间范围先过滤再做向量检索，降低噪声）。</p>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">Q8</div><div class="fwt">如何处理记忆的遗忘（Forgetting）机制？</div></div>
+  <div class="fwbx">
+    <p>被问到时容易漏答的几个角度：</p>
+    <ul>
+      <li><strong>容量驱动的淘汰</strong>：超过存储上限后，按 LRU 或重要性分数最低优先淘汰</li>
+      <li><strong>时间衰减</strong>：检索分数随时间衰减，旧记忆不会被物理删除但越来越难被检索到（"软遗忘"）</li>
+      <li><strong>压缩归档</strong>：定期把大量细节记忆总结合并成更高层的抽象记忆（细节丢失但保留要点），类似人脑的记忆巩固</li>
+      <li><strong>主动遗忘</strong>：用户要求删除（隐私/纠错场景）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">Q9</div><div class="fwt">记忆冲突/更新如何处理？（例如用户的偏好变了）</div></div>
+  <div class="fwbx">
+    <ul>
+      <li><strong>时间戳优先</strong>：检索时同主题记忆若冲突，默认最新时间戳的覆盖旧的</li>
+      <li><strong>显式更新</strong>：识别到"用户纠正了某条事实"时，标记旧记忆为 deprecated 而非物理删除（保留可追溯性）</li>
+      <li><strong>冲突检测</strong>：写入新记忆前，检索同实体/同 key 的已有记忆，用 LLM 判断是否矛盾，矛盾则触发合并/覆盖逻辑（MemGPT、Zep 都有类似机制）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="fw c-b">
+  <div class="fwh"><div class="fwb">Q10</div><div class="fwt">如何设计记忆的压缩/总结机制？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li><strong>滑动窗口摘要</strong>：保留最近 K 轮原文 + 更早内容的滚动摘要</li>
+      <li><strong>分层摘要</strong>：单轮 → session 摘要 → 多 session 主题归档（类似金字塔结构）</li>
+      <li><strong>选择性遗忘 + 保留关键事实</strong>：摘要时显式要求 LLM 保留实体、数字、承诺类信息，避免压缩掉关键细节</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════ 三、技术实现类 ═══════════ -->
+<div class="sec" id="implementation">三、技术实现类</div>
+
+<!-- Q11 -->
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">Q11</div><div class="fwt">向量数据库在记忆系统中的作用？常见选型？</div></div>
+  <div class="fwbx">
+    <p>作用：对记忆内容做 embedding 后存储，支持语义相似度检索（而非关键词匹配）。</p>
+    <p>常见选型：Pinecone、Weaviate、Milvus、Qdrant、Chroma、FAISS（本地/轻量级场景）。面试可能追问选型权衡：托管 vs 自建、是否需要混合检索（向量+关键词+metadata filter）、写入吞吐量要求。</p>
+  </div>
+</div>
+
+<!-- Q12 -->
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">Q12</div><div class="fwt">一条记忆的数据结构（Schema）通常包含哪些字段？</div></div>
+  <div class="fwbx">
+    <div class="arch">
+{
+  "id": "mem_xxx",
+  "content": "用户提到自己对花生过敏",
+  "embedding": [0.01, -0.23, ...],
+  "type": "semantic",          // episodic / semantic / procedural
+  "importance": 8,
+  "created_at": "2026-05-01T10:00:00Z",
+  "last_accessed_at": "2026-06-20T08:00:00Z",
+  "access_count": 3,
+  "user_id": "u_123",
+  "source": "conversation_456",
+  "entities": ["花生", "过敏"],
+  "ttl": null
+}
+    </div>
+  </div>
+</div>
+
+<!-- Q13 -->
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">Q13</div><div class="fwt">Memory 和 Knowledge Graph 如何结合？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li>向量库擅长<strong>模糊语义检索</strong>，但不擅长多跳推理（"A 的同事的孩子是谁"）</li>
+      <li>知识图谱擅长<strong>结构化关系</strong>和多跳查询，但召回模糊语义弱</li>
+      <li>实践中常用<strong>图 + 向量混合</strong>：实体关系存图数据库（Neo4j 等），自由文本/事件存向量库，检索时先做实体链接再联动两边查询（这是 Zep、GraphRAG 类方案的核心思路）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q14 -->
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">Q14</div><div class="fwt">介绍一下 MemGPT（现 Letta）的核心设计思想？</div></div>
+  <div class="fwbx">
+    <p>把 LLM 的 context window 类比成操作系统中的<strong>物理内存（RAM）</strong>，外部存储类比成<strong>磁盘</strong>：</p>
+    <ul>
+      <li><strong>Main Context</strong>：始终在 prompt 里的部分（类似 RAM），容量有限</li>
+      <li><strong>External Context</strong>：存储在外部数据库中（类似 Disk），容量大但需要主动"分页"调入</li>
+      <li>Agent 本身被赋予 function-calling 能力，可以<strong>自主决定</strong>何时把信息从外部调入 main context（page in），何时把不再需要的内容换出（page out）</li>
+      <li>本质是让 LLM <strong>自己管理自己的记忆</strong>，而不是完全依赖外部固定规则</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q15 -->
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">Q15</div><div class="fwt">介绍一下 Generative Agents（斯坦福"虚拟小镇"论文）的记忆系统？</div></div>
+  <div class="fwbx">
+    <div class="note warn">
+      <div class="nlbl">先澄清</div>
+      <p>下面这三个词（Memory Stream / Retrieval / Reflection）<strong>不是"记忆分类"</strong>，不要和 Q3 的 Episodic/Semantic/Procedural 混在一起记。Q3 回答的是"一条记忆属于哪种类型"，这里回答的是"这一套具体系统是怎么运作的"——是这篇论文里的<strong>三个架构模块</strong>，描述的是数据流动的先后顺序（存 → 查 → 提炼），而不是并列的几种记忆"种类"。</p>
+    </div>
+    <p>三个核心组件：</p>
+    <ol>
+      <li><strong>Memory Stream（存）</strong>：按时间顺序记录所有观察（observation），是最底层的原始记忆，本质就是一份不断追加的日志</li>
+      <li><strong>Retrieval（查）</strong>：按 relevance + recency + importance 综合打分检索相关记忆</li>
+      <li><strong>Reflection（提炼）</strong>：定期让 LLM 对近期记忆做更高层次的归纳，生成"反思类"记忆（例如从多次观察中总结出"小明最近压力很大"），这些反思记忆又会参与之后的检索和规划——这一步事实上就是把 Episodic 记忆提炼成 Semantic 记忆的具体实现方式</li>
+    </ol>
+    <p>这篇论文是这个方向的奠基性工作，几乎所有现代 agent memory 框架的设计都能追溯到这套思路，面试高频会问。</p>
+  </div>
+</div>
+
+<!-- Q16 -->
+<div class="fw c-g">
+  <div class="fwh"><div class="fwb">Q16</div><div class="fwt">如何评估一个记忆系统的好坏？有哪些指标？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li><strong>检索质量</strong>：Recall@K / Precision@K（检索出的记忆是否真的相关）</li>
+      <li><strong>长程一致性</strong>：多轮对话后 Agent 是否还记得早期约定的信息（可设计专门的长程一致性测试集）</li>
+      <li><strong>冲突/幻觉率</strong>：是否会检索出过时或互相矛盾的记忆并据此回答</li>
+      <li><strong>效率</strong>：检索延迟、注入 context 的 token 开销</li>
+      <li><strong>任务效果</strong>：下游任务完成率/用户满意度的提升（最终还是要落到业务指标）</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════ 四、工程实践与常见坑 ═══════════ -->
+<div class="sec" id="engineering">四、工程实践与常见坑</div>
+
+<!-- Q17 -->
+<div class="fw c-r">
+  <div class="fwh"><div class="fwb">Q17</div><div class="fwt">如何避免"记忆污染"或幻觉记忆？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li>写入前做<strong>去重和一致性校验</strong>（与已有记忆冲突时不要直接追加）</li>
+      <li>记忆保留<strong>来源可追溯</strong>（source/conversation id），方便排查</li>
+      <li>区分"用户明确陈述的事实" vs "Agent 自己推断/总结的内容"，后者标记为低置信度</li>
+      <li>定期离线评估：抽样检查记忆库中是否有错误或过时条目</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q18 -->
+<div class="fw c-r">
+  <div class="fwh"><div class="fwb">Q18</div><div class="fwt">多用户 / 多 session 场景下如何隔离和共享记忆？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li><strong>按用户做 namespace 隔离</strong>（每个用户的向量检索限定在自己的分区内，防止串号）</li>
+      <li>区分<strong>私有记忆</strong>（用户个人偏好）与<strong>全局/共享记忆</strong>（团队知识库、公共 FAQ），分层存储、分别检索</li>
+      <li>多 Agent 协作场景还要考虑：哪些记忆该在 Agent 间共享，哪些应该保持各自独立</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q19 -->
+<div class="fw c-r">
+  <div class="fwh"><div class="fwb">Q19</div><div class="fwt">记忆系统的延迟如何优化？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li>写入操作<strong>异步化</strong>，不阻塞主响应链路</li>
+      <li>检索前先用<strong>粗筛</strong>（metadata filter / 关键词）缩小候选集，再做精排（向量相似度），避免全库检索</li>
+      <li>热点数据（最近高频访问的记忆）做<strong>缓存</strong></li>
+      <li>合理设置 top-K 和 context 注入预算，避免无意义的大量检索</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q20 -->
+<div class="fw c-r">
+  <div class="fwh"><div class="fwb">Q20</div><div class="fwt">隐私和安全性如何考虑？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li>敏感信息（PII）存储前脱敏，或加密存储</li>
+      <li>支持<strong>用户主动删除</strong>记忆（合规要求，如 GDPR 的"被遗忘权"）</li>
+      <li>访问控制：确保 A 用户的记忆检索不会泄露给 B 用户</li>
+      <li>审计日志：记录记忆的写入/访问历史，便于排查异常</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════ 五、开放性系统设计题 ═══════════ -->
+<div class="sec" id="open-design">五、开放性系统设计题</div>
+
+<div class="note info">
+  <div class="nlbl">答题技巧</div>
+  <p>这类题目重点考察<strong>权衡取舍</strong>的思路，而不是背标准答案，回答时建议先问澄清问题（规模、延迟要求、是否多用户等），再分层给方案。</p>
+</div>
+
+<!-- Q21 -->
+<div class="fw c-p">
+  <div class="fwh"><div class="fwb">Q21</div><div class="fwt">设计一个客服 Agent 的记忆系统，需要记住用户偏好、历史问题和处理状态</div></div>
+  <div class="fwbx">
+    <p>可以从以下角度展开：</p>
+    <ul>
+      <li><strong>记忆分层</strong>：会话内状态（当前工单进度）/ 用户长期 profile（偏好、历史问题分类）/ 公共知识库（FAQ，严格说不算"记忆"而是 RAG）</li>
+      <li><strong>写入时机</strong>：工单关闭时生成摘要写入长期记忆；用户主动表达偏好时实时写入</li>
+      <li><strong>检索</strong>：新会话开始时先按 user_id 拉取 profile + 最近相关工单摘要，注入初始 context</li>
+      <li><strong>边界情况</strong>：用户信息变更（换了地址/换了产品）如何更新而不是无限堆积旧记忆</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q22 -->
+<div class="fw c-p">
+  <div class="fwh"><div class="fwb">Q22</div><div class="fwt">如果要设计一个"终身学习"的 Agent，记忆系统要解决哪些核心问题？</div></div>
+  <div class="fwbx">
+    <ul>
+      <li>记忆<strong>无限增长</strong>下如何保持检索效率（分层索引、定期归档压缩）</li>
+      <li>新知识与旧记忆<strong>冲突</strong>时如何更新而不是简单累加</li>
+      <li>如何区分"事实性长期记忆"和"会过时的临时记忆"，设置不同的衰减/失效策略</li>
+      <li>灾难性遗忘的反面问题：避免无关噪声记忆持续累积稀释检索质量</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Q23 -->
+<div class="fw c-p">
+  <div class="fwh"><div class="fwb">Q23</div><div class="fwt">对比几种主流记忆框架的设计差异（LangChain Memory / MemGPT(Letta) / Zep / Mem0）</div></div>
+  <div class="fwbx">
+    <p>回答时把握住各自的侧重点即可，不需要死记细节：</p>
+    <ul>
+      <li><strong>LangChain Memory</strong>：更偏工具/接口层，提供多种记忆组件（buffer、summary、向量存储封装），灵活但需要自己拼装策略</li>
+      <li><strong>MemGPT / Letta</strong>：核心创新是让 LLM <strong>自主管理</strong>分页式记忆（OS 虚存思想），强调 agent 自驱动的记忆调度</li>
+      <li><strong>Zep</strong>：强调对话历史的自动摘要 + 知识图谱化存储，适合长对话场景下的结构化记忆抽取</li>
+      <li><strong>Mem0</strong>：轻量级、专注于"用户级长期记忆"的抽取与检索，定位类似一个可插拔的个性化记忆层</li>
+    </ul>
+    <div class="note tip">
+      <div class="nlbl">面试技巧</div>
+      <p>如果记不清具体框架细节，至少要能讲清楚<strong>设计哲学的差异</strong>（自动化程度、是否需要 agent 自主决策、结构化 vs 非结构化）。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 六、面试官视角的追问方向 ═══════════ -->
+<div class="sec" id="checklist">六、面试官视角的追问方向（自查清单）</div>
+
+<div class="fw c-y">
+  <div class="fwh"><div class="fwb">自查</div><div class="fwt">被问到任何一个记忆系统设计问题后，大概率会被继续追问</div></div>
+  <div class="fwbx">
+    <ol>
+      <li>这个设计在<strong>记忆量级增长 10 倍</strong>后还成立吗？</li>
+      <li>如果两条记忆<strong>互相矛盾</strong>，你的系统怎么处理？</li>
+      <li>检索注入的内容<strong>变多了反而拖累效果</strong>（噪声稀释 attention），你怎么控制？</li>
+      <li>整套系统的<strong>成本</strong>（embedding 调用、LLM 总结调用、存储成本）大概在什么量级？</li>
+      <li>怎么<strong>测试和评估</strong>这套记忆系统，而不是上线后凭感觉判断？</li>
+    </ol>
+    <p style="margin-top:12px;">建议提前针对自己讲的每个设计方案，预演一遍这五个追问。</p>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

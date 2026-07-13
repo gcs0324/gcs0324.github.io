@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MCP 管理与使用</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6;font-size:14px}
+nav{background:var(--bg2);padding:0 48px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);overflow-x:auto}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em}
+nav a:hover{color:var(--tx);border-bottom-color:var(--bd2)}
+nav a.active{color:var(--blue);border-bottom-color:var(--blue)}
+header{background:var(--bg2);padding:42px 48px 28px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+header::before{content:'MCP';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:108px;font-weight:700;color:var(--watermark,rgba(128,128,128,.05));letter-spacing:-.04em;pointer-events:none}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8}
+main{padding:40px 48px 80px;max-width:1100px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;display:flex;align-items:center;gap:10px}
+.sec:first-child{margin-top:0}
+.sec .sn{color:var(--blue)}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:18px 22px;margin-bottom:12px}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--blue);margin-bottom:12px}
+p{font-size:14px;color:var(--tx2);margin-bottom:10px;line-height:1.75}
+p:last-child{margin-bottom:0}
+.kw{color:var(--tx);font-weight:600}
+ul.detail{list-style:none;display:flex;flex-direction:column;gap:7px;padding-left:0;margin:10px 0}
+ul.detail li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--tx2)}
+ul.detail li .b{font-family:'IBM Plex Mono',monospace;color:var(--blue);flex-shrink:0;font-size:11px;margin-top:3px;min-width:18px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;text-align:left;color:var(--tx3);padding:7px 12px;border-bottom:2px solid var(--bd);background:var(--bg2)}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx);white-space:nowrap}
+.note{border-radius:6px;padding:10px 14px;font-size:13px;margin:12px 0;line-height:1.65}
+.note.tip{background:var(--blue-bg);border:1px solid var(--blue-b);color:var(--tx2)}
+.note.warn{background:var(--yellow-bg,#fffbe6);border:1px solid var(--yellow-b,#f0d060);color:var(--tx2)}
+.note.good{background:var(--green-bg,#e6f7ec);border:1px solid var(--green-b,#9ed4b0);color:var(--tx2)}
+.note.info{background:var(--bg);border:1px solid var(--bd);color:var(--tx2)}
+.note strong{color:var(--tx)}
+code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx)}
+pre{font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:14px 16px;overflow-x:auto;line-height:1.65;color:var(--tx2);margin:10px 0}
+.cmd-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.cmd-row{background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:12px 16px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.cmd-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;min-width:240px;margin-top:1px}
+.cmd-desc{font-size:13px;color:var(--tx2);line-height:1.55;flex:1;min-width:260px}
+.kbox{background:var(--bg);border:1px solid var(--bd);border-left:3px solid var(--blue);border-radius:6px;padding:14px 16px;margin:12px 0}
+.kbox h4{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--blue);margin-bottom:6px}
+.kbox p{font-size:13.5px;margin:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px}.grid2{grid-template-columns:1fr}.cmd-code{min-width:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">CLAUDE CODE · MCP</div>
+  <h1>MCP 管理与使用</h1>
+  <p class="subtitle">本机 MCP 当前布局 · 三种安装路线对比 · 日常增删改查命令 · 踩过的坑与统一管理结论</p>
+</header>
+<nav>
+  <a href="#what">什么是 MCP</a>
+  <a href="#current">本机现状</a>
+  <a href="#install">三种安装方式</a>
+  <a href="#commands">常用命令</a>
+  <a href="#unify">统一管理结论</a>
+  <a href="#smithery">Smithery 评估</a>
+  <a href="#pitfalls">踩坑记录</a>
+  <a href="#add-new">加新 MCP 流程</a>
+</nav>
+<main>
+
+<!-- ═══ 01 什么是 MCP ═══ -->
+<div class="sec" id="what"><span class="sn">01</span> MCP 是什么</div>
+
+<div class="card">
+  <div class="card-title">一句话定义</div>
+  <p>MCP（Model Context Protocol）是 Anthropic 提出的<span class="kw">"模型与工具之间的开放协议"</span>，让 Claude / Cursor / Codex 等 AI 客户端通过一个统一的协议调用外部能力：查代码、爬网页、操作浏览器、查数据库……</p>
+  <p>对你而言：MCP server 就是一个<span class="kw">"插件"</span>。装上它，Claude Code 多出一组新工具。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">MCP server 和 Skill 的区别</div>
+  <table class="tbl">
+    <tr><th>维度</th><th>MCP server</th><th>Claude Skill</th></tr>
+    <tr><td>类型</td><td>常驻进程</td><td>Markdown 文件 + 可选脚本</td></tr>
+    <tr><td>提供什么</td><td>工具（tool calls）</td><td>提示词 + 标准动作流程</td></tr>
+    <tr><td>装在哪</td><td><code>~/.claude.json</code> 的 mcpServers</td><td><code>~/.claude/skills/</code> 目录</td></tr>
+    <tr><td>有了对方还需要吗</td><td>需要（核心能力）</td><td>需要（怎么用工具的经验包）</td></tr>
+    <tr><td>典型例子</td><td>codegraph / playwright-mcp / tavily</td><td>ai-briefing / pdf / xlsx</td></tr>
+  </table>
+  <div class="note tip"><strong>结论：</strong>两者互补，不互相替代。MCP 提供工具，Skill 提供怎么用工具的最佳实践。</div>
+</div>
+
+<!-- ═══ 02 本机现状 ═══ -->
+<div class="sec" id="current"><span class="sn">02</span> 本机 MCP 现状（已统一）</div>
+
+<div class="card">
+  <div class="card-title">当前已注册的 MCP（claude mcp list）</div>
+  <table class="tbl">
+    <tr><th>名称</th><th>启动命令</th><th>npm 包</th><th>用途</th></tr>
+    <tr><td>codegraph</td><td><code>codegraph serve --mcp</code></td><td>@colbymchenry/codegraph@0.9.2</td><td>代码索引知识图谱（caller / callee / impact）</td></tr>
+    <tr><td>playwright</td><td><code>playwright-mcp</code></td><td>@playwright/mcp@0.0.76</td><td>浏览器自动化（点击、截图、爬取）</td></tr>
+  </table>
+  <div class="note good"><strong>统一规则：</strong>全部走 <span class="kw">"npm 全局安装 + 配置裸 binary"</span>，不混用 npx，不混用 Docker。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">配置文件位置</div>
+  <ul class="detail">
+    <li><span class="b">①</span>MCP 启动配置：<code>~/.claude.json</code> → <code>mcpServers</code> 字段</li>
+    <li><span class="b">②</span>npm 全局包路径：<code>/usr/local/lib/node_modules/</code></li>
+    <li><span class="b">③</span>binary 链接：<code>/usr/local/bin/</code>（如 <code>playwright-mcp</code>）</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">~/.claude.json 当前内容</div>
+<pre>{
+  "mcpServers": {
+    "codegraph": {
+      "type": "stdio",
+      "command": "codegraph",
+      "args": ["serve", "--mcp"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "playwright-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}</pre>
+</div>
+
+<!-- ═══ 03 三种安装方式 ═══ -->
+<div class="sec" id="install"><span class="sn">03</span> 三种安装方式对比</div>
+
+<div class="card">
+  <div class="card-title">npm 全局 vs npx 缓存 vs Docker</div>
+  <table class="tbl">
+    <tr><th>方式</th><th>包放哪</th><th>首次启动</th><th>升级方式</th><th>可见性</th></tr>
+    <tr><td>npm i -g</td><td>/usr/local/lib/node_modules/</td><td>快</td><td><code>npm update -g</code> 主动</td><td>✅ <code>npm ls -g</code></td></tr>
+    <tr><td>npx -y @latest</td><td>~/.npm/_npx/&lt;hash&gt;/</td><td>慢 2-5s（拉包）</td><td>每次启动可能被动升级</td><td>❌ npm 看不见</td></tr>
+    <tr><td>docker run</td><td>Docker 镜像</td><td>极慢（拉镜像）</td><td>手动 <code>docker pull</code></td><td>✅ <code>docker images</code></td></tr>
+  </table>
+</div>
+
+<div class="grid2">
+  <div class="kbox">
+    <h4>★ npm 全局（本机选定）</h4>
+    <p>装一次长期存在，升级时机自己控制，<code>npm ls -g --depth=0</code> 一行盘点全部 MCP。<span class="kw">适合长期主力使用</span>。</p>
+  </div>
+  <div class="kbox">
+    <h4>npx -y &lt;pkg&gt;</h4>
+    <p>无需安装，每次启动从缓存找；首次延迟明显。<span class="kw">适合一次性试用</span>，不适合生产。</p>
+  </div>
+</div>
+
+<div class="note warn"><strong>关键提醒：</strong>npx 安装的 MCP <code>npm ls -g</code> <span class="kw">看不见</span>，得去 <code>~/.npm/_npx/</code> 翻。混用就破坏"统一可见"。</div>
+
+<!-- ═══ 04 常用命令 ═══ -->
+<div class="sec" id="commands"><span class="sn">04</span> 日常管理命令</div>
+
+<div class="card">
+  <div class="card-title">查看 / 盘点</div>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">claude mcp list</span><span class="cmd-desc">查看所有已注册的 MCP（含连接状态 ✓/✗）</span></div>
+    <div class="cmd-row"><span class="cmd-code">npm ls -g --depth=0</span><span class="cmd-desc">查看所有 npm 全局包（MCP 包都在这）</span></div>
+    <div class="cmd-row"><span class="cmd-code">ls ~/.npm/_npx/</span><span class="cmd-desc">查看 npx 缓存目录（每个 hash 是一个包）</span></div>
+    <div class="cmd-row"><span class="cmd-code">cat ~/.claude.json | jq .mcpServers</span><span class="cmd-desc">直接看 MCP 配置原文</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">添加 / 删除</div>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">npm i -g &lt;pkg&gt;</span><span class="cmd-desc">先全局装 npm 包</span></div>
+    <div class="cmd-row"><span class="cmd-code">claude mcp add &lt;name&gt; -s user -- &lt;binary&gt;</span><span class="cmd-desc">注册到 Claude Code（-s user 表示对所有项目生效）</span></div>
+    <div class="cmd-row"><span class="cmd-code">claude mcp add &lt;name&gt; -s user -e KEY=val -- &lt;binary&gt;</span><span class="cmd-desc">注册时同时传入环境变量（API Key 等）</span></div>
+    <div class="cmd-row"><span class="cmd-code">claude mcp remove &lt;name&gt;</span><span class="cmd-desc">从 Claude Code 注册表移除（不卸载包）</span></div>
+    <div class="cmd-row"><span class="cmd-code">npm un -g &lt;pkg&gt;</span><span class="cmd-desc">卸载 npm 包</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">升级 / 清理</div>
+  <div class="cmd-list">
+    <div class="cmd-row"><span class="cmd-code">npm update -g &lt;pkg&gt;</span><span class="cmd-desc">升级单个全局包</span></div>
+    <div class="cmd-row"><span class="cmd-code">npm update -g</span><span class="cmd-desc">升级所有全局包（包括 MCP）</span></div>
+    <div class="cmd-row"><span class="cmd-code">npm cache clean --force</span><span class="cmd-desc">清 npm 缓存（不删全局包）</span></div>
+    <div class="cmd-row"><span class="cmd-code">rm -rf ~/.npm/_npx</span><span class="cmd-desc">清 npx 缓存（下次 npx 自动重建）</span></div>
+  </div>
+</div>
+
+<div class="note tip"><strong><code>-s</code> 参数：</strong><code>user</code> = 当前用户全部项目可用；<code>project</code> = 仅当前项目；<code>local</code> = 默认（本项目）。<span class="kw">长期 MCP 一律 <code>-s user</code></span>。</div>
+
+<!-- ═══ 05 统一管理结论 ═══ -->
+<div class="sec" id="unify"><span class="sn">05</span> 为什么统一到"npm 全局 + 裸 binary"</div>
+
+<div class="card">
+  <div class="card-title">这条路线的三个收益</div>
+  <ul class="detail">
+    <li><span class="b">①</span><span class="kw">可见</span>：<code>npm ls -g --depth=0</code> 一行看全所有 MCP，无需进 <code>~/.npm/_npx/</code> 挨个翻 hash 目录</li>
+    <li><span class="b">②</span><span class="kw">可控</span>：升级时机自己决定，不会因 <code>@latest</code> 被动引入 breaking change</li>
+    <li><span class="b">③</span><span class="kw">无启动延迟</span>：裸 binary 直接执行，<code>npx</code> 那 2-5s 的"查仓库"开销消失</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">代价</div>
+  <ul class="detail">
+    <li><span class="b">·</span>升级要主动跑 <code>npm update -g &lt;pkg&gt;</code>，不像 npx 自动跟最新</li>
+    <li><span class="b">·</span>非 Node 写的 MCP（如 Rust 写的 codegraph）走自己的安装渠道，无法塞进 npm 体系——这是<span class="kw">协议开放的代价</span>，不可避免</li>
+  </ul>
+</div>
+
+<!-- ═══ 06 Smithery 评估 ═══ -->
+<div class="sec" id="smithery"><span class="sn">06</span> Smithery 评估（暂未采用）</div>
+
+<div class="card">
+  <div class="card-title">Smithery 是什么</div>
+  <p>Smithery 是 MCP 生态的<span class="kw">注册表 + 安装器</span>（类似 brew、apt），通过 <code>smithery.ai</code> 浏览所有公开 MCP，用 CLI 一行命令装到任意客户端：</p>
+<pre>npx -y @smithery/cli@latest install &lt;server&gt; --client claude</pre>
+  <p>它的真正价值不在"少打一条命令"，而在<span class="kw">跨客户端同步</span>——同一个 MCP 装到 Claude Code / Cursor / Claude Desktop，命令一致，省心。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">为什么本机没用</div>
+  <table class="tbl">
+    <tr><th>核心 MCP</th><th>Smithery 注册表有吗</th></tr>
+    <tr><td>@colbymchenry/codegraph</td><td>❌ 没有（只能找到 project-mapper 等替代品）</td></tr>
+    <tr><td>@playwright/mcp（微软官方）</td><td>❌ 没有（出来的全是周边）</td></tr>
+  </table>
+  <div class="note warn"><strong>结论：</strong>Smithery 是<span class="kw">社区注册中心</span>，MCP 作者要主动提交才出现。微软、个人作者很多都没提交。强行切到 Smithery = 本机两个主力 MCP 还得手动管，Smithery 只能管"未来新装的"，反而破坏统一性。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">什么时候值得切到 Smithery</div>
+  <ul class="detail">
+    <li><span class="b">·</span>开始用 <span class="kw">≥ 2 个客户端</span>（Claude Code + Cursor + Claude Desktop 等）共享一批 MCP</li>
+    <li><span class="b">·</span>MCP 数量推到 <span class="kw">10+</span>，手动维护成本明显</li>
+    <li><span class="b">·</span>经常试新 MCP，想用 Smithery 的搜索 / 评分功能</li>
+    <li><span class="b">·</span>想用 Smithery <span class="kw">托管模式</span>（远程 HTTP，本地零依赖）</li>
+  </ul>
+</div>
+
+<!-- ═══ 07 踩坑记录 ═══ -->
+<div class="sec" id="pitfalls"><span class="sn">07</span> 踩过的坑</div>
+
+<div class="card">
+  <div class="card-title">坑 1：装了 npm 包但 Claude Code 不认识</div>
+  <p><span class="kw">现象：</span><code>npm i -g xmind-generator-mcp</code> 之后 <code>claude mcp list</code> 看不到它。</p>
+  <p><span class="kw">原因：</span>npm 装包 ≠ 注册到 Claude Code。<span class="kw">两步缺一不可</span>。</p>
+  <p><span class="kw">解决：</span>装完包必须再跑一次 <code>claude mcp add &lt;name&gt; -s user -- &lt;binary&gt;</code>。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">坑 2：npx 缓存看不见</div>
+  <p><span class="kw">现象：</span>用 <code>npx @playwright/mcp@latest</code> 启动后，<code>npm ls -g</code> 找不到它。</p>
+  <p><span class="kw">原因：</span>npx 把包放在 <code>~/.npm/_npx/&lt;hash&gt;/</code>，不是 <code>/usr/local/lib/node_modules/</code>，npm 不管。</p>
+  <p><span class="kw">解决：</span>如果想"统一可见"，<span class="kw">改走 <code>npm i -g</code></span>，配置里写裸 binary 名。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">坑 3：换 MCP 包名后旧缓存残留</div>
+  <p><span class="kw">现象：</span>codegraph 从老包名换到 <code>@colbymchenry/codegraph</code>，<code>~/.npm/_npx/</code> 里仍存着一份旧版。</p>
+  <p><span class="kw">解决：</span>定期 <code>rm -rf ~/.npm/_npx/&lt;hash&gt;</code> 清理；或一次性 <code>rm -rf ~/.npm/_npx</code> 全清，下次 npx 自动重建。</p>
+</div>
+
+<div class="card">
+  <div class="card-title">坑 4：把 Smithery 当包管理器</div>
+  <p><span class="kw">误区：</span>以为 Smithery 是 brew、能管所有 MCP。</p>
+  <p><span class="kw">真相：</span>Smithery 是社区注册中心，<span class="kw">作者没提交 = 搜不到</span>。覆盖率约等于 npm 上 MCP 的子集。</p>
+</div>
+
+<!-- ═══ 08 加新 MCP 流程 ═══ -->
+<div class="sec" id="add-new"><span class="sn">08</span> 加一个新 MCP 的标准流程</div>
+
+<div class="card">
+  <div class="card-title">三步走（以 Tavily 为例）</div>
+<pre># 1. 全局安装 npm 包
+npm i -g tavily-mcp
+
+# 2. 注册到 Claude Code（带 API Key）
+claude mcp add tavily -s user -e TAVILY_API_KEY=tvly-xxx -- tavily-mcp
+
+# 3. 验证
+claude mcp list
+# → tavily: tavily-mcp - ✓ Connected</pre>
+</div>
+
+<div class="card">
+  <div class="card-title">非 Node 写的 MCP 怎么办</div>
+  <table class="tbl">
+    <tr><th>语言</th><th>典型安装方式</th><th>例</th></tr>
+    <tr><td>Rust</td><td>下载 binary / cargo install</td><td>codegraph（本机现状）</td></tr>
+    <tr><td>Python</td><td><code>pipx install</code> / <code>uvx</code></td><td>git-mcp-server / sequential-thinking</td></tr>
+    <tr><td>Go</td><td>GitHub Release 下 binary</td><td>少数官方 MCP</td></tr>
+  </table>
+  <div class="note info"><strong>"100% 单一安装方式"做不到</strong>，因为 MCP 是开放协议，社区什么语言都写。最现实策略：<span class="kw">Node 系全 npm 全局，Python 系全 uvx，剩余个别走自己的渠道</span>——每"类语言"内部统一即可。</div>
+</div>
+
+<div class="card">
+  <div class="card-title">日常维护节奏建议</div>
+  <ul class="detail">
+    <li><span class="b">·</span><span class="kw">每周</span>：<code>claude mcp list</code> 看一下连接状态，有 ✗ 的排查</li>
+    <li><span class="b">·</span><span class="kw">每月</span>：<code>npm outdated -g</code> 看哪些 MCP 有新版，按需 <code>npm update -g &lt;pkg&gt;</code></li>
+    <li><span class="b">·</span><span class="kw">每季</span>：<code>rm -rf ~/.npm/_npx</code> 清 npx 缓存（如果用过 npx 试包）</li>
+    <li><span class="b">·</span>装新 MCP 前：先 <code>npm view &lt;pkg&gt;</code> 看一眼维护情况、最新版本，避免装到僵尸包</li>
+  </ul>
+</div>
+
+</main>
+</body>
+</html>

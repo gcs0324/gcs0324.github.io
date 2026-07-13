@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 25 · CI/CD & 部署</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'CI/CD'}
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 25 · CI/CD</div>
+  <h1>CI/CD & 部署</h1>
+  <p class="sub">Prompt 作为可发布制品 · 评估门禁 · 灰度发布 · 版本回滚 · 部署架构 · Java 实现</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#cicd-artifact"><span class="s-link-num">01</span>Prompt 作为可发布制品</a>
+    <a class="s-link" href="#cicd-gate"><span class="s-link-num">02</span>评估门禁接入流水线</a>
+    <a class="s-link" href="#cicd-canary"><span class="s-link-num">03</span>灰度发布</a>
+    <a class="s-link" href="#cicd-rollback"><span class="s-link-num">04</span>版本回滚</a>
+    <a class="s-link" href="#cicd-deploy"><span class="s-link-num">05</span>部署架构</a>
+    <a class="s-link" href="#cicd-java"><span class="s-link-num">06</span>Java 实现</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#production">→ 面试题 · 生产实践篇</a>
+    <a class="s-link" href="agent-24-cost-control.html">→ 上一章：成本控制</a>
+    <a class="s-link" href="agent-26-system-design.html">→ 下一章：系统设计</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="cicd-artifact"><span class="sec-num">01</span>Prompt 作为可发布制品</div>
+
+    <div class="card">
+      <div class="card-title">Prompt 需要跟代码一样被管理</div>
+      <p>传统应用的发布制品是编译后的代码，Agent 系统多了一类同样重要、却常被当成"配置随便改"的制品——<span class="kw">Prompt（提示词）</span>。改一版 System Prompt 对 Agent 行为的影响，不亚于改一版核心业务代码，理应纳入同样严格的版本管理和发布流程。</p>
+      <ul class="dl">
+        <li><span class="b">版本化</span>：Prompt 存入代码仓库，每次修改走 Code Review，而不是在某个后台配置页面直接改了就生效</li>
+        <li><span class="b">与代码解耦但同步发布</span>：Prompt 可以独立于业务代码存放（方便非工程角色参与编写），但发布时要和对应的 Agent 逻辑版本绑定，避免"代码是新的、Prompt 是旧的"这类不一致</li>
+        <li><span class="b">变更可追溯</span>：每次 Prompt 变更都要能追溯到是谁改的、为什么改、对应哪次评估结果，这是排查线上问题的关键线索</li>
+      </ul>
+      <div class="note warn"><strong>常见反模式</strong>：把 Prompt 存在数据库里，运营或产品同学在后台直接改了立即生效，不经过评估和 Review。这种"看起来灵活"的做法，实际上是把生产环境变成了没有测试保护的实验场。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="cicd-gate"><span class="sec-num">02</span>评估门禁接入流水线</div>
+
+    <div class="card">
+      <div class="card-title">发布前自动跑评估集</div>
+      <p>Agent 的 CI/CD 流水线和传统服务的核心区别在于多了一道<span class="kw">评估门禁（Eval Gate）</span>——单元测试和集成测试只能验证代码逻辑没错，验证不了"模型的回答是否还是那么准确"，这一层必须靠 <a href="agent-22-evaluation.html">评估体系</a> 补上。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">代码 / Prompt 变更提交</div><div class="step-desc">开发者提交 Prompt 或 Agent 逻辑的变更，触发 CI 流水线</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">单元测试 + 集成测试</div><div class="step-desc">跑传统测试，验证工具调用逻辑、参数解析等确定性代码没有回归</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">评估集回归</div><div class="step-desc">跑离线评估集，对比本次变更后的评估分数与基线分数，参见 <a href="agent-22-evaluation.html">评估体系</a></div></div></div>
+        <div class="step"><div class="step-num">④</div><div><div class="step-title">门禁判断</div><div class="step-desc">评估分数低于基线一定容忍度时，流水线自动拦截，不允许合并/发布</div></div></div>
+        <div class="step"><div><div class="step-title">人工审批（可选）</div><div class="step-desc">高风险变更（涉及安全 Guardrails、支付类工具）额外要求人工审批才能发布</div></div></div>
+      </div>
+      <div class="note good"><strong>最佳实践</strong>：评估门禁的阈值不是一成不变的——初期可以设得宽松一些防止评估集不完善导致误拦截，随着评估集覆盖度提高，逐步收紧阈值。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="cicd-canary"><span class="sec-num">03</span>灰度发布</div>
+
+    <div class="card">
+      <div class="card-title">先给一小部分流量验证</div>
+      <p>即使评估集回归通过，也不能完全代表线上真实流量的表现——评估集覆盖不到的长尾场景，只有在真实流量中才会暴露。<span class="kw">灰度发布（Canary Release）</span>让新版本先承接一小部分流量，观察在线指标正常后再逐步放量。</p>
+      <table class="tbl">
+        <tr><th>阶段</th><th>流量比例</th><th>观察指标</th></tr>
+        <tr><td>内测</td><td>0%，仅内部测试账号</td><td>核心功能是否正常，人工抽查回答质量</td></tr>
+        <tr><td>灰度</td><td>1%-10%</td><td>任务完成率、用户满意度、人工介入率、成本，与旧版本对比</td></tr>
+        <tr><td>放量</td><td>10%-100% 逐步提升</td><td>持续监控在线指标，异常时立即暂停放量</td></tr>
+      </table>
+      <div class="note info"><strong>A/B 对比</strong>：灰度阶段最好让新旧版本同时承接流量做 A/B 对比，而不是只看新版本自己的绝对指标——很多问题只有跟旧版本对比才能看出是退化还是正常波动。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="cicd-rollback"><span class="sec-num">04</span>版本回滚</div>
+
+    <div class="card">
+      <div class="card-title">出问题时能快速切回旧版本</div>
+      <ul class="dl">
+        <li><span class="b">Prompt 版本与代码版本同时可回滚</span>：回滚机制要同时覆盖 Prompt 和 Agent 逻辑代码，只回滚一边会造成新的不一致</li>
+        <li><span class="b">回滚要快</span>：理想情况下应该是配置切换级别的操作（切换到上一个已知稳定的版本号），而不需要重新走一遍完整发布流程</li>
+        <li><span class="b">保留多个历史版本</span>：至少保留最近几个稳定版本可供快速回滚，而不只是"上一个版本"</li>
+      </ul>
+      <div class="note danger"><strong>血泪教训</strong>：没有快速回滚能力的 Agent 系统，一旦线上出现严重问题（比如新 Prompt 导致大量幻觉或误触发高危工具），修复时间可能长达数小时。回滚速度应该被当成和<a href="agent-24-cost-control.html">成本控制</a>中的预算熔断同等优先级的上线前必备能力。</div>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="cicd-deploy"><span class="sec-num">05</span>部署架构</div>
+
+    <div class="card">
+      <div class="card-title">Agent 服务的部署形态</div>
+      <ul class="dl">
+        <li><span class="b">无状态化部署</span>：Agent 服务本身尽量做成无状态的，会话状态存在外部存储（Redis / 数据库），这样才能水平扩容和随意重启</li>
+        <li><span class="b">与模型服务解耦</span>：Agent 编排逻辑和底层 LLM 调用（无论是调用外部 API 还是自建推理服务）分层部署，模型可以独立升级、切换供应商，不影响 Agent 业务逻辑</li>
+        <li><span class="b">多环境隔离</span>：开发 / 预发 / 生产环境的 Prompt 版本、工具权限配置要严格隔离，防止预发环境的测试 Prompt 意外影响生产</li>
+        <li><span class="b">配置中心管理</span>：模型参数（温度、最大 Token 数）、工具开关、限流阈值等运行时配置放到配置中心，支持动态调整而不需要重新部署</li>
+      </ul>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="cicd-java"><span class="sec-num">06</span>Java 实现</div>
+
+    <div class="card">
+      <div class="card-title">CI 流水线中的评估门禁骨架</div>
+      <p>结合<a href="agent-22-evaluation.html">评估体系</a>的 <code>AgentEvaluator</code>，在 CI 阶段自动跑评估集并做门禁判断，接入 GitHub Actions / Jenkins 等流水线工具。</p>
+      <pre>// 1. CI 阶段调用的评估门禁入口
+public class EvalGateRunner {
+
+    private final AgentEvaluator evaluator;
+    private static final double BASELINE_SCORE = 0.85;
+    private static final double TOLERANCE = 0.02;
+
+    public static void main(String[] args) {
+        EvalReport report = evaluator.evaluate(loadEvalCases("eval-cases/regression.json"));
+
+        System.out.println("本次评估分数：" + report.avgScore());
+        System.out.println("基线分数：" + BASELINE_SCORE);
+
+        if (report.avgScore() < BASELINE_SCORE - TOLERANCE) {
+            System.err.println("评估分数低于基线，拦截本次发布");
+            System.exit(1);   // 非零退出码，CI 流水线据此判定失败
+        }
+        // 分数达标：写入本次结果作为下一次对比的基线候选
+        baselineRepository.save(currentVersion(), report.avgScore());
+    }
+}
+
+// 2. 灰度发布中的版本路由（简化示例）
+public class AgentVersionRouter {
+
+    private final double canaryPercentage; // 灰度流量比例，来自配置中心，可动态调整
+
+    public AgentRuntime resolve(String userId) {
+        boolean inCanary = hashUserId(userId) % 100 < canaryPercentage * 100;
+        return inCanary ? agentRegistry.get("canary") : agentRegistry.get("stable");
+    }
+}</pre>
+      <ul class="dl">
+        <li><span class="b">非零退出码触发流水线失败</span>：这是评估门禁接入通用 CI 工具（GitHub Actions、Jenkins、GitLab CI）最简单直接的方式，不需要为每个 CI 平台单独定制</li>
+        <li><span class="b">灰度比例从配置中心读取</span>：不写死在代码里，运维可以在不发版的情况下调整灰度比例，快速放量或紧急收缩</li>
+        <li><span class="b">按用户 ID 哈希分流</span>：保证同一用户在灰度期间稳定命中同一版本，避免同一用户体验反复横跳，便于问题排查</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：把评估门禁、灰度发布、快速回滚这三件事在系统设计的第一个版本就规划进去，而不是等第一次线上事故之后才补——Agent 行为的不确定性决定了这套发布护栏比传统服务更不可或缺。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

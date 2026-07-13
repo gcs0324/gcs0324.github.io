@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研数二 + 408 · 7月第3-4周学习计划</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --border: #e2e6ed;
+    --blue-bg: #e8f0fe;
+    --blue-border: #a8c8fa;
+    --blue-text: #1a56db;
+    --green-bg: #e6f4ea;
+    --green-border: #81c995;
+    --green-text: #137333;
+    --yellow-bg: #fef7e0;
+    --yellow-border: #fdd663;
+    --yellow-text: #b06000;
+    --red-bg: #fce8e6;
+    --red-border: #f28b82;
+    --red-text: #c5221f;
+    --code-bg: #f4f4f5;
+    --header-bg: #1a1a2e;
+    --header-text: #e8eaed;
+    --accent: #1a56db;
+    --accent-light: #e8f0fe;
+    --math-color: #1a56db;
+    --ds-color: #9334e6;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    padding: 32px 0 28px;
+    text-align: center;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: 1px; }
+  .header .subtitle { font-size: 14px; color: #94a3b8; margin-top: 6px; }
+  .header .stats {
+    display: flex; justify-content: center; gap: 32px; margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .header .stat-item { text-align: center; }
+  .header .stat-num { font-size: 28px; font-weight: 800; }
+  .header .stat-label { font-size: 12px; color: #94a3b8; }
+  .stat-num.math { color: #60a5fa; }
+  .stat-num.ds { color: #c084fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  .week-section { margin-bottom: 40px; }
+  .week-title {
+    font-size: 20px; font-weight: 700; padding: 12px 20px;
+    border-radius: 10px 10px 0 0; display: flex; align-items: center; gap: 10px;
+  }
+  .week-title.math { background: #dbeafe; color: #1e40af; }
+  .week-title.ds { background: #f3e8ff; color: #6b21a8; }
+  .week-title .badge {
+    font-size: 12px; padding: 2px 10px; border-radius: 12px; font-weight: 600;
+  }
+  .week-title.math .badge { background: #60a5fa; color: #fff; }
+  .week-title.ds .badge { background: #c084fc; color: #fff; }
+
+  details.chapter {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  details.chapter:hover { box-shadow: var(--shadow-lg); }
+  details.chapter[open] { border-left: 4px solid var(--accent); }
+
+  summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    border-radius: 8px;
+    list-style: none;
+    transition: background 0.15s;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: var(--accent-light); }
+  details.chapter[open] > summary { background: var(--accent-light); border-radius: 8px 8px 0 0; }
+
+  .summary-left { display: flex; align-items: center; gap: 10px; }
+  .summary-left .icon { font-size: 18px; }
+  .summary-right { display: flex; align-items: center; gap: 12px; }
+  .time-tag {
+    font-size: 12px; color: var(--text-secondary); font-weight: 400;
+    background: #f1f3f4; padding: 2px 10px; border-radius: 8px;
+  }
+  .expand-icon { font-size: 14px; color: #999; transition: transform 0.2s; }
+  details.chapter[open] .expand-icon { transform: rotate(180deg); }
+
+  .chapter-body { padding: 8px 20px 20px; }
+
+  .callout {
+    border-radius: 6px; padding: 10px 16px; margin: 12px 0;
+    font-size: 14px; line-height: 1.7;
+  }
+  .callout.definition { background: var(--blue-bg); border-left: 4px solid var(--blue-border); color: #1a3a6b; }
+  .callout.tip { background: var(--green-bg); border-left: 4px solid var(--green-border); color: #14532d; }
+  .callout.caution { background: var(--yellow-bg); border-left: 4px solid var(--yellow-border); color: #7c4a00; }
+  .callout.error { background: var(--red-bg); border-left: 4px solid var(--red-border); color: #8b1a1a; }
+  .callout strong { display: block; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 12px 0;
+    font-size: 14px; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: #f8f9fa; font-weight: 600; padding: 10px 12px;
+    text-align: left; border-bottom: 2px solid var(--border); font-size: 13px;
+    color: var(--text-secondary);
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f3f4; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+
+  pre {
+    background: #282c34; color: #abb2bf; border-radius: 8px;
+    padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.6;
+    margin: 12px 0; font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", "SF Mono", monospace;
+  }
+  pre .kw { color: #c678dd; }
+  pre .fn { color: #61afef; }
+  pre .cm { color: #5c6370; font-style: italic; }
+  pre .str { color: #98c379; }
+  pre .num { color: #d19a66; }
+  pre .op { color: #56b6c2; }
+
+  code.inline {
+    background: #f4f4f5; color: #c5221f; padding: 1px 6px;
+    border-radius: 4px; font-size: 13px; font-family: "Fira Code", "SF Mono", monospace;
+  }
+
+  .example { margin: 16px 0; }
+  .example-title {
+    font-weight: 700; font-size: 14px; color: var(--accent);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .example-title::before { content: "📐"; }
+  .step { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0; }
+  .step-num {
+    background: var(--accent); color: #fff; min-width: 22px; height: 22px;
+    border-radius: 50%; text-align: center; font-size: 12px; line-height: 22px;
+    font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+
+  .formula {
+    text-align: center; font-size: 17px; margin: 12px 0;
+    font-family: "KaTeX_Main", "Times New Roman", serif;
+    font-style: italic; letter-spacing: 0.5px; color: #1a1a2e;
+  }
+
+  .checkpoint {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px solid #dee2e6; border-radius: 12px; padding: 24px;
+    margin-top: 32px;
+  }
+  .checkpoint h2 { font-size: 20px; margin-bottom: 16px; color: #1a1a2e; }
+  .checkpoint table th { background: #e9ecef; }
+  .checkmark { color: #137333; font-weight: 700; }
+  .cross { color: #c5221f; }
+
+  .goal-bar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    padding: 10px 16px; background: #f8f9fa; border-radius: 8px;
+    font-size: 13px;
+  }
+  .goal-bar .label { font-weight: 600; color: var(--text-secondary); }
+  .goal-bar .value { font-weight: 700; }
+  .goal-bar .value.blue { color: var(--accent); }
+  .goal-bar .value.green { color: #137333; }
+
+  .formula-card {
+    background: #fafbfc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; margin: 10px 0;
+  }
+  .formula-card .card-title { font-weight: 600; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+
+  .toc { margin: 20px 0; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .header h1 { font-size: 20px; }
+    .header .stats { gap: 16px; }
+    .summary-right { display: none; }
+    .container { padding: 12px 8px 32px; }
+    pre { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======== HEADER ======== -->
+<div class="header">
+  <h1>数二 + 408 · 7月第3-4周 · 在职18h/周</h1>
+  <p class="subtitle">中值定理/导数应用 · 不定积分 · 图 · 查找排序 · 数据结构收官</p>
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-num math">18h</div>
+      <div class="stat-label">数学二 · 总时长</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num ds">18h</div>
+      <div class="stat-label">408专业课 · 总时长</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#fbbf24">28</div>
+      <div class="stat-label">覆盖知识点</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#34d399">DS ✓</div>
+      <div class="stat-label">数据结构全部完成</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ================================================================ -->
+<!-- 第三周：数学二 - 中值定理与导数应用 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title math">
+    📐 第三周 · 数学二：中值定理与导数应用
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 1.1 三大中值定理 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">1.1</span> 三大中值定理</span>
+      <span class="summary-right"><span class="time-tag">约2h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">8-12分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">证明题核心战场</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 罗尔定理（基础款）</strong>
+        若 f(x) 满足：① 在 [a,b] 上<strong>连续</strong>；② 在 (a,b) 内<strong>可导</strong>；③ <strong>f(a)=f(b)</strong>，则至少存在一点 ξ∈(a,b)，使 <strong>f'(ξ)=0</strong>。<br>
+        <strong>几何意义：</strong>两端等高的连续光滑曲线，中间必有一处切线水平。
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 拉格朗日中值定理（最常用）</strong>
+        若 f(x) 在 [a,b] 连续、(a,b) 可导，则至少存在一点 ξ∈(a,b)，使
+        <div class="formula">f(b) − f(a) = f'(ξ)·(b − a)</div>
+        <strong>几何意义：</strong>曲线上必有一处切线斜率等于两端点连线的斜率。罗尔定理是其 f(a)=f(b) 的特例。
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 柯西中值定理（参数方程版）</strong>
+        若 f(x)、g(x) 在 [a,b] 连续、(a,b) 可导，且 <strong>g'(x)≠0</strong>，则至少存在一点 ξ，使
+        <div class="formula">[f(b) − f(a)] / [g(b) − g(a)] = f'(ξ) / g'(ξ)</div>
+        <strong>理解：</strong>把拉格朗日里的曲线换成参数方程 (g(t), f(t)) 就是柯西。三个定理是<strong>逐级推广</strong>：罗尔 ⊂ 拉格朗日 ⊂ 柯西。
+      </div>
+
+      <table>
+        <tr><th>定理</th><th>关键条件</th><th>结论</th><th>典型用法</th></tr>
+        <tr><td><strong>罗尔</strong></td><td>f(a)=f(b)</td><td>f'(ξ)=0</td><td>证方程有根 / f'(x) 零点存在</td></tr>
+        <tr><td><strong>拉格朗日</strong></td><td>仅连续+可导</td><td>f(b)−f(a)=f'(ξ)(b−a)</td><td>证不等式、估计差值</td></tr>
+        <tr><td><strong>柯西</strong></td><td>两个函数+g'≠0</td><td>两函数增量比=导数比</td><td>双中值问题（含两个 ξ）</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 选哪个定理？</strong>
+        ① 结论里只有<strong>一个 ξ</strong> 且出现 f'(ξ)：优先罗尔或拉格朗日；<br>
+        ② 结论是 <strong>f(b)−f(a) 与 (b−a) 的关系</strong>：拉格朗日；<br>
+        ③ 结论含<strong>两个函数的增量比</strong>或<strong>两个不同的 ξ</strong>：柯西，或两次拉格朗日。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 验证定理时不检查"连续+可导"就直接套（如分段函数分界点不可导，定理失效）；② 柯西定理忘记验证 g'(x)≠0，否则分母 g(b)−g(a) 可能为 0 无意义；③ 把 ξ 写成闭区间 [a,b] 内（必须是开区间 (a,b)）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.2 辅助函数构造 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">1.2</span> 辅助函数构造（大题难点）</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">6-10分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">证明题"卡人"的题</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心思路</strong>
+        要证"存在 ξ 使 <strong>F(ξ, f(ξ), f'(ξ))=0</strong>"，而定理直接套不上时，<strong>构造一个辅助函数 F(x)</strong>，使其满足罗尔定理条件，且 F'(x)=0 恰好等价于要证的等式。<strong>本质是逆向凑微分。</strong>
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 必背 6 个辅助函数套路（看到左式→构造右式）</div>
+        <table>
+          <tr><th>结论中出现的形式</th><th>构造辅助函数 F(x)</th><th>记忆逻辑</th></tr>
+          <tr><td>ξ·f'(ξ) + f(ξ)</td><td>F(x) = x·f(x)</td><td>(xf)' = f + xf'</td></tr>
+          <tr><td>ξ·f'(ξ) + n·f(ξ)</td><td>F(x) = xⁿ·f(x)</td><td>(xⁿf)' = nxⁿ⁻¹f + xⁿf'</td></tr>
+          <tr><td>f'(ξ) + f(ξ)</td><td>F(x) = eˣ·f(x)</td><td>(eˣf)' = eˣ(f+f')</td></tr>
+          <tr><td>f'(ξ) − f(ξ)</td><td>F(x) = e⁻ˣ·f(x)</td><td>(e⁻ˣf)' = e⁻ˣ(f'−f)</td></tr>
+          <tr><td>f'(ξ) + k·f(ξ)</td><td>F(x) = eᵏˣ·f(x)</td><td>(eᵏˣf)' = eᵏˣ(f'+kf)</td></tr>
+          <tr><td>f'(ξ)·g(ξ) − f(ξ)·g'(ξ)</td><td>F(x) = f(x)/g(x)</td><td>(f/g)' = (f'g−fg')/g²</td></tr>
+        </table>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：f 在 [0,1] 连续可导，f(0)=f(1)=0，证存在 ξ 使 f'(ξ)+f(ξ)=0</div>
+        <div class="step"><span class="step-num">1</span> 识别形式：f'(ξ)+f(ξ) → 查表构造 F(x)=eˣ·f(x)</div>
+        <div class="step"><span class="step-num">2</span> 验证罗尔条件：F 连续可导，F(0)=e⁰·f(0)=0，F(1)=e¹·f(1)=0，故 F(0)=F(1)</div>
+        <div class="step"><span class="step-num">3</span> 由罗尔定理：存在 ξ∈(0,1) 使 F'(ξ)=0，即 eξ(f'(ξ)+f(ξ))=0</div>
+        <div class="step"><span class="step-num">4</span> eξ≠0，故 <strong>f'(ξ)+f(ξ)=0</strong>，得证。</div>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 构造三步法</strong>
+        ① <strong>识别</strong>：把结论里的 ξ 换成 x，整理成 F(x, f, f')=0；<br>
+        ② <strong>凑微分</strong>：观察哪个函数求导后能产生这个式子（查上表）；<br>
+        ③ <strong>验证</strong>：检查 F 在端点的值是否相等（凑罗尔）或直接用拉格朗日。<br>
+        <strong>记不住表就记原理：</strong>f' 前面有什么因子，就把 e 的那个因子次方乘上去。
+      </div>
+
+      <div class="callout caution">
+        <strong>⚠️ 双中值问题</strong>
+        结论含<strong>两个不同的 ξ₁、ξ₂</strong>（如 f'(ξ₁)+f'(ξ₂)=k）：把区间 [a,b] <strong>分成两段</strong> [a,c] 和 [c,b]，各用一次拉格朗日/罗尔。c 的选取是关键，常取中点或由题目条件确定。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.3 单调性与极值 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">1.3</span> 单调性与极值</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">6-10分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">选择填空+大题常客</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 单调性判定</strong>
+        设 f 可导：① f'(x)>0 ⇒ f 单调<strong>增</strong>；② f'(x)&lt;0 ⇒ f 单调<strong>减</strong>。<br>
+        <strong>注意：</strong>单调增的区间允许个别点 f'(x)=0（如 y=x³ 在 x=0），只要 f'(x) 不变号即可。
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 极值 - 两个充分条件</strong>
+        <strong>必要条件：</strong>若 f 在 x₀ 可导且取极值，则 <strong>f'(x₀)=0</strong>（称为<strong>驻点</strong>）。但驻点未必是极值点（如 x³ 在 0）。<br>
+        <strong>第一充分条件（看变号）：</strong>x₀ 处 f' 左正右负 ⇒ <strong>极大</strong>；左负右正 ⇒ <strong>极小</strong>；不变号 ⇒ 不是极值。<br>
+        <strong>第二充分条件（看二阶导）：</strong>f'(x₀)=0 且 f''(x₀)&lt;0 ⇒ <strong>极大</strong>；f''(x₀)>0 ⇒ <strong>极小</strong>；f''(x₀)=0 ⇒ 失效，改用第一充分条件。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 极值求法标准流程</strong>
+        ① 求一阶导 f'(x)；② 解 f'(x)=0 得<strong>驻点</strong>，并找出<strong>不可导点</strong>；③ 用第一或第二充分条件逐一判定；④ 不可导点（如 |x| 在 0）也可能是极值点，必须列入考察！
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：求 f(x)=x³−3x+1 的极值</div>
+        <div class="step"><span class="step-num">1</span> f'(x)=3x²−3=3(x+1)(x−1)，令 =0 得驻点 x=−1, x=1</div>
+        <div class="step"><span class="step-num">2</span> f''(x)=6x。f''(−1)=−6&lt;0 ⇒ x=−1 是<strong>极大值点</strong>，极大值 f(−1)=3</div>
+        <div class="step"><span class="step-num">3</span> f''(1)=6>0 ⇒ x=1 是<strong>极小值点</strong>，极小值 f(1)=−1</div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 把<strong>极值</strong>和<strong>最值</strong>混为一谈（极值是局部概念，最值是整体概念）；② 只找驻点忘记不可导点；③ f''(x₀)=0 时直接判"不是极值"（失效≠不是，要用第一充分条件复查）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.4 最值与应用问题 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.4</span> 最值与应用问题</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">应用大题</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 闭区间最值</strong>
+        f 在 [a,b] 上的最值只可能在<strong>三类点</strong>取得：① 驻点（f'=0）；② 不可导点；③ 端点 a、b。<br>
+        <strong>求法：</strong>把这三类点的函数值全部算出来，比大小，最大者为最大值，最小者为最小值。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 应用题建模四步</strong>
+        ① <strong>设变量</strong>：设自变量 x 和目标量 y；② <strong>建函数</strong>：把 y 写成 x 的函数（可能借助约束条件消元）；③ <strong>求驻点</strong>：求 y' 并令 =0（实际题唯一驻点通常就是最值点）；④ <strong>验证</strong>：用第二充分条件或实际问题意义确认最大/最小，并回答。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：做一无盖圆柱形铁罐，容积 V 固定，求用料最省的尺寸</div>
+        <div class="step"><span class="step-num">1</span> 设底半径 r、高 h。约束：V=πr²h ⇒ h=V/(πr²)</div>
+        <div class="step"><span class="step-num">2</span> 表面积 S=πr²（底）+2πrh（侧）=πr²+2V/r</div>
+        <div class="step"><span class="step-num">3</span> S'=2πr−2V/r²，令 =0 ⇒ r³=V/π ⇒ r=∛(V/π)</div>
+        <div class="step"><span class="step-num">4</span> S''=2π+4V/r³>0，故为极小值点，此时 h=r，即<strong>高=底半径</strong>时用料最省。</div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.5 凹凸性与拐点 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.5</span> 凹凸性与拐点</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 凹凸性判定（数二用二阶导）</strong>
+        设 f 二阶可导：① f''(x)>0 ⇒ 曲线<strong>凹</strong>（开口向上，∪）；② f''(x)&lt;0 ⇒ 曲线<strong>凸</strong>（开口向下，∩）。<br>
+        <strong>注意：</strong>不同教材"凹/凸"定义可能相反，408/数二以<strong>"f''>0 为凹"</strong>为准。
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 拐点</strong>
+        曲线<strong>凹凸性改变</strong>的点（连续曲线上的点）。<br>
+        <strong>必要条件：</strong>若 (x₀, f(x₀)) 是拐点且 f''(x₀) 存在，则 <strong>f''(x₀)=0</strong>。<br>
+        <strong>充分条件：</strong>f''(x₀)=0 且 f'' 在 x₀ 两侧<strong>变号</strong> ⇒ 拐点。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 极值点 vs 拐点对照</strong>
+        <table>
+          <tr><th></th><th>极值点</th><th>拐点</th></tr>
+          <tr><td>看几阶导</td><td>一阶导 f'</td><td>二阶导 f''</td></tr>
+          <tr><td>必要条件</td><td>f'(x₀)=0</td><td>f''(x₀)=0</td></tr>
+          <tr><td>充分条件</td><td>f' 变号</td><td>f'' 变号</td></tr>
+          <tr><td>几何</td><td>切线水平/尖点</td><td>凹凸翻转</td></tr>
+        </table>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 把拐点写成 x=x₀（拐点是<strong>点</strong>，必须写 (x₀, f(x₀)) 坐标对）；② f''(x₀)=0 就断定是拐点（必须验证变号，如 x⁴ 在 0 处 f''=0 但不是拐点）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.6 渐近线 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.6</span> 渐近线</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">三类渐近线全求</span>
+      </div>
+
+      <table>
+        <tr><th>类型</th><th>求法</th><th>关键点</th></tr>
+        <tr>
+          <td><strong>水平渐近线</strong></td>
+          <td>lim(x→∞) f(x)=A ⇒ y=A</td>
+          <td>x→+∞ 和 x→−∞ 都要算，可能两条不同</td>
+        </tr>
+        <tr>
+          <td><strong>铅直渐近线</strong></td>
+          <td>lim(x→x₀) f(x)=∞ ⇒ x=x₀</td>
+          <td>在<strong>无定义点/分母零点/区间端点</strong>处找，左右极限都要看</td>
+        </tr>
+        <tr>
+          <td><strong>斜渐近线</strong></td>
+          <td>k=lim(x→∞) f(x)/x，b=lim(x→∞)[f(x)−kx] ⇒ y=kx+b</td>
+          <td>k 存在且≠0、b 存在才有；有水平则无同侧斜</td>
+        </tr>
+      </table>
+
+      <div class="example">
+        <div class="example-title">例题：求 f(x)=x·ln(e+1/x) 的渐近线</div>
+        <div class="step"><span class="step-num">1</span> 铅直：x=0 是分母零点。lim(x→0⁺) x·ln(e+1/x)，令 t=1/x→+∞，=lim ln(e+t)/t = 0，不是∞，<strong>无铅直渐近线</strong></div>
+        <div class="step"><span class="step-num">2</span> 水平：lim(x→∞) x·ln(e+1/x)=lim x·(1/x)=1（等价 ln(1+t)~t），故 <strong>y=1</strong> 是水平渐近线</div>
+        <div class="step"><span class="step-num">3</span> 斜：已有水平渐近线，x→∞ 同侧<strong>不再有斜渐近线</strong>。</div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 只算 x→+∞ 忘记 x→−∞（左右水平渐近线可能不同）；② 铅直渐近线只在分母零点找，忽略 ln、arctan 等的边界；③ 有水平渐近线还硬求斜渐近线（同侧二者互斥）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.7 曲率与方程根 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.7</span> 曲率与方程求根</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-4分</span>
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 曲率公式（数二考纲要求）</div>
+        <div class="formula">K = |y''| / (1 + y'²)^(3/2)</div>
+        <strong>曲率半径：</strong>R = 1/K<br>
+        <strong>理解：</strong>曲线弯得越厉害 K 越大；直线 y''=0 故 K=0。
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 方程求根 - 两个工具</strong>
+        <strong>零点定理：</strong>f 在 [a,b] 连续，f(a)·f(b)&lt;0 ⇒ 至少存在一个根 ξ∈(a,b)。<br>
+        <strong>单调性+零点定理：</strong>证明<strong>唯一</strong>根：先用零点定理证存在，再用 f' 不变号（单调）证唯一。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 根的个数判定流程</strong>
+        ① 求 f'，确定单调区间；② 每个单调区间端点（含 ±∞）函数值变号 ⇒ 该区间恰一根；③ 不变号 ⇒ 无根。把各区间的根数相加。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.8 自测 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.8</span> 本周自测清单</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标：</span>
+        <span class="value green">证明题能写出完整辅助函数构造</span>
+      </div>
+      <table>
+        <tr><th>#</th><th>题目</th><th>涉及知识点</th></tr>
+        <tr><td>1</td><td>设 f 在 [0,1] 连续可导，f(0)=f(1)=0，证存在 ξ 使 f'(ξ)+2f(ξ)=0</td><td>辅助函数构造 F=e²ˣf</td></tr>
+        <tr><td>2</td><td>证：当 x>0 时，ln(1+x) < x</td><td>拉格朗日中值定理</td></tr>
+        <tr><td>3</td><td>求 f(x)=(x−1)·x^(2/3) 的极值</td><td>极值+不可导点</td></tr>
+        <tr><td>4</td><td>求 y=x⁴−2x³ 的凹凸区间与拐点</td><td>凹凸性+拐点</td></tr>
+        <tr><td>5</td><td>求 f(x)=x/(x²−1) 的所有渐近线</td><td>三类渐近线</td></tr>
+        <tr><td>6</td><td>求 y=x² 在点 (1,1) 处的曲率与曲率半径</td><td>曲率公式</td></tr>
+        <tr><td>7</td><td>讨论方程 ln x = ax（a>0）实根的个数</td><td>单调性+零点定理</td></tr>
+        <tr><td>8</td><td>将边长为 a 的正方形铁皮四角各截去小方块折成无盖盒，求容积最大</td><td>最值应用</td></tr>
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 第四周：数学二 - 不定积分 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title math">
+    📐 第四周 · 数学二：不定积分
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 2.1 概念与基本公式 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">2.1</span> 概念与22个基本公式</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">积分是微分方程/定积分的基础</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        若 F'(x)=f(x)，则称 F(x) 为 f(x) 的一个<strong>原函数</strong>。<strong>不定积分</strong> ∫f(x)dx = F(x)+C，其中 C 是任意常数。<br>
+        <strong>本质：</strong>求导的逆运算。<strong>切记 +C！</strong>考试漏写 C 扣分。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 两条线性性质</strong>
+        ① ∫[a·f(x) ± b·g(x)]dx = a·∫f(x)dx ± b·∫g(x)dx（系数可提、加减可拆）；<br>
+        ② (∫f(x)dx)' = f(x)；d(∫f(x)dx) = f(x)dx —— 积分与求导互逆。
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 22个基本积分公式（必须秒记，对照导数表反推）</div>
+        <table>
+          <tr><th>#</th><th>公式</th><th>#</th><th>公式</th></tr>
+          <tr><td>1</td><td>∫0 dx = C</td><td>12</td><td>∫csc x dx = −ln|csc x+cot x|+C</td></tr>
+          <tr><td>2</td><td>∫xᵘ dx = xᵘ⁺¹/(u+1)+C &nbsp;(u≠−1)</td><td>13</td><td>∫(1/x) dx = ln|x|+C</td></tr>
+          <tr><td>3</td><td>∫eˣ dx = eˣ+C</td><td>14</td><td>∫aˣ dx = aˣ/ln a+C</td></tr>
+          <tr><td>4</td><td>∫sin x dx = −cos x+C</td><td>15</td><td>∫cos x dx = sin x+C</td></tr>
+          <tr><td>5</td><td>∫sec²x dx = tan x+C</td><td>16</td><td>∫csc²x dx = −cot x+C</td></tr>
+          <tr><td>6</td><td>∫sec x·tan x dx = sec x+C</td><td>17</td><td>∫csc x·cot x dx = −csc x+C</td></tr>
+          <tr><td>7</td><td>∫1/(1+x²) dx = arctan x+C</td><td>18</td><td>∫1/√(1−x²) dx = arcsin x+C</td></tr>
+          <tr><td>8</td><td>∫1/(1−x²) dx = ½·ln|(1+x)/(1−x)|+C</td><td>19</td><td>∫1/√(x²±1) dx = ln|x+√(x²±1)|+C</td></tr>
+          <tr><td>9</td><td>∫1/√(a²−x²) dx = arcsin(x/a)+C</td><td>20</td><td>∫1/(a²+x²) dx = (1/a)·arctan(x/a)+C</td></tr>
+          <tr><td>10</td><td>∫tan x dx = −ln|cos x|+C</td><td>21</td><td>∫cot x dx = ln|sin x|+C</td></tr>
+          <tr><td>11</td><td>∫sec x dx = ln|sec x+tan x|+C</td><td>22</td><td>∫sh x dx = ch x+C &nbsp;（双曲了解）</td></tr>
+        </table>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 漏写 +C（最冤的扣分）；② x⁻¹ 套公式 2（u=−1 分母为零，应用公式13 ln|x|）；③ 把 ∫sin x dx 记成 cos x+C（差一个负号，应为 −cos x）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.2 第一类换元法 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">2.2</span> 第一类换元法（凑微分）</span>
+      <span class="summary-right"><span class="time-tag">约2h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">8-12分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">最高频积分法</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心思想</strong>
+        ∫f(φ(x))·φ'(x)dx，令 u=φ(x)，则 du=φ'(x)dx，原式 = ∫f(u)du = F(u)+C = F(φ(x))+C。<br>
+        <strong>口诀："凑微分"——把 φ'(x)dx 凑成 d(φ(x))，整体换元。</strong>
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 8个常见凑微分模式（看到->这样凑）</div>
+        <table>
+          <tr><th>被积式中出现</th><th>凑成</th><th>典型例子</th></tr>
+          <tr><td>f(ax+b)</td><td>a·dx = d(ax+b)</td><td>∫e^(2x+1)dx = ½e^(2x+1)+C</td></tr>
+          <tr><td>x·f(x²)dx</td><td>x dx = ½d(x²)</td><td>∫x·cos(x²)dx = ½sin(x²)+C</td></tr>
+          <tr><td>(1/x)·f(ln x)dx</td><td>(1/x)dx = d(ln x)</td><td>∫(ln x)²/x dx = (ln x)³/3+C</td></tr>
+          <tr><td>(1/√x)·f(√x)dx</td><td>(1/√x)dx = 2d(√x)</td><td>∫e^√x/√x dx = 2e^√x+C</td></tr>
+          <tr><td>eˣ·f(eˣ)dx</td><td>eˣdx = d(eˣ)</td><td>∫eˣ/(1+eˣ)dx = ln(1+eˣ)+C</td></tr>
+          <tr><td>cos x·f(sin x)dx</td><td>cos x dx = d(sin x)</td><td>∫cos³x·sin x dx = −cos⁴x/4+C</td></tr>
+          <tr><td>1/(1+x²)·f(arctan x)dx</td><td>=d(arctan x)</td><td>∫e^(arctan x)/(1+x²)dx</td></tr>
+          <tr><td>1/√(1−x²)·f(arcsin x)dx</td><td>=d(arcsin x)</td><td>类似上</td></tr>
+        </table>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题1：∫(2x+1)/(x²+x+1) dx</div>
+        <div class="step"><span class="step-num">1</span> 识别：分子 2x+1 恰是分母 x²+x+1 的导数，凑微分</div>
+        <div class="step"><span class="step-num">2</span> 原式 = ∫d(x²+x+1)/(x²+x+1) = <strong>ln|x²+x+1|+C</strong></div>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题2：∫sin³x dx</div>
+        <div class="step"><span class="step-num">1</span> 拆出 sin x dx 凑成 −d(cos x)：原式=∫sin²x·sin x dx = −∫(1−cos²x)d(cos x)</div>
+        <div class="step"><span class="step-num">2</span> 令 u=cos x：= −∫(1−u²)du = −u + u³/3 + C</div>
+        <div class="step"><span class="step-num">3</span> 回代 = <strong>−cos x + cos³x/3 + C</strong></div>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 凑微分三问</strong>
+        看到积分先问自己三句：① 分子是不是分母的导数？② 有没有 x·dx 能凑 x²？③ 有没有三角函数能凑 sin/cos？命中任何一个，直接换元。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.3 第二类换元法 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.3</span> 第二类换元法（三角换元）</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">含根号的积分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心思想</strong>
+        被积函数含<strong>根号</strong>且凑微分无效时，令 x=φ(t) 消去根号，化简后再积分。<strong>与第一类相反：这里是主动设新变量替换 x。</strong>
+      </div>
+
+      <table>
+        <tr><th>根号形式</th><th>换元</th><th>消根依据</th><th>定义域</th></tr>
+        <tr><td>√(a²−x²)</td><td>x = a·sin t</td><td>1−sin²t = cos²t</td><td>t∈(−π/2, π/2)</td></tr>
+        <tr><td>√(a²+x²)</td><td>x = a·tan t</td><td>1+tan²t = sec²t</td><td>t∈(−π/2, π/2)</td></tr>
+        <tr><td>√(x²−a²)</td><td>x = a·sec t</td><td>sec²t−1 = tan²t</td><td>t∈(0, π/2)</td></tr>
+      </table>
+
+      <div class="example">
+        <div class="example-title">例题：∫√(1−x²) dx</div>
+        <div class="step"><span class="step-num">1</span> 令 x=sin t，dx=cos t dt，√(1−x²)=cos t</div>
+        <div class="step"><span class="step-num">2</span> 原式=∫cos t·cos t dt = ∫cos²t dt = ∫(1+cos2t)/2 dt = t/2 + sin2t/4 + C</div>
+        <div class="step"><span class="step-num">3</span> 回代：t=arcsin x，sin2t=2sin t·cos t=2x√(1−x²)</div>
+        <div class="step"><span class="step-num">4</span> = <strong>½·arcsin x + ½·x·√(1−x²) + C</strong></div>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 回代技巧</strong>
+        三角换元回代时画一个<strong>直角三角形</strong>，标出对边=x、斜边=a（或邻边），直接读出其它三角函数值，避免记不住辅助角公式。这是必练动作。
+      </div>
+
+      <div class="callout caution">
+        <strong>⚠️ 倒代换（补充）</strong>
+        分母次数比分子高很多时（如 ∫dx/(x⁴·√(1+x²))），令 x=1/t 可降次化简。这是第二类换元的补充手段，不常用但要认识。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.4 分部积分法 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">2.4</span> 分部积分法（反对幂三指）</span>
+      <span class="summary-right"><span class="time-tag">约2h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">8-12分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">两大积分法之一</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心公式</strong>
+        <div class="formula">∫u dv = u·v − ∫v du</div>
+        <strong>思想：</strong>把被积函数拆成 u 和 dv 两部分，对 dv 积分得 v，把"求 ∫u dv"转化为"求 ∫v du"。适用于<strong>两类不同函数乘积</strong>的积分。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - "反对幂三指"选 u 口诀</strong>
+        按<strong>反三角函数 > 对数函数 > 幂函数 > 三角函数 > 指数函数</strong>的优先级选 u（排在前面的当 u，排在后面的连同 dx 当 dv）。<br>
+        <strong>原理：</strong>排前面的求导变简单（ln→1/x，arctan→有理式），排后面的积分不变难（sin→−cos，eˣ→eˣ）。选错 u 会越积越复杂！
+      </div>
+
+      <table>
+        <tr><th>被积函数类型</th><th>选 u</th><th>选 dv</th><th>示例</th></tr>
+        <tr><td>幂 × 指数（xⁿ·eˣ）</td><td>xⁿ</td><td>eˣ dx</td><td>∫x·eˣ dx</td></tr>
+        <tr><td>幂 × 三角（xⁿ·sin x）</td><td>xⁿ</td><td>sin x dx</td><td>∫x²·cos x dx</td></tr>
+        <tr><td>幂 × 对数（xⁿ·ln x）</td><td>ln x</td><td>xⁿ dx</td><td>∫x·ln x dx</td></tr>
+        <tr><td>幂 × 反三角（xⁿ·arctan x）</td><td>arctan x</td><td>xⁿ dx</td><td>∫arctan x dx</td></tr>
+        <tr><td>指数 × 三角（eˣ·sin x）</td><td>任选</td><td>另一</td><td>∫eˣ·sin x dx（循环两次）</td></tr>
+      </table>
+
+      <div class="example">
+        <div class="example-title">例题1：∫x·eˣ dx</div>
+        <div class="step"><span class="step-num">1</span> 幂<指数，选 u=x，dv=eˣdx ⇒ v=eˣ</div>
+        <div class="step"><span class="step-num">2</span> = x·eˣ − ∫eˣ·1 dx = x·eˣ − eˣ + C = <strong>eˣ(x−1)+C</strong></div>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题2：∫eˣ·sin x dx（循环型）</div>
+        <div class="step"><span class="step-num">1</span> 选 u=sin x，dv=eˣdx：原式 = eˣ·sin x − ∫eˣ·cos x dx</div>
+        <div class="step"><span class="step-num">2</span> 对 ∫eˣ·cos x dx 再分部：u=cos x，= eˣ·cos x + ∫eˣ·sin x dx</div>
+        <div class="step"><span class="step-num">3</span> 回代：原式 = eˣ·sin x − eˣ·cos x − ∫eˣ·sin x dx</div>
+        <div class="step"><span class="step-num">4</span> 右边又出现原式，移项：2·原式 = eˣ(sin x − cos x)，故原式 = <strong>½·eˣ(sin x − cos x)+C</strong></div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① u、dv 选反方向（如 ∫x·eˣ dx 选 u=eˣ），导致幂次升高越积越繁；② 忘记回代或循环型忘记移项除以 2；③ 连续分部时符号出错（每次分部前面是减号）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.5 有理函数积分 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.5</span> 有理函数与三角有理式</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 有理函数积分 - 部分分式分解</strong>
+        有理函数 P(x)/Q(x)：① 若分子次数≥分母，先<strong>多项式除法</strong>化为真分式+多项式；② 真分式按分母因式类型拆成<strong>部分分式</strong>再分别积分。
+      </div>
+
+      <table>
+        <tr><th>分母因式</th><th>部分分式拆法</th><th>积分结果类型</th></tr>
+        <tr><td>(x−a)</td><td>A/(x−a)</td><td>A·ln|x−a|</td></tr>
+        <tr><td>(x−a)ᵏ</td><td>A₁/(x−a)+...+Aₖ/(x−a)ᵏ</td><td>对数 + 分式</td></tr>
+        <tr><td>(x²+bx+c) 不可约</td><td>(Mx+N)/(x²+bx+c)</td><td>arctan + ln</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 三角有理式 - 万能公式</strong>
+        ∫R(sin x, cos x) dx，若常规换元无效，用<strong>万能代换</strong> t=tan(x/2)：<br>
+        sin x = 2t/(1+t²)，cos x = (1−t²)/(1+t²)，dx = 2dt/(1+t²)。<br>
+        万能但繁琐，<strong>能凑微分就别用万能公式</strong>。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 假分式（分子≥分母次数）直接拆部分分式，必须先除法化为"多项式+真分式"；② 不可约二次因式（如 x²+1）对应部分分式分子写成常数 A 而非一次式 (Mx+N)；③ 万能公式记错 sin/cos 的 t 表达。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.6 自测 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.6</span> 本周自测清单</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标：</span>
+        <span class="value green">每天5道积分题，方法选对率>80%</span>
+      </div>
+      <table>
+        <tr><th>#</th><th>题目</th><th>方法</th></tr>
+        <tr><td>1</td><td>∫x·e^(−x²) dx</td><td>凑微分</td></tr>
+        <tr><td>2</td><td>∫(ln x)² dx</td><td>分部（u=ln²x）</td></tr>
+        <tr><td>3</td><td>∫dx/√(4−x²)</td><td>基本公式/trig换元</td></tr>
+        <tr><td>4</td><td>∫x²/(1+x²) dx</td><td>拆项：x²/(1+x²)=1−1/(1+x²)</td></tr>
+        <tr><td>5</td><td>∫x·cos 2x dx</td><td>分部（u=x）</td></tr>
+        <tr><td>6</td><td>∫eˣ·cos x dx</td><td>分部循环</td></tr>
+        <tr><td>7</td><td>∫dx/(x²−2x−3)</td><td>部分分式</td></tr>
+        <tr><td>8</td><td>∫√(1+x²) dx</td><td>三角换元 x=tan t</td></tr>
+        <tr><td>9</td><td>∫arcsin x dx</td><td>分部（u=arcsin x）</td></tr>
+        <tr><td>10</td><td>∫dx/(sin x·cos x)</td><td>凑微分/万能公式</td></tr>
+      </table>
+      <div class="callout tip" style="margin-top:12px;">
+        <strong>💡 选方法决策树</strong>
+        ① 含根号 √(a²±x²) -> 三角换元；② 两类函数乘积 -> 分部（反对幂三指）；③ 分子是分母导数 -> 凑微分；④ 真分式分母可因式分解 -> 部分分式；⑤ 都不像 -> 试凑微分或万能公式。
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 第三周：数据结构 - 图 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title ds">
+    💻 第三周 · 数据结构：图
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 3.1 图的基本概念 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.1</span> 图的基本概念</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">概念选择填空</span>
+      </div>
+
+      <table>
+        <tr><th>概念</th><th>定义/性质</th></tr>
+        <tr><td><strong>完全图</strong></td><td>无向：任意两点连边，边数 = n(n−1)/2；有向：任意两点双向连，弧数 = n(n−1)</td></tr>
+        <tr><td><strong>度</strong></td><td>无向图：所有顶点度数之和 = 2e；有向图：入度和 = 出度和 = e</td></tr>
+        <tr><td><strong>连通/强连通</strong></td><td>无向图两顶点有路径则连通；有向图两顶点<strong>相互</strong>可达则强连通</td></tr>
+        <tr><td><strong>子图/生成子图</strong></td><td>生成子图：包含所有顶点，边是子集</td></tr>
+        <tr><td><strong>连通分量</strong></td><td>无向图的极大连通子图</td></tr>
+        <tr><td><strong>生成树</strong></td><td>连通图的极小连通生成子图：n 个顶点、n−1 条边</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 边数与度的关系</strong>
+        <strong>无向图：</strong>∑度数 = 2e（每条边贡献两次度）。<br>
+        <strong>有向图：</strong>∑出度 = ∑入度 = e。<br>
+        <strong>奇点必成对：</strong>无向图中度数为奇数的顶点个数一定是<strong>偶数</strong>（欧拉回路基础）。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 有向完全图边数记成 n(n−1)/2（应乘 2，因双向）；② 强连通和连通混淆（强连通要求双向可达，单向不算）；③ 生成树边数记成 n（应为 n−1）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.2 图的存储 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.2</span> 图的存储结构</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <table>
+        <tr><th>存储方式</th><th>空间</th><th>适用</th><th>求度</th></tr>
+        <tr><td><strong>邻接矩阵</strong></td><td>O(V²)</td><td>稠密图</td><td>无向：行和；有向：行和=出度，列和=入度</td></tr>
+        <tr><td><strong>邻接表</strong></td><td>O(V+E)</td><td>稀疏图</td><td>无向：链表长度；有向：出度好求，入度需遍历/逆邻接表</td></tr>
+        <tr><td><strong>十字链表</strong></td><td>O(V+E)</td><td>有向图专用</td><td>同时方便求入度出度</td></tr>
+        <tr><td><strong>邻接多重表</strong></td><td>O(V+E)</td><td>无向图专用</td><td>每条边只存一次，方便边的操作</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 矩阵的快速判断</strong>
+        <strong>无向图邻接矩阵是对称的</strong>（A[i][j]=A[j][i]）；有向图一般不对称。<br>
+        邻接矩阵 A 的 Aᵏ[i][j] 表示顶点 i 到 j 长度为 k 的路径条数（矩阵幂的含义）。
+      </div>
+
+<pre>
+<span class="cm">/* 邻接矩阵存储结构 - 必会 */</span>
+<span class="kw">typedef</span> <span class="kw">struct</span> {
+    <span class="kw">char</span> Vex[MaxVex];            <span class="cm">// 顶点表</span>
+    <span class="kw">int</span> Edge[MaxVex][MaxVex];    <span class="cm">// 邻接矩阵（0/1 或权值）</span>
+    <span class="kw">int</span> vexNum, edgeNum;
+} MGraph;
+
+<span class="cm">/* 邻接表存储结构 - 必会 */</span>
+<span class="kw">typedef</span> <span class="kw">struct</span> ArcNode {           <span class="cm">// 边表节点</span>
+    <span class="kw">int</span> adjvex;                   <span class="cm">// 邻接点编号</span>
+    <span class="kw">struct</span> ArcNode *nextarc;
+    <span class="kw">int</span> weight;                  <span class="cm">// 权值（可选）</span>
+} ArcNode;
+<span class="kw">typedef</span> <span class="kw">struct</span> VNode {             <span class="cm">// 顶点表节点</span>
+    <span class="kw">char</span> data;
+    ArcNode *firstarc;
+} VNode, AdjList[MaxVex];
+<span class="kw">typedef</span> <span class="kw">struct</span> {
+    AdjList vertices;
+    <span class="kw">int</span> vexNum, edgeNum;
+} ALGraph;</pre>
+    </div>
+  </details>
+
+  <!-- 3.3 图的遍历 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.3</span> 图的遍历 BFS / DFS</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">代码+手算模拟</span>
+      </div>
+
+      <table>
+        <tr><th></th><th>BFS（广度优先）</th><th>DFS（深度优先）</th></tr>
+        <tr><td>数据结构</td><td><strong>队列</strong></td><td><strong>栈</strong>（或递归）</td></tr>
+        <tr><td>访问顺序</td><td>层序扩散，先近后远</td><td>一条路走到底再回退</td></tr>
+        <tr><td>邻接矩阵复杂度</td><td>O(V²)</td><td>O(V²)</td></tr>
+        <tr><td>邻接表复杂度</td><td>O(V+E)</td><td>O(V+E)</td></tr>
+        <tr><td>生成树</td><td>广度优先生成树</td><td>深度优先生成树</td></tr>
+        <tr><td>应用</td><td>无权图最短路径、连通性</td><td>连通性、拓扑排序、判环</td></tr>
+      </table>
+
+<pre>
+<span class="cm">/* BFS - 必手写！队列实现 */</span>
+<span class="kw">int</span> <span class="fn">visited</span>[MaxVex];
+<span class="kw">void</span> <span class="fn">BFS</span>(ALGraph G, <span class="kw">int</span> v) {
+    <span class="kw">int</span> queue[MaxVex], front = <span class="num">0</span>, rear = <span class="num">0</span>;
+    <span class="fn">visit</span>(v); visited[v] = <span class="num">1</span>;
+    queue[rear++] = v;                       <span class="cm">// 起点入队</span>
+    <span class="kw">while</span> (front != rear) {
+        <span class="kw">int</span> u = queue[front++];            <span class="cm">// 出队</span>
+        <span class="kw">for</span> (ArcNode *p = G.vertices[u].firstarc; p; p = p-&gt;nextarc) {
+            <span class="kw">int</span> w = p-&gt;adjvex;
+            <span class="kw">if</span> (!visited[w]) {
+                <span class="fn">visit</span>(w); visited[w] = <span class="num">1</span>;
+                queue[rear++] = w;         <span class="cm">// 未访问邻接点入队</span>
+            }
+        }
+    }
+}
+
+<span class="cm">/* DFS - 必手写！递归实现 */</span>
+<span class="kw">void</span> <span class="fn">DFS</span>(ALGraph G, <span class="kw">int</span> v) {
+    <span class="fn">visit</span>(v); visited[v] = <span class="num">1</span>;
+    <span class="kw">for</span> (ArcNode *p = G.vertices[v].firstarc; p; p = p-&gt;nextarc) {
+        <span class="kw">int</span> w = p-&gt;adjvex;
+        <span class="kw">if</span> (!visited[w])
+            <span class="fn">DFS</span>(G, w);                  <span class="cm">// 递归深入</span>
+    }
+}</pre>
+
+      <div class="callout caution">
+        <strong>⚠️ 手写注意</strong>
+        BFS 中"访问+标记+入队"必须<strong>同时进行</strong>，不能先入队后访问，否则同一顶点会重复入队。DFS 递归版注意 visited 标记在 visit 之后立即置位。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 性能对比记忆</strong>
+        邻接矩阵遍历要扫整行（V 个），共 V 个顶点 ⇒ O(V²)；邻接表每条边访问一次、每个顶点访问一次 ⇒ O(V+E)。<strong>稀疏图必用邻接表</strong>。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.4 最小生成树 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.4</span> 最小生成树 Prim / Kruskal</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">手算必考</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 最小生成树（MST）</strong>
+        连通无向图中，边权之和最小的生成树。含 n 个顶点、n−1 条边。
+      </div>
+
+      <table>
+        <tr><th></th><th>Prim（普里姆）</th><th>Kruskal（克鲁斯卡尔）</th></tr>
+        <tr><td>策略</td><td>从某点出发，每次选连接<strong>已选集合</strong>与未选集合的<strong>最小权边</strong></td><td>所有边按权排序，依次选<strong>不成环</strong>的最小边</td></tr>
+        <tr><td>数据结构</td><td>lowCost 数组</td><td>并查集判环</td></tr>
+        <tr><td>时间复杂度</td><td>O(V²)</td><td>O(E·logE)</td></tr>
+        <tr><td>适用</td><td>稠密图</td><td>稀疏图</td></tr>
+        <tr><td>结果</td><td>两种算法MST权值相同（但边集合可能不同）</td><td>同左</td></tr>
+      </table>
+
+      <div class="example">
+        <div class="example-title">例题：Prim 手算步骤（从 V0 开始）</div>
+        <div class="step"><span class="step-num">1</span> U={V0}，候选边：V0 连出的所有边，选最小权边 (V0,Vi) 加入</div>
+        <div class="step"><span class="step-num">2</span> U={V0,Vi}，更新候选边：新顶点 Vi 连向 U 外顶点的边，与原候选取较小者</div>
+        <div class="step"><span class="step-num">3</span> 重复选最小、加入、更新，直到 U 含全部顶点（共选 n−1 条边）</div>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - Kruskal 判环</strong>
+        Kruskal 每次加边前判断：边的两端点是否<strong>已在同一集合</strong>（用并查集 find）。若已连通则加此边成环，跳过；否则合并两集合并加入。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① Prim 每次只选一条边，不是把所有候选边都加；② Kruskal 忘记判环导致成环；③ 认为两算法 MST 边集合必然相同（权值和相同，但边可能不同，当有等权边时）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.5 最短路径 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.5</span> 最短路径 Dijkstra / Floyd</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">6-10分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">Dijkstra手算表格</span>
+      </div>
+
+      <table>
+        <tr><th></th><th>Dijkstra（迪杰斯特拉）</th><th>Floyd（弗洛伊德）</th></tr>
+        <tr><td>求解</td><td><strong>单源</strong>最短路径</td><td><strong>所有顶点对</strong>最短路径</td></tr>
+        <tr><td>策略</td><td>贪心：每次选距离源点最近的未确定顶点</td><td>动态规划：以每个顶点做中转尝试松弛</td></tr>
+        <tr><td>限制</td><td><strong>不能有负权边</strong></td><td>可有负权，但不能有负权回路</td></tr>
+        <tr><td>复杂度</td><td>O(V²)</td><td>O(V³)</td></tr>
+      </table>
+
+      <div class="callout definition">
+        <strong>📘 Dijkstra 手算流程（每步记表格！）</strong>
+        ① 初始化：dist[源]=0，其余=∞，所有点未确定；<br>
+        ② 选 dist 最小的<strong>未确定</strong>顶点 u，标记为已确定；<br>
+        ③ 用 u 的出边<strong>松弛</strong>邻居：dist[w] = min(dist[w], dist[u]+边权)；<br>
+        ④ 重复②③，直到所有顶点确定（共 V 轮）。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：Dijkstra 表格法（5顶点图）</div>
+        <table>
+          <tr><th>轮次</th><th>选定顶点</th><th>dist[V1]</th><th>dist[V2]</th><th>dist[V3]</th><th>dist[V4]</th></tr>
+          <tr><td>初始</td><td>V0</td><td>10</td><td>∞</td><td>30</td><td>100</td></tr>
+          <tr><td>1</td><td>V1(10)</td><td>10✓</td><td>10+50=60</td><td>30</td><td>100</td></tr>
+          <tr><td>2</td><td>V3(30)</td><td>-</td><td>60</td><td>30✓</td><td>min(100,30+60)=90</td></tr>
+          <tr><td>3</td><td>V2(60)</td><td>-</td><td>60✓</td><td>-</td><td>min(90,60+10)=70</td></tr>
+          <tr><td>4</td><td>V4(70)</td><td>-</td><td>-</td><td>-</td><td>70✓</td></tr>
+        </table>
+        <strong>结果：</strong>V0→V1:10, V0→V3:30, V0→V2:60, V0→V4:70
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 Floyd 核心三重循环</strong>
+        for k: for i: for j: dist[i][j] = min(dist[i][j], dist[i][k]+dist[k][j])<br>
+        <strong>k 必须在最外层</strong>--表示"允许经过顶点 0..k 做中转"时的最短路径。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① Dijkstra 用于含负权的图（贪心策略失效，得错误结果）；② Dijkstra 已确定顶点重复松弛（已确定的不再更新）；③ Floyd 循环顺序写错（k 放内层会出错）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.6 拓扑排序 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.6</span> 拓扑排序（AOV网）</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 AOV网与拓扑排序</strong>
+        <strong>AOV网：</strong>用顶点表示活动、边表示活动先后关系的有向无环图（DAG）。<br>
+        <strong>拓扑排序：</strong>把 AOV 网的顶点排成线性序列，使所有有向边 u→v 中 u 排在 v 前。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 拓扑排序算法步骤</strong>
+        ① 选一个<strong>入度为0</strong>的顶点输出；<br>
+        ② 删除该顶点及其所有出边（即后继顶点入度−1）；<br>
+        ③ 重复①②直到全部输出（成功）或无入度为0顶点但有剩余（<strong>存在环</strong>，失败）。<br>
+        <strong>应用：</strong>拓扑排序能检测有向图是否有环--若输出顶点数 &lt; 总顶点数，则有环。
+      </div>
+
+<pre>
+<span class="cm">/* 拓扑排序 - 必手写！入度数组+队列/栈 */</span>
+<span class="kw">int</span> <span class="fn">inDegree</span>[MaxVex];
+<span class="kw">int</span> *<span class="fn">TopologicalSort</span>(ALGraph G) {
+    <span class="kw">int</span> stack[MaxVex], top = <span class="num">-1</span>, count = <span class="num">0</span>;
+    <span class="kw">static</span> <span class="kw">int</span> result[MaxVex];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; G.vexNum; i++)
+        <span class="kw">if</span> (inDegree[i] == <span class="num">0</span>) stack[++top] = i;   <span class="cm">// 入度为0入栈</span>
+    <span class="kw">while</span> (top != <span class="num">-1</span>) {
+        <span class="kw">int</span> u = stack[top--];
+        result[count++] = u;                       <span class="cm">// 输出</span>
+        <span class="kw">for</span> (ArcNode *p = G.vertices[u].firstarc; p; p = p-&gt;nextarc) {
+            <span class="kw">int</span> w = p-&gt;adjvex;
+            <span class="kw">if</span> (--inDegree[w] == <span class="num">0</span>) stack[++top] = w;  <span class="cm">// 入度减到0入栈</span>
+        }
+    }
+    <span class="kw">if</span> (count &lt; G.vexNum) <span class="kw">return</span> NULL;       <span class="cm">// 有环</span>
+    <span class="kw">return</span> result;
+}</pre>
+
+      <div class="callout caution">
+        <strong>⚠️ 拓扑排序不唯一</strong>
+        当多个顶点入度同时为0时，输出顺序不唯一。选择题常考"以下哪个不是合法拓扑序列"。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.7 关键路径 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.7</span> 关键路径（AOE网）</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 AOE网</strong>
+        用<strong>顶点表示事件</strong>、<strong>边表示活动</strong>（带权=活动耗时）的有向无环图。通常一个源点（入度0）、一个汇点（出度0）。<br>
+        <strong>关键路径：</strong>从源点到汇点<strong>路径长度最长</strong>的路径，决定工程最短工期。
+      </div>
+
+      <table>
+        <tr><th>量</th><th>含义</th><th>求法</th></tr>
+        <tr><td>ve(j) 事件最早发生</td><td>到该事件最晚也得等的时间</td><td>拓扑正向：ve(j)=max(ve(i)+d(i,j))</td></tr>
+        <tr><td>vl(i) 事件最迟发生</td><td>不延误工期的最晚发生</td><td>逆拓扑：vl(i)=min(vl(j)−d(i,j))</td></tr>
+        <tr><td>e(k) 活动最早开始</td><td>活动弧尾事件的 ve</td><td>e(k)=ve(弧尾)</td></tr>
+        <tr><td>l(k) 活动最迟开始</td><td>不延误工期的最晚开始</td><td>l(k)=vl(弧头)−d(k)</td></tr>
+        <tr><td>关键活动</td><td>l(k)=e(k) 的活动</td><td>时间余量 l−e=0</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 关键路径四步</strong>
+        ① 拓扑排序求各事件 ve（正向取 max）；② 逆拓扑求 vl（逆向取 min）；③ 求各活动 e、l；④ <strong>l=e 的活动是关键活动</strong>，连起来即关键路径。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 混淆 AOV（顶点=活动）和 AOE（边=活动）；② 关键路径唯一性（可能有多条，缩短工期要缩短所有关键路径上的活动才有意义）；③ 缩短一个关键活动就以为能缩短总工期（需缩短所有关键路径共有的活动）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.8 代码手写清单 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.8</span> 本周代码手写清单</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="callout tip">
+        <strong>💡 5道必手写题（白纸手写，每道写3遍）</strong>
+      </div>
+      <table>
+        <tr><th>#</th><th>题目</th><th>核心考察点</th><th>自检标准</th></tr>
+        <tr><td>1</td><td>邻接表 DFS（递归版）</td><td>visited 标记、递归终止</td><td>3分钟无错写出</td></tr>
+        <tr><td>2</td><td>邻接表 BFS（队列版）</td><td>访问+标记+入队同步</td><td>队列实现正确</td></tr>
+        <tr><td>3</td><td>拓扑排序（入度数组+栈）</td><td>入度维护、判环返回</td><td>count&lt;V 判环逻辑</td></tr>
+        <tr><td>4</td><td>Prim 最小生成树</td><td>lowCost 数组更新</td><td>选最小+松弛步骤</td></tr>
+        <tr><td>5</td><td>Dijkstra 单源最短路径</td><td>dist 数组、已确定标记</td><td>表格手算+代码对应</td></tr>
+      </table>
+      <div class="callout tip" style="margin-top:12px;">
+        <strong>💡 手算必练</strong>
+        Dijkstra 每步表格、Prim 每步候选边、Kruskal 并查集判环、拓扑排序每步入度变化、关键路径 ve/vl 双向计算--每种至少手模拟 2 道真题。
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 第四周：数据结构 - 查找 + 排序 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title ds">
+    💻 第四周 · 数据结构：查找 + 排序（数据结构收官）
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 4.1 顺序/折半查找 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.1</span> 顺序查找与折半查找</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">折半判定树必考</span>
+      </div>
+
+      <table>
+        <tr><th>方法</th><th>前提</th><th>ASL（成功）</th><th>复杂度</th></tr>
+        <tr><td>顺序查找</td><td>无</td><td>(n+1)/2</td><td>O(n)</td></tr>
+        <tr><td>折半查找</td><td><strong>顺序存储 + 有序</strong></td><td>≈ log₂(n+1)−1</td><td>O(log n)</td></tr>
+        <tr><td>分块查找</td><td>块间有序、块内无序</td><td>介于顺序与折半</td><td>O(√n) 量级</td></tr>
+      </table>
+
+      <div class="callout definition">
+        <strong>📘 折半查找判定树</strong>
+        折半查找的过程对应一棵<strong>判定树</strong>：中间元素为根，左半为左子树、右半为右子树。<br>
+        <strong>关键性质：</strong>判定树是<strong>平衡二叉树</strong>（但未必是满二叉树）；查找长度 = 该元素在树上的层数；ASL = 各层元素数 × 层数之和 / n。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：序列 {7,10,13,16,19,22,25} 折半查找判定树</div>
+        <div class="step"><span class="step-num">1</span> mid=16 为根，左子树{7,10,13}，右子树{19,22,25}</div>
+        <div class="step"><span class="step-num">2</span> 左子树 mid=10，再分{7}和{13}；右子树 mid=22，再分{19}和{25}</div>
+        <div class="step"><span class="step-num">3</span> 树形：第1层16，第2层10、22，第3层7、13、19、25</div>
+        <div class="step"><span class="step-num">4</span> ASL = (1×1 + 2×2 + 3×4)/7 = 17/7 ≈ 2.43</div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 折半查找用于<strong>链表</strong>（必须顺序存储，链表不支持随机访问）；② 折半判定树误认为一定是完全二叉树（是平衡的，但未必填满最后一层）；③ mid 计算用 (low+high)/2 与 low+(high−low)/2 在大数时可能有溢出差异（考试一般不考，了解即可）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.2 散列表 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.2</span> 散列表（Hash 表）</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">ASL手算必考</span>
+      </div>
+
+      <table>
+        <tr><th>冲突处理</th><th>方法</th><th>查找ASL特点</th></tr>
+        <tr><td><strong>线性探测法</strong></td><td>冲突后顺序往后找下一个空位 d=(H(k)+i)%m</td><td>会产生"聚集"，ASL较高</td></tr>
+        <tr><td><strong>平方探测法</strong></td><td>d=(H(k)+i²)%m，i=0,1,2,...</td><td>缓解聚集，但未必探查到所有位置</td></tr>
+        <tr><td><strong>链地址法</strong></td><td>同义词挂在同一链表</td><td>无聚集，ASL最低，适合频繁增删</td></tr>
+      </table>
+
+      <div class="callout definition">
+        <strong>📘 装填因子 α</strong>
+        α = 表中记录数 / 表长。α 越大冲突越频繁、ASL 越大。<strong>散列表查找效率主要取决于 α，而非表长或记录数本身。</strong>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：H(k)=k%11，线性探测，插入 {12,23,34,45,10,21}</div>
+        <div class="step"><span class="step-num">1</span> H(12)=1 -> 位置1：12</div>
+        <div class="step"><span class="step-num">2</span> H(23)=1 冲突 -> 探测位置2：23</div>
+        <div class="step"><span class="step-num">3</span> H(34)=1 冲突 -> 探测2冲突 -> 位置3：34</div>
+        <div class="step"><span class="step-num">4</span> H(45)=1 冲突 -> 探测2,3冲突 -> 位置4：45</div>
+        <div class="step"><span class="step-num">5</span> H(10)=10 -> 位置10：10</div>
+        <div class="step"><span class="step-num">6</span> H(21)=10 冲突 -> 探测位置0：21</div>
+        <div class="step"><span class="step-num">7</span> <strong>ASL成功</strong>=(1+2+3+4+1+2)/6=13/6≈2.17；<strong>ASL失败</strong>：每个散列地址探查到空为止的次数求和/11</div>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - ASL 两种计算</strong>
+        <strong>成功 ASL：</strong>每个已存元素的比较次数之和 / 元素数（注意冲突元素的比较次数含探查步数）。<br>
+        <strong>失败 ASL：</strong>对每个散列地址 H，从该地址探查到第一个空位置的次数，求和 / 表长。<strong>失败 ASL 分母是表长 m，不是元素数！</strong>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 失败 ASL 用元素数做分母（应表长 m）；② 线性探测遇到表尾忘记回绕到表头取模；③ 链地址法的 ASL 漏算空链表（空链表比较1次即判定失败）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.3 插入排序 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.3</span> 插入排序（直接/折半/希尔）</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <table>
+        <tr><th>算法</th><th>最好</th><th>最坏</th><th>平均</th><th>空间</th><th>稳定</th></tr>
+        <tr><td>直接插入</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>✓ 稳定</td></tr>
+        <tr><td>折半插入</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>✓ 稳定</td></tr>
+        <tr><td>希尔排序</td><td>-</td><td>-</td><td>约O(n^1.3)</td><td>O(1)</td><td>✗ 不稳定</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 - 直接插入 vs 折半插入</strong>
+        <strong>直接插入：</strong>边比较边后移，顺序找插入位置。<strong>折半插入：</strong>先用折半查找定插入位置（减少比较次数到 O(log n)），再一次性后移。<strong>两者移动次数相同</strong>（都要后移腾位），故时间复杂度仍 O(n²)，但折半版比较次数更少。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 认为折半插入时间复杂度是 O(n log n)（移动仍是 O(n²)，总仍 O(n²)）；② 希尔排序认为稳定（由于跨步长交换，相同元素相对顺序可能改变，<strong>不稳定</strong>）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.4 交换排序 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.4</span> 交换排序（冒泡 + 快排）</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">6-10分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">快排划分手算必考</span>
+      </div>
+
+      <table>
+        <tr><th>算法</th><th>最好</th><th>最坏</th><th>平均</th><th>空间</th><th>稳定</th></tr>
+        <tr><td>冒泡排序</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>✓ 稳定</td></tr>
+        <tr><td>快速排序</td><td>O(n log n)</td><td>O(n²)</td><td>O(n log n)</td><td>O(log n) 栈</td><td>✗ 不稳定</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 快排最坏情况</strong>
+        待排序列<strong>有序或逆序</strong>时，每次划分极度不平衡（一边空），退化为 O(n²)。平均 O(n log n) 是内排序中<strong>平均最快</strong>的之一。<strong>空间</strong>是递归栈深度：最好 O(log n)，最坏 O(n)。
+      </div>
+
+<pre>
+<span class="cm">/* 快排划分 - 必手写！Hoare或挖坑法 */</span>
+<span class="kw">int</span> <span class="fn">Partition</span>(<span class="kw">int</span> A[], <span class="kw">int</span> low, <span class="kw">int</span> high) {
+    <span class="kw">int</span> pivot = A[low];                  <span class="cm">// 取第一个为枢轴</span>
+    <span class="kw">while</span> (low &lt; high) {
+        <span class="kw">while</span> (low &lt; high && A[high] &gt;= pivot) high--;
+        A[low] = A[high];                <span class="cm">// 比枢轴小的移到左边</span>
+        <span class="kw">while</span> (low &lt; high && A[low] &lt;= pivot) low++;
+        A[high] = A[low];                <span class="cm">// 比枢轴大的移到右边</span>
+    }
+    A[low] = pivot;                      <span class="cm">// 枢轴归位</span>
+    <span class="kw">return</span> low;                        <span class="cm">// 返回枢轴位置</span>
+}
+<span class="kw">void</span> <span class="fn">QuickSort</span>(<span class="kw">int</span> A[], <span class="kw">int</span> low, <span class="kw">int</span> high) {
+    <span class="kw">if</span> (low &lt; high) {
+        <span class="kw">int</span> pos = <span class="fn">Partition</span>(A, low, high);
+        <span class="fn">QuickSort</span>(A, low, pos - <span class="num">1</span>);
+        <span class="fn">QuickSort</span>(A, pos + <span class="num">1</span>, high);
+    }
+}</pre>
+
+      <div class="callout caution">
+        <strong>⚠️ 快排划分手算</strong>
+        每轮选定枢轴，从两端交替扫描：先从右往左找比枢轴小的，再从左往右找比枢轴大的，交换/填坑，直到指针相遇，枢轴归位。<strong>左右指针交替移动的方向和时机是手算易错点</strong>。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.5 选择/归并/基数 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.5</span> 选择排序 + 归并 + 基数</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+      </div>
+
+      <table>
+        <tr><th>算法</th><th>最好/最坏/平均</th><th>空间</th><th>稳定</th><th>特点</th></tr>
+        <tr><td>简单选择</td><td>均为 O(n²)</td><td>O(1)</td><td>✗ 不稳定</td><td>比较次数固定，与初始顺序无关</td></tr>
+        <tr><td>堆排序</td><td>O(n log n)</td><td>O(1)</td><td>✗ 不稳定</td><td>建堆 O(n)，适合Top-K</td></tr>
+        <tr><td>归并排序</td><td>O(n log n)</td><td>O(n)</td><td>✓ 稳定</td><td>性能稳定，需额外空间</td></tr>
+        <tr><td>基数排序</td><td>O(d(n+r))</td><td>O(r)</td><td>✓ 稳定</td><td>不需比较，按位分配收集</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 堆排序考点</strong>
+        <strong>建堆：</strong>从最后一个非叶子节点（⌊n/2⌋）开始，从下往上逐个下沉调整，O(n)。<br>
+        <strong>排序：</strong>堆顶与末尾交换，堆大小−1，再下沉调整，重复 n−1 次。<br>
+        <strong>大根堆：</strong>根>左右孩子，用于<strong>升序</strong>；小根堆用于降序。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 归并排序</strong>
+        二路归并：把相邻有序子序列两两合并。递归拆分到单元素，再两两合并。<strong>时间恒为 O(n log n)</strong>（无最坏退化），但需要 O(n) 辅助空间。<strong>是稳定的</strong>。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 简单选择排序认为稳定（跨距离交换会破坏稳定性，<strong>不稳定</strong>）；② 堆排序建堆从根往下调（应从最后非叶子节点⌊n/2⌋往上）；③ 基数排序用于浮点数（只适用于关键字可按位分解的，如整数、字符串）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.6 八大排序比较 + 自测 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.6</span> 八大排序比较表 + 自测清单</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标：</span>
+        <span class="value green">比较表背到条件反射，周末1套408真题DS检验</span>
+      </div>
+
+      <table>
+        <tr><th>算法</th><th>平均</th><th>最好</th><th>最坏</th><th>空间</th><th>稳定</th></tr>
+        <tr><td>直接插入</td><td>O(n²)</td><td>O(n)</td><td>O(n²)</td><td>O(1)</td><td>✓</td></tr>
+        <tr><td>折半插入</td><td>O(n²)</td><td>O(n)</td><td>O(n²)</td><td>O(1)</td><td>✓</td></tr>
+        <tr><td>希尔排序</td><td>~O(n^1.3)</td><td>-</td><td>-</td><td>O(1)</td><td>✗</td></tr>
+        <tr><td>冒泡排序</td><td>O(n²)</td><td>O(n)</td><td>O(n²)</td><td>O(1)</td><td>✓</td></tr>
+        <tr><td>快速排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>✗</td></tr>
+        <tr><td>简单选择</td><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>✗</td></tr>
+        <tr><td>堆排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>✗</td></tr>
+        <tr><td>归并排序</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>✓</td></tr>
+        <tr><td>基数排序</td><td>O(d(n+r))</td><td>O(d(n+r))</td><td>O(d(n+r))</td><td>O(r)</td><td>✓</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 稳定性口诀</strong>
+        <strong>"插冒归基"</strong>稳定（直接插入、冒泡、归并、基数），其余（希尔、快排、简单选择、堆排）不稳定。<br>
+        <strong>"快选希堆"</strong>不稳定 -- 选堆希快（谐音"选些欢快"）。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 本周自测（周末1套408真题DS部分）</strong>
+      </div>
+      <table>
+        <tr><th>#</th><th>题目</th><th>考察点</th></tr>
+        <tr><td>1</td><td>给定7元素有序表，画折半查找判定树并求ASL</td><td>折半判定树</td></tr>
+        <tr><td>2</td><td>H(k)=k%13，线性探测，插入12元素，求成功/失败ASL</td><td>散列表ASL</td></tr>
+        <tr><td>3</td><td>对序列 {49,38,65,97,76,13,27,49} 手算快排第一趟划分结果</td><td>快排划分</td></tr>
+        <tr><td>4</td><td>对上序列建大根堆，画出初始堆</td><td>堆排序建堆</td></tr>
+        <tr><td>5</td><td>判断：折半插入排序的比较次数与初始序列有关吗？</td><td>排序比较次数</td></tr>
+        <tr><td>6</td><td>下列排序中哪些不稳定？快排/归并/堆排/冒泡</td><td>稳定性</td></tr>
+        <tr><td>7</td><td>手写快排 Partition 函数</td><td>代码手写</td></tr>
+        <tr><td>8</td><td>408真题DS部分1套（计时90分钟）</td><td>综合检验</td></tr>
+      </table>
+      <div class="task" style="color:var(--green-text);font-weight:700;margin-top:12px;background:var(--green-bg);padding:10px 16px;border-radius:6px;">数据结构全部完成 ✓ 7月底DS真题选择题目标65%+，大题能写出完整步骤即达标</div>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 两周学习检查点汇总 -->
+<!-- ================================================================ -->
+<div class="checkpoint">
+  <h2>📋 两周学习检查点汇总</h2>
+  <p style="color:var(--text-secondary);margin-bottom:16px;">以下每一项是本阶段的核心掌握标准，请逐项自检。掌握的打 ✅，薄弱环节标注练习计划。</p>
+
+  <table>
+    <tr><th style="width:5%">#</th><th style="width:12%">学科</th><th style="width:25%">检查项</th><th style="width:38%">掌握标准</th><th style="width:10%">自检</th><th style="width:10%">优先级</th></tr>
+
+    <tr style="background:#f0f4ff"><td colspan="6"><strong>📐 数学二：中值定理与导数应用（第3周）</strong></td></tr>
+    <tr><td>M13</td><td>导数应用</td><td>三大中值定理的条件与结论</td><td>能复述三个定理，知道逐级包含关系，会选定理</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M14</td><td>导数应用</td><td>辅助函数构造（6个套路）</td><td>看到结论形式能2秒内选出F(x)，会验证罗尔条件</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M15</td><td>导数应用</td><td>极值判定（两个充分条件）</td><td>驻点+不可导点全找，第一/二充分条件灵活用</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M16</td><td>导数应用</td><td>凹凸性与拐点</td><td>用二阶导判定，拐点写成坐标点(x₀,f(x₀))</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M17</td><td>导数应用</td><td>三类渐近线全求</td><td>水平/铅直/斜都会，注意±∞两侧和分母零点</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M18</td><td>导数应用</td><td>最值应用题建模</td><td>设变量->建函数->求驻点->验证 四步完整</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M19</td><td>导数应用</td><td>曲率公式</td><td>记住 K=|y''|/(1+y'²)^(3/2)，会算曲率半径</td><td>☐</td><td>⭐⭐⭐</td></tr>
+
+    <tr style="background:#f0f4ff"><td colspan="6"><strong>📐 数学二：不定积分（第4周）</strong></td></tr>
+    <tr><td>M20</td><td>积分</td><td>22个基本积分公式</td><td>对照导数表反推，闭眼默写不漏+号C</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M21</td><td>积分</td><td>第一类换元（凑微分）</td><td>8个凑微分模式秒识别，含ln/三角/arctan类型</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M22</td><td>积分</td><td>第二类换元（三角换元）</td><td>三种根号对应换元，会用直角三角形回代</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M23</td><td>积分</td><td>分部积分（反对幂三指）</td><td>正确选u，循环型会移项除2</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M24</td><td>积分</td><td>有理函数部分分式</td><td>假分式先除法，不可约二次因式分子是一次式</td><td>☐</td><td>⭐⭐⭐</td></tr>
+    <tr><td>M25</td><td>积分</td><td>积分方法决策树</td><td>给题30秒内选对方法：根号/乘积/分式/凑微分</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+
+    <tr style="background:#f5f0ff"><td colspan="6"><strong>💻 数据结构：图（第3周）</strong></td></tr>
+    <tr><td>D13</td><td>DS</td><td>图的基本概念与边度关系</td><td>无向∑度=2e，有向∑入=∑出=e，完全图边数</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D14</td><td>DS</td><td>邻接矩阵/邻接表存储</td><td>会写两种结构定义，知道稠密/稀疏适用场景</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D15</td><td>DS</td><td>BFS/DFS 代码手写</td><td>队列版BFS、递归版DFS白纸写出，访问+标记同步</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D16</td><td>DS</td><td>Prim/Kruskal 手算</td><td>两种MST算法步骤表写出来，Kruskal会判环</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D17</td><td>DS</td><td>Dijkstra 表格手算</td><td>每轮选最小+松弛，表格完整不漏步骤</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D18</td><td>DS</td><td>拓扑排序代码+判环</td><td>入度数组+栈，count&lt;V判环</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D19</td><td>DS</td><td>关键路径 ve/vl 计算</td><td>正向ve取max，逆向vl取min，l=e找关键活动</td><td>☐</td><td>⭐⭐⭐</td></tr>
+
+    <tr style="background:#f5f0ff"><td colspan="6"><strong>💻 数据结构：查找 + 排序（第4周）</strong></td></tr>
+    <tr><td>D20</td><td>DS</td><td>折半查找判定树+ASL</td><td>画出判定树，算ASL，知道是平衡二叉树</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D21</td><td>DS</td><td>散列表ASL（成功+失败）</td><td>线性探测/链地址都会算，失败ASL分母是表长</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D22</td><td>DS</td><td>快排 Partition 代码+手算</td><td>挖坑法代码写出，给定序列手算一趟划分</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D23</td><td>DS</td><td>堆排序建堆过程</td><td>从⌊n/2⌋往上调整，会画初始大根堆</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D24</td><td>DS</td><td>八大排序比较表</td><td>时间/空间/稳定性全背，稳定口诀"插冒归基"</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D25</td><td>DS</td><td>408真题DS部分1套</td><td>周末限时90分钟，选择题目标65%+</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+  </table>
+
+  <div class="callout tip" style="margin-top:20px;">
+    <strong>💡 学习建议</strong>
+    ① <strong>数学第3周</strong>是证明题攻坚，辅助函数构造必须背熟6个套路，每天默写1遍；中值定理证明先抄范例理解思路，再独立写完整过程；<br>
+    ② <strong>数学第4周</strong>积分题<strong>每天最少练5道</strong>，方法选对率比算对率更重要，先用决策树选方法再下笔；<br>
+    ③ <strong>DS第3周</strong>图论算法手算是核心，Dijkstra/Prim/拓扑排序每种至少手模拟2道真题，表格步骤写清楚才有分；<br>
+    ④ <strong>DS第4周</strong>排序比较表背到条件反射（稳定口诀"插冒归基"），快排划分手算练到一遍过；<br>
+    ⑤ 第4周周末做<strong>1套408真题DS部分</strong>（计时90分钟），验证数据结构全部完成后的真实水平，选择题目标65%+，大题能写完整步骤即达标。
+  </div>
+
+  <div class="callout" style="background:var(--green-bg);border-left:4px solid var(--green-border);color:#14532d;margin-top:16px;">
+    <strong>🎯 7月阶段总结（第1-4周完成）</strong>
+    数学二：极限 → 一元微分 → 中值定理与导数应用 → 不定积分，<strong>高数前4章完成</strong>，8月收尾高数后半（定积分/微分方程/多元）+ 线代二重移至8-9月；<br>
+    408：数据结构 <strong>全部完成 ✓</strong>（线性表栈队列 → KMP+树 → 图 → 查找排序），8月进入操作系统。<br>
+    <strong>坚持每天18h/周节奏，8月底408过半、数学高数完结。</strong>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 第一周的章节默认展开（HTML中用 open 标记），其余默认折叠
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 22 · 评估体系</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'EVAL'}
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 22 · EVALUATION</div>
+  <h1>评估体系</h1>
+  <p class="sub">为什么要评估 · 离线评估 vs 在线评估 · LLM-as-Judge · 评估指标设计 · 回归测试 · Java 实现</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#eval-concept"><span class="s-link-num">01</span>为什么需要评估体系</a>
+    <a class="s-link" href="#eval-offline-online"><span class="s-link-num">02</span>离线评估 vs 在线评估</a>
+    <a class="s-link" href="#eval-judge"><span class="s-link-num">03</span>LLM-as-Judge</a>
+    <a class="s-link" href="#eval-metrics"><span class="s-link-num">04</span>评估指标设计</a>
+    <a class="s-link" href="#eval-regression"><span class="s-link-num">05</span>回归测试与评估集维护</a>
+    <a class="s-link" href="#eval-java"><span class="s-link-num">06</span>Java 实现</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#production">→ 面试题 · 生产实践篇</a>
+    <a class="s-link" href="agent-21-multi-agent.html">→ 上一章：多 Agent 协作</a>
+    <a class="s-link" href="agent-23-security.html">→ 下一章：安全 & Guardrails</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="eval-concept"><span class="sec-num">01</span>为什么需要评估体系</div>
+
+    <div class="card">
+      <div class="card-title">Agent 上线后怎么知道它"好不好"</div>
+      <p>传统软件靠单元测试判断对错——输入固定，输出唯一，断言相等就行。<span class="kw">Agent（大模型驱动的系统）</span>的输出是非确定的：同样的输入，模型可能给出措辞不同但语义等价的答案，也可能因为一次幻觉给出完全错误的结果。<span class="kw">评估体系（Evaluation）</span>就是给这种非确定系统建立一套可量化、可回归的"对错标准"。</p>
+      <ul class="dl">
+        <li><span class="b">没有评估体系的后果</span>：改一版 Prompt 或换一个模型，只能靠"感觉效果变好了"来判断，效果退化了也发现不了，直到用户投诉</li>
+        <li><span class="b">核心目标</span>：把"这个 Agent 好不好"从主观感觉变成一组可重复运行、可对比历史版本的量化指标</li>
+        <li><span class="b">评估贯穿全生命周期</span>：开发阶段用于对比 Prompt/模型选型，上线前用于回归测试，上线后用于监控效果衰减</li>
+      </ul>
+      <div class="note info"><strong>类比理解</strong>：评估体系之于 Agent，相当于单元测试 + 性能基准测试之于普通后端服务——差别只是判断"对不对"的方式从精确匹配变成了语义 / 规则打分。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="eval-offline-online"><span class="sec-num">02</span>离线评估 vs 在线评估</div>
+
+    <div class="card">
+      <div class="card-title">两种评估方式的分工</div>
+      <table class="tbl">
+        <tr><th>维度</th><th>离线评估（Offline）</th><th>在线评估（Online）</th></tr>
+        <tr><td>数据来源</td><td>预先构建的评估集（固定输入 + 标准答案/评分规则）</td><td>真实线上流量和用户反馈</td></tr>
+        <tr><td>运行时机</td><td>发版前，CI/CD 流水线中自动跑</td><td>上线后持续监控</td></tr>
+        <tr><td>覆盖范围</td><td>覆盖已知的典型场景和边界情况</td><td>覆盖真实用户的长尾输入，能发现离线评估集里没有的问题</td></tr>
+        <tr><td>反馈延迟</td><td>几分钟到几十分钟，改完代码马上能看结果</td><td>小时到天级别，依赖用户行为数据积累</td></tr>
+        <tr><td>典型指标</td><td>准确率、任务完成率、工具调用正确率</td><td>用户满意度、人工介入率、任务放弃率</td></tr>
+      </table>
+      <div class="note good"><strong>工程实践</strong>：离线评估负责"守住底线"——防止改动引入明显回归，必须在每次发版前自动跑；在线评估负责"发现新问题"——离线评估集覆盖不到的真实场景。两者缺一不可，只做离线容易"自己骗自己"，只做在线发现问题时已经影响了真实用户。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="eval-judge"><span class="sec-num">03</span>LLM-as-Judge</div>
+
+    <div class="card">
+      <div class="card-title">用 LLM 评判 LLM 的输出</div>
+      <p>Agent 的很多输出是开放式文本，没有唯一标准答案，没法用字符串精确匹配打分。<span class="kw">LLM-as-Judge</span> 的做法是：用另一个 LLM（通常选用能力更强的模型），根据评分规则（Rubric）对 Agent 的输出打分，替代人工评审。</p>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">定义评分维度</div><div class="step-desc">明确要评估什么：事实准确性、是否遵循指令、格式是否正确、语气是否得体，通常拆成 3-5 个独立维度</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">编写 Judge Prompt</div><div class="step-desc">给 Judge LLM 提供：原始输入、Agent 的输出、（可选）参考答案、每个维度的打分标准，要求输出结构化的分数和理由</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">批量打分</div><div class="step-desc">对评估集中的每条样本调用 Judge LLM，得到每个维度的分数</div></div></div>
+        <div class="step"><div><div class="step-title">聚合与对比</div><div class="step-desc">汇总成整体分数，与历史版本对比，判断本次改动是提升还是退化</div></div></div>
+      </div>
+      <div class="note warn"><strong>常见陷阱</strong>：Judge LLM 本身也会犯错，对同一个输出多次打分可能不一致（尤其是评分标准写得模糊时）。缓解办法：评分标准要具体到"给出可判断的规则"而不是笼统的"回答质量高不高"；对高风险场景，抽样做人工复核校准 Judge 的准确率。</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">LLM-as-Judge 的两种打分方式</div>
+      <table class="tbl">
+        <tr><th>方式</th><th>做法</th><th>适用场景</th></tr>
+        <tr><td>绝对打分（Pointwise）</td><td>Judge 对单条输出直接打分（如 1-5 分）</td><td>需要一个绝对质量分数，比如监控某个指标的长期趋势</td></tr>
+        <tr><td>成对比较（Pairwise）</td><td>Judge 比较两个版本的输出，判断哪个更好</td><td>对比新旧 Prompt / 新旧模型哪个效果更好，比绝对打分更稳定</td></tr>
+      </table>
+      <div class="note tip"><strong>面试要点</strong>：面试常问"LLM-as-Judge 靠谱吗"——诚实的答案是：它比人工评审快、比字符串匹配灵活，但存在系统性偏差（比如偏好更长的回答），需要定期用人工标注抽样校准 Judge 与人类判断的一致率（通常要求达到 80% 以上才可信）。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="eval-metrics"><span class="sec-num">04</span>评估指标设计</div>
+
+    <div class="card">
+      <div class="card-title">Agent 常用评估指标</div>
+      <ul class="dl">
+        <li><span class="b">任务完成率（Task Success Rate）</span>：Agent 是否达成了用户的最终目标，通常是最核心的指标，可以用规则判断（比如订单是否真的创建成功）或 LLM-as-Judge 判断</li>
+        <li><span class="b">工具调用正确率</span>：Agent 是否选择了正确的工具、传入了正确的参数。可以用精确匹配或规则校验，不需要 LLM 判断，成本低、结果稳定</li>
+        <li><span class="b">步骤效率</span>：完成任务用了多少轮 LLM 调用/工具调用，步数异常多通常意味着 Agent 在"绕圈子"</li>
+        <li><span class="b">幻觉率</span>：输出中包含无法被上下文或工具结果支撑的事实性陈述的比例，一般用 LLM-as-Judge 结合检索结果做事实核查</li>
+        <li><span class="b">指令遵循度</span>：是否遵守了 System Prompt 中的约束（格式、语气、禁止事项），这类指标适合用规则 + LLM-as-Judge 结合校验</li>
+      </ul>
+      <div class="note info"><strong>指标优先级</strong>：先把能用规则判断的指标（工具调用正确率、格式合规性）做扎实——它们成本低、100% 可复现；LLM-as-Judge 用来补充规则覆盖不到的语义类指标，不要一上来就依赖 LLM 打分所有维度。</div>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="eval-regression"><span class="sec-num">05</span>回归测试与评估集维护</div>
+
+    <div class="card">
+      <div class="card-title">评估集从哪里来</div>
+      <ul class="dl">
+        <li><span class="b">人工构造的典型用例</span>：覆盖核心功能的正常路径，数量不需要多（几十到上百条），但要覆盖所有主要场景</li>
+        <li><span class="b">边界与异常用例</span>：参数缺失、工具报错、用户输入模糊等场景，专门用来验证 Agent 的健壮性</li>
+        <li><span class="b">线上真实 Bad Case</span>：每次线上发现问题（用户投诉、人工介入），把对应的输入沉淀成一条新的评估用例，防止同样的问题再次出现——这是评估集最有价值的增长来源</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：把"线上 Bad Case → 评估集用例"这个流程做成团队的固定习惯。评估集是活的资产，只靠一开始设计的几十条用例，几个月后就跟不上真实场景的复杂度了。</div>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="eval-java"><span class="sec-num">06</span>Java 实现</div>
+
+    <div class="card">
+      <div class="card-title">评估流水线骨架</div>
+      <p>评估流水线本质是"批量跑用例 + 打分 + 汇总对比"，不依赖特定框架，用普通 Java 就能搭起来，方便接入 CI/CD。</p>
+      <pre>// 1. 评估用例
+public record EvalCase(String id, String input, String expectedBehavior) {}
+
+// 2. 单条打分结果
+public record EvalScore(String caseId, double score, String reason) {}
+
+// 3. 评估流水线
+public class AgentEvaluator {
+
+    private final AgentRuntime agent;      // 被测 Agent
+    private final ChatClient judgeLlm;     // 用于打分的 Judge LLM
+
+    public EvalReport evaluate(List&lt;EvalCase&gt; cases) {
+        List&lt;EvalScore&gt; scores = cases.parallelStream()   // 用例间互不依赖，并行跑
+            .map(this::evaluateOne)
+            .toList();
+
+        double avgScore = scores.stream().mapToDouble(EvalScore::score).average().orElse(0);
+        return new EvalReport(avgScore, scores);
+    }
+
+    private EvalScore evaluateOne(EvalCase c) {
+        String actualOutput = agent.run(c.input());              // ① 跑 Agent
+        String judgePrompt = buildJudgePrompt(c, actualOutput);  // ② 构造 Judge Prompt
+        JudgeResult result = judgeLlm.prompt(judgePrompt)
+            .call().entity(JudgeResult.class);                    // ③ 结构化打分
+        return new EvalScore(c.id(), result.score(), result.reason());
+    }
+}
+
+// 4. CI 中的回归门禁
+if (report.avgScore() < BASELINE_SCORE - TOLERANCE) {
+    throw new RegressionDetectedException(
+        "本次改动评估分数从 " + BASELINE_SCORE + " 降到 " + report.avgScore());
+}</pre>
+      <ul class="dl">
+        <li><span class="b">parallelStream 并行打分</span>：评估用例之间没有依赖关系，并行跑能显著缩短评估流水线耗时</li>
+        <li><span class="b">结构化 Judge 输出</span>：要求 Judge LLM 返回固定 Schema（分数 + 理由），避免解析自由文本带来的不稳定性</li>
+        <li><span class="b">CI 回归门禁</span>：把评估分数接入 CI/CD，低于基线分数 - 容忍度时自动拦截发布，而不是靠人工肉眼比对</li>
+        <li><span class="b">保存历史结果</span>：每次评估结果都要落库，方便画出分数随版本变化的趋势图，及时发现缓慢的效果衰减</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：评估流水线要跑得足够快（几分钟内出结果），这样才能真正嵌入日常开发循环，而不是变成一个大家嫌麻烦、发版前才想起来跑一次的边缘工具。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

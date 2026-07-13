@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java 技术学习方案 · 2026.7—11</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+
+header{background:var(--bg2);padding:46px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'JAVA';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:96px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:640px;line-height:1.8;}
+
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+
+main{padding:44px 64px 80px;max-width:1200px;}
+
+/* Phase overview cards */
+.phase-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px;}
+.phase-card{border-radius:12px;padding:22px 20px;border:1px solid;}
+.phase-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.phase-name{font-size:22px;font-weight:700;line-height:1.1;margin-bottom:4px;}
+.phase-weeks{font-size:12px;margin-top:6px;opacity:.75;}
+.phase-desc{font-size:12px;margin-top:8px;opacity:.8;line-height:1.5;}
+.phase-base{background:var(--blu-bg);border-color:var(--blu-b);color:var(--blue);}
+.phase-review{background:var(--grn-bg);border-color:var(--grn-b);color:var(--green);}
+
+/* Section */
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+/* Week table */
+.week-table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.week-table th{background:var(--bg2);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--tx3);padding:10px 12px;text-align:left;border-bottom:2px solid var(--bd);}
+.week-table td{padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.6;}
+.week-table tr:last-child td{border-bottom:none;}
+.week-table tr:hover td{background:var(--bg2);}
+.week-table .w-col{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--tx);white-space:nowrap;width:56px;}
+.week-table .d-col{color:var(--tx3);font-size:11px;white-space:nowrap;width:80px;}
+.week-table .t-col{width:25%;}
+.week-table .t-col strong{color:var(--tx);font-weight:600;display:block;margin-bottom:2px;}
+.week-table .t-col span{color:var(--tx3);font-size:11px;}
+
+/* Phase 2 topic blocks */
+.topic-block{border:1px solid var(--bd);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.topic-head{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--bd);}
+.topic-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;border:1px solid;flex-shrink:0;}
+.topic-tag.tag-blue{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.topic-name{font-size:15px;font-weight:700;color:var(--tx);}
+.topic-weeks{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);margin-left:auto;}
+.topic-body{padding:0;}
+.topic-week{padding:14px 20px;border-bottom:1px solid var(--bd);}
+.topic-week:last-child{border-bottom:none;}
+.topic-week-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px;}
+.topic-week-desc{font-size:13px;color:var(--tx2);line-height:1.6;}
+.topic-week-desc strong{color:var(--tx);}
+
+/* Phase 2 table inside topic */
+.p2-table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0;}
+.p2-table td{padding:4px 8px;border:none;vertical-align:top;line-height:1.5;}
+.p2-table td:first-child{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);white-space:nowrap;width:70px;}
+
+/* Topic 6 (mock interview) */
+.mock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 20px;}
+.mock-card{padding:12px 16px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;}
+.mock-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.04em;margin-bottom:4px;}
+.mock-task{font-size:13px;color:var(--tx2);line-height:1.5;}
+.mock-task strong{color:var(--tx);}
+
+/* Summary bar */
+.summary-bar{display:flex;gap:8px;margin:32px 0 16px;padding:16px 20px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;align-items:center;flex-wrap:wrap;}
+.summary-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);}
+.summary-num{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--tx);}
+.summary-sep{color:var(--bd2);font-size:18px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  header::before{display:none;}
+  .phase-grid{grid-template-columns:1fr;}
+  .week-table{font-size:12px;}
+  .week-table .t-col{min-width:140px;}
+  .mock-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">JAVA · 学习规划</div>
+  <h1>Java 技术学习方案</h1>
+  <p class="subtitle">2026.07.13 → 2026.11.30 · 20周 · 两阶段推进 · 面向面试</p>
+</header>
+
+<nav>
+  <a href="#overview">总览</a>
+  <a href="#phase1">第一阶段</a>
+  <a href="#phase2">第二阶段</a>
+  <a href="#summary">汇总</a>
+</nav>
+
+<main>
+
+<!-- ====== 总览 ====== -->
+<div class="sec" id="overview">学习路径总览</div>
+
+<div class="phase-grid">
+  <div class="phase-card phase-base">
+    <div class="phase-title">Phase 1 · 7月下—8月</div>
+    <div class="phase-name">Java 核心全覆盖</div>
+    <div class="phase-weeks">7 周 · 每周 4 个专题</div>
+    <div class="phase-desc">快速覆盖 Java 基础 → JVM → 并发 → Spring → MySQL → Redis → Kafka → 微服务 → 分布式 → 设计模式</div>
+  </div>
+  <div class="phase-card phase-review">
+    <div class="phase-title">Phase 2 · 9月—11月</div>
+    <div class="phase-name">按专题集中深挖</div>
+    <div class="phase-weeks">13 周 · 7 个专题块</div>
+    <div class="phase-desc">基础/JVM/并发 → Spring 全家桶 → 中间件 → 分布式/Dubbo/设计模式 → 系统设计/算法 → 模拟面试</div>
+  </div>
+</div>
+
+<div class="summary-bar">
+  <div class="summary-item"><span class="summary-num">20</span> 周</div>
+  <span class="summary-sep">·</span>
+  <div class="summary-item"><span class="summary-num">7</span> 周全覆盖</div>
+  <span class="summary-sep">·</span>
+  <div class="summary-item"><span class="summary-num">13</span> 周深挖面试</div>
+  <span class="summary-sep">·</span>
+  <div class="summary-item"><span class="summary-num">7</span> 个专题块</div>
+  <span class="summary-sep">·</span>
+  <div class="summary-item"><span class="summary-num">~500</span> 道面试题</div>
+</div>
+
+
+<!-- ====== 第一阶段 ====== -->
+<div class="sec" id="phase1">第一阶段 · Java 核心全覆盖（7.13 — 8.31，7周）</div>
+
+<p style="font-size:13px;color:var(--tx2);margin-bottom:16px;">每周 4 个专题，7 周快速覆盖 Java 核心到中间件，建立完整知识体系。已有详细文档，重点在<strong>串联知识点 + 理解核心原理</strong>。</p>
+
+<table class="week-table">
+  <tr><th>周次</th><th>日期</th><th>专题 1</th><th>专题 2</th><th>专题 3</th><th>专题 4</th></tr>
+
+  <tr>
+    <td class="w-col">W1</td><td class="d-col">7.13–7.19</td>
+    <td class="t-col"><strong>Java 基础（上）</strong><span>OOP / 关键字 / String / 异常</span></td>
+    <td class="t-col"><strong>Java 基础（下）</strong><span>集合框架 / 泛型 / 反射 / 注解</span></td>
+    <td class="t-col"><strong>JVM（上）</strong><span>内存模型 / 对象创建 / 引用类型</span></td>
+    <td class="t-col"><strong>JVM（下）</strong><span>GC 算法 / 收集器 / 类加载 / 双亲委派</span></td>
+  </tr>
+
+  <tr>
+    <td class="w-col">W2</td><td class="d-col">7.20–7.26</td>
+    <td class="t-col"><strong>并发（上）</strong><span>JMM / volatile / synchronized / AQS</span></td>
+    <td class="t-col"><strong>并发（下）</strong><span>线程池 / JUC 工具 / ThreadLocal</span></td>
+    <td class="t-col"><strong>Spring（上）</strong><span>IoC / Bean 生命周期 / 循环依赖 / AOP</span></td>
+    <td class="t-col"><strong>Spring（下）</strong><span>事务 / Spring MVC / Spring Boot</span></td>
+  </tr>
+
+  <tr>
+    <td class="w-col">W3</td><td class="d-col">7.27–8.2</td>
+    <td class="t-col"><strong>MySQL（上）</strong><span>索引 B+Tree / 最左前缀 / 覆盖索引</span></td>
+    <td class="t-col"><strong>MySQL（下）</strong><span>MVCC / 锁 / InnoDB 架构 / SQL 优化</span></td>
+    <td class="t-col"><strong>ORM</strong><span>MyBatis 原理 / 插件 / MyBatis-Plus</span></td>
+    <td class="t-col"><strong>Redis（上）</strong><span>数据结构 / 缓存策略 / 穿透击穿雪崩</span></td>
+  </tr>
+
+  <tr>
+    <td class="w-col">W4</td><td class="d-col">8.3–8.9</td>
+    <td class="t-col"><strong>Redis（下）</strong><span>分布式锁 / 持久化 / 集群 / 热Key大Key</span></td>
+    <td class="t-col"><strong>Kafka（上）</strong><span>架构 / Producer / Consumer / 可靠性</span></td>
+    <td class="t-col"><strong>Kafka（下）</strong><span>幂等 / 事务 / Controller选举 / 调优</span></td>
+    <td class="t-col"><strong>中间件对比</strong><span>故障转移对比 / Redis vs Kafka</span></td>
+  </tr>
+
+  <tr>
+    <td class="w-col">W5</td><td class="d-col">8.10–8.16</td>
+    <td class="t-col"><strong>Spring Cloud（上）</strong><span>注册中心 / 配置中心 / 网关</span></td>
+    <td class="t-col"><strong>Spring Cloud（下）</strong><span>远程调用 / Sentinel / Seata</span></td>
+    <td class="t-col"><strong>Dubbo（上）</strong><span>RPC 原理 / 架构 / SPI 机制</span></td>
+    <td class="t-col"><strong>Dubbo（下）</strong><span>注册中心 / 负载均衡 / 集群容错</span></td>
+  </tr>
+
+  <tr>
+    <td class="w-col">W6</td><td class="d-col">8.17–8.23</td>
+    <td class="t-col"><strong>分布式（上）</strong><span>CAP / Raft / Paxos / 分布式事务</span></td>
+    <td class="t-col"><strong>分布式（下）</strong><span>分布式锁 / 分布式 ID / 一致性协议</span></td>
+    <td class="t-col"><strong>设计模式（上）</strong><span>创建型 / 结构型，高频 5 个</span></td>
+    <td class="t-col"><strong>设计模式（下）</strong><span>行为型 / 系统设计原则</span></td>
+  </tr>
+
+  <tr>
+    <td class="w-col">W7</td><td class="d-col">8.24–8.31</td>
+    <td class="t-col"><strong>JDK 新特性</strong><span>8→21：Lambda / Stream / Record / Virtual Thread</span></td>
+    <td class="t-col"><strong>JVM 调优</strong><span>Arthas / 内存泄漏 / GC 日志分析</span></td>
+    <td class="t-col"><strong>系统设计入门</strong><span>短链 / 秒杀 / Feed流 / 限流器</span></td>
+    <td class="t-col"><strong>阶段收尾</strong><span>Java 全栈面试题 100 道速刷</span></td>
+  </tr>
+</table>
+
+
+<!-- ====== 第二阶段 ====== -->
+<div class="sec" id="phase2">第二阶段 · 按专题集中深挖（9.1 — 11.30，13周）</div>
+
+<p style="font-size:13px;color:var(--tx2);margin-bottom:16px;">第一阶段已建立完整知识体系，第二阶段<strong>按专题深挖面试题</strong>，每个专题集中 1-2 周，配合已有的 <code>*-interview.html</code> 面试题文档。</p>
+
+<!-- 专题1 -->
+<div class="topic-block">
+  <div class="topic-head">
+    <span class="topic-tag tag-blue">专题 1</span>
+    <span class="topic-name">Java 基础 + JVM + 并发</span>
+    <span class="topic-weeks">2 周</span>
+  </div>
+  <div class="topic-body">
+    <div class="topic-week">
+      <div class="topic-week-title">W8 · 9.1—9.7 · Java 基础深挖</div>
+      <div class="topic-week-desc">集合源码（HashMap / ArrayList / LinkedList）· String 常量池 · 泛型擦除 · 反射原理 · 动态代理 · JDK 8→21 新特性 · <strong>面试题 32 道</strong></div>
+    </div>
+    <div class="topic-week">
+      <div class="topic-week-title">W9 · 9.8—9.14 · JVM + 并发</div>
+      <div class="topic-week-desc">JVM 调优参数 · GC 日志分析 · 内存泄漏排查 · 锁升级 · AQS 源码 · 线程池参数 · <strong>面试题 25+32 道</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- 专题2 -->
+<div class="topic-block">
+  <div class="topic-head">
+    <span class="topic-tag tag-blue">专题 2</span>
+    <span class="topic-name">Spring 全家桶</span>
+    <span class="topic-weeks">2 周</span>
+  </div>
+  <div class="topic-body">
+    <div class="topic-week">
+      <div class="topic-week-title">W10 · 9.15—9.21 · Spring 核心</div>
+      <div class="topic-week-desc">IoC 容器源码级 · Bean 生命周期 · 循环依赖三级缓存 · AOP 原理 · 事务失效 8 场景 · 事件机制 · <strong>面试题 32 道</strong></div>
+    </div>
+    <div class="topic-week">
+      <div class="topic-week-title">W11 · 9.22—9.30 · Spring Boot + Spring Cloud</div>
+      <div class="topic-week-desc">自动配置原理 · Starter 机制 · 注册中心对比 · 网关 · 熔断降级 · 分布式事务 Seata · <strong>面试题 32 道</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- 专题3 -->
+<div class="topic-block">
+  <div class="topic-head">
+    <span class="topic-tag tag-blue">专题 3</span>
+    <span class="topic-name">中间件：MySQL + Redis + Kafka</span>
+    <span class="topic-weeks">2 周</span>
+  </div>
+  <div class="topic-body">
+    <div class="topic-week">
+      <div class="topic-week-title">W12 · 10.1—10.7 · MySQL + ORM</div>
+      <div class="topic-week-desc">索引优化实战 · Explain 分析 · 分库分表 · MVCC 版本链 · 间隙锁 · MyBatis 插件 · <strong>面试题 32+24 道</strong></div>
+    </div>
+    <div class="topic-week">
+      <div class="topic-week-title">W13 · 10.8—10.14 · Redis + Kafka</div>
+      <div class="topic-week-desc">缓存穿透击穿雪崩 · 热Key大Key · Redlock · 集群 · 消息可靠性 · 重复消费 · 顺序消息 · <strong>面试题全覆盖</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- 专题4 -->
+<div class="topic-block">
+  <div class="topic-head">
+    <span class="topic-tag tag-blue">专题 4</span>
+    <span class="topic-name">分布式 + Dubbo + 设计模式</span>
+    <span class="topic-weeks">2 周</span>
+  </div>
+  <div class="topic-body">
+    <div class="topic-week">
+      <div class="topic-week-title">W14 · 10.15—10.21 · 分布式系统</div>
+      <div class="topic-week-desc">CAP 取舍 · Raft 选举 · 分布式事务（2PC / TCC / Saga）· 分布式锁（Redis / ZK 对比）· 分布式 ID · <strong>面试题 32 道</strong></div>
+    </div>
+    <div class="topic-week">
+      <div class="topic-week-title">W15 · 10.22—10.28 · Dubbo + 设计模式</div>
+      <div class="topic-week-desc">SPI 机制 · 负载均衡 · 集群容错 · 23 种设计模式核心 10 个 · <strong>面试题 29+32 道</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- 专题5 -->
+<div class="topic-block">
+  <div class="topic-head">
+    <span class="topic-tag tag-blue">专题 5</span>
+    <span class="topic-name">系统设计 + 算法</span>
+    <span class="topic-weeks">1 周</span>
+  </div>
+  <div class="topic-body">
+    <div class="topic-week">
+      <div class="topic-week-title">W16 · 10.29—11.4</div>
+      <div class="topic-week-desc">
+        <strong>系统设计 10 题：</strong>短链 · 秒杀 · Feed流 · 限流器 · 分布式ID · 配置中心 · 消息队列设计 · 推荐系统 · 搜索 · IM<br>
+        <strong>算法：</strong>LeetCode Hot 100 精选 30 道（数组 / 链表 / 树 / DP）
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 专题6 -->
+<div class="topic-block">
+  <div class="topic-head">
+    <span class="topic-tag tag-blue">专题 6</span>
+    <span class="topic-name">综合模拟面试 + 收尾</span>
+    <span class="topic-weeks">3 周</span>
+  </div>
+  <div class="topic-body">
+    <div class="mock-grid">
+      <div class="mock-card">
+        <div class="mock-label">W17 · 11.5—11.11</div>
+        <div class="mock-task"><strong>一轮模拟：</strong>Java 基础 + JVM + 并发<br>弱项专题复习</div>
+      </div>
+      <div class="mock-card">
+        <div class="mock-label">W18 · 11.12—11.18</div>
+        <div class="mock-task"><strong>二轮模拟：</strong>Spring + 中间件 + 分布式<br>弱项专题复习</div>
+      </div>
+      <div class="mock-card">
+        <div class="mock-label">W19 · 11.19—11.25</div>
+        <div class="mock-task"><strong>三轮模拟：</strong>系统设计 + 算法 + 行为面试<br>简历更新</div>
+      </div>
+      <div class="mock-card">
+        <div class="mock-label">W20 · 11.26—11.30</div>
+        <div class="mock-task"><strong>全流程模拟 2 轮</strong><br>复盘总结</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ====== 汇总 ====== -->
+<div class="sec" id="summary">资料索引</div>
+
+<p style="font-size:13px;color:var(--tx2);margin-bottom:12px;">以下为已有文档与各周对应的关系，学习时可直接打开对应文档。</p>
+
+<table class="week-table">
+  <tr><th>技术栈</th><th>已有文档</th><th>对应周次</th></tr>
+  <tr><td>Java 基础</td><td>java-basic-01 ~ 06</td><td>W1, W8</td></tr>
+  <tr><td>JVM</td><td>jvm-01 ~ 04</td><td>W1, W9</td></tr>
+  <tr><td>Java 并发</td><td>concurrent-01 ~ 06</td><td>W2, W9</td></tr>
+  <tr><td>Spring</td><td>spring-01 ~ 07</td><td>W2, W10</td></tr>
+  <tr><td>Spring Cloud</td><td>sc-01 ~ 05</td><td>W5, W11</td></tr>
+  <tr><td>Dubbo / RPC</td><td>dubbo-01 ~ 05</td><td>W5, W15</td></tr>
+  <tr><td>MySQL</td><td>mysql-01 ~ 05</td><td>W3, W12</td></tr>
+  <tr><td>ORM</td><td>orm-01 ~ 03</td><td>W3, W12</td></tr>
+  <tr><td>Redis</td><td>redis-data-types / hotkey-bigkey / election-redis-kafka</td><td>W3–W4, W13</td></tr>
+  <tr><td>Kafka</td><td>kafka-01 ~ 06</td><td>W4, W13</td></tr>
+  <tr><td>分布式系统</td><td>dist-01 ~ 04</td><td>W6, W14</td></tr>
+  <tr><td>设计模式</td><td>design-01 ~ 05</td><td>W6, W15</td></tr>
+  <tr><td>综合面试</td><td>interview_redis_kafka_jvm / java_interview_knowledge_map</td><td>W7, W16–W20</td></tr>
+</table>
+
+</main>
+</body>
+</html>

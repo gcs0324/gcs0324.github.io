@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="../../shared/theme.js"></script>
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/doc-page.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 24 · 成本控制</title>
+<style>
+:root{--accent-color:var(--green);--accent-bg:var(--green-bg);--accent-b:var(--green-b)}
+header::before{content:'COST'}
+.step-flow{display:flex;flex-direction:column;gap:0;margin:12px 0}
+.step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--bd)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-title{font-weight:600;color:var(--tx);font-size:14px;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--tx2)}
+</style>
+</head>
+<body>
+<script src="../../shared/nav-agent.js"></script>
+
+<header>
+  <div class="htag">AGENT · 24 · COST CONTROL</div>
+  <h1>成本控制</h1>
+  <p class="sub">Token 成本构成 · Prompt Cache · 模型路由降本 · 上下文瘦身 · 成本监控与预算熔断 · Java 实现</p>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="s-section-lbl">本章目录</div>
+    <a class="s-link active" href="#cost-concept"><span class="s-link-num">01</span>Token 成本构成</a>
+    <a class="s-link" href="#cost-cache"><span class="s-link-num">02</span>Prompt Cache 降本</a>
+    <a class="s-link" href="#cost-routing"><span class="s-link-num">03</span>模型路由降本</a>
+    <a class="s-link" href="#cost-context"><span class="s-link-num">04</span>上下文瘦身</a>
+    <a class="s-link" href="#cost-monitor"><span class="s-link-num">05</span>成本监控与预算熔断</a>
+    <a class="s-link" href="#cost-java"><span class="s-link-num">06</span>Java 实现</a>
+    <div class="s-divider"></div>
+    <div class="s-section-lbl">快速导航</div>
+    <a class="s-link" href="agent-29-interview.html#production">→ 面试题 · 生产实践篇</a>
+    <a class="s-link" href="agent-23-security.html">→ 上一章：安全 & Guardrails</a>
+    <a class="s-link" href="agent-25-cicd.html">→ 下一章：CI/CD & 部署</a>
+  </aside>
+
+  <div class="mcontent">
+
+    <!-- ═══ 01 ═══ -->
+    <div class="sec" id="cost-concept"><span class="sec-num">01</span>Token 成本构成</div>
+
+    <div class="card">
+      <div class="card-title">Agent 的成本大头在哪</div>
+      <p>大模型 API 按 <span class="kw">Token（词元）</span>计费，输入 Token（Prompt）和输出 Token（Completion）通常单独计价，输出往往比输入贵好几倍。Agent 相比普通的一问一答式调用，成本结构完全不同——一次任务可能触发几十次 LLM 调用，成本会成倍放大。</p>
+      <ul class="dl">
+        <li><span class="b">多轮 Agent Loop</span>：每一轮 <a href="agent-09-arch-patterns.html">Agent Loop</a> 都要把完整的历史对话重新发给模型，历史越长，每一轮的输入 Token 成本越高——这是 Agent 成本失控最常见的原因</li>
+        <li><span class="b">多 Agent 协作</span>：参见 <a href="agent-21-multi-agent.html">多 Agent 协作</a>，N 个 Agent 协作一次任务，成本近似 N 倍单 Agent 调用，规划阶段务必先估算最坏情况下的总调用次数</li>
+        <li><span class="b">工具返回结果膨胀上下文</span>：数据库查询、网页抓取等工具的返回结果往往很长，未经裁剪直接塞进上下文会持续推高后续每一轮的成本</li>
+      </ul>
+      <div class="note info"><strong>算一笔账</strong>：假设一次任务平均跑 8 轮 Agent Loop，每轮上下文累计增长，总输入 Token 消耗往往是单轮的 3-5 倍。这也是为什么"上下文瘦身"和"限制最大轮数"是成本控制里最直接有效的两个手段。</div>
+    </div>
+
+    <!-- ═══ 02 ═══ -->
+    <div class="sec" id="cost-cache"><span class="sec-num">02</span>Prompt Cache 降本</div>
+
+    <div class="card">
+      <div class="card-title">复用固定不变的上下文前缀</div>
+      <p><span class="kw">Prompt Cache（提示缓存）</span>是主流大模型厂商提供的能力：把请求中固定不变的前缀部分（通常是 System Prompt、工具定义、少样本示例）缓存起来，后续请求命中缓存的部分只按较低的价格甚至不计费，只有变化的部分按正常价格计费。</p>
+      <ul class="dl">
+        <li><span class="b">典型折扣</span>：命中缓存的输入 Token 价格通常是原价的 1/10 左右（具体折扣和缓存时效因厂商而异），对于 System Prompt 很长、多轮对话频繁的 Agent 场景，降本效果显著</li>
+        <li><span class="b">缓存生效的前提</span>：请求前缀必须逐字节一致，且在缓存有效期内（通常几分钟到一小时级别）。把易变的内容（当前时间戳、随机 ID）放在 Prompt 末尾而不是开头，能最大化缓存命中率</li>
+        <li><span class="b">工程落地要点</span>：设计 Prompt 结构时，把"固定部分"（角色设定、工具 Schema、规则说明）和"变化部分"（用户当前输入、动态检索结果）明确分区，固定部分放前面</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：Agent 的 System Prompt 和工具定义列表通常几千 Token 起步且多轮对话中完全不变，是 Prompt Cache 收益最大的部分。设计 Prompt 模板时优先把这部分做成稳定不变的固定前缀。</div>
+    </div>
+
+    <!-- ═══ 03 ═══ -->
+    <div class="sec" id="cost-routing"><span class="sec-num">03</span>模型路由降本</div>
+
+    <div class="card">
+      <div class="card-title">不是所有步骤都需要最强模型</div>
+      <p>Agent 内部不同环节对模型能力的要求差异很大——复杂推理和规划需要能力强的模型，简单的意图分类、格式转换用轻量模型就够了。<span class="kw">模型路由（Model Routing）</span>就是按环节动态选择性价比最高的模型，而不是所有调用都用最贵的旗舰模型。</p>
+      <table class="tbl">
+        <tr><th>环节</th><th>能力要求</th><th>模型选择建议</th></tr>
+        <tr><td>意图识别 / 简单分类</td><td>低，规则性强</td><td>轻量模型，成本可能是旗舰模型的几分之一到十几分之一</td></tr>
+        <tr><td>Orchestrator 任务规划</td><td>高，需要理解复杂目标并拆解</td><td>能力最强的旗舰模型</td></tr>
+        <tr><td>Worker 执行具体子任务</td><td>中，视子任务复杂度而定</td><td>按子任务复杂度分级选择</td></tr>
+        <tr><td>格式化 / 摘要提取</td><td>低</td><td>轻量模型</td></tr>
+      </table>
+      <div class="note tip"><strong>面试要点</strong>：面试问"怎么降低 Agent 的调用成本"，"模型路由"是除了 Prompt Cache 之外最常被追问细节的方向——要能说清楚"按什么维度路由"（任务复杂度、是否需要工具调用、历史准确率）而不是泛泛地说"用便宜的模型"。</div>
+    </div>
+
+    <!-- ═══ 04 ═══ -->
+    <div class="sec" id="cost-context"><span class="sec-num">04</span>上下文瘦身</div>
+
+    <div class="card">
+      <div class="card-title">控制上下文膨胀</div>
+      <ul class="dl">
+        <li><span class="b">工具结果裁剪</span>：工具返回的原始数据（数据库全表结果、网页全文）不要直接塞进上下文，只保留 Agent 决策真正需要的字段或摘要</li>
+        <li><span class="b">历史对话压缩</span>：超过一定轮数后，把较早的对话历史用摘要替代原文，保留关键结论、丢弃过程细节</li>
+        <li><span class="b">滑动窗口</span>：只保留最近 N 轮的完整历史，更早的内容归档或丢弃（如果不影响任务连续性）</li>
+        <li><span class="b">多 Agent 场景的最小化 Handoff</span>：参见 <a href="agent-21-multi-agent.html">多 Agent 协作</a>，Agent 间交接只传递必要摘要而非完整历史，同时降低下游成本和上下文污染</li>
+      </ul>
+      <div class="note warn"><strong>权衡</strong>：压缩上下文有丢失关键信息的风险，过度压缩可能导致 Agent 决策质量下降。压缩策略要结合<a href="agent-22-evaluation.html">评估体系</a>验证——省了成本但任务完成率掉了，不算真正的优化。</div>
+    </div>
+
+    <!-- ═══ 05 ═══ -->
+    <div class="sec" id="cost-monitor"><span class="sec-num">05</span>成本监控与预算熔断</div>
+
+    <div class="card">
+      <div class="card-title">让成本可观测、可控制</div>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">①</div><div><div class="step-title">每次调用记录 Token 消耗</div><div class="step-desc">记录每次 LLM 调用的输入/输出 Token 数、模型型号、所属任务和用户，作为成本分析的原始数据</div></div></div>
+        <div class="step"><div class="step-num">②</div><div><div class="step-title">按维度聚合成本</div><div class="step-desc">按用户、按任务类型、按 Agent 角色聚合成本，找出成本大头集中在哪个环节</div></div></div>
+        <div class="step"><div class="step-num">③</div><div><div class="step-title">设置预算熔断</div><div class="step-desc">单次任务或单个用户的成本超过阈值时，自动终止任务并返回降级结果，而不是无上限地继续消耗</div></div></div>
+        <div class="step"><div><div class="step-title">异常告警</div><div class="step-desc">成本突增（比如某个 Agent 陷入循环导致调用次数暴涨）时及时告警，避免小问题演变成大额账单</div></div></div>
+      </div>
+      <div class="note danger"><strong>血泪教训</strong>：没有预算熔断机制的 Agent，一旦触发死循环或者被恶意高频调用，账单可能在几小时内失控。<a href="agent-21-multi-agent.html#multi-pitfall">最大步数限制</a>和成本预算熔断应该被视为上线前的强制检查项，而不是可选的优化项。</div>
+    </div>
+
+    <!-- ═══ 06 ═══ -->
+    <div class="sec" id="cost-java"><span class="sec-num">06</span>Java 实现</div>
+
+    <div class="card">
+      <div class="card-title">成本追踪与熔断骨架</div>
+      <pre>// 1. 每次调用后记录成本
+public class CostTracker {
+
+    private final MeterRegistry meterRegistry;
+
+    public void record(String taskId, String userId, String model,
+                        int inputTokens, int outputTokens) {
+        double cost = pricingService.calculate(model, inputTokens, outputTokens);
+        meterRegistry.counter("agent.cost.usd",
+            "task", taskId, "user", userId, "model", model).increment(cost);
+        costRepository.append(taskId, userId, model, inputTokens, outputTokens, cost);
+    }
+}
+
+// 2. 单次任务的预算熔断
+public class BudgetGuard {
+
+    private static final double MAX_COST_PER_TASK = 0.50; // 单任务成本上限（美元）
+
+    private final AtomicDouble accumulatedCost = new AtomicDouble(0);
+
+    public void checkBeforeCall(double estimatedCost) {
+        if (accumulatedCost.get() + estimatedCost > MAX_COST_PER_TASK) {
+            throw new BudgetExceededException(
+                "任务成本超出预算上限 " + MAX_COST_PER_TASK + " USD，强制终止");
+        }
+    }
+
+    public void afterCall(double actualCost) {
+        accumulatedCost.addAndGet(actualCost);
+    }
+}
+
+// 3. Orchestrator 中集成熔断（结合 agent-21 的 MAX_STEPS 一起用）
+for (SubTask task : plan) {
+    budgetGuard.checkBeforeCall(costEstimator.estimate(task));  // 调用前检查预算
+    String result = dispatch(task, results);
+    budgetGuard.afterCall(costTracker.lastCallCost());          // 调用后累加实际成本
+}</pre>
+      <ul class="dl">
+        <li><span class="b">成本记录接入现有监控体系</span>：用 Micrometer / Prometheus 这类标准指标库上报成本数据，能直接复用现有的监控大盘和告警规则</li>
+        <li><span class="b">预算熔断在调用前检查</span>：不是等超支了才发现，而是在每次调用前预估成本、判断是否会超预算，防患于未然</li>
+        <li><span class="b">与<a href="agent-21-multi-agent.html">多 Agent 协作</a>的步数上限配合</span>：步数上限防止无限循环，预算熔断防止单步成本过高，两者互补，缺一不可</li>
+      </ul>
+      <div class="note good"><strong>最佳实践</strong>：成本监控不是上线后才补的"运维工作"，应该从第一个版本就接入。等账单出问题才回头查，往往已经产生了不必要的损失。</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
