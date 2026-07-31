@@ -104,7 +104,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 </div>
 <div class="ex"><div class="ex-head">教程例题 · 零比特填充怎么一步步做</div><div class="ex-q">待发送的数据部分为 <code>01111110111110</code>。使用零比特填充后，数据部分变成什么？接收端如何恢复？</div>
 <div class="step"><span class="n">1</span><span class="t">从左往右扫描并记录连续 1 的个数；遇到 0 就把计数清零。</span></div>
-<div class="step"><span class="n">2</span><span class="t">扫描到第一个连续 5 个 1 时，立即插入一个 0，再继续处理原数据中剩余的第 6 个 1。</span></div>
+<div class="step"><span class="n">2</span><span class="t">为什么是 5 个 1？帧边界 <code>01111110</code> 中包含连续 6 个 1。数据里出现连续 5 个 1 后立即插入 0，就能保证数据部分永远不会伪装成边界。扫描到第一组连续 5 个 1 时插入 0，再继续处理原数据中剩余的第 6 个 1。</span></div>
 <div class="step"><span class="n">3</span><span class="t">后半段再次出现连续 5 个 1，再插入一个 0。填充结果为 <code>0111110101111100</code>。</span></div>
 <div class="step"><span class="n">4</span><span class="t">接收端同样从左往右扫描：每看到连续 5 个 1，就删除它们后面紧跟的那个填充 0，即可还原原数据。</span></div>
 <div class="ans">填充后：0111110101111100；接收端删除两个填充 0</div></div>
@@ -116,8 +116,10 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <ul><li>生成多项式 <code>G(x)=x³+x+1</code> 对应二进制 <code>1011</code>，最高次 r=3。</li><li>余数位数必须是 r；不足时左侧补 0。</li><li>CRC 擅长检错，尤其是突发错误；它本身不负责重传。</li></ul></div>
 <div class="ex"><div class="ex-head">典型例题 · CRC</div><div class="ex-q">数据为 1101，生成多项式为 1011，求发送码字。</div>
 <div class="step"><span class="n">1</span><span class="t">生成多项式 4 位，最高次 r=3，在数据后补 3 个 0：<code>1101000</code>。</span></div>
-<div class="step"><span class="n">2</span><span class="t">用 <code>1101000</code> 模 2 除以 <code>1011</code>，得到 3 位余数 <code>001</code>。</span></div>
-<div class="step"><span class="n">3</span><span class="t">用余数替换末尾 3 个 0，发送码字为 <code>1101001</code>。</span></div><div class="ans">答案：1101001</div></div>
+<div class="step"><span class="n">2</span><span class="t">模 2 除法只做异或。先让除数与最高位对齐：<code>1101000 XOR 1011000 = 0110000</code>。</span></div>
+<div class="step"><span class="n">3</span><span class="t">新的最高位 1 在下一位，继续对齐异或：<code>0110000 XOR 0101100 = 0011100</code>。</span></div>
+<div class="step"><span class="n">4</span><span class="t">继续处理最高位：<code>0011100 XOR 0010110 = 0001010</code>；最后一次：<code>0001010 XOR 0001011 = 0000001</code>。只保留末尾 r=3 位，所以余数为 <code>001</code>。</span></div>
+<div class="step"><span class="n">5</span><span class="t">用余数替换末尾 3 个 0，发送码字为 <code>1101001</code>。反向检查：<code>1101001</code> 再除以 <code>1011</code>，余数应为 <code>000</code>。</span></div><div class="ans">答案：1101001；接收端无差错时复算余数为 000</div></div>
 
 <h3 class="sub">海明码 <span class="pri a">A 必学 · 低成本计算</span></h3>
 <div class="g2"><div class="cc"><h3>监督位数量</h3><p>k 个数据位需要 r 个监督位。r 个监督位要能指出“无错”以及 k+r 个可能出错位置，因此：</p><div class="fmla">2<sup>r</sup> ≥ k + r + 1</div><p>例：k=4 时，r=3，因为 8≥4+3+1。</p></div>
@@ -170,6 +172,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
   <div class="cc"><h3>GBN <span class="pri a">A 必学</span></h3><p>发送方可连续发多帧；接收窗口为 1，只接收下一个期望帧。ACK 通常是累计确认。若帧 k 超时，从 k 开始重传所有未确认帧。</p></div>
   <div class="cc"><h3>SR <span class="pri a">A 必学</span></h3><p>接收方缓存窗口内失序帧并逐帧确认；只重传真正丢失或损坏的帧。效率更高，但缓存和控制更复杂。</p></div>
 </div>
+<div class="cc"><h3>利用率公式为什么这样写</h3><p>发送方真正占用链路发送数据的时间是 <strong>Tₜ</strong>。从开始发送到收到确认，要经历：发送数据帧 Tₜ、数据单向传播 Tₚ、发送 ACK T<sub>ack</sub>、ACK 返回传播 Tₚ。因此一个完整周期是 <strong>Tₜ+2Tₚ+T<sub>ack</sub></strong>。</p><p>利用率就是“周期中真正发送有效数据的时间比例”，所以停止-等待为 <code>U=Tₜ/(Tₜ+2Tₚ+Tack)</code>。窗口协议一次连续发送 W 帧，有效发送时间变成 W·Tₜ；若 W·Tₜ 已经覆盖整个往返周期，链路就能连续忙碌，利用率上限为 1。</p></div>
 <div class="fmla hero">U = T<sub>t</sub> / (T<sub>t</sub> + 2T<sub>p</sub> + T<sub>ack</sub>)<small>停止-等待信道利用率。若 ACK 发送时延可忽略：U≈1/(1+2a)，a=T<sub>p</sub>/T<sub>t</sub>。</small></div>
 <div class="cc"><h3>连续发送时如何填满信道</h3><p>窗口协议一次能发 W 帧，忽略 ACK 发送时延时：</p><div class="fmla">U = min(1, W / (1 + 2a))</div><p>要让利用率达到 100%，至少需要 <code>W ≥ 1+2a</code>。注意最后再取整，并同时满足 GBN/SR 的序号空间限制。</p></div>
 <div class="note info"><span class="nlbl">真题怎么问</span><p>通常把<strong>帧长、链路速率、单向传播时延、目标利用率</strong>放在同一道题里，先算发送时延与 a，再求窗口 W，最后结合 GBN/SR 的序号范围求至少几位序号。</p></div>
@@ -187,7 +190,8 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <tr><td>信道划分</td><td>FDM、TDM、WDM、CDM</td><td>预先切分频率、时间、波长或码片；不会冲突，但空闲份额可能浪费</td><td>会区分即可</td></tr>
 <tr><td>随机访问</td><td>ALOHA、CSMA、CSMA/CD、CSMA/CA</td><td>有数据就竞争；负载低时灵活，负载高时冲突增多</td><td>重点掌握 CSMA/CD</td></tr>
 <tr><td>轮询访问</td><td>轮询、令牌传递</td><td>控制权依次传递；无冲突，但有等待和控制开销</td><td>C：细节可跳</td></tr></table>
-<div class="ex"><div class="ex-head">教程例题 · CDMA 码片如何恢复发送数据</div><div class="ex-q">站点 A 的码片序列为 <code>(1,1,1,1)</code>，B 为 <code>(1,−1,1,−1)</code>。A 发送比特 1，B 发送比特 0；约定 1 发送原码片，0 发送反码片。求叠加信号，并判断接收端如何恢复 A、B 的数据。</div>
+<div class="note info"><span class="nlbl">为什么能分离</span><p>不同站点的码片序列彼此<strong>正交</strong>：两序列对应元素相乘后求和为 0。叠加信号与某站码片做内积时，其他站的贡献会抵消，只留下目标站的 +1 或 −1。CDMA 在 2014 年 408 中出现过计算型选择题，因此虽列为 B 类，仍保留一组完整计算。</p></div>
+<div class="ex"><div class="ex-head">教程例题 · CDMA 码片如何恢复发送数据</div><div class="ex-q">站点 A 的码片序列为 <code>(1,1,1,1)</code>，B 为 <code>(1,−1,1,−1)</code>。两者内积为 0，满足正交。A 发送比特 1，B 发送比特 0；约定 1 发送原码片，0 发送反码片。求叠加信号，并判断接收端如何恢复 A、B 的数据。</div>
 <div class="step"><span class="n">1</span><span class="t">A 发送 1，所以发送 <code>(1,1,1,1)</code>；B 发送 0，所以发送 B 的反码 <code>(−1,1,−1,1)</code>。</span></div>
 <div class="step"><span class="n">2</span><span class="t">信道中线性叠加：<code>(1,1,1,1)+(−1,1,−1,1)=(0,2,0,2)</code>。</span></div>
 <div class="step"><span class="n">3</span><span class="t">用叠加信号与 A 的码片做规格化内积：<code>(0+2+0+2)/4=1</code>，所以 A 发送 1。</span></div>
@@ -215,7 +219,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <h3 class="sub">MAC 地址与以太网帧 <span class="pri a">A 必学 · 高频辨析</span></h3>
 <div class="g2"><div class="cc"><h3>MAC 地址</h3><p>通常为 48 bit（6 字节），用于局域网一跳内标识网络接口。全 1 地址 <code>FF:FF:FF:FF:FF:FF</code> 是广播地址。</p><p>路由器转发 IP 数据报时，<strong>源/目的 IP 通常不变，源/目的 MAC 每一跳都重新封装</strong>。</p></div>
 <div class="cc"><h3>无连接、不可靠</h3><p>传统以太网 MAC 层不建立连接，也不为每个帧返回确认；发现差错就丢弃，可靠性由需要它的上层协议负责。这里的“不可靠”不是说以太网经常坏，而是“不承诺恢复”。</p></div></div>
-<div class="ex"><div class="ex-head">教程例题 · 跨路由器时 MAC 地址怎么变</div><div class="ex-q">主机 H1 经路由器 R 向另一网络中的 H2 发送 IP 数据报。第一跳 H1→R 和第二跳 R→H2 的源、目的 IP 与 MAC 分别是什么？</div>
+<div class="ex"><div class="ex-head">教程例题 · 跨路由器时 MAC 地址怎么变（高迁移价值）</div><div class="ex-q">主机 H1 经路由器 R 向另一网络中的 H2 发送 IP 数据报。第一跳 H1→R 和第二跳 R→H2 的源、目的 IP 与 MAC 分别是什么？</div>
 <div class="step"><span class="n">1</span><span class="t">IP 数据报描述端到端通信，所以两跳的源 IP 都是 <strong>H1 的 IP</strong>，目的 IP 都是 <strong>H2 的 IP</strong>。</span></div>
 <div class="step"><span class="n">2</span><span class="t">第一跳只需要把帧送到默认网关：源 MAC=H1 的 MAC，目的 MAC=R 在 H1 网络一侧接口的 MAC。</span></div>
 <div class="step"><span class="n">3</span><span class="t">R 收到后拆掉旧帧头，在下一条链路重新封装：源 MAC=R 在 H2 网络一侧接口的 MAC，目的 MAC=H2 的 MAC。</span></div>
@@ -250,11 +254,7 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <div class="sec" id="wan"><span class="snum">§6</span> 广域网与 PPP</div>
 <div class="g2"><div class="cc"><h3>广域网的链路层 <span class="pri b">B 会辨析</span></h3><p>广域网跨越较大地理范围，重点是点到点链路。它与局域网的“共享介质竞争”不是同一个问题，因此点到点链路不需要 CSMA/CD。</p></div>
 <div class="cc"><h3>PPP 协议 <span class="pri b">B 会辨析</span></h3><p>PPP 面向点到点链路，提供组帧、差错检测、链路控制 LCP，以及为不同网络层协议配置参数的 NCP。</p><ul><li>只检错，不纠错；不使用序号和确认实现可靠传输。</li><li>字节填充用于异步链路，零比特填充用于同步链路。</li><li>不支持多点线路，不负责流量控制。</li></ul></div></div>
-<div class="ex"><div class="ex-head">教程例题 · PPP 异步链路的字节填充</div><div class="ex-q">PPP 异步链路中，标志字节为 <code>7E</code>，转义字节为 <code>7D</code>。数据中出现字节序列 <code>45 7E 7D</code>，按“转义字节 + 原字节异或 20H”处理后发送什么？</div>
-<div class="step"><span class="n">1</span><span class="t"><code>45</code> 不是特殊字节，直接发送。</span></div>
-<div class="step"><span class="n">2</span><span class="t"><code>7E</code> 需要转义：先发 <code>7D</code>，再发 <code>7E XOR 20 = 5E</code>。</span></div>
-<div class="step"><span class="n">3</span><span class="t"><code>7D</code> 也要转义：先发 <code>7D</code>，再发 <code>7D XOR 20 = 5D</code>。</span></div>
-<div class="ans">发送的数据部分：45 7D 5E 7D 5D</div></div>
+<div class="note info"><span class="nlbl">只学到这里</span><p>110 分目标只需要会判断：PPP 是点到点、只检错、不提供可靠传输；异步链路用字节填充，同步链路用零比特填充。具体转义字节数值和逐字节异或属于低性价比细节，不再展开长例题。</p></div>
 <div class="note warn"><span class="nlbl">低性价比</span><p>PPP 的每个字段取值、完整状态机，以及教材延伸的 HDLC 细节，时间紧可以跳过。现行大纲明确列 PPP，没有单列 HDLC。</p></div>
 
 <div class="sec" id="switch"><span class="snum">§7</span> 网桥与以太网交换机</div>
