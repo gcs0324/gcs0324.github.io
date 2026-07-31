@@ -102,6 +102,12 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <tr><td>零比特填充法</td><td><code>01111110</code> 标边界</td><td>数据连续 5 个 1 后插入 0；接收端删除</td><td>插入的是 0，不是整个标志串</td></tr>
 <tr><td>违规编码法</td><td>用正常编码不会出现的信号标边界</td><td>物理编码天然区分</td><td>依赖编码方案</td></tr></table>
 </div>
+<div class="ex"><div class="ex-head">教程例题 · 零比特填充怎么一步步做</div><div class="ex-q">待发送的数据部分为 <code>01111110111110</code>。使用零比特填充后，数据部分变成什么？接收端如何恢复？</div>
+<div class="step"><span class="n">1</span><span class="t">从左往右扫描并记录连续 1 的个数；遇到 0 就把计数清零。</span></div>
+<div class="step"><span class="n">2</span><span class="t">扫描到第一个连续 5 个 1 时，立即插入一个 0，再继续处理原数据中剩余的第 6 个 1。</span></div>
+<div class="step"><span class="n">3</span><span class="t">后半段再次出现连续 5 个 1，再插入一个 0。填充结果为 <code>0111110101111100</code>。</span></div>
+<div class="step"><span class="n">4</span><span class="t">接收端同样从左往右扫描：每看到连续 5 个 1，就删除它们后面紧跟的那个填充 0，即可还原原数据。</span></div>
+<div class="ans">填充后：0111110101111100；接收端删除两个填充 0</div></div>
 
 <div class="sec" id="error"><span class="snum">§2</span> 差错控制</div>
 <h3 class="sub">CRC 循环冗余校验 <span class="pri a">A 必学 · 高频计算</span></h3>
@@ -165,6 +171,12 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <tr><td>信道划分</td><td>FDM、TDM、WDM、CDM</td><td>预先切分频率、时间、波长或码片；不会冲突，但空闲份额可能浪费</td><td>会区分即可</td></tr>
 <tr><td>随机访问</td><td>ALOHA、CSMA、CSMA/CD、CSMA/CA</td><td>有数据就竞争；负载低时灵活，负载高时冲突增多</td><td>重点掌握 CSMA/CD</td></tr>
 <tr><td>轮询访问</td><td>轮询、令牌传递</td><td>控制权依次传递；无冲突，但有等待和控制开销</td><td>C：细节可跳</td></tr></table>
+<div class="ex"><div class="ex-head">教程例题 · CDMA 码片如何恢复发送数据</div><div class="ex-q">站点 A 的码片序列为 <code>(1,1,1,1)</code>，B 为 <code>(1,−1,1,−1)</code>。A 发送比特 1，B 发送比特 0；约定 1 发送原码片，0 发送反码片。求叠加信号，并判断接收端如何恢复 A、B 的数据。</div>
+<div class="step"><span class="n">1</span><span class="t">A 发送 1，所以发送 <code>(1,1,1,1)</code>；B 发送 0，所以发送 B 的反码 <code>(−1,1,−1,1)</code>。</span></div>
+<div class="step"><span class="n">2</span><span class="t">信道中线性叠加：<code>(1,1,1,1)+(−1,1,−1,1)=(0,2,0,2)</code>。</span></div>
+<div class="step"><span class="n">3</span><span class="t">用叠加信号与 A 的码片做规格化内积：<code>(0+2+0+2)/4=1</code>，所以 A 发送 1。</span></div>
+<div class="step"><span class="n">4</span><span class="t">与 B 做规格化内积：<code>(0−2+0−2)/4=−1</code>。结果 −1 表示发送反码，因此 B 发送 0。</span></div>
+<div class="ans">叠加信号：(0,2,0,2)；恢复结果：A=1，B=0</div></div>
 <div class="vs"><div><h4>CSMA/CD：有线以太网 <span class="pri a">A 必学</span></h4><p>先听后发、边发边听、冲突停发、随机重发。能一边发送一边检测电压变化，因此能检测碰撞。</p></div><div><h4>CSMA/CA：无线局域网 <span class="pri b">B 会辨析</span></h4><p>无线端难以边发边听，还存在隐蔽站，因此尽量避免冲突：预约信道、ACK、随机退避，可选 RTS/CTS。</p></div></div>
 <figure class="visual"><h4>图 2 · CSMA/CD 为什么需要 2τ</h4>
 <svg viewBox="0 0 900 300" role="img" aria-labelledby="cd-title cd-desc"><title id="cd-title">CSMA/CD 冲突检测时序</title><desc id="cd-desc">站点 A 与最远站点 B 相距单程传播时延 tau。A 发送后，B 在信号即将到达时发送并发生冲突，冲突信号再用 tau 返回 A，因此 A 最迟在 2 tau 时发现冲突。</desc>
@@ -187,6 +199,11 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <h3 class="sub">MAC 地址与以太网帧 <span class="pri a">A 必学 · 高频辨析</span></h3>
 <div class="g2"><div class="cc"><h3>MAC 地址</h3><p>通常为 48 bit（6 字节），用于局域网一跳内标识网络接口。全 1 地址 <code>FF:FF:FF:FF:FF:FF</code> 是广播地址。</p><p>路由器转发 IP 数据报时，<strong>源/目的 IP 通常不变，源/目的 MAC 每一跳都重新封装</strong>。</p></div>
 <div class="cc"><h3>无连接、不可靠</h3><p>传统以太网 MAC 层不建立连接，也不为每个帧返回确认；发现差错就丢弃，可靠性由需要它的上层协议负责。这里的“不可靠”不是说以太网经常坏，而是“不承诺恢复”。</p></div></div>
+<div class="ex"><div class="ex-head">教程例题 · 跨路由器时 MAC 地址怎么变</div><div class="ex-q">主机 H1 经路由器 R 向另一网络中的 H2 发送 IP 数据报。第一跳 H1→R 和第二跳 R→H2 的源、目的 IP 与 MAC 分别是什么？</div>
+<div class="step"><span class="n">1</span><span class="t">IP 数据报描述端到端通信，所以两跳的源 IP 都是 <strong>H1 的 IP</strong>，目的 IP 都是 <strong>H2 的 IP</strong>。</span></div>
+<div class="step"><span class="n">2</span><span class="t">第一跳只需要把帧送到默认网关：源 MAC=H1 的 MAC，目的 MAC=R 在 H1 网络一侧接口的 MAC。</span></div>
+<div class="step"><span class="n">3</span><span class="t">R 收到后拆掉旧帧头，在下一条链路重新封装：源 MAC=R 在 H2 网络一侧接口的 MAC，目的 MAC=H2 的 MAC。</span></div>
+<div class="ans">IP 地址端到端保持；MAC 地址随每一跳重新封装</div></div>
 <figure class="visual"><h4>图 3 · 以太网 MAC 帧格式</h4>
 <svg viewBox="0 0 900 205" role="img" aria-labelledby="frame-title frame-desc"><title id="frame-title">以太网帧字段</title><desc id="frame-desc">以太网 MAC 帧依次包含 6 字节目的地址、6 字节源地址、2 字节类型、46 到 1500 字节数据和 4 字节 FCS。帧长从目的地址到 FCS 为 64 到 1518 字节。</desc>
 <rect x="20" y="58" width="145" height="64" class="svg-a"/><rect x="165" y="58" width="145" height="64" class="svg-b"/><rect x="310" y="58" width="90" height="64" class="svg-w"/><rect x="400" y="58" width="360" height="64" class="svg-box"/><rect x="760" y="58" width="115" height="64" class="svg-r"/>
@@ -201,12 +218,27 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <div class="ans">填充 16 B；MAC 帧长 64 B</div></div>
 <h3 class="sub">VLAN 与 802.1Q <span class="pri b">B 会辨析</span></h3>
 <div class="cc"><p>VLAN 在同一套交换网络上划分多个逻辑广播域。不同 VLAN 的主机即使接在同一交换机，也不能仅靠二层直接通信；跨 VLAN 通信需要三层设备。</p><ul><li><strong>Access 端口</strong>：通常接终端，只属于一个 VLAN，收发普通以太网帧。</li><li><strong>Trunk 端口</strong>：通常连接交换机，承载多个 VLAN，使用 802.1Q 标签。</li><li>802.1Q 标签增加 4 B，因此带标签帧的最大长度相应增加。</li></ul></div>
+<div class="ex"><div class="ex-head">教程例题 · Access、Trunk 与跨 VLAN 通信</div><div class="ex-q">交换机 S1 的主机 A 属于 VLAN 10，主机 B 属于 VLAN 20；S1 通过 Trunk 连接 S2，S2 上的主机 C 也属于 VLAN 10。A 能否直接与 B、C 进行二层通信？</div>
+<div class="step"><span class="n">1</span><span class="t">A 与 B 位于不同 VLAN，也就是不同广播域。即使接在同一交换机，也不能只靠二层直接通信；需要路由器或三层交换机做跨 VLAN 路由。</span></div>
+<div class="step"><span class="n">2</span><span class="t">A 与 C 都属于 VLAN 10，可以二层通信。帧从主机进入 Access 端口时通常不带标签。</span></div>
+<div class="step"><span class="n">3</span><span class="t">帧经过 S1→S2 的 Trunk 时添加 802.1Q 标签，标明 VLAN 10；到达 C 的 Access 端口前再去掉标签。</span></div>
+<div class="ans">A↔B：不能直接二层通信；A↔C：可以，经 Trunk 携带 VLAN 10 标签</div></div>
 <h3 class="sub">IEEE 802.11 无线局域网 <span class="pri b">B 会辨析</span></h3>
 <div class="cc"><p>无线网络常通过 AP 组成基础设施网络。由于发送时难以同时检测冲突，并有隐蔽站问题，使用 CSMA/CA。802.11 帧可能出现 3 个或 4 个地址字段，因为既要描述无线收发节点，也要保留真正的源和目的。</p><div class="note tip"><span class="nlbl">取舍</span><p>110 分目标只需掌握 CSMA/CA、ACK、退避、RTS/CTS 和“为什么地址字段更多”。各子标准速率与频段不值得专门背。</p></div></div>
+<div class="ex"><div class="ex-head">教程例题 · 隐蔽站与 RTS/CTS</div><div class="ex-q">无线站点 A、C 都能与 AP B 通信，但 A 和 C 相距较远，彼此听不到。为什么 A、C 可能同时发送？RTS/CTS 如何缓解？</div>
+<div class="step"><span class="n">1</span><span class="t">A 侦听时听不到 C，C 侦听时也听不到 A，两者都可能误判“信道空闲”，随后同时向 B 发送并在 B 处碰撞。</span></div>
+<div class="step"><span class="n">2</span><span class="t">A 先向 B 发送 RTS 请求发送；B 广播 CTS，说明接下来一段时间信道已预约。</span></div>
+<div class="step"><span class="n">3</span><span class="t">即使 C 听不到 A，它通常能听到 B 的 CTS，于是根据持续时间字段推迟发送，减少与 A 的碰撞。</span></div>
+<div class="ans">隐蔽站来自“听不到对方却都能听到 AP”；CTS 让 AP 覆盖范围内的站点统一退让</div></div>
 
 <div class="sec" id="wan"><span class="snum">§6</span> 广域网与 PPP</div>
 <div class="g2"><div class="cc"><h3>广域网的链路层 <span class="pri b">B 会辨析</span></h3><p>广域网跨越较大地理范围，重点是点到点链路。它与局域网的“共享介质竞争”不是同一个问题，因此点到点链路不需要 CSMA/CD。</p></div>
 <div class="cc"><h3>PPP 协议 <span class="pri b">B 会辨析</span></h3><p>PPP 面向点到点链路，提供组帧、差错检测、链路控制 LCP，以及为不同网络层协议配置参数的 NCP。</p><ul><li>只检错，不纠错；不使用序号和确认实现可靠传输。</li><li>字节填充用于异步链路，零比特填充用于同步链路。</li><li>不支持多点线路，不负责流量控制。</li></ul></div></div>
+<div class="ex"><div class="ex-head">教程例题 · PPP 异步链路的字节填充</div><div class="ex-q">PPP 异步链路中，标志字节为 <code>7E</code>，转义字节为 <code>7D</code>。数据中出现字节序列 <code>45 7E 7D</code>，按“转义字节 + 原字节异或 20H”处理后发送什么？</div>
+<div class="step"><span class="n">1</span><span class="t"><code>45</code> 不是特殊字节，直接发送。</span></div>
+<div class="step"><span class="n">2</span><span class="t"><code>7E</code> 需要转义：先发 <code>7D</code>，再发 <code>7E XOR 20 = 5E</code>。</span></div>
+<div class="step"><span class="n">3</span><span class="t"><code>7D</code> 也要转义：先发 <code>7D</code>，再发 <code>7D XOR 20 = 5D</code>。</span></div>
+<div class="ans">发送的数据部分：45 7D 5E 7D 5D</div></div>
 <div class="note warn"><span class="nlbl">低性价比</span><p>PPP 的每个字段取值、完整状态机，以及教材延伸的 HDLC 细节，时间紧可以跳过。现行大纲明确列 PPP，没有单列 HDLC。</p></div>
 
 <div class="sec" id="switch"><span class="snum">§7</span> 网桥与以太网交换机</div>
