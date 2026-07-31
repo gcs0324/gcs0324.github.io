@@ -123,6 +123,20 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <div class="g2"><div class="cc"><h3>监督位数量</h3><p>k 个数据位需要 r 个监督位。r 个监督位要能指出“无错”以及 k+r 个可能出错位置，因此：</p><div class="fmla">2<sup>r</sup> ≥ k + r + 1</div><p>例：k=4 时，r=3，因为 8≥4+3+1。</p></div>
 <div class="cc"><h3>监督位放哪里</h3><p>监督位放在编号为 1、2、4、8…的位置，即 2 的幂。每个监督位检查位置编号二进制中相应位为 1 的那些位置。校验结果组成的二进制数就是错误位置。</p><div class="note warn"><span class="nlbl">边界</span><p>普通海明码能纠正 1 位错，但不能可靠区分“1 位错”和某些“2 位错”。增加一个总校验位后可实现 SEC-DED：纠正 1 位、检测 2 位。</p></div></div></div>
 <div class="note info"><span class="nlbl">真题怎么问</span><p>常见问法有三种：<strong>① 给 k 位数据，求至少需要几位监督位；② 给数据位和奇偶校验规则，构造完整海明码；③ 给接收码或校验结果，定位并纠正错误位。</strong>选择题经常把三步串起来，所以只会背公式不够。</p></div>
+<div class="cc"><h3>P₁、P₂、P₄ 为什么检查这些位置</h3>
+<p>先把码字位置编号写成二进制。3 个监督位相当于二进制编号的 3 个数位：<strong>P₁ 管最低位，P₂ 管中间位，P₄ 管最高位</strong>。某个位置的相应二进制位为 1，它就加入对应监督组。</p>
+<table class="tbl">
+  <tr><th>十进制位置</th><th>三位二进制</th><th>P₁ 组（最低位=1）</th><th>P₂ 组（中间位=1）</th><th>P₄ 组（最高位=1）</th></tr>
+  <tr><td>1</td><td><code>001</code></td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>2</td><td><code>010</code></td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>3</td><td><code>011</code></td><td>✓</td><td>✓</td><td>—</td></tr>
+  <tr><td>4</td><td><code>100</code></td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>5</td><td><code>101</code></td><td>✓</td><td>—</td><td>✓</td></tr>
+  <tr><td>6</td><td><code>110</code></td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>7</td><td><code>111</code></td><td>✓</td><td>✓</td><td>✓</td></tr>
+</table>
+<p>所以分组自然得到：<strong>P₁ 检查 1、3、5、7；P₂ 检查 2、3、6、7；P₄ 检查 4、5、6、7。</strong>每个位置参加的监督组组合都不同。例如第 5 位编号是 <code>101</code>，所以它只参加 P₁、P₄ 组；一旦第 5 位出错，恰好只有这两组校验失败，失败标记就是 <code>101₂=5</code>。</p>
+</div>
 <div class="ex"><div class="ex-head">2013 年 408 第 15 题 · 真题原型</div><div class="ex-q">用海明码对长度为 8 位的数据进行检/纠错，若能纠正一位错，则校验位数至少为多少？</div>
 <div class="step"><span class="n">1</span><span class="t">代入 <code>2^r≥k+r+1</code>，其中 k=8。</span></div>
 <div class="step"><span class="n">2</span><span class="t">r=3 时：<code>8&lt;8+3+1=12</code>，不够；r=4 时：<code>16≥8+4+1=13</code>，满足。</span></div>
@@ -130,10 +144,12 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <div class="ex"><div class="ex-head">真题型例题 · 构造海明码并定位错误</div><div class="ex-q">4 位数据为 1011，采用偶校验构造 7 位海明码。数据位按顺序放入 D₁、D₂、D₃、D₄。若传输后第 5 位发生错误，接收端如何定位？</div>
 <div class="step"><span class="n">1</span><span class="t">先求监督位数量：<code>2³=8≥4+3+1</code>，所以需要 3 个监督位。</span></div>
 <div class="step"><span class="n">2</span><span class="t">P₁、P₂、P₄ 放在位置 1、2、4；数据 1011 放在位置 3、5、6、7：<code>P₁ P₂ 1 P₄ 0 1 1</code>。</span></div>
-<div class="step"><span class="n">3</span><span class="t">P₁ 检查位置 1、3、5、7。已有数据位为 1、0、1，共 2 个 1，偶校验取 <strong>P₁=0</strong>。</span></div>
-<div class="step"><span class="n">4</span><span class="t">P₂ 检查位置 2、3、6、7。已有 1、1、1，共 3 个 1，偶校验取 <strong>P₂=1</strong>。</span></div>
-<div class="step"><span class="n">5</span><span class="t">P₄ 检查位置 4、5、6、7。已有 0、1、1，共 2 个 1，偶校验取 <strong>P₄=0</strong>。发送码为 <code>0110011</code>。</span></div>
-<div class="step"><span class="n">6</span><span class="t">第 5 位出错后收到 <code>0110111</code>。重新校验得到 <code>S₄S₂S₁=101₂=5</code>，因此定位到第 5 位，将它取反即可纠正。</span></div>
+<div class="step"><span class="n">3</span><span class="t">按位置编号的二进制最低位分组，P₁ 检查 1、3、5、7。偶校验要求整组异或结果为 0，因此 <code>P₁ XOR 1 XOR 0 XOR 1=0</code>，解得 <strong>P₁=0</strong>。</span></div>
+<div class="step"><span class="n">4</span><span class="t">P₂ 对应二进制中间位，检查 2、3、6、7：<code>P₂ XOR 1 XOR 1 XOR 1=0</code>。三个 1 的异或为 1，所以取 <strong>P₂=1</strong> 才能让整组结果为 0。</span></div>
+<div class="step"><span class="n">5</span><span class="t">P₄ 对应二进制最高位，检查 4、5、6、7：<code>P₄ XOR 0 XOR 1 XOR 1=0</code>，解得 <strong>P₄=0</strong>。因此发送码为 <code>0110011</code>。</span></div>
+<div class="step"><span class="n">6</span><span class="t">假设第 5 位从 0 变成 1，收到 <code>0110111</code>。接收端不猜错误位置，而是把三个监督组<strong>连同监督位本身重新异或</strong>。</span></div>
+<div class="step"><span class="n">7</span><span class="t"><code>S₁=位置1 XOR 3 XOR 5 XOR 7=0 XOR 1 XOR 1 XOR 1=1</code>；<code>S₂=位置2 XOR 3 XOR 6 XOR 7=1 XOR 1 XOR 1 XOR 1=0</code>；<code>S₄=位置4 XOR 5 XOR 6 XOR 7=0 XOR 1 XOR 1 XOR 1=1</code>。</span></div>
+<div class="step"><span class="n">8</span><span class="t">按高位到低位排列得到 <code>S₄S₂S₁=101₂=5</code>。这正是出错位置编号，所以将第 5 位由 1 取反为 0，即恢复发送码 <code>0110011</code>。</span></div>
 <div class="ans">发送码：0110011；校验综合征：101₂；错误位置：第 5 位</div></div>
 <div class="note bad"><span class="nlbl">易错点</span><p>不同教材可能规定数据位装入方向不同，或者使用奇校验。<strong>位置与校验规则以题干为准</strong>；但监督位一定放在 1、2、4、8…，综合征转成十进制后仍表示错误位置。</p></div>
 
