@@ -1,0 +1,833 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - text: MEMORY
+    - generic [ref=e3]: AI AGENT
+    - heading "Agent 记忆系统：从理论到工程" [level=1] [ref=e4]
+    - paragraph [ref=e5]: 为什么 LLM 有了 1M token 上下文窗口，Agent 仍然需要独立的记忆系统？ 本文梳理 CoALA 理论框架、9 个主流框架的实现方案、检索评分算法、存储选型和关键设计决策。
+  - navigation [ref=e6]:
+    - link "为什么需要记忆" [ref=e7] [cursor=pointer]:
+      - /url: "#why"
+    - link "CoALA 框架" [ref=e8] [cursor=pointer]:
+      - /url: "#coala"
+    - link "三维评分" [ref=e9] [cursor=pointer]:
+      - /url: "#generative-agents"
+    - link "框架对比" [ref=e10] [cursor=pointer]:
+      - /url: "#frameworks"
+    - link "检索评分" [ref=e11] [cursor=pointer]:
+      - /url: "#scoring"
+    - link "存储与检索" [ref=e12] [cursor=pointer]:
+      - /url: "#storage"
+    - link "设计决策" [ref=e13] [cursor=pointer]:
+      - /url: "#decisions"
+    - link "论文地图" [ref=e14] [cursor=pointer]:
+      - /url: "#papers"
+  - main [ref=e15]:
+    - generic [ref=e16]: 为什么需要记忆
+    - generic [ref=e17]:
+      - generic [ref=e18]: 💬 核心矛盾
+      - paragraph [ref=e19]:
+        - text: LLM 的上下文窗口是
+        - strong [ref=e20]: 固定大小的工作区
+        - text: ，而真实协作中的信息是
+        - strong [ref=e21]: 无限增长的
+        - text: 。即使窗口扩大到 1M token，"大海捞针"测试也只能测单事实检索——多事实场景下平均召回率仅约
+        - strong [ref=e22]: 60%
+        - text: ，且模型在窗口中间位置的注意力显著下降（Lost in the Middle 效应）。
+      - paragraph [ref=e23]:
+        - text: 记忆系统的本质任务：
+        - emphasis [ref=e24]: 从无限信息流中，把对当前决策最有价值的那一小撮信息捞出来，塞进有限的上下文窗口。
+    - generic [ref=e25]:
+      - generic [ref=e27]:
+        - generic [ref=e28]: 没有记忆系统
+        - generic [ref=e29]: 单次问答模式
+        - generic [ref=e30]: 每次对话从零开始。Agent 不记得你的偏好、项目背景、上次讨论到哪了。适合一次性任务，无法支撑长期协作。
+      - generic [ref=e32]:
+        - generic [ref=e33]: 有记忆系统
+        - generic [ref=e34]: 长期协作模式
+        - generic [ref=e35]: Agent 记住你的技术栈偏好、项目架构、历史决策。新对话开始时自动加载相关上下文，越用越懂你。
+    - generic [ref=e36]:
+      - generic [ref=e37]: 关键数字
+      - paragraph [ref=e38]:
+        - text: RAG（检索增强）vs 直接塞 1M token 长上下文的
+        - strong [ref=e39]: 成本差距约 1,250 倍
+        - text: 。1M token 缓存需要约 100GB GPU 显存。生产环境中，RAG 的实际可靠上限是
+        - strong [ref=e40]: 32K-64K token
+        - text: ，而非模型宣传的最大值。
+    - generic [ref=e41]: CoALA · 认知架构理论框架
+    - generic [ref=e42]:
+      - generic [ref=e43]: 💬 为什么先讲理论
+      - paragraph [ref=e44]:
+        - text: CoALA（Cognitive Architectures for Language Agents，Sumers & Yao, TMLR 2024）是
+        - strong [ref=e45]: 第一篇系统化梳理 LLM Agent 认知架构的学术论文
+        - text: 。它提出的四种记忆分类——Working / Episodic / Semantic / Procedural——已成为业内讨论 Agent 记忆的通用语言。理解 CoALA 后再看各框架实现，会发现它们都在这个框架的不同位置做了取舍。
+      - paragraph [ref=e46]:
+        - text: CoALA 的理论来源是
+        - strong [ref=e47]: SOAR 认知架构
+        - text: （非 ACT-R），核心创新是用
+        - strong [ref=e48]: 自然语言统一所有内部表示
+        - text: ，用 LLM 替代手写产生式规则。
+    - table [ref=e50]:
+      - rowgroup [ref=e51]:
+        - row "记忆类型 存什么 生命周期 类比" [ref=e52]:
+          - columnheader "记忆类型" [ref=e53]
+          - columnheader "存什么" [ref=e54]
+          - columnheader "生命周期" [ref=e55]
+          - columnheader "类比" [ref=e56]
+      - rowgroup [ref=e57]:
+        - row "Working Memory 工作记忆 当前决策循环中的活跃信息：感知输入、LLM 推理中间结果、从长期记忆检索到的内容、当前目标状态 每次决策循环后消失，除非显式写入长期记忆 RAM" [ref=e58]:
+          - cell "Working Memory 工作记忆" [ref=e59]:
+            - text: Working Memory
+            - text: 工作记忆
+          - cell "当前决策循环中的活跃信息：感知输入、LLM 推理中间结果、从长期记忆检索到的内容、当前目标状态" [ref=e60]
+          - cell "每次决策循环后消失，除非显式写入长期记忆" [ref=e61]
+          - cell "RAM" [ref=e62]
+        - row "Episodic Memory 情景记忆 过去的交互轨迹：输入-输出对、事件流、对话历史、Agent 自身行为记录 长期保留，可被后续检索与反思 个人日记" [ref=e63]:
+          - cell "Episodic Memory 情景记忆" [ref=e64]:
+            - text: Episodic Memory
+            - text: 情景记忆
+          - cell "过去的交互轨迹：输入-输出对、事件流、对话历史、Agent 自身行为记录" [ref=e65]
+          - cell "长期保留，可被后续检索与反思" [ref=e66]
+          - cell "个人日记" [ref=e67]
+        - row "Semantic Memory 语义记忆 关于世界与自身的结构化知识：实体、关系、从经验中抽象出的规则 长期保留，可由外部知识库初始化 维基百科" [ref=e68]:
+          - cell "Semantic Memory 语义记忆" [ref=e69]:
+            - text: Semantic Memory
+            - text: 语义记忆
+          - cell "关于世界与自身的结构化知识：实体、关系、从经验中抽象出的规则" [ref=e70]
+          - cell "长期保留，可由外部知识库初始化" [ref=e71]
+          - cell "维基百科" [ref=e72]
+        - row "Procedural Memory 程序性记忆 决定 Agent 如何行动的机制：隐式部分（LLM 权重）+ 显式部分（Agent 代码、推理策略、检索逻辑） 由设计者初始化，风险最高 OS 内核" [ref=e73]:
+          - cell "Procedural Memory 程序性记忆" [ref=e74]:
+            - text: Procedural Memory
+            - text: 程序性记忆
+          - cell "决定 Agent 如何行动的机制：隐式部分（LLM 权重）+ 显式部分（Agent 代码、推理策略、检索逻辑）" [ref=e75]
+          - cell "由设计者初始化，风险最高" [ref=e76]
+          - cell "OS 内核" [ref=e77]
+    - generic [ref=e78]:
+      - generic [ref=e79]:
+        - generic [ref=e80]: 决策循环
+        - generic [ref=e81]: CoALA Decision Cycle
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e85]: "1"
+          - generic [ref=e87]:
+            - generic [ref=e88]: Observation（感知）
+            - generic [ref=e89]:
+              - text: 环境输入（用户消息、工具返回、API 响应）→ 写入
+              - strong [ref=e90]: Working Memory
+        - generic [ref=e91]:
+          - generic [ref=e93]: "2"
+          - generic [ref=e95]:
+            - generic [ref=e96]: Planning（规划）
+            - generic [ref=e97]:
+              - text: 从长期记忆
+              - strong [ref=e98]: 检索
+              - text: 相关知识 → LLM
+              - strong [ref=e99]: 推理
+              - text: 生成候选动作 → 对候选动作
+              - strong [ref=e100]: 评估
+              - text: 打分 →
+              - strong [ref=e101]: 选择
+              - text: 最优动作
+        - generic [ref=e102]:
+          - generic [ref=e104]: "3"
+          - generic [ref=e106]:
+            - generic [ref=e107]: Execution（执行）
+            - generic [ref=e108]:
+              - text: 执行选定动作——可能是
+              - strong [ref=e109]: 外部动作
+              - text: （调工具、发消息）或
+              - strong [ref=e110]: 内部学习动作
+              - text: （写记忆、更新知识）
+        - generic [ref=e111]:
+          - generic [ref=e113]: "4"
+          - generic [ref=e114]:
+            - generic [ref=e115]: Feedback（反馈）
+            - generic [ref=e116]: 动作结果返回 Working Memory，循环回到 Planning
+    - generic [ref=e117]:
+      - generic [ref=e118]: 认知心理学渊源
+      - paragraph [ref=e119]: CoALA 对应 SOAR 的四个组件：Working Memory → 工作记忆，Procedural Memory → 产生式规则，Semantic Memory → 语义长期记忆，Episodic Memory → 情景长期记忆。决策循环对应 SOAR 的 propose → evaluate → select → execute。SOAR 的 Chunking（经验压缩）对应 CoALA 的 Learning actions。
+    - generic [ref=e120]: Generative Agents · 三维评分与反思机制
+    - generic [ref=e121]:
+      - generic [ref=e122]: 💬 为什么重要
+      - paragraph [ref=e123]:
+        - text: Park et al. (UIST 2023) 的 Generative Agents 是
+        - strong [ref=e124]: 第一个完整实现 LLM Agent 长期记忆系统的工程
+        - text: 。它提出的三维评分公式（recency + importance + relevance）已经成为后续几乎所有 Agent 记忆检索的
+        - strong [ref=e125]: 事实标准
+        - text: 。配套的 Reflection 机制首次实现了"记忆的记忆"——Agent 不仅能记住发生了什么，还能对自己的经历进行反思和抽象。
+    - generic [ref=e126]:
+      - generic [ref=e127]:
+        - generic [ref=e128]: 评分公式
+        - generic [ref=e129]: Memory Stream 三维检索评分
+      - generic [ref=e130]:
+        - generic [ref=e131]:
+          - generic [ref=e133]: R
+          - generic [ref=e135]:
+            - generic [ref=e136]: Recency（近因性）
+            - generic [ref=e137]:
+              - text: 公式：
+              - code [ref=e138]: 0.995^h
+              - text: ，h = 自上次访问以来的游戏小时数。指数衰减，值域 [0, 1]。越近访问的记忆得分越高。
+        - generic [ref=e139]:
+          - generic [ref=e141]: I
+          - generic [ref=e143]:
+            - generic [ref=e144]: Importance（重要性）
+            - generic [ref=e145]: LLM 打分 1-10。Prompt：「1=琐事（刷牙），10=极其重要（分手/录取）」。写入记忆时评分一次，后续不更新。
+        - generic [ref=e146]:
+          - generic [ref=e148]: R
+          - generic [ref=e149]:
+            - generic [ref=e150]: Relevance（相关性）
+            - generic [ref=e151]: 当前查询 embedding 与记忆 embedding 的余弦相似度。值域 [-1, 1]，需 min-max 归一化到 [0, 1]。
+    - generic [ref=e152]: // 三维加权求和，默认权重均为 1.0 score = α · n(recency) + β · n(importance) + γ · n(relevance) // 关键配置 RECENCY_DECAY = 0.995 // 每小时指数衰减因子 REFLECTION_THRESHOLD = 150.0 // 触发反思的累积 importance 阈值
+    - generic [ref=e153]:
+      - generic [ref=e154]:
+        - generic [ref=e155]: 反思机制
+        - generic [ref=e156]: Reflection · 记忆的记忆
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - generic [ref=e160]: "1"
+          - generic [ref=e162]:
+            - generic [ref=e163]: 触发条件
+            - generic [ref=e164]:
+              - text: 最近记忆的 importance 总分超过
+              - strong [ref=e165]: "150"
+        - generic [ref=e166]:
+          - generic [ref=e168]: "2"
+          - generic [ref=e170]:
+            - generic [ref=e171]: 生成问题
+            - generic [ref=e172]:
+              - text: 取最近 100 条记忆作为种子，LLM 提出
+              - strong [ref=e173]: 3 个高层次问题
+        - generic [ref=e174]:
+          - generic [ref=e176]: "3"
+          - generic [ref=e178]:
+            - generic [ref=e179]: 检索+综合
+            - generic [ref=e180]:
+              - text: 对每个问题检索相关记忆，LLM 综合生成
+              - strong [ref=e181]: 3-5 条 reflection statements
+              - text: （depth=2），30 天后过期
+        - generic [ref=e182]:
+          - generic [ref=e184]: "4"
+          - generic [ref=e185]:
+            - generic [ref=e186]: 递归反思
+            - generic [ref=e187]: 反思产生的记忆可作为更高层反思的种子，形成记忆的树状结构
+    - generic [ref=e188]:
+      - generic [ref=e189]: 设计洞察
+      - paragraph [ref=e190]:
+        - text: 原始记忆（observation）和反思记忆（reflection）
+        - strong [ref=e191]: 并存而非替代
+        - text: 。检索时两者共同参与评分。这意味着 Agent 既能看到原始细节，也能利用高层抽象——类似人既记得"上周三下雨"（具体事件），也记得"最近天气不好"（抽象总结）。
+    - generic [ref=e192]: 主流框架记忆实现
+    - generic [ref=e193]:
+      - generic [ref=e194]: 💬 怎么看这张表
+      - paragraph [ref=e195]:
+        - text: 每个框架对"记忆"的定义不同，分层数从 2 到 7 不等。关键是理解
+        - strong [ref=e196]: 设计哲学的分歧
+        - text: ：有人把记忆当作 Tool 让 LLM 主动调用，有人把记忆自动注入 prompt；有人用向量数据库做语义检索，有人用纯文件系统追求可审计性。没有银弹，只有取舍。
+    - table [ref=e198]:
+      - rowgroup [ref=e199]:
+        - row "框架 分层数 存储后端 写入方式 检索方式 注入方式 跨会话" [ref=e200]:
+          - columnheader "框架" [ref=e201]
+          - columnheader "分层数" [ref=e202]
+          - columnheader "存储后端" [ref=e203]
+          - columnheader "写入方式" [ref=e204]
+          - columnheader "检索方式" [ref=e205]
+          - columnheader "注入方式" [ref=e206]
+          - columnheader "跨会话" [ref=e207]
+      - rowgroup [ref=e208]:
+        - row "HelloAgents 4 层 SQLite + Qdrant + Neo4j 手动 MemoryTool 混合多因子评分 Tool 调用 ✅" [ref=e209]:
+          - cell "HelloAgents" [ref=e210]
+          - cell "4 层" [ref=e211]
+          - cell "SQLite + Qdrant + Neo4j" [ref=e212]
+          - cell "手动 MemoryTool" [ref=e213]
+          - cell "混合多因子评分" [ref=e214]
+          - cell "Tool 调用" [ref=e215]
+          - cell "✅" [ref=e216]
+        - row "MemGPT / Letta 3 层 PostgreSQL + 向量库 LLM 自主函数调用 函数调用显式检索 Core 注入 + Tool ✅" [ref=e217]:
+          - cell "MemGPT / Letta" [ref=e218]
+          - cell "3 层" [ref=e219]
+          - cell "PostgreSQL + 向量库" [ref=e220]
+          - cell "LLM 自主函数调用" [ref=e221]
+          - cell "函数调用显式检索" [ref=e222]
+          - cell "Core 注入 + Tool" [ref=e223]
+          - cell "✅" [ref=e224]
+        - row "LangChain / LC4j 7 种类型 内存 + 向量库 自动（Chain 流程中） 窗口/摘要/向量 拼入 prompt 自定义" [ref=e225]:
+          - cell "LangChain / LC4j" [ref=e226]
+          - cell "7 种类型" [ref=e227]
+          - cell "内存 + 向量库" [ref=e228]
+          - cell "自动（Chain 流程中）" [ref=e229]
+          - cell "窗口/摘要/向量" [ref=e230]
+          - cell "拼入 prompt" [ref=e231]
+          - cell "自定义" [ref=e232]
+        - row "CrewAI 统一 + Scope LanceDB 手动 / 自动 / LLM Composite 三因子 自动注入 ✅" [ref=e233]:
+          - cell "CrewAI" [ref=e234]
+          - cell "统一 + Scope" [ref=e235]
+          - cell "LanceDB" [ref=e236]
+          - cell "手动 / 自动 / LLM" [ref=e237]
+          - cell "Composite 三因子" [ref=e238]
+          - cell "自动注入" [ref=e239]
+          - cell "✅" [ref=e240]
+        - row "AutoGPT 经典 + Dream Pass Chroma/FAISS + Graphiti 自动 + 后台巩固 ANN + 知识图谱 自动注入 ✅" [ref=e241]:
+          - cell "AutoGPT" [ref=e242]
+          - cell "经典 + Dream Pass" [ref=e243]
+          - cell "Chroma/FAISS + Graphiti" [ref=e244]
+          - cell "自动 + 后台巩固" [ref=e245]
+          - cell "ANN + 知识图谱" [ref=e246]
+          - cell "自动注入" [ref=e247]
+          - cell "✅" [ref=e248]
+        - row "Claude Code 4 类作用域 Markdown 文件 手动 + 自动 LLM 扫描（无向量） 用户消息注入 ✅ 本地" [ref=e249]:
+          - cell "Claude Code" [ref=e250]
+          - cell "4 类作用域" [ref=e251]
+          - cell "Markdown 文件" [ref=e252]
+          - cell "手动 + 自动" [ref=e253]
+          - cell "LLM 扫描（无向量）" [ref=e254]
+          - cell "用户消息注入" [ref=e255]
+          - cell "✅ 本地" [ref=e256]
+        - row "ChatGPT 3 层子系统 OpenAI 托管 自动 + 后台异步 隐式 + 自动 System prompt ✅" [ref=e257]:
+          - cell "ChatGPT" [ref=e258]
+          - cell "3 层子系统" [ref=e259]
+          - cell "OpenAI 托管" [ref=e260]
+          - cell "自动 + 后台异步" [ref=e261]
+          - cell "隐式 + 自动" [ref=e262]
+          - cell "System prompt" [ref=e263]
+          - cell "✅" [ref=e264]
+        - row "Gemini 2 层 Google 托管 自动 + 异步生成 相似度 + Scope 工具注入 ✅" [ref=e265]:
+          - cell "Gemini" [ref=e266]
+          - cell "2 层" [ref=e267]
+          - cell "Google 托管" [ref=e268]
+          - cell "自动 + 异步生成" [ref=e269]
+          - cell "相似度 + Scope" [ref=e270]
+          - cell "工具注入" [ref=e271]
+          - cell "✅" [ref=e272]
+        - row "Dify / Coze 2-3 层 内置 + PG/Pinecone 自动 + 关键词 语义 / 混合 模板注入 ✅" [ref=e273]:
+          - cell "Dify / Coze" [ref=e274]
+          - cell "2-3 层" [ref=e275]
+          - cell "内置 + PG/Pinecone" [ref=e276]
+          - cell "自动 + 关键词" [ref=e277]
+          - cell "语义 / 混合" [ref=e278]
+          - cell "模板注入" [ref=e279]
+          - cell "✅" [ref=e280]
+    - generic [ref=e281]:
+      - generic [ref=e282]:
+        - generic [ref=e283]:
+          - generic [ref=e284]: MemGPT / Letta
+          - generic [ref=e285]: OS 式分页记忆
+        - generic [ref=e286]:
+          - generic [ref=e287]:
+            - generic [ref=e289]: "1"
+            - generic [ref=e290]:
+              - generic [ref=e291]: 核心洞察
+              - generic [ref=e292]:
+                - text: 把记忆从"存储问题"
+                - strong [ref=e293]: 升级为"调度问题"
+                - text: 。类比 OS 虚拟内存：主上下文 = RAM，外部存储 = 磁盘，LLM 通过函数调用自主决定何时换页。
+          - generic [ref=e294]:
+            - generic [ref=e296]: "2"
+            - generic [ref=e297]:
+              - generic [ref=e298]: 三层架构
+              - generic [ref=e299]: Core Memory（始终在上下文，2000 字符/块）→ Recall Memory（完整对话历史，SQL + 向量双写）→ Archival Memory（无限容量，向量检索）
+          - generic [ref=e300]:
+            - generic [ref=e302]: "3"
+            - generic [ref=e303]:
+              - generic [ref=e304]: FIFO + 递归摘要
+              - generic [ref=e305]: 主上下文对话历史用 FIFO 队列。被逐出的消息在队首维护递归摘要，完整消息可通过 Recall Storage 重新检索回主上下文。
+      - generic [ref=e306]:
+        - generic [ref=e307]:
+          - generic [ref=e308]: Claude Code
+          - generic [ref=e309]: 文件式记忆 · 可审计优先
+        - generic [ref=e310]:
+          - generic [ref=e311]:
+            - generic [ref=e313]: "1"
+            - generic [ref=e314]:
+              - generic [ref=e315]: 设计哲学
+              - generic [ref=e316]:
+                - strong [ref=e317]: 可审计性优于查询能力
+                - text: 。不使用向量数据库，所有记忆都是纯 Markdown 文件，用户可直接阅读、编辑、删除。
+          - generic [ref=e318]:
+            - generic [ref=e320]: "2"
+            - generic [ref=e321]:
+              - generic [ref=e322]: 四类记忆
+              - generic [ref=e323]: user（用户偏好）、feedback（行为纠正）、project（项目上下文）、reference（外部系统指针）。MEMORY.md 索引 + 按需 Read 主题文件。
+          - generic [ref=e324]:
+            - generic [ref=e326]: "3"
+            - generic [ref=e327]:
+              - generic [ref=e328]: 注入方式
+              - generic [ref=e329]:
+                - text: 作为
+                - strong [ref=e330]: 用户消息
+                - text: 注入（非 system prompt），概率性遵守。加载有优先级顺序：组织级 → 用户级 → 项目级 → 本地，越靠后优先级越高。
+    - generic [ref=e331]:
+      - generic [ref=e332]:
+        - generic [ref=e333]:
+          - generic [ref=e334]: ChatGPT
+          - generic [ref=e335]: Dreaming V3 · 后台异步合成
+        - generic [ref=e336]:
+          - generic [ref=e337]:
+            - generic [ref=e339]: "1"
+            - generic [ref=e340]:
+              - generic [ref=e341]: 三层子系统
+              - generic [ref=e342]: Recent Messages（当日连贯性）→ Chat History（摘要 + 向量检索）→ User Insights（跨多轮高阶分析，贡献 ~80% 个性化提升）
+          - generic [ref=e343]:
+            - generic [ref=e345]: "2"
+            - generic [ref=e346]:
+              - generic [ref=e347]: 后台异步处理
+              - generic [ref=e348]: 不在对话中实时写入。对话结束后批量扫描：提取长期有效信息、丢弃临时噪声、处理冲突与更新、标注置信度。
+          - generic [ref=e349]:
+            - generic [ref=e351]: "3"
+            - generic [ref=e352]:
+              - generic [ref=e353]: 算力优化
+              - generic [ref=e354]:
+                - text: 服务免费用户所需算力降至旧版
+                - strong [ref=e355]: 1/5
+                - text: 。美国 Plus/Pro 用户记忆容量 ×2。注意：Dreaming
+                - strong [ref=e356]: 不对 API 开放
+                - text: 。
+      - generic [ref=e357]:
+        - generic [ref=e358]:
+          - generic [ref=e359]: CrewAI
+          - generic [ref=e360]: 统一 Memory + 层级 Scope
+        - generic [ref=e361]:
+          - generic [ref=e362]:
+            - generic [ref=e364]: "1"
+            - generic [ref=e365]:
+              - generic [ref=e366]: 统一 API
+              - generic [ref=e367]:
+                - text: 用单个
+                - code [ref=e368]: Memory
+                - text: 类取代传统四层分类，通过
+                - strong [ref=e369]: Scope
+                - text: （/company/engineering, /project/alpha）实现层级隔离。
+          - generic [ref=e370]:
+            - generic [ref=e372]: "2"
+            - generic [ref=e373]:
+              - generic [ref=e374]: 双模式召回
+              - generic [ref=e375]: Shallow（纯向量，~200ms）和 Deep（查询分析 → scope 选择 → 并行向量搜索 → 递归探索）。自适应深度，低分触发深度探索。
+          - generic [ref=e376]:
+            - generic [ref=e378]: "3"
+            - generic [ref=e379]:
+              - generic [ref=e380]: 非阻塞写入
+              - generic [ref=e381]:
+                - text: 写入异步非阻塞，但
+                - code [ref=e382]: recall()
+                - text: 前自动
+                - code [ref=e383]: drain_writes()
+                - text: （读屏障），保证读取时能看到之前所有写入。
+    - generic [ref=e384]: 检索评分算法
+    - generic [ref=e385]:
+      - generic [ref=e386]: 💬 评分公式是记忆系统的核心
+      - paragraph [ref=e387]:
+        - text: 记忆系统的好坏，最终体现在"给定当前查询，能不能把最相关的记忆捞出来"。各框架的评分公式看起来不同，但底层都在回答同一个问题：
+        - strong [ref=e388]: 如何在语义相关性、时间近因性、内容重要性之间做权衡
+        - text: 。
+    - table [ref=e390]:
+      - rowgroup [ref=e391]:
+        - row "框架 / 论文 评分公式 权重 时间衰减" [ref=e392]:
+          - columnheader "框架 / 论文" [ref=e393]
+          - columnheader "评分公式" [ref=e394]
+          - columnheader "权重" [ref=e395]
+          - columnheader "时间衰减" [ref=e396]
+      - rowgroup [ref=e397]:
+        - row "Generative Agents α·recency + β·importance + γ·relevance α=β=γ=1.0 0.995^h（指数）" [ref=e398]:
+          - cell "Generative Agents" [ref=e399]
+          - cell "α·recency + β·importance + γ·relevance" [ref=e400]
+          - cell "α=β=γ=1.0" [ref=e401]
+          - cell "0.995^h（指数）" [ref=e402]
+        - row "HelloAgents 情景 (向量相似度×0.8 + 近因×0.2) × (0.8 + 重要性×0.4) 内嵌 e^(-0.1·age_hours/24)" [ref=e403]:
+          - cell "HelloAgents 情景" [ref=e404]
+          - cell "(向量相似度×0.8 + 近因×0.2) × (0.8 + 重要性×0.4)" [ref=e405]
+          - cell "内嵌" [ref=e406]
+          - cell "e^(-0.1·age_hours/24)" [ref=e407]
+        - row "HelloAgents 语义 (向量相似度×0.7 + 图相似度×0.3) × (0.8 + 重要性×0.4) 内嵌 —" [ref=e408]:
+          - cell "HelloAgents 语义" [ref=e409]
+          - cell "(向量相似度×0.7 + 图相似度×0.3) × (0.8 + 重要性×0.4)" [ref=e410]
+          - cell "内嵌" [ref=e411]
+          - cell "—" [ref=e412]
+        - row "CrewAI semantic×0.5 + recency×0.3 + importance×0.2 可配置 0.5^(age/half_life)，默认 30 天" [ref=e413]:
+          - cell "CrewAI" [ref=e414]
+          - cell "semantic×0.5 + recency×0.3 + importance×0.2" [ref=e415]
+          - cell "可配置" [ref=e416]
+          - cell "0.5^(age/half_life)，默认 30 天" [ref=e417]
+        - row "FadeMem α·rel(c_i,Q_t) + β·f_i/(1+f_i) + γ·recency(τ_i,t) 可调 拉伸指数 e^(-λ·t^β)，β=0.8(LML)/1.2(SML)" [ref=e418]:
+          - cell "FadeMem" [ref=e419]
+          - cell "α·rel(c_i,Q_t) + β·f_i/(1+f_i) + γ·recency(τ_i,t)" [ref=e420]
+          - cell "可调" [ref=e421]
+          - cell "拉伸指数 e^(-λ·t^β)，β=0.8(LML)/1.2(SML)" [ref=e422]
+    - generic [ref=e423]:
+      - generic [ref=e424]:
+        - generic [ref=e425]: FadeMem
+        - generic [ref=e426]: 生物学启发的遗忘机制（arXiv 2601.18642）
+      - generic [ref=e427]:
+        - generic [ref=e428]:
+          - generic [ref=e430]: "1"
+          - generic [ref=e431]:
+            - generic [ref=e432]: 双层记忆
+            - generic [ref=e433]: LML（Long-term Memory Layer，慢遗忘，半衰期 ~11.25 天）和 SML（Short-term Memory Layer，快遗忘，半衰期 ~5.02 天）。
+        - generic [ref=e434]:
+          - generic [ref=e436]: "2"
+          - generic [ref=e437]:
+            - generic [ref=e438]: 重要性调节衰减率
+            - generic [ref=e439]:
+              - text: λ_i = λ_base · e^(-μ · I_i(t))。高重要性记忆衰减速度比 baseline
+              - strong [ref=e440]: 慢 3-5 倍
+              - text: 。23% 的低重要性记忆因高频访问被提升到 LML。
+        - generic [ref=e441]:
+          - generic [ref=e443]: "3"
+          - generic [ref=e444]:
+            - generic [ref=e445]: 实验数据
+            - generic [ref=e446]:
+              - text: 关键事实保留率
+              - strong [ref=e447]: 82.1%
+              - text: （vs LangChain 71.2%, Mem0 78.4%），存储用量仅
+              - strong [ref=e448]: 55%
+              - text: 。
+    - generic [ref=e449]:
+      - generic [ref=e450]:
+        - generic [ref=e451]:
+          - generic [ref=e452]: 时间衰减函数
+          - generic [ref=e453]: 六种常见形式
+        - list [ref=e455]:
+          - listitem [ref=e456]:
+            - text: ·
+            - strong [ref=e457]: 指数衰减
+            - text: e^(-λt) — Generative Agents
+          - listitem [ref=e458]:
+            - text: ·
+            - strong [ref=e459]: 幂律衰减
+            - text: 1/(1+αt) — MemoryBank
+          - listitem [ref=e460]:
+            - text: ·
+            - strong [ref=e461]: 半衰期
+            - text: 0.5^(t/half_life) — CrewAI
+          - listitem [ref=e462]:
+            - text: ·
+            - strong [ref=e463]: 拉伸指数
+            - text: e^(-λ·t^β) — FadeMem
+          - listitem [ref=e464]:
+            - text: ·
+            - strong [ref=e465]: 高斯衰减
+            - text: e^(-t²/2σ²) — 实验性
+          - listitem [ref=e466]:
+            - text: ·
+            - strong [ref=e467]: 饱和函数
+            - text: f/(1+f) — FadeMem 访问频率
+      - generic [ref=e468]:
+        - generic [ref=e469]:
+          - generic [ref=e470]: 重要度计算
+          - generic [ref=e471]: 四种计算方式
+        - list [ref=e473]:
+          - listitem [ref=e474]:
+            - text: ·
+            - strong [ref=e475]: 规则-based
+            - text: ：关键词/长度/模式匹配，快但泛化差
+          - listitem [ref=e476]:
+            - text: ·
+            - strong [ref=e477]: LLM-based
+            - text: ：让 LLM 打 1-10 分，灵活但成本高、不稳定
+          - listitem [ref=e478]:
+            - text: ·
+            - strong [ref=e479]: 混合
+            - text: ：规则初筛 + LLM 精评，Mem0 / FadeMem 采用
+          - listitem [ref=e480]:
+            - text: ·
+            - strong [ref=e481]: 频率-based
+            - text: ：访问次数 + 时间衰减，自动无额外成本
+    - generic [ref=e482]: 存储与检索技术
+    - generic [ref=e483]:
+      - generic [ref=e484]: 💬 向量数据库选型
+      - paragraph [ref=e485]: 不是所有记忆系统都需要向量数据库（Claude Code 就是纯文件），但如果你要做语义检索，选对向量数据库影响很大。核心考量：数据规模、是否需要混合检索（BM25 + 向量）、延迟预算、运维意愿。
+    - table [ref=e487]:
+      - rowgroup [ref=e488]:
+        - row "数据库 适合规模 混合检索 P99 延迟（千万级） 典型场景" [ref=e489]:
+          - columnheader "数据库" [ref=e490]
+          - columnheader "适合规模" [ref=e491]
+          - columnheader "混合检索" [ref=e492]
+          - columnheader "P99 延迟（千万级）" [ref=e493]
+          - columnheader "典型场景" [ref=e494]
+      - rowgroup [ref=e495]:
+        - row "Qdrant 百万~十亿 ✅ 原生 RRF 24ms 高性能生产、需要混合检索" [ref=e496]:
+          - cell "Qdrant" [ref=e497]
+          - cell "百万~十亿" [ref=e498]
+          - cell "✅ 原生 RRF" [ref=e499]
+          - cell "24ms" [ref=e500]
+          - cell "高性能生产、需要混合检索" [ref=e501]
+        - row "Milvus 亿~百亿 ⚠️ 需配置 38ms 超大规模、有专职运维" [ref=e502]:
+          - cell "Milvus" [ref=e503]
+          - cell "亿~百亿" [ref=e504]
+          - cell "⚠️ 需配置" [ref=e505]
+          - cell "38ms" [ref=e506]
+          - cell "超大规模、有专职运维" [ref=e507]
+        - row "PGVector < 500 万 ⚠️ 需 tsvector 良好 已有 PG，向量+SQL 同事务" [ref=e508]:
+          - cell "PGVector" [ref=e509]
+          - cell "< 500 万" [ref=e510]
+          - cell "⚠️ 需 tsvector" [ref=e511]
+          - cell "良好" [ref=e512]
+          - cell "已有 PG，向量+SQL 同事务" [ref=e513]
+        - row "Chroma < 10 万 ❌ 2s+ 原型验证、Demo" [ref=e514]:
+          - cell "Chroma" [ref=e515]
+          - cell "< 10 万" [ref=e516]
+          - cell "❌" [ref=e517]
+          - cell "2s+" [ref=e518]
+          - cell "原型验证、Demo" [ref=e519]
+        - row "Pinecone 十亿级 ✅ Alpha 取决于方案 零运维 SaaS" [ref=e520]:
+          - cell "Pinecone" [ref=e521]
+          - cell "十亿级" [ref=e522]
+          - cell "✅ Alpha" [ref=e523]
+          - cell "取决于方案" [ref=e524]
+          - cell "零运维 SaaS" [ref=e525]
+        - row "Weaviate 十亿级 ✅ 原生 56ms 多模态搜索" [ref=e526]:
+          - cell "Weaviate" [ref=e527]
+          - cell "十亿级" [ref=e528]
+          - cell "✅ 原生" [ref=e529]
+          - cell "56ms" [ref=e530]
+          - cell "多模态搜索" [ref=e531]
+        - row "FAISS 十亿级 ❌ N/A 学术研究、嵌入式场景" [ref=e532]:
+          - cell "FAISS" [ref=e533]
+          - cell "十亿级" [ref=e534]
+          - cell "❌" [ref=e535]
+          - cell "N/A" [ref=e536]
+          - cell "学术研究、嵌入式场景" [ref=e537]
+    - generic [ref=e538]:
+      - generic [ref=e539]: 选型决策树
+      - paragraph [ref=e540]:
+        - text: 原型验证 →
+        - strong [ref=e541]: Chroma
+        - text: ；已有 PostgreSQL + 数据量 < 500 万 →
+        - strong [ref=e542]: PGVector
+        - text: ；不想管服务器 →
+        - strong [ref=e543]: Pinecone
+        - text: ；百万~千万级 + 自托管 →
+        - strong [ref=e544]: Qdrant
+        - text: （性能与易用最佳平衡）；亿级以上 + 有专职运维 →
+        - strong [ref=e545]: Milvus
+        - text: ；多模态搜索 →
+        - strong [ref=e546]: Weaviate
+        - text: 。
+    - generic [ref=e547]:
+      - generic [ref=e548]:
+        - generic [ref=e549]: 生产级检索
+        - generic [ref=e550]: 混合检索三阶段管道
+      - generic [ref=e551]:
+        - generic [ref=e552]:
+          - generic [ref=e554]: "1"
+          - generic [ref=e556]:
+            - generic [ref=e557]: 双路并行检索
+            - generic [ref=e558]:
+              - text: BM25（精确匹配，top-50~500）
+              - strong [ref=e559]: 并行
+              - text: 稠密向量（语义匹配，top-50~500）。两者互补：BM25 擅长错误代码、SKU 编号；向量擅长模糊语义查询。
+        - generic [ref=e560]:
+          - generic [ref=e562]: "2"
+          - generic [ref=e564]:
+            - generic [ref=e565]: RRF 融合排序
+            - generic [ref=e566]: RRFscore(d) = Σ 1/(k + rank_i(d))，k=60。完全忽略原始分数差异，无需归一化。k=30~40 重视 top-1 精度，k=80~100 重视跨列表共识。
+        - generic [ref=e567]:
+          - generic [ref=e569]: "3"
+          - generic [ref=e570]:
+            - generic [ref=e571]: Cross-Encoder 重排序
+            - generic [ref=e572]:
+              - text: top-50~200 → top-3~5。Benchmark 数据：混合+重排序 vs 纯稠密，Recall@5 提升
+              - strong [ref=e573]: +39%
+              - text: （0.587 → 0.816）。代价：额外延迟 +100~300ms。
+    - generic [ref=e574]:
+      - generic [ref=e575]:
+        - generic [ref=e576]:
+          - generic [ref=e577]: Embedding 模型
+          - generic [ref=e578]: 选型建议
+        - list [ref=e580]:
+          - listitem [ref=e581]:
+            - text: ·
+            - strong [ref=e582]: 质量优先
+            - text: ：voyage-3-large（MTEB 67.1，32K 上下文）
+          - listitem [ref=e583]:
+            - text: ·
+            - strong [ref=e584]: 性价比
+            - text: ：jina-embeddings-v3（65.5 分 / $0.02/1M token）
+          - listitem [ref=e585]:
+            - text: ·
+            - strong [ref=e586]: 生态成熟
+            - text: ：text-embedding-3-small（最广泛集成）
+          - listitem [ref=e587]:
+            - text: ·
+            - strong [ref=e588]: Matryoshka 降维
+            - text: ：text-embedding-3-large（3072→256 维，质量损失 < 2%）
+          - listitem [ref=e589]:
+            - text: ·
+            - strong [ref=e590]: 自托管
+            - text: ：GTE-large-en-v1.5 / bge-m3（开源免费）
+          - listitem [ref=e591]:
+            - text: ·
+            - strong [ref=e592]: 中文
+            - text: ：bge-large-zh-v1.5 / bge-m3
+      - generic [ref=e593]:
+        - generic [ref=e594]:
+          - generic [ref=e595]: 知识图谱
+          - generic [ref=e596]: 何时需要图
+        - list [ref=e598]:
+          - listitem [ref=e599]:
+            - text: ·
+            - strong [ref=e600]: 需要多跳推理
+            - text: ：「张三的经理的团队有哪些人？」
+          - listitem [ref=e601]:
+            - text: ·
+            - strong [ref=e602]: 需要可解释性
+            - text: ：显式推理路径可追溯
+          - listitem [ref=e603]:
+            - text: ·
+            - strong [ref=e604]: 需要事实校验
+            - text: ：三元组结构约束降低幻觉
+          - listitem [ref=e605]:
+            - text: ·
+            - strong [ref=e606]: 构建成本高
+            - text: ：需要 LLM 提取实体+关系
+          - listitem [ref=e607]: · 代表：Microsoft GraphRAG、Mem0ᵍ、HelloAgents Neo4j
+    - generic [ref=e608]: 关键设计决策
+    - generic [ref=e609]:
+      - generic [ref=e610]:
+        - generic [ref=e611]:
+          - generic [ref=e612]: 决策 1
+          - generic [ref=e613]: Tool 调用 vs 自动注入
+        - generic [ref=e617]:
+          - strong [ref=e618]: 自动注入
+          - text: ：核心人格、稳定信息始终在 prompt 中（Letta Core Memory、ChatGPT Saved Memories）。简单但占用窗口。
+          - strong [ref=e619]: Tool 调用
+          - text: ：长尾记忆按需检索（Letta Archival、HelloAgents MemoryTool）。精准但依赖 LLM 判断何时调用。
+          - strong [ref=e620]: 最佳实践
+          - text: ：混合。核心在场 + 长尾按需。
+      - generic [ref=e621]:
+        - generic [ref=e622]:
+          - generic [ref=e623]: 决策 2
+          - generic [ref=e624]: 同步 vs 异步写入
+        - generic [ref=e628]:
+          - text: 现代系统（ChatGPT Dreaming V3、AutoGPT Dream Pass、Gemini Memory Bank）
+          - strong [ref=e629]: 趋向异步后台处理
+          - text: ——对话结束后批量提取、整合、去重。
+          - text: 好处：不增加实时延迟，可做批量成本优化（Anthropic Batch API 50% 折扣）。
+      - generic [ref=e630]:
+        - generic [ref=e631]:
+          - generic [ref=e632]: 决策 3
+          - generic [ref=e633]: 向量 vs 文件 vs 图
+        - generic [ref=e637]:
+          - strong [ref=e638]: 向量
+          - text: ：语义检索，适合大规模模糊匹配
+          - strong [ref=e639]: 文件
+          - text: ：可审计，适合开发者工具（Claude Code）
+          - strong [ref=e640]: 图
+          - text: ：关系推理，适合多跳查询和事实校验
+          - text: Mem0 的方案是三路融合。
+    - generic [ref=e641]:
+      - generic [ref=e642]:
+        - generic [ref=e643]:
+          - generic [ref=e644]: 记忆生命周期
+          - generic [ref=e645]: 写入 → 检索 → 遗忘 → 整合
+        - generic [ref=e646]:
+          - generic [ref=e647]:
+            - generic [ref=e649]: W
+            - generic [ref=e651]:
+              - generic [ref=e652]: 写入策略
+              - generic [ref=e653]: 全量记录（早期 AutoGPT，已证明失败）→ 重要性过滤（LLM 打分）→ ADD-only（Mem0，不覆盖旧事实，新旧并存保留时间上下文）
+          - generic [ref=e654]:
+            - generic [ref=e656]: F
+            - generic [ref=e658]:
+              - generic [ref=e659]: 遗忘策略
+              - generic [ref=e660]: 重要性淘汰（Mem0 四操作 ADD/UPDATE/DELETE/NOOP）、时间淘汰（CrewAI 半衰期 30 天）、容量淘汰（FIFO/LRU）、搜索降权（不删除，仅降低权重）
+          - generic [ref=e661]:
+            - generic [ref=e663]: C
+            - generic [ref=e664]:
+              - generic [ref=e665]: 整合 Consolidation
+              - generic [ref=e666]: Working → Episodic → Semantic 的升级路径。Generative Agents 的 Reflection、CrewAI 的相似度合并（阈值 0.85）、AutoGPT Dream Pass 的三阶段巩固（NREM→REM→净化）
+      - generic [ref=e667]:
+        - generic [ref=e668]:
+          - generic [ref=e669]: 评测标准
+          - generic [ref=e670]: 如何衡量记忆系统好坏
+        - generic [ref=e671]:
+          - generic [ref=e672]:
+            - generic [ref=e674]: "1"
+            - generic [ref=e676]:
+              - generic [ref=e677]: LoCoMo（Stanford）
+              - generic [ref=e678]: 10 段对话、~300 个问题，覆盖单跳/多跳/开放域/时间回忆。Mem0 新算法 91.6 vs 旧 71.4（+20.2）。
+          - generic [ref=e679]:
+            - generic [ref=e681]: "2"
+            - generic [ref=e683]:
+              - generic [ref=e684]: LongMemEval（ICLR 2025）
+              - generic [ref=e685]:
+                - text: 500 个问题，覆盖信息提取、多会话推理、时间推理、知识更新。关键发现：商业助手长期记忆准确率下降
+                - strong [ref=e686]: 30%
+                - text: 。
+          - generic [ref=e687]:
+            - generic [ref=e689]: "3"
+            - generic [ref=e690]:
+              - generic [ref=e691]: BEAM（Mem0 开源）
+              - generic [ref=e692]:
+                - text: 1M / 10M token 规模，10 个任务类别。10M 时时间推理、事件排序下降 16-26%——
+                - strong [ref=e693]: 视为开放问题
+                - text: 。
+    - generic [ref=e694]: 论文地图
+    - generic [ref=e695]:
+      - generic [ref=e696]: 💬 如果只读 5 篇
+      - paragraph [ref=e697]: 按推荐顺序排列。这些论文覆盖了从理论到工程的全链路，读完能建立 Agent 记忆系统的完整心智模型。
+    - generic [ref=e698]:
+      - generic [ref=e699]:
+        - generic [ref=e700]: UIST 2023
+        - generic [ref=e701]: Generative Agents
+        - generic [ref=e702]:
+          - text: Park et al.
+          - text: arXiv:2304.03442
+          - text: 第一个完整实现的 LLM Agent 长期记忆系统。三维评分公式（recency + importance + relevance）成为事实标准。Reflection 机制首次实现"记忆的记忆"。
+      - generic [ref=e703]:
+        - generic [ref=e704]: TMLR 2024
+        - generic [ref=e705]: CoALA
+        - generic [ref=e706]:
+          - text: Sumers & Yao
+          - text: arXiv:2309.02427
+          - text: 第一篇系统化 LLM Agent 认知架构论文。四种记忆分类（Working/Episodic/Semantic/Procedural）成为业内通用术语。将 SOAR 传统与 LLM 时代结合。
+      - generic [ref=e707]:
+        - generic [ref=e708]: "2023"
+        - generic [ref=e709]: MemGPT
+        - generic [ref=e710]:
+          - text: Packer et al.
+          - text: arXiv:2310.08560
+          - text: 第一个将 OS 虚拟内存类比引入 Agent 记忆。把记忆从"存储问题"升级为"调度问题"。Letta 已商业化，成为生产级 Agent 记忆的事实标准之一。
+      - generic [ref=e711]:
+        - generic [ref=e712]: "2025"
+        - generic [ref=e713]: Mem0
+        - generic [ref=e714]:
+          - text: arXiv:2504.19413
+          - text: 当前最工程化的记忆系统设计。准确率 +26%、延迟 -91%、Token -90%。图记忆 + 向量记忆 + 文本记忆三路融合。生产级的 ADD-only、TTL、显式删除。
+      - generic [ref=e715]:
+        - generic [ref=e716]: "2026"
+        - generic [ref=e717]: FadeMem
+        - generic [ref=e718]:
+          - text: arXiv:2601.18642
+          - text: 最先进的记忆评分算法。重要性调节衰减率 + 分层拉伸指数衰减。82.1% 关键事实保留率，仅用 55% 存储。未来遗忘机制设计的重要参考。
+    - generic [ref=e719]:
+      - generic [ref=e720]: 延伸阅读
+      - paragraph [ref=e721]:
+        - strong [ref=e722]: Lost in the Middle
+        - text: （arXiv:2307.03172）——长上下文的 U 型注意力曲线；
+        - strong [ref=e723]: LongMemEval
+        - text: （arXiv:2410.10813, ICLR 2025）——记忆评测 benchmark；
+        - strong [ref=e724]: A-MEM
+        - text: （arXiv:2502.12110）——Zettelkasten 笔记法启发的记忆架构；
+        - strong [ref=e725]: Microsoft GraphRAG
+        - text: （arXiv:2404.16130）——知识图谱 + 社区摘要的 RAG 方案。
+    - generic [ref=e726]:
+      - generic [ref=e727]: 框架选择决策树
+      - paragraph [ref=e728]:
+        - text: 需要完全托管 + 跨设备 →
+        - strong [ref=e729]: ChatGPT / Gemini
+        - text: ；生产级 Agent 平台 →
+        - strong [ref=e730]: Letta / Mem0
+        - text: ；多 Agent 协作 →
+        - strong [ref=e731]: CrewAI
+        - text: ；自主任务驱动 →
+        - strong [ref=e732]: AutoGPT
+        - text: ；开发者 Coding 助手 →
+        - strong [ref=e733]: Claude Code
+        - text: ；低代码 / 业务人员 →
+        - strong [ref=e734]: Dify / Coze
+        - text: ；自定义 / 快速原型 →
+        - strong [ref=e735]: LangChain / LangChain4j
+        - text: ；中文社区 + 教学 →
+        - strong [ref=e736]: HelloAgents
+        - text: 。
+  - button "切换亮色/暗色主题" [ref=e737] [cursor=pointer]: ◑

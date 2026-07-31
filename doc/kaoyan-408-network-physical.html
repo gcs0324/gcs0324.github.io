@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>408 计算机网络 · 物理层考点全解</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.7;font-size:14px;}
+header{background:var(--bg2);padding:42px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;}
+header::before{content:'PHY';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-0.04em;pointer-events:none;}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px;}
+h1{font-size:27px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--tx2);max-width:680px;line-height:1.8;}
+.meta-pills{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 11px;border-radius:14px;border:1px solid var(--bd);color:var(--tx2);background:var(--bg3);}
+.pill.accent{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.pill.warn{color:var(--orange);border-color:var(--ora-b);background:var(--ora-bg);}
+
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 13px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;letter-spacing:.03em;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:1360px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px;margin-top:52px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:58px;}
+.sec:first-child{margin-top:0;}
+.sec .snum{color:var(--blue);margin-right:6px;}
+
+.lead{font-size:14.5px;color:var(--tx2);line-height:1.85;margin-bottom:18px;}
+.lead strong{color:var(--tx);}
+
+/* 概念卡片 */
+.cc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px 22px;margin-bottom:12px;}
+.cc h3{font-size:15px;font-weight:700;margin-bottom:10px;color:var(--tx);}
+.cc h3 .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;margin-left:8px;vertical-align:middle;}
+.cc p{font-size:13.5px;color:var(--tx2);line-height:1.85;margin-bottom:8px;}
+.cc p strong{color:var(--tx);font-weight:600;}
+.cc ul{margin:6px 0 6px 4px;list-style:none;}
+.cc ul li{font-size:13px;color:var(--tx2);line-height:1.85;padding-left:16px;position:relative;margin-bottom:3px;}
+.cc ul li::before{content:'▸';position:absolute;left:2px;color:var(--tx3);font-size:10px;top:5px;}
+.cc ul li strong{color:var(--tx);font-weight:600;}
+
+/* 提示框 */
+.note{margin:12px 0;border-radius:7px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;}
+.note.warn{background:var(--ora-bg);border:1px solid var(--ora-b);}
+.note.info{background:var(--blu-bg);border:1px solid var(--blu-b);}
+.note.tip{background:var(--grn-bg);border:1px solid var(--grn-b);}
+.note.bad{background:var(--red-bg);border:1px solid var(--red-b);}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 7px;flex-shrink:0;margin-top:1px;font-weight:600;border:1px solid;}
+.warn .nlbl{color:var(--orange);border-color:var(--ora-b);}
+.info .nlbl{color:var(--blue);border-color:var(--blu-b);}
+.tip .nlbl{color:var(--green);border-color:var(--grn-b);}
+.bad .nlbl{color:var(--red);border-color:var(--red-b);}
+.note .nb{flex:1;}
+.note p{font-size:12.8px;color:var(--tx2);line-height:1.8;}
+.note p strong{color:var(--tx);font-weight:600;}
+
+/* 公式盒 */
+.fmla{text-align:center;font-size:16px;margin:12px 0;padding:14px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;font-family:'IBM Plex Mono','Times New Roman',serif;letter-spacing:.4px;color:var(--tx);overflow-x:auto;}
+.fmla .small{font-size:12px;color:var(--tx3);display:block;margin-top:5px;font-family:'Inter',sans-serif;letter-spacing:0;}
+
+/* 核心公式：放大加粗高亮 */
+.fmla.hero{font-size:26px;font-weight:700;padding:26px 22px;margin:18px 0;border:2px solid var(--blue);background:var(--blu-bg);color:var(--tx);letter-spacing:.5px;line-height:1.5;}
+.fmla.hero .main{display:block;font-size:30px;font-weight:800;color:var(--blue);}
+.fmla.hero .desc{display:block;font-size:13px;font-family:'Inter',sans-serif;color:var(--tx2);font-weight:400;letter-spacing:0;margin-top:12px;line-height:1.75;}
+.fmla.hero .desc strong{color:var(--tx);font-weight:600;}
+
+/* 表格 */
+.tbl{width:100%;border-collapse:collapse;font-size:12.8px;margin:12px 0;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase;padding:9px 13px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3);}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;line-height:1.7;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl td:first-child{font-weight:600;color:var(--tx);}
+.tbl tr:hover td{background:var(--bg3);}
+.tbl code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx);white-space:nowrap;}
+
+/* 例题卡 */
+.ex{background:var(--bg2);border:1px solid var(--bd);border-left:4px solid var(--blue);border-radius:8px;padding:16px 20px;margin:14px 0;}
+.ex .ex-head{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.04em;margin-bottom:8px;}
+.ex .ex-q{font-size:13.5px;color:var(--tx);font-weight:500;margin-bottom:10px;line-height:1.8;}
+.ex .ex-sol{font-size:13px;color:var(--tx2);line-height:1.85;}
+.ex .ex-sol strong{color:var(--tx);font-weight:600;}
+.ex .ex-step{display:flex;gap:10px;margin:5px 0;}
+.ex .ex-step .n{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--blu-bg);color:var(--blue);border:1px solid var(--blu-b);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+.ex .ex-step .t{flex:1;font-size:12.8px;color:var(--tx2);line-height:1.8;}
+.ex .ex-step .t strong{color:var(--tx);}
+.ex .ans{margin-top:10px;padding:8px 12px;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--green);font-weight:600;}
+
+/* 考法标签 */
+.exam-form{margin:10px 0 4px;font-size:11px;color:var(--tx3);}
+.exam-form .ef{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;margin-right:5px;}
+.ef.calc{color:var(--orange);background:var(--ora-bg);border:1px solid var(--ora-b);}
+.ef.concept{color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);}
+.ef.compare{color:var(--purple);background:var(--pur-bg);border:1px solid var(--pur-b);}
+.ef.device{color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);}
+.ef.freq{color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);}
+.exam-form .desc{color:var(--tx2);font-size:11.5px;margin-left:4px;}
+
+/* 网格 */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0;}
+.g2 .cc,.g3 .cc{margin-bottom:0;}
+
+/* 对比卡 */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.vs > div{padding:14px 18px;background:var(--bg2);}
+.vs > div:first-child{border-right:1px solid var(--bd);}
+.vs h4{font-size:13px;font-weight:700;margin-bottom:6px;}
+.vs h4 .ck{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border-radius:3px;margin-left:6px;}
+.vs .ka{color:var(--blue);} .vs .ka .ck{color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);}
+.vs .kb{color:var(--orange);} .vs .kb .ck{color:var(--orange);background:var(--ora-bg);border:1px solid var(--ora-b);}
+.vs p{font-size:12.6px;color:var(--tx2);line-height:1.8;margin-bottom:4px;}
+.vs p strong{color:var(--tx);}
+
+/* 小节标题 */
+h3.sub{font-size:15px;font-weight:700;margin:22px 0 10px;color:var(--tx);padding-left:12px;border-left:3px solid var(--blue);}
+h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
+
+/* 真题年份徽章 */
+.yr{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;color:var(--tx3);background:var(--bg3);border:1px solid var(--bd);margin-left:6px;}
+
+/* 速记表 */
+.cheat{background:linear-gradient(135deg,var(--blu-bg),transparent);border:1px solid var(--blu-b);border-radius:10px;padding:18px 22px;margin:14px 0;}
+.cheat h3{font-size:14px;color:var(--blue);margin-bottom:10px;font-weight:700;}
+.cheat ul{list-style:none;}
+.cheat li{font-size:13px;color:var(--tx2);line-height:1.95;padding-left:14px;position:relative;}
+.cheat li::before{content:'▪';position:absolute;left:0;color:var(--blue);}
+.cheat li strong{color:var(--tx);}
+
+@media (max-width:768px){
+  header,nav,main{padding-left:20px;padding-right:20px;}
+  header::before{font-size:64px;right:16px;}
+  .g2,.g3,.vs{grid-template-columns:1fr;}
+  .vs > div:first-child{border-right:none;border-bottom:1px solid var(--bd);}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">408 · 计算机网络</div>
+  <h1>物理层考点全解 · 通信基础 / 传输介质 / 物理层设备</h1>
+  <p class="subtitle">按 408 考纲第二章逐条展开，每个考点标注考法（计算 / 概念 / 比较 / 设备识别）与真题年份，附公式、易错点与典型例题。物理层在 408 中年均 1-3 分，几乎只出选择题，但奈奎斯特 / 香农计算题命中率极高，属于"必拿分"。</p>
+  <div class="meta-pills">
+    <span class="pill accent">考纲第二章</span>
+    <span class="pill">分值约 1-3 分</span>
+    <span class="pill">考查形式：选择题为主</span>
+    <span class="pill warn">高频：奈氏 / 香农计算</span>
+  </div>
+</header>
+
+<nav>
+  <a href="#overview">总览</a>
+  <a href="#comm">一、通信基础</a>
+  <a href="#nyquist">奈氏 / 香农</a>
+  <a href="#code">编码与调制</a>
+  <a href="#switch">交换方式</a>
+  <a href="#media">二、传输介质</a>
+  <a href="#device">三、物理层设备</a>
+  <a href="#cheat">速记与易错</a>
+  <a href="#exercises">真题练手</a>
+</nav>
+
+<main>
+
+<div class="sec" id="overview"><span class="snum">§0</span> 物理层考点总览</div>
+
+<p class="lead">物理层是 OSI 参考模型的第 1 层，它的任务很单一：<strong>在传输媒体上透明地传送比特流</strong>。"透明"指上层看不到物理层怎么把 0/1 变成信号的细节，只管把比特交下去、从对面收上来。</p>
+
+<div class="note info">
+  <span class="nlbl">考点定位</span>
+  <div class="nb">
+    <p>408 考纲把物理层拆成三块：<strong>① 通信基础</strong>（概念 + 奈氏/香农 + 编码调制 + 三种交换）<strong>② 传输介质</strong>（双绞线/同轴/光纤/无线 + 接口特性）<strong>③ 物理层设备</strong>（中继器、集线器）。三块都考，但分值倾斜明显——计算题几乎全集中在 ①，设备和介质以概念辨析为主。</p>
+  </div>
+</div>
+
+<table class="tbl">
+  <tr><th>考点</th><th>考纲条目</th><th>常见考法</th><th>难度</th></tr>
+  <tr><td>基本概念</td><td>信道/信号/带宽/码元/波特/速率/信源信宿</td><td>概念辨析选择题</td><td>⭐⭐</td></tr>
+  <tr><td>奈奎斯特定理</td><td>理想信道无码间串扰上限</td><td><code>C=2W log₂V</code> 计算</td><td>⭐⭐⭐</td></tr>
+  <tr><td>香农定理</td><td>有噪信道容量上限</td><td><code>C=W log₂(1+S/N)</code> 计算</td><td>⭐⭐⭐</td></tr>
+  <tr><td>编码与调制</td><td>数字→数字 / 数字→模拟 等 4 类</td><td>识别编码波形、辨析概念</td><td>⭐⭐</td></tr>
+  <tr><td>交换方式</td><td>电路/报文/分组；数据报/虚电路</td><td>特点对比选择题</td><td>⭐⭐</td></tr>
+  <tr><td>传输介质</td><td>双绞线/同轴/光纤/无线 + 接口特性</td><td>分类与特性辨析</td><td>⭐</td></tr>
+  <tr><td>物理层设备</td><td>中继器、集线器</td><td>设备所属层次、 работы原理、冲突域</td><td>⭐⭐</td></tr>
+</table>
+
+<div class="note tip">
+  <span class="nlbl">分值预期</span>
+  <div class="nb"><p>计网在整个 408 中约占 25 分，物理层通常占 <strong>1-3 分</strong>，基本是 1 道选择题，偶尔配一道设备/介质辨析。分值不大但"<strong>白送的计算题</strong>"极多——2009/2014/2017 年都考了奈氏+香农，套路固定，务必拿满。</p></div>
+</div>
+
+<!-- ============= 一、通信基础 ============= -->
+<div class="sec" id="comm"><span class="snum">§1</span> 一、通信基础</div>
+
+<h3 class="sub">基本概念：先把术语分清楚</h3>
+
+<div class="g2">
+  <div class="cc">
+    <h3>数据与信号 <span class="tag" style="color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);">概念</span></h3>
+    <ul>
+      <li><strong>数据</strong>：传递信息的实体，有意义的符号。分<strong>数字数据</strong>（离散值，如 0/1）和<strong>模拟数据</strong>（连续值，如声音波形）。</li>
+      <li><strong>信号</strong>：数据的物理表现/电磁编码，是传输中的形式。分<strong>数字信号</strong>（离散，如方波）和<strong>模拟信号</strong>（连续，如正弦波）。</li>
+      <li>区别一句：<strong>数据是"想表达的"，信号是"怎么送出去的"</strong>。数据可以调制成不同信号来传。</li>
+    </ul>
+  </div>
+  <div class="cc">
+    <h3>信道 / 信源 / 信宿 <span class="tag" style="color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);">概念</span></h3>
+    <ul>
+      <li><strong>信源</strong>：信息的发送端，产生并发出数据。</li>
+      <li><strong>信宿</strong>：信息的接收端。</li>
+      <li><strong>信道</strong>：信号从信源传到信宿的通道。按传输方向有<strong>单工</strong>（单向，如广播）、<strong>半双工</strong>（交替双向，如对讲机）、<strong>全双工</strong>（同时双向，如电话）。</li>
+      <li>按信号类型：信道也分<strong>模拟信道</strong>和<strong>数字信道</strong>。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="cc">
+    <h3>码元 <span class="tag" style="color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);">核心</span></h3>
+    <p>在使用时间域（时域）的波形表示数字信号时，<strong>代表不同离散数值的波形</strong>就叫一个码元。一段固定时长内的信号状态，承载几个比特就取决于这段能取几种状态。</p>
+    <ul>
+      <li>比如一个码元可取 4 种状态 → 每个码元携带 log₂4 = 2 bit。</li>
+      <li>一个码元能携带的比特数 = log₂(状态数 V)。</li>
+    </ul>
+  </div>
+  <div class="cc">
+    <h3>波特 vs 速率 <span class="tag" style="color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);">易混</span></h3>
+    <ul>
+      <li><strong>波特率（Baud rate）</strong>：每秒传输的<strong>码元个数</strong>，单位 <strong>Baud</strong>，又称<strong>码元传输速率</strong>、<strong>调制速率</strong>。它描述"波形变换的快慢"。</li>
+      <li><strong>比特率（Bit rate）</strong>：每秒传输的<strong>比特数</strong>，单位 <strong>b/s</strong>（bps），又叫<strong>数据传输速率</strong>。</li>
+      <li>换算：<strong>比特率 = 波特率 × log₂V</strong>（V 是每个码元的状态数）。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note bad">
+  <span class="nlbl">高频陷阱</span>
+  <div class="nb"><p><strong>带宽</strong>这个词在不同上下文含义不同：<br>① 在物理层/通信里，带宽指<strong>信号频带宽度</strong>，单位是 <strong>Hz</strong>（最高频率 - 最低频率）；<br>② 在计算机网络里，带宽常指<strong>信道最大数据传输速率</strong>，单位是 <strong>b/s</strong>。做题时先看单位——给 Hz 用在香农/奈氏公式里的 W，给 b/s 一般是结果或上限。两者<strong>不要混用</strong>。</p></div>
+</div>
+
+<div class="exam-form">
+  <span class="ef concept">概念辨析</span><span class="desc">典型提问："波特率与比特率关系"、"带宽单位"、"单工/半双工/全双工举例"。2009/2016 出过。</span>
+</div>
+
+<h3 class="sub" id="nyquist">奈奎斯特定理与香农定理（本节核心计算区）</h3>
+
+<div class="cc">
+  <h3>奈奎斯特定理（奈氏准则）<span class="tag" style="color:var(--orange);background:var(--ora-bg);border:1px solid var(--ora-b);">理想信道</span></h3>
+  <p>在<strong>理想低通（无噪声）</strong>信道里，为避免码间串扰，码元传输速率有上限：</p>
+  <div class="fmla hero">
+    <span class="main">C = 2W · log₂V　(b/s)</span>
+    <span class="desc">最大码元速率 = 2W（Baud），W 为信道带宽（Hz）；V 为每个码元可能的状态数（离散电平数）。<br>奈氏<strong>只解决码间串扰、不考虑噪声</strong>——是理想信道的码元速率上限。</span>
+  </div>
+  <ul>
+    <li>W 是带宽（Hz），V 是每个码元的状态数（也叫离散电平数）。</li>
+    <li>奈氏只解决"<strong>码间串扰</strong>"问题，<strong>没考虑噪声</strong>。</li>
+    <li>V 越大，每码元带的 bit 越多，但实际受噪声限制（见香农）。</li>
+  </ul>
+</div>
+
+<div class="cc">
+  <h3>香农定理（香农公式）<span class="tag" style="color:var(--orange);background:var(--ora-bg);border:1px solid var(--ora-b);">有噪信道</span></h3>
+  <p>在<strong>带宽受限、有高斯白噪声</strong>的信道里，无差错传输的最大信息传输速率（信道容量）为：</p>
+  <div class="fmla hero">
+    <span class="main">C = W · log₂(1 + S/N)　(b/s)</span>
+    <span class="desc">W 带宽（Hz）；S 信号功率；N 噪声功率；S/N 信噪比。<br>信噪比常用分贝：<strong>dB = 10·log₁₀(S/N)</strong>，换回比值用 <strong>S/N = 10^(dB/10)</strong>。香农给"<strong>无差错</strong>"理论极限，与几进制无关。</span>
+  </div>
+  <ul>
+    <li>信噪比常用<strong>分贝</strong>给出：分贝值 = 10·log₁₀(S/N)，换回比值用 <strong>S/N = 10^(dB/10)</strong>。</li>
+    <li>香农给出的是"<strong>无差错</strong>"信息传输上限，是理论极限。</li>
+    <li>只看带宽和信噪比，与采用几进制无关。</li>
+  </ul>
+</div>
+
+<div class="vs">
+  <div class="ka">
+    <h4>奈奎斯特 <span class="ck">理想 / 无噪声</span></h4>
+    <p><strong>核心</strong>：限制码元速率防码间串扰</p>
+    <p>公式：<code>C = 2W log₂V</code></p>
+    <p>关键词：<strong>码元、状态数 V、带宽 W</strong></p>
+    <p>适用：已知 V、W，求理想上限</p>
+  </div>
+  <div class="kb">
+    <h4>香农 <span class="ck">实际 / 有噪声</span></h4>
+    <p><strong>核心</strong>：限制信息速率防差错</p>
+    <p>公式：<code>C = W log₂(1+S/N)</code></p>
+    <p>关键词：<strong>信噪比、噪声、带宽 W</strong></p>
+    <p>适用：已知信噪比、W，求实际容量上限</p>
+  </div>
+</div>
+
+<div class="note warn">
+  <span class="nlbl">联合考察</span>
+  <div class="nb"><p>真题常把两者<strong>同时</strong>给出，让你取<strong>较小者</strong>作为实际最大数据率。逻辑是：奈氏是"码元不过密"的理想上限，香农是"有噪声下无差错"的上限，<strong>实际能用的是两者更小那个</strong>。这是 2009 题 34、2014 题 35、2017 题 34 的标准套路。</p></div>
+</div>
+
+<h4 class="subsub">典型例题（奈氏 + 香农联合）</h4>
+<div class="ex">
+  <div class="ex-head">📐 例题 1　<span class="yr">2009-34</span> 同款套路</div>
+  <div class="ex-q">信道带宽 W = 4 kHz，采用四相调制（每码元 2 bit，即 V = 4），信噪比为 30 dB。求该信道的最大数据传输率。</div>
+  <div class="ex-step"><div class="n">1</div><div class="t">奈氏上限：C₁ = 2W·log₂V = 2 × 4000 × log₂4 = 8000 × 2 = <strong>16 000 b/s</strong>。</div></div>
+  <div class="ex-step"><div class="n">2</div><div class="t">化信噪比：30 dB → S/N = 10^(30/10) = 10³ = 1000。</div></div>
+  <div class="ex-step"><div class="n">3</div><div class="t">香农上限：C₂ = W·log₂(1+S/N) = 4000 × log₂(1001) ≈ 4000 × 9.967 ≈ <strong>39 868 b/s</strong>。</div></div>
+  <div class="ex-step"><div class="n">4</div><div class="t">取较小者：C = min(16000, 39868) = <strong>16 000 b/s</strong>。奈氏是瓶颈。</div></div>
+  <div class="ans">答案：16 000 b/s ≈ 16 kb/s（奈奎斯特约束占主导）</div>
+</div>
+
+<div class="ex">
+  <div class="ex-head">📐 例题 2　纯香农计算</div>
+  <div class="ex-q">电话信道带宽 3000 Hz，信噪比 30 dB，按香农公式其最大数据率约为多少？</div>
+  <div class="ex-step"><div class="n">1</div><div class="t">换算 S/N = 10^(30/10) = 1000。</div></div>
+  <div class="ex-step"><div class="n">2</div><div class="t">C = 3000 × log₂(1001) ≈ 3000 × 9.97 ≈ <strong>29.9 kb/s</strong>。</div></div>
+  <div class="ans">答案：约 30 kb/s（这就是经典调制解调器上限的由来）</div>
+</div>
+
+<div class="exam-form">
+  <span class="ef calc">计算</span><span class="ef freq">高频</span><span class="desc">2009-34、2014-35、2017-34 都考奈氏+香农。务必熟记两公式 + 取 min + dB 换算。</span>
+</div>
+
+<h3 class="sub" id="code">编码与调制</h3>
+
+<p class="lead">数据要变成信号才能传。<strong>数字数据 / 模拟数据</strong> → <strong>数字信号 / 模拟信号</strong>，两两组合共 4 种变换：<strong>编码</strong>特指"→数字信号"，<strong>调制</strong>特指"→模拟信号"。</p>
+
+<table class="tbl">
+  <tr><th>变换类型</th><th>源 → 目标</th><th>常见方法</th><th>说明</th></tr>
+  <tr><td>数字数据编码为数字信号</td><td>数字数据 → 数字信号</td><td>归零制 RZ、非归零制 NRZ、曼彻斯特、差分曼彻斯特</td><td><strong>曼彻斯特</strong>每位中间跳变，自带时钟；以太网用它</td></tr>
+  <tr><td>数字数据调制为模拟信号</td><td>数字数据 → 模拟信号</td><td>调幅 ASK、调频 FSK、调相 PSK、正交调幅 QAM</td><td>QAM = ASK + PSK，是带宽利用率高的明星</td></tr>
+  <tr><td>模拟数据编码为数字信号</td><td>模拟数据 → 数字信号</td><td>PCM 脉冲编码调制（采样→量化→编码）</td><td>必须遵循<strong>采样定理</strong>：采样频率 ≥ 2 × 模拟信号最高频率</td></tr>
+  <tr><td>模拟数据调制为模拟信号</td><td>模拟数据 → 模拟信号</td><td>AM 调幅、FM 调频、PM 调相</td><td>例如无线电广播</td></tr>
+</table>
+
+<div class="note info">
+  <span class="nlbl">重点记忆</span>
+  <div class="nb">
+    <p><strong>曼彻斯特编码</strong>：每个比特中间都有一次跳变——<strong>既传数据又传时钟</strong>，无需外接时钟信号，但占用带宽是 NRZ 的 2 倍。<strong>以太网（10BASE-T）</strong>就用它。<br>
+    <strong>差分曼彻斯特</strong>：每个比特中间也有跳变（用于同步），但<strong>数据由比特开始处是否有跳变决定</strong>——有跳变=0，无跳变=1（抗干扰更强）。<br>
+    <strong>PCM 三步</strong>：采样（抽样）→ 量化（离散化）→ 编码。采样定理（奈奎斯特采样定理）频率 ≥ 2f_max。</p>
+  </div>
+</div>
+
+<div class="note bad">
+  <span class="nlbl">别混淆</span>
+  <div class="nb"><p>注意名字里有"曼彻斯特"的编码属<strong>数字数据 → 数字信号</strong>，不是调制。<strong>编码</strong>产出数字信号（方波那一类），<strong>调制</strong>产出模拟信号（载波那一类）。做题看到"曼彻斯特"先归到编码类，看到"ASK/FSK/PSK/QAM"归到调制类。</p></div>
+</div>
+
+<h4 class="subsub">基带 vs 带通传输</h4>
+<div class="cc">
+  <p><strong>基带信号</strong>（基本频带）：信源发出的尚未调制的原始信号，频率从 0 附近开始。直接在信道上送基带信号叫<strong>基带传输</strong>（局域网常用）。</p>
+  <p><strong>带通信号</strong>：把基带信号搬移到较高频段（载波调制）后的信号。用带通信号传叫<strong>带通传输</strong>（宽带/广域网常用）。</p>
+</div>
+
+<h3 class="sub" id="switch">三种交换方式 + 数据报/虚电路</h3>
+
+<div class="g3">
+  <div class="cc">
+    <h3>电路交换 <span class="tag" style="color:var(--purple);background:var(--pur-bg);border:1px solid var(--pur-b);">独占</span></h3>
+    <p>通信前先<strong>建立端到端连接</strong>，独占一条物理路径，通信结束才释放。</p>
+    <p><strong>优点</strong>：延迟小、稳定（连接期间无竞争）。<strong>缺点</strong>：线路利用率低、连接建立慢。电话网就是电路交换。</p>
+  </div>
+  <div class="cc">
+    <h3>报文交换 <span class="tag" style="color:var(--purple);background:var(--pur-bg);border:1px solid var(--pur-b);">整包转发</span></h3>
+    <p>以<strong>整个报文</strong>为单位存储转发，到每个节点先把整段存下来再往下传。</p>
+    <p><strong>优点</strong>：无需建立连接、线路复用高。<strong>缺点</strong>：报文太长 → 缓存大、延迟高、出错重传代价大。现已少见。</p>
+  </div>
+  <div class="cc">
+    <h3>分组交换 <span class="tag" style="color:var(--purple);background:var(--pur-bg);border:1px solid var(--pur-b);">分组转发</span></h3>
+    <p>把报文切成较短<strong>分组（包）</strong>，每个分组独立存储转发。</p>
+    <p><strong>优点</strong>：缓存小、延迟低、差错影响小、线路复用高。<strong>缺点</strong>：有额外开销（分组头）。<strong>互联网/计算机网络主流</strong>。</p>
+  </div>
+</div>
+
+<div class="note tip">
+  <span class="nlbl">记忆要点</span>
+  <div class="nb"><p>三种交换对比看<strong>三个维度</strong>：是否建立连接（电路交换要、其余不要）、传输单位大小（电路=比特流、报文=整段、分组=小块）、延迟来源（电路交换仅传播+节点处理；报文/分组还要加<strong>存储转发排队</strong>）。分组交换兼具高效率与高可靠性，是现代网络的事实标准。</p></div>
+</div>
+
+<h4 class="subsub">分组交换的两种服务</h4>
+<div class="vs">
+  <div class="ka">
+    <h4>数据报 <span class="ck">无连接</span></h4>
+    <p>每个分组<strong>独立选择路由</strong>，可能走不同路径，到达顺序可能乱。</p>
+    <p><strong>无需建立连接</strong>；健壮性强（节点故障可绕路）；每个分组带完整目的地址。</p>
+    <p><strong>缺点</strong>：不保证按序、可能丢失/重复。</p>
+    <p>代表：<strong>IP 协议</strong>。</p>
+  </div>
+  <div class="kb">
+    <h4>虚电路 <span class="ck">面向连接</span></h4>
+    <p>通信前先<strong>建立虚连接</strong>，所有分组沿同一路径走，按序到达。</p>
+    <p>分组头只带<strong>虚电路号</strong>（很短）；连接建立有开销；节点故障则虚电路中断。</p>
+    <p><strong>缺点</strong>：建连开销、容错弱。</p>
+    <p>代表：<strong>ATM、帧中继、X.25</strong>。</p>
+  </div>
+</div>
+
+<div class="exam-form">
+  <span class="ef compare">对比</span><span class="desc">真题问"哪种交换需建立连接"、"数据报特征"、"虚电路 vs 数据报"。这类常考。</span>
+</div>
+
+<!-- ============= 二、传输介质 ============= -->
+<div class="sec" id="media"><span class="snum">§2</span> 二、传输介质</div>
+
+<p class="lead">传输介质也叫<strong>传输媒体</strong>，是物理层下面、信号真正通过的物理通路。分两大类：<strong>导引型（有线）</strong>和<strong>非导引型（无线）</strong>。</p>
+
+<div class="g2">
+  <div class="cc">
+    <h3>双绞线 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">最常用</span></h3>
+    <p>两根相互绞合的绝缘铜线，绞合是为<strong>减小对相邻导线的电磁干扰</strong>。最广泛用于<strong>局域网</strong>（以太网网线）、电话线。</p>
+    <p>分<strong>屏蔽双绞线 STP</strong>（有金属屏蔽层，抗干扰好但贵）和<strong>非屏蔽双绞线 UTP</strong>（便宜，最常见）。</p>
+  </div>
+  <div class="cc">
+    <h3>同轴电缆 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">抗扰强</span></h3>
+    <p>内导体铜芯 + 绝缘层 + 外导体屏蔽网，结构同轴。比双绞线抗干扰更强、带宽更大。</p>
+    <p>主要用于<strong>有线电视网（CATV）</strong>，早期局域网也用过（10BASE2/10BASE5）。</p>
+  </div>
+</div>
+
+<div class="g2">
+  <div class="cc">
+    <h3>光纤 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">带宽王</span></h3>
+    <p>利用光的全反射传光脉冲，带宽<strong>极大</strong>、抗电磁干扰、重量轻、传输远。</p>
+    <p>分<strong>多模光纤</strong>（多束光线不同模式，近距离，用发光二极管）和<strong>单模光纤</strong>（单一直径极细，直线传，远距离，用激光二极管）。</p>
+  </div>
+  <div class="cc">
+    <h3>无线传输介质 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">非导引</span></h3>
+    <p>不通过物理线缆，用电磁波在自由空间传。</p>
+    <p>包括<strong>无线电波</strong>（全向传播、穿透强、Wi-Fi/蜂窝）、<strong>微波</strong>（定向直线、地面中继/卫星）、<strong>红外线</strong>（短距离直线、遥控器）、<strong>激光</strong>（直线视距）。</p>
+  </div>
+</div>
+
+<h4 class="subsub">物理层接口的特性</h4>
+<div class="cc">
+  <p>物理层不仅定义"传什么比特"，还规定 DTE（数据终端设备）和 DCE（数据电路端接设备）间接口的 4 大特性——这是物理层考纲明文点：</p>
+  <ul>
+    <li><strong>机械特性</strong>：接口形状、尺寸、引脚数、排列（长什么样）。</li>
+    <li><strong>电气特性</strong>：电压范围、传输速率、距离限制（信号电平怎么定）。</li>
+    <li><strong>功能特性</strong>：每根引脚的功能定义（这根脚干什么用）。</li>
+    <li><strong>过程特性（规程特性）</strong>：各引脚出现信号的事件顺序、规则（什么时候用）。</li>
+  </ul>
+</div>
+
+<div class="note bad">
+  <span class="nlbl">易错</span>
+  <div class="nb"><p><strong>电气特性 vs 功能特性</strong>最常被考：电气是"电压/电平多少"，功能是"这跟脚派什么用"。题目出现"电压范围 ±X V"→ 电气特性；出现"引脚 2 用于发送数据"→ 功能特性。</p></div>
+</div>
+
+<div class="exam-form">
+  <span class="ef device">介质辨析</span><span class="desc">4 大接口特性、单模 vs 多模、STP vs UTP、微波/红外线特点辨析。</span>
+</div>
+
+<!-- ============= 三、物理层设备 ============= -->
+<div class="sec" id="device"><span class="snum">§3</span> 三、物理层设备</div>
+
+<p class="lead">考纲明确列了两个物理层设备：<strong>中继器</strong>和<strong>集线器</strong>。它们都在物理层工作，只看比特、不看地址。这块考法集中在"设备工作在第几层""是否会隔离冲突域/广播域"。</p>
+
+<div class="g2">
+  <div class="cc">
+    <h3>中继器 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">Repeater</span></h3>
+    <p>作用：<strong>对衰减的信号进行整形放大并转发</strong>，以延长网络段长度。只对<b>单个比特</b>做"再生"。</p>
+    <ul>
+      <li>工作在物理层，<strong>不隔离冲突域</strong>也不隔离广播域。</li>
+      <li>两端连的是<strong>同一个网段</strong>（其实是把一个网段延长）。</li>
+      <li>不能连接不同类型的网络（不能连两种速率/两种 MAC）。</li>
+      <li>受"5-4-3 规则"限制（以太网最多 5 段、4 个中继器、3 段可挂主机）。</li>
+    </ul>
+  </div>
+  <div class="cc">
+    <h3>集线器 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">Hub</span></h3>
+    <p>本质是<strong>多端口中继器</strong>，放大并转发到除入口之外的所有端口。</p>
+    <ul>
+      <li>物理层设备，<strong>共享带宽</strong>（总带宽被端口数均分）。</li>
+      <li><strong>不能隔离冲突域</strong>——所有端口同处一个冲突域，半双工。</li>
+      <li>收到 1 帧 → 向所有其他端口转发（广播式），<strong>不隔离广播域</strong>。</li>
+      <li>用集线器组建的以太网仍是<strong>一个冲突域</strong>。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note tip">
+  <span class="nlbl">设备分层速记</span>
+  <div class="nb">
+    <p><strong>物理层</strong>：中继器、集线器（看比特，无地址）<br>
+    <strong>数据链路层</strong>：网桥、交换机（看 MAC）→ <strong>分割冲突域</strong>，不分割广播域<br>
+    <strong>网络层</strong>：路由器（看 IP）→ <strong>分割广播域</strong><br>
+    一句话：从低到高，能隔离的范围越来越大。物理层设备<strong>啥也不隔离</strong>。</p>
+  </div>
+</div>
+
+<div class="note bad">
+  <span class="nlbl">辨析陷阱</span>
+  <div class="nb"><p>题问"集线器能不能隔离冲突域"——答<strong>不能</strong>。"交换机每个端口是不是独立冲突域"——答<strong>是</strong>。两者别搞反。集线器 VLAN 不支持、无 MAC 表、即收即转发。</p></div>
+</div>
+
+<div class="exam-form">
+  <span class="ef device">设备识别</span><span class="desc">"下列哪个是物理层设备"、"集线器是否隔离冲突域"、"多端口中继器是哪种设备"。</span>
+</div>
+
+<!-- ============= 速记与易错 ============= -->
+<div class="sec" id="cheat"><span class="snum">§4</span> 速记卡与易错清单</div>
+
+<div class="cheat">
+  <h3>🎯 公式速记</h3>
+  <ul>
+    <li><strong>奈奎斯特</strong>：<code>C = 2W·log₂V</code>（W=Hz，V=状态数；理想无噪）</li>
+    <li><strong>香农</strong>：<code>C = W·log₂(1+S/N)</code>（有噪实际极限）</li>
+    <li><strong>dB 换算</strong>：信噪比 dB = 10·log₁₀(S/N)，反向 S/N = 10^(dB/10)</li>
+    <li><strong>波特转比特</strong>：比特率 = 波特率 × log₂V</li>
+    <li><strong>采样定理</strong>：采样频率 f ≥ 2·f_max（PCM）</li>
+    <li><strong>联合取 min</strong>：实际最大数据率 = min(奈氏算出, 香农算出)</li>
+  </ul>
+</div>
+
+<div class="cheat" style="background:linear-gradient(135deg,var(--grn-bg),transparent);border-color:var(--grn-b);">
+  <h3 style="color:var(--green)">✅ 概念速记</h3>
+  <ul>
+    <li><strong>码元</strong>：一段时域波形代表一个离散值；能带 log₂V 比特</li>
+    <li><strong>带宽</strong>：物理层用 Hz；网络层用 b/s。看清楚单位</li>
+    <li><strong>编码</strong>：→ 数字信号（曼彻斯特等）；<strong>调制</strong>：→ 模拟信号（ASK/FSK/PSK/QAM）</li>
+    <li><strong>曼彻斯特</strong>：自同步，以太网用；占带宽为 NRZ 的两倍</li>
+    <li><strong>PCM 三步</strong>：采样 → 量化 → 编码</li>
+    <li><strong>电路交换</strong>要建连接独占链路；分组交换不需；<strong>数据报</strong>无连接、<strong>虚电路</strong>面向连接</li>
+    <li><strong>接口四特性</strong>：机械 / 电气 / 功能 / 过程（规程）</li>
+    <li><strong>物理层设备</strong>：中继器、集线器；既不隔离冲突域也不隔离广播域</li>
+  </ul>
+</div>
+
+<div class="cheat" style="background:linear-gradient(135deg,var(--red-bg),transparent);border-color:var(--red-b);">
+  <h3 style="color:var(--red)">❌ 易错清单</h3>
+  <ul>
+    <li><strong>带宽单位混用</strong>：Hz 是频带宽度，b/s 是数据率，公式里别乱代</li>
+    <li><strong>奈氏没考虑噪声</strong>，香农才考虑；别拿奈氏算有噪题</li>
+    <li><strong>信噪比给 dB 不换算</strong>直接代入香农 → 必错，先 S/N = 10^(dB/10)</li>
+    <li><strong>只算一个定理</strong>：真题常两定理都给，要取 min</li>
+    <li><strong>曼彻斯特归到调制</strong>：错，它是数字数据<strong>编码</strong>为数字信号</li>
+    <li><strong>集线器能隔离冲突域</strong>：错，它扩充冲突域</li>
+    <li><strong>电气 vs 功能特性</strong>记反：电气=电压电平；功能=引脚作用</li>
+    <li><strong>双绞线"绞合"目的</strong>：减小电磁干扰，不是为了好看或耐用</li>
+  </ul>
+</div>
+
+<!-- ============= 真题练手 ============= -->
+<div class="sec" id="exercises"><span class="snum">§5</span> 真题练手</div>
+
+<div class="ex">
+  <div class="ex-head">📐 真题 1　<span class="yr">2009-34</span> 奈氏 + 香农</div>
+  <div class="ex-q">在无噪声情况下，若某链路的波特率为 3 000 Baud，采用 4 相 PSK 调制，该链路的数据传输率是？若背景噪声下信噪比为 30 dB、带宽 3 kHz，按香农公式最大数据率约是？</div>
+  <div class="ex-step"><div class="n">1</div><div class="t">4 相 PSK → V = 4 → 每码元 2 bit。奈氏侧：C = 2W·log₂V，若直接给波特率 B = 3000，<strong>数据率 = 波特率 × log₂V = 3000 × 2 = 6 000 b/s</strong>（注意此处数据传输率=波特率×log₂V）。</div></div>
+  <div class="ex-step"><div class="n">2</div><div class="t">香农：30 dB → S/N=1000；C=3000·log₂1001 ≈ 3000×9.97 ≈ <strong>29.9 kb/s</strong>。</div></div>
+  <div class="ans">无噪声时 6 000 b/s；有噪声时上限约 29.9 kb/s</div>
+</div>
+
+<div class="ex">
+  <div class="ex-head">📐 真题 2　<span class="yr">2017-34</span> 曼彻斯特编码带宽</div>
+  <div class="ex-q">若采用曼彻斯特编码，数据传输率为 1 Mb/s，所需信道带宽至少是多少？</div>
+  <div class="ex-step"><div class="n">1</div><div class="t">曼彻斯特每个比特要 2 个信号电平周期（中间必跳变），<strong>波特率是比特率的 2 倍</strong>。</div></div>
+  <div class="ex-step"><div class="n">2</div><div class="t">带宽下限 ≈ 波特率/2 → 但按"每位 2 个码元"化简，所需<strong>带宽 = 数据率 × 2 的关系</strong>→ 实际取<b>= 2 × 数据率</b>对应：带宽下限 = 2 × 1 = <strong>2 MHz</strong>。</div></div>
+  <div class="ans">至少 2 MHz（曼彻斯特编码所需的带宽是比特率的 2 倍）</div>
+</div>
+
+<div class="ex">
+  <div class="ex-head">📐 真题 3　交换方式概念（改编）</div>
+  <div class="ex-q">下列关于电路交换、报文交换、分组交换的叙述，正确的是？</div>
+  <div class="ex-step"><div class="n">A</div><div class="t">电路交换需建立端到端连接，传输期间独占链路 —— 正确。</div></div>
+  <div class="ex-step"><div class="n">B</div><div class="t">报文交换以整个报文为转发单位，分组交换以分组为单位 —— 正确。</div></div>
+  <div class="ex-step"><div class="n">C</div><div class="t">分组交换相比报文交换，缓存需求更小、突发数据适应性更强 —— 正确。</div></div>
+  <div class="ans">A、B、C 均正确（典型全选类；要分清三种交换在"建连/单位/效率"上的差别）</div>
+</div>
+
+<div class="ex">
+  <div class="ex-head">📐 真题 4　设备辨析（改编）</div>
+  <div class="ex-q">下列设备中，工作在物理层、且不能隔离冲突域的是？</div>
+  <div class="ex-step"><div class="n">·</div><div class="t">中继器、集线器：物理层，不隔离冲突域 —— 符合。</div></div>
+  <div class="ex-step"><div class="n">·</div><div class="t">网桥、交换机：数据链路层，<strong>能</strong>隔离冲突域。路由器：网络层，能隔离广播域。</div></div>
+  <div class="ans">中继器、集线器</div>
+</div>
+
+<div class="ex">
+  <div class="ex-head">📐 真题 5　接口四特性（概念辨析）</div>
+  <div class="ex-q">"规定接口所用引脚的电压电平范围"属于接口特性的哪一类？</div>
+  <div class="ex-step"><div class="n">·</div><div class="t">"电压电平范围"对应<strong>电气特性</strong>（与电信号物理参数相关）。</div></div>
+  <div class="ans">电气特性</div>
+</div>
+
+<div class="note info" style="margin-top:24px">
+  <span class="nlbl">复习建议</span>
+  <div class="nb"><p>物理层分值低但"<strong>送分稳</strong>"。优先把<strong>奈氏+香农计算</strong>刷到肌肉记忆（9 成概率出题），其次把<strong>交换方式</strong>和<strong>设备分层</strong>做成对照表反复看，<strong>编码调制</strong>抓"曼彻斯特、QAM、PCM 三步"三个点，介质和接口特性当常识过一遍即可。建议总共花 <strong>2-3 小时复盘 + 5 道真题</strong>就够拿稳这一节分。</p></div>
+  <p style="font-size:12px;color:var(--tx3);margin-top:6px;">配套练习可参见 <a href="kaoyan-plan.html" style="color:var(--blue);">考研学习清单</a> 与 <a href="kaoyan-schedule.html" style="color:var(--blue);">时间分配表</a>。</p>
+</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,1148 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - button "‹" [ref=e5] [cursor=pointer]
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8] [cursor=pointer]:
+            - generic [ref=e9]: ☕
+            - generic [ref=e10]: Java & 面试
+            - generic [ref=e11]: ▾
+          - generic [ref=e12]:
+            - generic [ref=e13]:
+              - generic [ref=e14] [cursor=pointer]:
+                - generic [ref=e15]: 综合面试题
+                - generic [ref=e16]: ▾
+              - list [ref=e17]:
+                - listitem [ref=e18]:
+                  - link "· 高频面试题 · Redis/Kafka/JVM" [ref=e19] [cursor=pointer]:
+                    - /url: doc/interview_redis_kafka_jvm.html
+                - listitem [ref=e20]:
+                  - link "· Java 面试知识图谱" [ref=e21] [cursor=pointer]:
+                    - /url: doc/java_interview_knowledge_map.html
+            - generic [ref=e22]:
+              - generic [ref=e23] [cursor=pointer]:
+                - generic [ref=e24]: JVM 专题
+                - generic [ref=e25]: ▾
+              - list [ref=e26]:
+                - listitem [ref=e27]:
+                  - link "· 大纲 · 目录结构" [ref=e28] [cursor=pointer]:
+                    - /url: doc/java/jvm-outline.html
+                - listitem [ref=e29]:
+                  - link "· 01 · 内存模型与对象" [ref=e30] [cursor=pointer]:
+                    - /url: doc/java/jvm-01-memory.html
+                - listitem [ref=e31]:
+                  - link "· 02 · GC 算法与收集器" [ref=e32] [cursor=pointer]:
+                    - /url: doc/java/jvm-02-gc.html
+                - listitem [ref=e33]:
+                  - link "· 03 · 类加载与双亲委派" [ref=e34] [cursor=pointer]:
+                    - /url: doc/java/jvm-03-classload.html
+                - listitem [ref=e35]:
+                  - link "· 04 · 高频面试题 25 道" [ref=e36] [cursor=pointer]:
+                    - /url: doc/java/jvm-04-interview.html
+            - generic [ref=e37]:
+              - generic [ref=e38] [cursor=pointer]:
+                - generic [ref=e39]: Java 基础专题
+                - generic [ref=e40]: ▾
+              - list [ref=e41]:
+                - listitem [ref=e42]:
+                  - link "· 大纲 · 目录结构" [ref=e43] [cursor=pointer]:
+                    - /url: doc/java/java-basic-outline.html
+                - listitem [ref=e44]:
+                  - link "· 01 · OOP & 关键字 & String" [ref=e45] [cursor=pointer]:
+                    - /url: doc/java/java-basic-01-oop.html
+                - listitem [ref=e46]:
+                  - link "· 02 · 集合框架" [ref=e47] [cursor=pointer]:
+                    - /url: doc/java/java-basic-02-collection.html
+                - listitem [ref=e48]:
+                  - link "· 03 · 泛型 & 反射 & 注解" [ref=e49] [cursor=pointer]:
+                    - /url: doc/java/java-basic-03-generic.html
+                - listitem [ref=e50]:
+                  - link "· 04 · 异常 & IO & NIO" [ref=e51] [cursor=pointer]:
+                    - /url: doc/java/java-basic-04-exception.html
+                - listitem [ref=e52]:
+                  - link "· 05 · JDK 8 ~ 21 新特性" [ref=e53] [cursor=pointer]:
+                    - /url: doc/java/java-basic-05-jdk8.html
+                - listitem [ref=e54]:
+                  - link "· 06 · 高频面试题 32 道" [ref=e55] [cursor=pointer]:
+                    - /url: doc/java/java-basic-06-interview.html
+            - generic [ref=e56]:
+              - generic [ref=e57] [cursor=pointer]:
+                - generic [ref=e58]: Java 并发专题
+                - generic [ref=e59]: ▾
+              - list [ref=e60]:
+                - listitem [ref=e61]:
+                  - link "· 大纲 · 目录结构" [ref=e62] [cursor=pointer]:
+                    - /url: doc/java/concurrent-outline.html
+                - listitem [ref=e63]:
+                  - link "· 01 · JMM 与内存可见性" [ref=e64] [cursor=pointer]:
+                    - /url: doc/java/concurrent-01-jmm.html
+                - listitem [ref=e65]:
+                  - link "· 02 · 线程基础与生命周期" [ref=e66] [cursor=pointer]:
+                    - /url: doc/java/concurrent-02-thread.html
+                - listitem [ref=e67]:
+                  - link "· 03 · 锁机制" [ref=e68] [cursor=pointer]:
+                    - /url: doc/java/concurrent-03-lock.html
+                - listitem [ref=e69]:
+                  - link "· 04 · JUC 并发工具" [ref=e70] [cursor=pointer]:
+                    - /url: doc/java/concurrent-04-juc.html
+                - listitem [ref=e71]:
+                  - link "· 05 · 线程池" [ref=e72] [cursor=pointer]:
+                    - /url: doc/java/concurrent-05-pool.html
+                - listitem [ref=e73]:
+                  - link "· 06 · 高频面试题" [ref=e74] [cursor=pointer]:
+                    - /url: doc/java/concurrent-06-interview.html
+            - generic [ref=e75]:
+              - generic [ref=e76] [cursor=pointer]:
+                - generic [ref=e77]: Spring 专题
+                - generic [ref=e78]: ▾
+              - list [ref=e79]:
+                - listitem [ref=e80]:
+                  - link "· 大纲 · 目录结构" [ref=e81] [cursor=pointer]:
+                    - /url: doc/java/spring-outline.html
+                - listitem [ref=e82]:
+                  - link "· 01 · IoC 容器与 Bean" [ref=e83] [cursor=pointer]:
+                    - /url: doc/java/spring-01-ioc.html
+                - listitem [ref=e84]:
+                  - link "· 02 · AOP 面向切面" [ref=e85] [cursor=pointer]:
+                    - /url: doc/java/spring-02-aop.html
+                - listitem [ref=e86]:
+                  - link "· 03 · 事务管理" [ref=e87] [cursor=pointer]:
+                    - /url: doc/java/spring-03-tx.html
+                - listitem [ref=e88]:
+                  - link "· 04 · Spring MVC" [ref=e89] [cursor=pointer]:
+                    - /url: doc/java/spring-04-mvc.html
+                - listitem [ref=e90]:
+                  - link "· 05 · Spring Boot" [ref=e91] [cursor=pointer]:
+                    - /url: doc/java/spring-05-boot.html
+                - listitem [ref=e92]:
+                  - link "· 06 · 事件机制 · @TransactionalEventListener" [ref=e93] [cursor=pointer]:
+                    - /url: doc/java/spring-07-event.html
+                - listitem [ref=e94]:
+                  - link "· 07 · 高频面试题" [ref=e95] [cursor=pointer]:
+                    - /url: doc/java/spring-06-interview.html
+            - generic [ref=e96]:
+              - generic [ref=e97] [cursor=pointer]:
+                - generic [ref=e98]: Spring Cloud 专题
+                - generic [ref=e99]: ▾
+              - list [ref=e100]:
+                - listitem [ref=e101]:
+                  - link "· 01 · 微服务架构总览" [ref=e102] [cursor=pointer]:
+                    - /url: doc/java/sc-01-arch.html
+                - listitem [ref=e103]:
+                  - link "· 02 · 注册中心与配置中心" [ref=e104] [cursor=pointer]:
+                    - /url: doc/java/sc-02-register.html
+                - listitem [ref=e105]:
+                  - link "· 03 · 网关与服务调用" [ref=e106] [cursor=pointer]:
+                    - /url: doc/java/sc-03-gateway.html
+                - listitem [ref=e107]:
+                  - link "· 04 · 可靠性：Sentinel · Seata" [ref=e108] [cursor=pointer]:
+                    - /url: doc/java/sc-04-reliability.html
+                - listitem [ref=e109]:
+                  - link "· 05 · 高频面试题 32 道" [ref=e110] [cursor=pointer]:
+                    - /url: doc/java/sc-05-interview.html
+            - generic [ref=e111]:
+              - generic [ref=e112] [cursor=pointer]:
+                - generic [ref=e113]: RPC & Dubbo 专题
+                - generic [ref=e114]: ▾
+              - list [ref=e115]:
+                - listitem [ref=e116]:
+                  - link "· 大纲 · 目录结构" [ref=e117] [cursor=pointer]:
+                    - /url: doc/java/dubbo-outline.html
+                - listitem [ref=e118]:
+                  - link "· 01 · RPC 基础与原理" [ref=e119] [cursor=pointer]:
+                    - /url: doc/java/dubbo-01-rpc.html
+                - listitem [ref=e120]:
+                  - link "· 02 · Dubbo 架构与 SPI" [ref=e121] [cursor=pointer]:
+                    - /url: doc/java/dubbo-02-arch.html
+                - listitem [ref=e122]:
+                  - link "· 03 · 注册中心与负载均衡" [ref=e123] [cursor=pointer]:
+                    - /url: doc/java/dubbo-03-registry.html
+                - listitem [ref=e124]:
+                  - link "· 04 · 集群容错与高级特性" [ref=e125] [cursor=pointer]:
+                    - /url: doc/java/dubbo-04-cluster.html
+                - listitem [ref=e126]:
+                  - link "· 05 · 高频面试题 29 道" [ref=e127] [cursor=pointer]:
+                    - /url: doc/java/dubbo-05-interview.html
+            - generic [ref=e128]:
+              - generic [ref=e129] [cursor=pointer]:
+                - generic [ref=e130]: 系统设计 & 设计模式
+                - generic [ref=e131]: ▾
+              - list [ref=e132]:
+                - listitem [ref=e133]:
+                  - link "· 大纲 · 目录结构" [ref=e134] [cursor=pointer]:
+                    - /url: doc/java/design-outline.html
+                - listitem [ref=e135]:
+                  - link "· 01 · 创建型模式" [ref=e136] [cursor=pointer]:
+                    - /url: doc/java/design-01-creational.html
+                - listitem [ref=e137]:
+                  - link "· 02 · 结构型模式" [ref=e138] [cursor=pointer]:
+                    - /url: doc/java/design-02-structural.html
+                - listitem [ref=e139]:
+                  - link "· 03 · 行为型模式" [ref=e140] [cursor=pointer]:
+                    - /url: doc/java/design-03-behavioral.html
+                - listitem [ref=e141]:
+                  - link "· 04 · 系统设计原则" [ref=e142] [cursor=pointer]:
+                    - /url: doc/java/design-04-system.html
+                - listitem [ref=e143]:
+                  - link "· 05 · 高频面试题 32 道" [ref=e144] [cursor=pointer]:
+                    - /url: doc/java/design-05-interview.html
+            - generic [ref=e145]:
+              - generic [ref=e146] [cursor=pointer]:
+                - generic [ref=e147]: 分布式系统专题
+                - generic [ref=e148]: ▾
+              - list [ref=e149]:
+                - listitem [ref=e150]:
+                  - link "· 大纲 · 目录结构" [ref=e151] [cursor=pointer]:
+                    - /url: doc/java/dist-outline.html
+                - listitem [ref=e152]:
+                  - link "· 01 · 理论基础（CAP / Raft / Paxos）" [ref=e153] [cursor=pointer]:
+                    - /url: doc/java/dist-01-theory.html
+                - listitem [ref=e154]:
+                  - link "· 02 · 分布式事务" [ref=e155] [cursor=pointer]:
+                    - /url: doc/java/dist-02-transaction.html
+                - listitem [ref=e156]:
+                  - link "· 03 · 分布式锁 & 分布式 ID" [ref=e157] [cursor=pointer]:
+                    - /url: doc/java/dist-03-lock-id.html
+                - listitem [ref=e158]:
+                  - link "· 04 · 高频面试题 32 道" [ref=e159] [cursor=pointer]:
+                    - /url: doc/java/dist-04-interview.html
+            - generic [ref=e160]:
+              - generic [ref=e161] [cursor=pointer]:
+                - generic [ref=e162]: MySQL 专题
+                - generic [ref=e163]: ▾
+              - list [ref=e164]:
+                - listitem [ref=e165]:
+                  - link "· 01 · 索引原理与实战" [ref=e166] [cursor=pointer]:
+                    - /url: doc/java/mysql-01-index.html
+                - listitem [ref=e167]:
+                  - link "· 02 · InnoDB 架构与执行流程" [ref=e168] [cursor=pointer]:
+                    - /url: doc/java/mysql-02-innodb.html
+                - listitem [ref=e169]:
+                  - link "· 03 · 事务、MVCC 与锁" [ref=e170] [cursor=pointer]:
+                    - /url: doc/java/mysql-03-transaction.html
+                - listitem [ref=e171]:
+                  - link "· 04 · 性能调优与架构" [ref=e172] [cursor=pointer]:
+                    - /url: doc/java/mysql-04-optimize.html
+                - listitem [ref=e173]:
+                  - link "· 05 · 高频面试题 32 道" [ref=e174] [cursor=pointer]:
+                    - /url: doc/java/mysql-05-interview.html
+            - generic [ref=e175]:
+              - generic [ref=e176] [cursor=pointer]:
+                - generic [ref=e177]: ORM 专题
+                - generic [ref=e178]: ▾
+              - list [ref=e179]:
+                - listitem [ref=e180]:
+                  - link "· 01 · MyBatis 核心原理" [ref=e181] [cursor=pointer]:
+                    - /url: doc/java/orm-01-mybatis.html
+                - listitem [ref=e182]:
+                  - link "· 02 · MyBatis-Plus 核心功能" [ref=e183] [cursor=pointer]:
+                    - /url: doc/java/orm-02-mybatisplus.html
+                - listitem [ref=e184]:
+                  - link "· 03 · 高频面试题 24 道" [ref=e185] [cursor=pointer]:
+                    - /url: doc/java/orm-03-interview.html
+            - generic [ref=e186]:
+              - generic [ref=e187] [cursor=pointer]:
+                - generic [ref=e188]: Redis 专题
+                - generic [ref=e189]: ▾
+              - list [ref=e190]:
+                - listitem [ref=e191]:
+                  - link "· 选举机制 · Redis & Kafka" [ref=e192] [cursor=pointer]:
+                    - /url: doc/election-redis-kafka-light.html
+                - listitem [ref=e193]:
+                  - link "· 数据类型 · 底层实现" [ref=e194] [cursor=pointer]:
+                    - /url: doc/redis-data-types.html
+                - listitem [ref=e195]:
+                  - link "· 热Key · 大Key · 数据结构" [ref=e196] [cursor=pointer]:
+                    - /url: doc/redis-hotkey-bigkey.html
+            - generic [ref=e197]:
+              - generic [ref=e198] [cursor=pointer]:
+                - generic [ref=e199]: Kafka 专题
+                - generic [ref=e200]: ▾
+              - list [ref=e201]:
+                - listitem [ref=e202]:
+                  - link "· 大纲 · 目录结构" [ref=e203] [cursor=pointer]:
+                    - /url: doc/java/kafka-outline.html
+                - listitem [ref=e204]:
+                  - link "· 01 · 整体架构与存储原理" [ref=e205] [cursor=pointer]:
+                    - /url: doc/java/kafka-01-arch.html
+                - listitem [ref=e206]:
+                  - link "· 02 · Producer 深度解析" [ref=e207] [cursor=pointer]:
+                    - /url: doc/java/kafka-02-producer.html
+                - listitem [ref=e208]:
+                  - link "· 03 · Consumer 深度解析" [ref=e209] [cursor=pointer]:
+                    - /url: doc/java/kafka-03-consumer.html
+                - listitem [ref=e210]:
+                  - link "· 04 · 消息可靠性保障" [ref=e211] [cursor=pointer]:
+                    - /url: doc/java/kafka-04-reliable.html
+                - listitem [ref=e212]:
+                  - link "· 05 · Spring Kafka 实战" [ref=e213] [cursor=pointer]:
+                    - /url: doc/java/kafka-05-spring.html
+                - listitem [ref=e214]:
+                  - link "· 06 · 高频面试题" [ref=e215] [cursor=pointer]:
+                    - /url: doc/java/kafka-06-interview.html
+            - generic [ref=e216]:
+              - generic [ref=e217] [cursor=pointer]:
+                - generic [ref=e218]: 中间件对比
+                - generic [ref=e219]: ▾
+              - list [ref=e220]:
+                - listitem [ref=e221]:
+                  - link "· 故障转移对比 · Redis哨兵/集群/Kafka" [ref=e222] [cursor=pointer]:
+                    - /url: doc/failover-compare.html
+            - generic [ref=e223]:
+              - generic [ref=e224] [cursor=pointer]:
+                - generic [ref=e225]: Java Agent 开发
+                - generic [ref=e226]: ▾
+              - list [ref=e227]:
+                - listitem [ref=e228]:
+                  - link "· 18 · LLM & AI 基础" [ref=e229] [cursor=pointer]:
+                    - /url: doc/java/agent-outline.html
+                - listitem [ref=e230]:
+                  - link "· 19 · Agent 框架 · LangChain4j & Spring AI" [ref=e231] [cursor=pointer]:
+                    - /url: doc/java/agent-outline.html#ch19
+                - listitem [ref=e232]:
+                  - link "· 20 · 向量数据库 & 检索" [ref=e233] [cursor=pointer]:
+                    - /url: doc/java/agent-outline.html#ch20
+                - listitem [ref=e234]:
+                  - link "· 21 · 工程实践 · 多Agent & 评估 & 安全" [ref=e235] [cursor=pointer]:
+                    - /url: doc/java/agent-outline.html#ch21
+                - listitem [ref=e236]:
+                  - link "· 22 · 系统设计 & 高频面试题" [ref=e237] [cursor=pointer]:
+                    - /url: doc/java/agent-outline.html#ch22
+        - generic [ref=e238]:
+          - generic [ref=e239] [cursor=pointer]:
+            - generic [ref=e240]: 🏗
+            - generic [ref=e241]: 架构 & 案例
+            - generic [ref=e242]: ▾
+          - list [ref=e243]:
+            - listitem [ref=e244]:
+              - link "› MMDB 美团数据库高可用" [ref=e245] [cursor=pointer]:
+                - /url: doc/mmdb-architecture.html
+        - generic [ref=e246]:
+          - generic [ref=e247] [cursor=pointer]:
+            - generic [ref=e248]: ⚙
+            - generic [ref=e249]: 工具 & 效率
+            - generic [ref=e250]: ▾
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - generic [ref=e253] [cursor=pointer]:
+                - generic [ref=e254]: AI 工具
+                - generic [ref=e255]: ▾
+              - list [ref=e256]:
+                - listitem [ref=e257]:
+                  - link "· Claude 使用指南" [ref=e258] [cursor=pointer]:
+                    - /url: doc/claude-guide.html
+                - listitem [ref=e259]:
+                  - link "· Claude Code 高级技巧" [ref=e260] [cursor=pointer]:
+                    - /url: doc/claude-code-tips.html
+                - listitem [ref=e261]:
+                  - link "· MCP 管理与使用" [ref=e262] [cursor=pointer]:
+                    - /url: doc/mcp-management.html
+                - listitem [ref=e263]:
+                  - link "· Agent 记忆系统 · 理论到工程" [ref=e264] [cursor=pointer]:
+                    - /url: doc/agent-memory-system.html
+                - listitem [ref=e265]:
+                  - link "· Agent 记忆系统 · 面试题整理" [ref=e266] [cursor=pointer]:
+                    - /url: doc/agent-memory-interview.html
+                - listitem [ref=e267]:
+                  - link "· LLM 缓存机制 · KV Cache / Prompt Cache" [ref=e268] [cursor=pointer]:
+                    - /url: doc/llm-kv-cache.html
+                - listitem [ref=e269]:
+                  - link "· WorkBuddy · AI 深度研究产物" [ref=e270] [cursor=pointer]:
+                    - /url: workbuddy/index.html
+                - listitem [ref=e271]:
+                  - link "· AI 研发情报 · 趋势简报" [ref=e272] [cursor=pointer]:
+                    - /url: ai-briefing/index.html
+            - generic [ref=e273]:
+              - generic [ref=e274] [cursor=pointer]:
+                - generic [ref=e275]: IDE & 开发
+                - generic [ref=e276]: ▾
+              - list [ref=e277]:
+                - listitem [ref=e278]:
+                  - link "· IDEA 快捷键 · macOS" [ref=e279] [cursor=pointer]:
+                    - /url: doc/idea-shortcuts-mac.html
+            - generic [ref=e280]:
+              - generic [ref=e281] [cursor=pointer]:
+                - generic [ref=e282]: 算法练习
+                - generic [ref=e283]: ▾
+              - list [ref=e284]:
+                - listitem [ref=e285]:
+                  - link "· LeetCode · Java 数据结构速查" [ref=e286] [cursor=pointer]:
+                    - /url: doc/leetcode-java-ds.html
+        - generic [ref=e287]:
+          - generic [ref=e288] [cursor=pointer]:
+            - generic [ref=e289]: 📚
+            - generic [ref=e290]: 考研备考
+            - generic [ref=e291]: ▾
+          - list [ref=e292]:
+            - listitem [ref=e293]:
+              - link "› 学习清单 · 章节要不要学" [ref=e294] [cursor=pointer]:
+                - /url: doc/kaoyan-plan.html
+            - listitem [ref=e295]:
+              - link "› 时间分配表 · 哪月学哪章" [ref=e296] [cursor=pointer]:
+                - /url: doc/kaoyan-schedule.html
+            - listitem [ref=e297]:
+              - link "› 7月第1-2周 · 数二+408大纲" [ref=e298] [cursor=pointer]:
+                - /url: doc/kaoyan-week1-2.html
+            - listitem [ref=e299]:
+              - link "› 7月第3-4周 · 数二+408大纲" [ref=e300] [cursor=pointer]:
+                - /url: doc/kaoyan-week3-4.html
+        - generic [ref=e301]:
+          - generic [ref=e302] [cursor=pointer]:
+            - generic [ref=e303]: 📰
+            - generic [ref=e304]: 资讯
+            - generic [ref=e305]: ▾
+          - list [ref=e306]:
+            - listitem [ref=e307]:
+              - link "› 社会热点速览" [ref=e308] [cursor=pointer]:
+                - /url: doc/news_digest.html
+    - generic [ref=e309]:
+      - banner [ref=e310]:
+        - generic [ref=e311]: MY.DASHBOARD
+        - generic [ref=e312]:
+          - generic [ref=e313]: 11:26
+          - generic [ref=e314]: 2026 / 7月 13日 星期一
+      - generic [ref=e316]:
+        - button "Google" [ref=e317] [cursor=pointer]:
+          - generic [ref=e319]: Google
+        - textbox "搜索... (Tab 切换引擎，Enter 搜索)" [active] [ref=e321]
+        - generic [ref=e322]: Tab ⇄
+      - generic [ref=e323]:
+        - generic [ref=e324]:
+          - text: 快速访问
+          - button "✎ 编辑" [ref=e326] [cursor=pointer]
+        - generic [ref=e327]:
+          - link "GitHub" [ref=e328] [cursor=pointer]:
+            - /url: https://github.com/gcs0324
+            - text: GitHub
+          - link "Claude" [ref=e330] [cursor=pointer]:
+            - /url: https://claude.ai
+            - text: Claude
+          - link "Gmail" [ref=e332] [cursor=pointer]:
+            - /url: https://mail.google.com
+            - text: Gmail
+          - link "翻译" [ref=e334] [cursor=pointer]:
+            - /url: https://translate.google.com
+            - text: 翻译
+          - link "Bilibili" [ref=e336] [cursor=pointer]:
+            - /url: https://www.bilibili.com
+            - text: Bilibili
+          - link "ChatGPT" [ref=e338] [cursor=pointer]:
+            - /url: https://chat.openai.com
+            - text: ChatGPT
+      - generic [ref=e340]:
+        - generic [ref=e341]:
+          - generic [ref=e342]: 知识分类
+          - button "✎ 编辑" [ref=e344] [cursor=pointer]
+        - generic [ref=e345]:
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - generic [ref=e348]: ⌨
+              - generic [ref=e349]: 编程开发
+              - generic [ref=e350]: 4 links
+            - list [ref=e351]:
+              - listitem [ref=e352]:
+                - link "→ Python 基础知识点" [ref=e353] [cursor=pointer]:
+                  - /url: pages/python-basics.html
+              - listitem [ref=e354]:
+                - link "→ Git 常用命令速查" [ref=e355] [cursor=pointer]:
+                  - /url: pages/git-cheatsheet.html
+              - listitem [ref=e356]:
+                - link "→ MDN Web 文档" [ref=e357] [cursor=pointer]:
+                  - /url: https://developer.mozilla.org/zh-CN/
+              - listitem [ref=e358]:
+                - link "→ 开发者路线图" [ref=e359] [cursor=pointer]:
+                  - /url: https://roadmap.sh
+          - generic [ref=e360]:
+            - generic [ref=e361]:
+              - generic [ref=e362]: ◻
+              - generic [ref=e363]: 前端 & CSS
+              - generic [ref=e364]: 4 links
+            - list [ref=e365]:
+              - listitem [ref=e366]:
+                - link "→ CSS Flexbox 速查" [ref=e367] [cursor=pointer]:
+                  - /url: pages/css-flexbox.html
+              - listitem [ref=e368]:
+                - link "→ HTML 常用标签" [ref=e369] [cursor=pointer]:
+                  - /url: pages/html-tags.html
+              - listitem [ref=e370]:
+                - link "→ CSS Tricks" [ref=e371] [cursor=pointer]:
+                  - /url: https://css-tricks.com
+              - listitem [ref=e372]:
+                - link "→ CodePen" [ref=e373] [cursor=pointer]:
+                  - /url: https://codepen.io
+          - generic [ref=e374]:
+            - generic [ref=e375]:
+              - generic [ref=e376]: ⚙
+              - generic [ref=e377]: 开发工具
+              - generic [ref=e378]: 4 links
+            - list [ref=e379]:
+              - listitem [ref=e380]:
+                - link "→ 正则表达式测试" [ref=e381] [cursor=pointer]:
+                  - /url: https://regex101.com
+              - listitem [ref=e382]:
+                - link "→ JSON 格式化" [ref=e383] [cursor=pointer]:
+                  - /url: https://jsonformatter.org
+              - listitem [ref=e384]:
+                - link "→ 代码格式转换" [ref=e385] [cursor=pointer]:
+                  - /url: https://transform.tools
+              - listitem [ref=e386]:
+                - link "→ Can I Use" [ref=e387] [cursor=pointer]:
+                  - /url: https://caniuse.com
+          - generic [ref=e388]:
+            - generic [ref=e389]:
+              - generic [ref=e390]: ◈
+              - generic [ref=e391]: 学习资源
+              - generic [ref=e392]: 4 links
+            - list [ref=e393]:
+              - listitem [ref=e394]:
+                - link "→ Coursera" [ref=e395] [cursor=pointer]:
+                  - /url: https://www.coursera.org
+              - listitem [ref=e396]:
+                - link "→ LeetCode（中文）" [ref=e397] [cursor=pointer]:
+                  - /url: https://leetcode.cn
+              - listitem [ref=e398]:
+                - link "→ 菜鸟教程" [ref=e399] [cursor=pointer]:
+                  - /url: https://www.runoob.com
+              - listitem [ref=e400]:
+                - link "→ MIT Missing Semester" [ref=e401] [cursor=pointer]:
+                  - /url: https://missing.csail.mit.edu
+          - generic [ref=e402]:
+            - generic [ref=e403]:
+              - generic [ref=e404]: ✦
+              - generic [ref=e405]: 设计 & 素材
+              - generic [ref=e406]: 4 links
+            - list [ref=e407]:
+              - listitem [ref=e408]:
+                - link "→ Figma" [ref=e409] [cursor=pointer]:
+                  - /url: https://www.figma.com
+              - listitem [ref=e410]:
+                - link "→ Unsplash 免费图片" [ref=e411] [cursor=pointer]:
+                  - /url: https://unsplash.com
+              - listitem [ref=e412]:
+                - link "→ 配色方案生成" [ref=e413] [cursor=pointer]:
+                  - /url: https://coolors.co
+              - listitem [ref=e414]:
+                - link "→ Font Awesome 图标" [ref=e415] [cursor=pointer]:
+                  - /url: https://fontawesome.com
+          - generic [ref=e416]:
+            - generic [ref=e417]:
+              - generic [ref=e418]: ◉
+              - generic [ref=e419]: AI 工具
+              - generic [ref=e420]: 9 links
+            - list [ref=e421]:
+              - listitem [ref=e422]:
+                - link "→ ✦ Claude 使用指南" [ref=e423] [cursor=pointer]:
+                  - /url: doc/claude-guide.html
+              - listitem [ref=e424]:
+                - link "→ ✦ Claude Code 高级技巧" [ref=e425] [cursor=pointer]:
+                  - /url: doc/claude-code-tips.html
+              - listitem [ref=e426]:
+                - link "→ ✦ MCP 管理与使用" [ref=e427] [cursor=pointer]:
+                  - /url: doc/mcp-management.html
+              - listitem [ref=e428]:
+                - link "→ ✦ Agent 记忆系统 · 面试题整理" [ref=e429] [cursor=pointer]:
+                  - /url: doc/agent-memory-interview.html
+              - listitem [ref=e430]:
+                - link "→ ✦ LLM 缓存机制 · KV Cache / Prompt Cache" [ref=e431] [cursor=pointer]:
+                  - /url: doc/llm-kv-cache.html
+              - listitem [ref=e432]:
+                - link "→ Claude.ai" [ref=e433] [cursor=pointer]:
+                  - /url: https://claude.ai
+              - listitem [ref=e434]:
+                - link "→ ChatGPT" [ref=e435] [cursor=pointer]:
+                  - /url: https://chat.openai.com
+              - listitem [ref=e436]:
+                - link "→ Perplexity" [ref=e437] [cursor=pointer]:
+                  - /url: https://www.perplexity.ai
+              - listitem [ref=e438]:
+                - link "→ Gamma（AI 幻灯片）" [ref=e439] [cursor=pointer]:
+                  - /url: https://gamma.app
+          - generic [ref=e440]:
+            - generic [ref=e441]:
+              - generic [ref=e442]: 📡
+              - generic [ref=e443]: AI 研发情报
+              - generic [ref=e444]: 5 links
+            - list [ref=e445]:
+              - listitem [ref=e446]:
+                - link "→ 📋 情报汇总页" [ref=e447] [cursor=pointer]:
+                  - /url: ai-briefing/index.html
+              - listitem [ref=e448]:
+                - link "→ 2026-07-06 · Context Engineering 时代" [ref=e449] [cursor=pointer]:
+                  - /url: ai-briefing/report-2026-07-06.html
+              - listitem [ref=e450]:
+                - link "→ 2026-07-01 · AI 技术趋势简报" [ref=e451] [cursor=pointer]:
+                  - /url: ai-briefing/report-2026-07-01.html
+              - listitem [ref=e452]:
+                - link "→ 2026-06-23 · AI 技术趋势简报" [ref=e453] [cursor=pointer]:
+                  - /url: ai-briefing/report-2026-06-23.html
+              - listitem [ref=e454]:
+                - link "→ 2026-06-15 · AI 技术趋势简报" [ref=e455] [cursor=pointer]:
+                  - /url: ai-briefing/report-2026-06-15.html
+          - generic [ref=e456]:
+            - generic [ref=e457]:
+              - generic [ref=e458]: 🤖
+              - generic [ref=e459]: WorkBuddy 产物
+              - generic [ref=e460]: 9 links
+            - list [ref=e461]:
+              - listitem [ref=e462]:
+                - link "→ 📋 产物汇总页" [ref=e463] [cursor=pointer]:
+                  - /url: workbuddy/index.html
+              - listitem [ref=e464]:
+                - link "→ Headroom · Claude Code 深度研究" [ref=e465] [cursor=pointer]:
+                  - /url: workbuddy/headroom-claude-code深度研究报告.md
+              - listitem [ref=e466]:
+                - link "→ 考研数二408 · 两周学习计划" [ref=e467] [cursor=pointer]:
+                  - /url: workbuddy/考研数二408两周学习计划.html
+              - listitem [ref=e468]:
+                - link "→ Hermes 自进化 · 深度解读" [ref=e469] [cursor=pointer]:
+                  - /url: workbuddy/hermes-self-evolution-deep-dive.html
+              - listitem [ref=e470]:
+                - link "→ DeerFlow 2.0 深度研究" [ref=e471] [cursor=pointer]:
+                  - /url: workbuddy/deerflow-deep-research.html
+              - listitem [ref=e472]:
+                - link "→ OpenDev 论文阅读笔记" [ref=e473] [cursor=pointer]:
+                  - /url: workbuddy/opendev-reading-notes.html
+              - listitem [ref=e474]:
+                - link "→ AI Agent 记忆系统技术调研" [ref=e475] [cursor=pointer]:
+                  - /url: workbuddy/AI-Agent记忆系统技术调研报告.md
+              - listitem [ref=e476]:
+                - link "→ AI Coding 商业模式研究报告" [ref=e477] [cursor=pointer]:
+                  - /url: workbuddy/ai-coding-business-model-report.html
+              - listitem [ref=e478]:
+                - link "→ LLM 学习路径" [ref=e479] [cursor=pointer]:
+                  - /url: workbuddy/llm-learning-path.html
+          - generic [ref=e480]:
+            - generic [ref=e481]:
+              - generic [ref=e482]: 📚
+              - generic [ref=e483]: 考研备考
+              - generic [ref=e484]: 4 links
+            - list [ref=e485]:
+              - listitem [ref=e486]:
+                - link "→ 学习清单 · 章节要不要学" [ref=e487] [cursor=pointer]:
+                  - /url: doc/kaoyan-plan.html
+              - listitem [ref=e488]:
+                - link "→ 时间分配表 · 哪月学哪章" [ref=e489] [cursor=pointer]:
+                  - /url: doc/kaoyan-schedule.html
+              - listitem [ref=e490]:
+                - link "→ 7月第1-2周 · 数二+408学习大纲" [ref=e491] [cursor=pointer]:
+                  - /url: doc/kaoyan-week1-2.html
+              - listitem [ref=e492]:
+                - link "→ 7月第3-4周 · 数二+408学习大纲" [ref=e493] [cursor=pointer]:
+                  - /url: doc/kaoyan-week3-4.html
+      - generic [ref=e494]:
+        - generic [ref=e495]: Java 高级开发面试题库 · 规划中
+        - generic [ref=e496]:
+          - generic [ref=e497]:
+            - generic [ref=e498]:
+              - text: 01 · Java 基础
+              - generic [ref=e499]: 7 files
+            - list [ref=e500]:
+              - listitem [ref=e501]:
+                - link "→ java-basic-outline.html ✅" [ref=e502] [cursor=pointer]:
+                  - /url: doc/java/java-basic-outline.html
+              - listitem [ref=e503]:
+                - link "→ java-basic-01-oop.html ✅" [ref=e504] [cursor=pointer]:
+                  - /url: doc/java/java-basic-01-oop.html
+              - listitem [ref=e505]:
+                - link "→ java-basic-02-collection.html ✅" [ref=e506] [cursor=pointer]:
+                  - /url: doc/java/java-basic-02-collection.html
+              - listitem [ref=e507]:
+                - link "→ java-basic-03-generic.html ✅" [ref=e508] [cursor=pointer]:
+                  - /url: doc/java/java-basic-03-generic.html
+              - listitem [ref=e509]:
+                - link "→ java-basic-04-exception.html ✅" [ref=e510] [cursor=pointer]:
+                  - /url: doc/java/java-basic-04-exception.html
+              - listitem [ref=e511]:
+                - link "→ java-basic-05-jdk8.html ✅" [ref=e512] [cursor=pointer]:
+                  - /url: doc/java/java-basic-05-jdk8.html
+              - listitem [ref=e513]:
+                - link "→ java-basic-06-interview.html ✅" [ref=e514] [cursor=pointer]:
+                  - /url: doc/java/java-basic-06-interview.html
+          - generic [ref=e515]:
+            - generic [ref=e516]:
+              - text: 02 · JVM
+              - generic [ref=e517]: 4 files
+            - list [ref=e518]:
+              - listitem [ref=e519]:
+                - link "→ jvm-outline.html ✅" [ref=e520] [cursor=pointer]:
+                  - /url: doc/java/jvm-outline.html
+              - listitem [ref=e521]:
+                - link "→ jvm-01-memory.html ✅" [ref=e522] [cursor=pointer]:
+                  - /url: doc/java/jvm-01-memory.html
+              - listitem [ref=e523]:
+                - link "→ jvm-02-gc.html ✅" [ref=e524] [cursor=pointer]:
+                  - /url: doc/java/jvm-02-gc.html
+              - listitem [ref=e525]:
+                - link "→ jvm-03-classload.html ✅" [ref=e526] [cursor=pointer]:
+                  - /url: doc/java/jvm-03-classload.html
+              - listitem [ref=e527]:
+                - link "→ jvm-04-interview.html ✅" [ref=e528] [cursor=pointer]:
+                  - /url: doc/java/jvm-04-interview.html
+          - generic [ref=e529]:
+            - generic [ref=e530]:
+              - text: 03 · Java 并发
+              - generic [ref=e531]: 7 files
+            - list [ref=e532]:
+              - listitem [ref=e533]:
+                - link "→ concurrent-outline.html ✅" [ref=e534] [cursor=pointer]:
+                  - /url: doc/java/concurrent-outline.html
+              - listitem [ref=e535]:
+                - link "→ concurrent-01-jmm.html ✅" [ref=e536] [cursor=pointer]:
+                  - /url: doc/java/concurrent-01-jmm.html
+              - listitem [ref=e537]:
+                - link "→ concurrent-02-thread.html ✅" [ref=e538] [cursor=pointer]:
+                  - /url: doc/java/concurrent-02-thread.html
+              - listitem [ref=e539]:
+                - link "→ concurrent-03-lock.html ✅" [ref=e540] [cursor=pointer]:
+                  - /url: doc/java/concurrent-03-lock.html
+              - listitem [ref=e541]:
+                - link "→ concurrent-04-juc.html ✅" [ref=e542] [cursor=pointer]:
+                  - /url: doc/java/concurrent-04-juc.html
+              - listitem [ref=e543]:
+                - link "→ concurrent-05-pool.html ✅" [ref=e544] [cursor=pointer]:
+                  - /url: doc/java/concurrent-05-pool.html
+              - listitem [ref=e545]:
+                - link "→ concurrent-06-interview.html ✅" [ref=e546] [cursor=pointer]:
+                  - /url: doc/java/concurrent-06-interview.html
+          - generic [ref=e547]:
+            - generic [ref=e548]:
+              - text: 04 · MySQL
+              - generic [ref=e549]: 5 files
+            - list [ref=e550]:
+              - listitem [ref=e551]:
+                - link "→ mysql-01-index.html ✅" [ref=e552] [cursor=pointer]:
+                  - /url: doc/java/mysql-01-index.html
+              - listitem [ref=e553]:
+                - link "→ mysql-02-innodb.html ✅" [ref=e554] [cursor=pointer]:
+                  - /url: doc/java/mysql-02-innodb.html
+              - listitem [ref=e555]:
+                - link "→ mysql-03-transaction.html ✅" [ref=e556] [cursor=pointer]:
+                  - /url: doc/java/mysql-03-transaction.html
+              - listitem [ref=e557]:
+                - link "→ mysql-04-optimize.html ✅" [ref=e558] [cursor=pointer]:
+                  - /url: doc/java/mysql-04-optimize.html
+              - listitem [ref=e559]:
+                - link "→ mysql-05-interview.html ✅" [ref=e560] [cursor=pointer]:
+                  - /url: doc/java/mysql-05-interview.html
+          - generic [ref=e561]:
+            - generic [ref=e562]:
+              - text: 05 · Redis
+              - generic [ref=e563]: 4 files
+            - list [ref=e564]:
+              - listitem [ref=e565]:
+                - generic [ref=e566]:
+                  - text: · redis-01-datatype.html
+                  - generic [ref=e567]: · TODO
+              - listitem [ref=e568]:
+                - generic [ref=e569]:
+                  - text: · redis-02-persistence.html
+                  - generic [ref=e570]: · TODO
+              - listitem [ref=e571]:
+                - generic [ref=e572]:
+                  - text: · redis-03-cluster.html
+                  - generic [ref=e573]: · TODO
+              - listitem [ref=e574]:
+                - generic [ref=e575]:
+                  - text: · redis-04-interview.html
+                  - generic [ref=e576]: · TODO
+          - generic [ref=e577]:
+            - generic [ref=e578]:
+              - text: 06 · ORM
+              - generic [ref=e579]: 3 files
+            - list [ref=e580]:
+              - listitem [ref=e581]:
+                - link "→ orm-01-mybatis.html ✅" [ref=e582] [cursor=pointer]:
+                  - /url: doc/java/orm-01-mybatis.html
+              - listitem [ref=e583]:
+                - link "→ orm-02-mybatisplus.html ✅" [ref=e584] [cursor=pointer]:
+                  - /url: doc/java/orm-02-mybatisplus.html
+              - listitem [ref=e585]:
+                - link "→ orm-03-interview.html ✅" [ref=e586] [cursor=pointer]:
+                  - /url: doc/java/orm-03-interview.html
+          - generic [ref=e587]:
+            - generic [ref=e588]:
+              - text: 07 · Spring 全家桶
+              - generic [ref=e589]: 7 files
+            - list [ref=e590]:
+              - listitem [ref=e591]:
+                - link "→ spring-outline.html ✅" [ref=e592] [cursor=pointer]:
+                  - /url: doc/java/spring-outline.html
+              - listitem [ref=e593]:
+                - link "→ spring-01-ioc.html ✅" [ref=e594] [cursor=pointer]:
+                  - /url: doc/java/spring-01-ioc.html
+              - listitem [ref=e595]:
+                - link "→ spring-02-aop.html ✅" [ref=e596] [cursor=pointer]:
+                  - /url: doc/java/spring-02-aop.html
+              - listitem [ref=e597]:
+                - link "→ spring-03-tx.html ✅" [ref=e598] [cursor=pointer]:
+                  - /url: doc/java/spring-03-tx.html
+              - listitem [ref=e599]:
+                - link "→ spring-04-mvc.html ✅" [ref=e600] [cursor=pointer]:
+                  - /url: doc/java/spring-04-mvc.html
+              - listitem [ref=e601]:
+                - link "→ spring-05-boot.html ✅" [ref=e602] [cursor=pointer]:
+                  - /url: doc/java/spring-05-boot.html
+              - listitem [ref=e603]:
+                - link "→ spring-07-event.html ✅" [ref=e604] [cursor=pointer]:
+                  - /url: doc/java/spring-07-event.html
+              - listitem [ref=e605]:
+                - link "→ spring-06-interview.html ✅" [ref=e606] [cursor=pointer]:
+                  - /url: doc/java/spring-06-interview.html
+          - generic [ref=e607]:
+            - generic [ref=e608]:
+              - text: Spring Cloud · Alibaba
+              - generic [ref=e609]: 5 files
+            - list [ref=e610]:
+              - listitem [ref=e611]:
+                - link "→ sc-01-arch.html ✅" [ref=e612] [cursor=pointer]:
+                  - /url: doc/java/sc-01-arch.html
+              - listitem [ref=e613]:
+                - link "→ sc-02-register.html ✅" [ref=e614] [cursor=pointer]:
+                  - /url: doc/java/sc-02-register.html
+              - listitem [ref=e615]:
+                - link "→ sc-03-gateway.html ✅" [ref=e616] [cursor=pointer]:
+                  - /url: doc/java/sc-03-gateway.html
+              - listitem [ref=e617]:
+                - link "→ sc-04-reliability.html ✅" [ref=e618] [cursor=pointer]:
+                  - /url: doc/java/sc-04-reliability.html
+              - listitem [ref=e619]:
+                - link "→ sc-05-interview.html ✅" [ref=e620] [cursor=pointer]:
+                  - /url: doc/java/sc-05-interview.html
+          - generic [ref=e621]:
+            - generic [ref=e622]:
+              - text: 08 · RocketMQ
+              - generic [ref=e623]: 3 files
+            - list [ref=e624]:
+              - listitem [ref=e625]:
+                - generic [ref=e626]:
+                  - text: · rocketmq-01-arch.html
+                  - generic [ref=e627]: · TODO
+              - listitem [ref=e628]:
+                - generic [ref=e629]:
+                  - text: · rocketmq-02-features.html
+                  - generic [ref=e630]: · TODO
+              - listitem [ref=e631]:
+                - generic [ref=e632]:
+                  - text: · rocketmq-03-interview.html
+                  - generic [ref=e633]: · TODO
+          - generic [ref=e634]:
+            - generic [ref=e635]:
+              - text: 09 · RPC & Dubbo
+              - generic [ref=e636]: 6 files
+            - list [ref=e637]:
+              - listitem [ref=e638]:
+                - link "→ dubbo-outline.html ✅" [ref=e639] [cursor=pointer]:
+                  - /url: doc/java/dubbo-outline.html
+              - listitem [ref=e640]:
+                - link "→ dubbo-01-rpc.html ✅" [ref=e641] [cursor=pointer]:
+                  - /url: doc/java/dubbo-01-rpc.html
+              - listitem [ref=e642]:
+                - link "→ dubbo-02-arch.html ✅" [ref=e643] [cursor=pointer]:
+                  - /url: doc/java/dubbo-02-arch.html
+              - listitem [ref=e644]:
+                - link "→ dubbo-03-registry.html ✅" [ref=e645] [cursor=pointer]:
+                  - /url: doc/java/dubbo-03-registry.html
+              - listitem [ref=e646]:
+                - link "→ dubbo-04-cluster.html ✅" [ref=e647] [cursor=pointer]:
+                  - /url: doc/java/dubbo-04-cluster.html
+              - listitem [ref=e648]:
+                - link "→ dubbo-05-interview.html ✅" [ref=e649] [cursor=pointer]:
+                  - /url: doc/java/dubbo-05-interview.html
+          - generic [ref=e650]:
+            - generic [ref=e651]:
+              - text: 10 · 分布式系统
+              - generic [ref=e652]: 5 files
+            - list [ref=e653]:
+              - listitem [ref=e654]:
+                - link "→ dist-outline.html ✅" [ref=e655] [cursor=pointer]:
+                  - /url: doc/java/dist-outline.html
+              - listitem [ref=e656]:
+                - link "→ dist-01-theory.html ✅" [ref=e657] [cursor=pointer]:
+                  - /url: doc/java/dist-01-theory.html
+              - listitem [ref=e658]:
+                - link "→ dist-02-transaction.html ✅" [ref=e659] [cursor=pointer]:
+                  - /url: doc/java/dist-02-transaction.html
+              - listitem [ref=e660]:
+                - link "→ dist-03-lock-id.html ✅" [ref=e661] [cursor=pointer]:
+                  - /url: doc/java/dist-03-lock-id.html
+              - listitem [ref=e662]:
+                - link "→ dist-04-interview.html ✅" [ref=e663] [cursor=pointer]:
+                  - /url: doc/java/dist-04-interview.html
+          - generic [ref=e664]:
+            - generic [ref=e665]:
+              - text: 11 · Elasticsearch
+              - generic [ref=e666]: 4 files
+            - list [ref=e667]:
+              - listitem [ref=e668]:
+                - generic [ref=e669]:
+                  - text: · es-01-index.html
+                  - generic [ref=e670]: · TODO
+              - listitem [ref=e671]:
+                - generic [ref=e672]:
+                  - text: · es-02-query.html
+                  - generic [ref=e673]: · TODO
+              - listitem [ref=e674]:
+                - generic [ref=e675]:
+                  - text: · es-03-cluster.html
+                  - generic [ref=e676]: · TODO
+              - listitem [ref=e677]:
+                - generic [ref=e678]:
+                  - text: · es-04-interview.html
+                  - generic [ref=e679]: · TODO
+          - generic [ref=e680]:
+            - generic [ref=e681]:
+              - text: 12 · 高性能高并发
+              - generic [ref=e682]: 4 files
+            - list [ref=e683]:
+              - listitem [ref=e684]:
+                - generic [ref=e685]:
+                  - text: · perf-01-local-cache.html
+                  - generic [ref=e686]: · TODO
+              - listitem [ref=e687]:
+                - generic [ref=e688]:
+                  - text: · perf-02-sharding.html
+                  - generic [ref=e689]: · TODO
+              - listitem [ref=e690]:
+                - generic [ref=e691]:
+                  - text: · perf-03-ratelimit.html
+                  - generic [ref=e692]: · TODO
+              - listitem [ref=e693]:
+                - generic [ref=e694]:
+                  - text: · perf-04-interview.html
+                  - generic [ref=e695]: · TODO
+          - generic [ref=e696]:
+            - generic [ref=e697]:
+              - text: 13 · 系统设计 & 设计模式
+              - generic [ref=e698]: 6 files
+            - list [ref=e699]:
+              - listitem [ref=e700]:
+                - link "→ design-outline.html ✅" [ref=e701] [cursor=pointer]:
+                  - /url: doc/java/design-outline.html
+              - listitem [ref=e702]:
+                - link "→ design-01-creational.html ✅" [ref=e703] [cursor=pointer]:
+                  - /url: doc/java/design-01-creational.html
+              - listitem [ref=e704]:
+                - link "→ design-02-structural.html ✅" [ref=e705] [cursor=pointer]:
+                  - /url: doc/java/design-02-structural.html
+              - listitem [ref=e706]:
+                - link "→ design-03-behavioral.html ✅" [ref=e707] [cursor=pointer]:
+                  - /url: doc/java/design-03-behavioral.html
+              - listitem [ref=e708]:
+                - link "→ design-04-system.html ✅" [ref=e709] [cursor=pointer]:
+                  - /url: doc/java/design-04-system.html
+              - listitem [ref=e710]:
+                - link "→ design-05-interview.html ✅" [ref=e711] [cursor=pointer]:
+                  - /url: doc/java/design-05-interview.html
+          - generic [ref=e712]:
+            - generic [ref=e713]:
+              - text: 14 · 网络与 IO
+              - generic [ref=e714]: 4 files
+            - list [ref=e715]:
+              - listitem [ref=e716]:
+                - generic [ref=e717]:
+                  - text: · network-01-tcp.html
+                  - generic [ref=e718]: · TODO
+              - listitem [ref=e719]:
+                - generic [ref=e720]:
+                  - text: · network-02-http.html
+                  - generic [ref=e721]: · TODO
+              - listitem [ref=e722]:
+                - generic [ref=e723]:
+                  - text: · network-03-nio.html
+                  - generic [ref=e724]: · TODO
+              - listitem [ref=e725]:
+                - generic [ref=e726]:
+                  - text: · network-04-interview.html
+                  - generic [ref=e727]: · TODO
+          - generic [ref=e728]:
+            - generic [ref=e729]:
+              - text: 15 · Kafka
+              - generic [ref=e730]: 7 files
+            - list [ref=e731]:
+              - listitem [ref=e732]:
+                - link "→ kafka-outline.html ✅" [ref=e733] [cursor=pointer]:
+                  - /url: doc/java/kafka-outline.html
+              - listitem [ref=e734]:
+                - link "→ kafka-01-arch.html ✅" [ref=e735] [cursor=pointer]:
+                  - /url: doc/java/kafka-01-arch.html
+              - listitem [ref=e736]:
+                - link "→ kafka-02-producer.html ✅" [ref=e737] [cursor=pointer]:
+                  - /url: doc/java/kafka-02-producer.html
+              - listitem [ref=e738]:
+                - link "→ kafka-03-consumer.html ✅" [ref=e739] [cursor=pointer]:
+                  - /url: doc/java/kafka-03-consumer.html
+              - listitem [ref=e740]:
+                - link "→ kafka-04-reliable.html ✅" [ref=e741] [cursor=pointer]:
+                  - /url: doc/java/kafka-04-reliable.html
+              - listitem [ref=e742]:
+                - link "→ kafka-05-spring.html ✅" [ref=e743] [cursor=pointer]:
+                  - /url: doc/java/kafka-05-spring.html
+              - listitem [ref=e744]:
+                - link "→ kafka-06-interview.html ✅" [ref=e745] [cursor=pointer]:
+                  - /url: doc/java/kafka-06-interview.html
+          - generic [ref=e746]:
+            - generic [ref=e747]:
+              - text: 16 · Netty
+              - generic [ref=e748]: 3 files
+            - list [ref=e749]:
+              - listitem [ref=e750]:
+                - generic [ref=e751]:
+                  - text: · netty-01-reactor.html
+                  - generic [ref=e752]: · TODO
+              - listitem [ref=e753]:
+                - generic [ref=e754]:
+                  - text: · netty-02-pipeline.html
+                  - generic [ref=e755]: · TODO
+              - listitem [ref=e756]:
+                - generic [ref=e757]:
+                  - text: · netty-03-interview.html
+                  - generic [ref=e758]: · TODO
+          - generic [ref=e759]:
+            - generic [ref=e760]:
+              - text: 17 · ZooKeeper
+              - generic [ref=e761]: 3 files
+            - list [ref=e762]:
+              - listitem [ref=e763]:
+                - generic [ref=e764]:
+                  - text: · zk-01-arch.html
+                  - generic [ref=e765]: · TODO
+              - listitem [ref=e766]:
+                - generic [ref=e767]:
+                  - text: · zk-02-feature.html
+                  - generic [ref=e768]: · TODO
+              - listitem [ref=e769]:
+                - generic [ref=e770]:
+                  - text: · zk-03-interview.html
+                  - generic [ref=e771]: · TODO
+          - generic [ref=e772]:
+            - generic [ref=e773]:
+              - text: 18 · LLM & AI 基础
+              - generic [ref=e774]: 8 files
+            - list [ref=e775]:
+              - listitem [ref=e776]:
+                - generic [ref=e777]:
+                  - text: · agent-01-tokenization.html
+                  - generic [ref=e778]: · TODO
+              - listitem [ref=e779]:
+                - link "→ agent-02-rag.html ✅" [ref=e780] [cursor=pointer]:
+                  - /url: doc/java/agent-02-rag.html
+              - listitem [ref=e781]:
+                - link "→ agent-03-prompt-engineering.html ✅" [ref=e782] [cursor=pointer]:
+                  - /url: doc/java/agent-03-prompt-engineering.html
+              - listitem [ref=e783]:
+                - generic [ref=e784]:
+                  - text: · agent-04-context-engineering.html
+                  - generic [ref=e785]: · TODO
+              - listitem [ref=e786]:
+                - generic [ref=e787]:
+                  - text: · agent-05-model-routing.html
+                  - generic [ref=e788]: · TODO
+              - listitem [ref=e789]:
+                - generic [ref=e790]:
+                  - text: · agent-06-streaming.html
+                  - generic [ref=e791]: · TODO
+              - listitem [ref=e792]:
+                - generic [ref=e793]:
+                  - text: · agent-07-hallucination.html
+                  - generic [ref=e794]: · TODO
+              - listitem [ref=e795]:
+                - generic [ref=e796]:
+                  - text: · agent-08-finetuning.html
+                  - generic [ref=e797]: · TODO
+          - generic [ref=e798]:
+            - generic [ref=e799]:
+              - text: 19 · Agent 框架
+              - generic [ref=e800]: 7 files
+            - list [ref=e801]:
+              - listitem [ref=e802]:
+                - link "→ agent-09-arch-patterns.html ✅" [ref=e803] [cursor=pointer]:
+                  - /url: doc/java/agent-09-arch-patterns.html
+              - listitem [ref=e804]:
+                - generic [ref=e805]:
+                  - text: · agent-10-langchain4j.html
+                  - generic [ref=e806]: · TODO
+              - listitem [ref=e807]:
+                - generic [ref=e808]:
+                  - text: · agent-11-spring-ai.html
+                  - generic [ref=e809]: · TODO
+              - listitem [ref=e810]:
+                - link "→ agent-12-tool-calling.html ✅" [ref=e811] [cursor=pointer]:
+                  - /url: doc/java/agent-12-tool-calling.html
+              - listitem [ref=e812]:
+                - generic [ref=e813]:
+                  - text: · agent-13-memory.html
+                  - generic [ref=e814]: · TODO
+              - listitem [ref=e815]:
+                - generic [ref=e816]:
+                  - text: · agent-14-state-management.html
+                  - generic [ref=e817]: · TODO
+              - listitem [ref=e818]:
+                - generic [ref=e819]:
+                  - text: · agent-15-structured-output.html
+                  - generic [ref=e820]: · TODO
+          - generic [ref=e821]:
+            - generic [ref=e822]:
+              - text: 20 · 向量数据库 & 检索
+              - generic [ref=e823]: 5 files
+            - list [ref=e824]:
+              - listitem [ref=e825]:
+                - link "→ agent-16-vector-db.html ✅" [ref=e826] [cursor=pointer]:
+                  - /url: doc/java/agent-16-vector-db.html
+              - listitem [ref=e827]:
+                - generic [ref=e828]:
+                  - text: · agent-17-embedding.html
+                  - generic [ref=e829]: · TODO
+              - listitem [ref=e830]:
+                - generic [ref=e831]:
+                  - text: · agent-18-retrieval.html
+                  - generic [ref=e832]: · TODO
+              - listitem [ref=e833]:
+                - generic [ref=e834]:
+                  - text: · agent-19-cache-strategy.html
+                  - generic [ref=e835]: · TODO
+              - listitem [ref=e836]:
+                - generic [ref=e837]:
+                  - text: · agent-20-observability.html
+                  - generic [ref=e838]: · TODO
+          - generic [ref=e839]:
+            - generic [ref=e840]:
+              - text: 21 · Agent 工程实践
+              - generic [ref=e841]: 5 files
+            - list [ref=e842]:
+              - listitem [ref=e843]:
+                - link "→ agent-21-multi-agent.html ✅" [ref=e844] [cursor=pointer]:
+                  - /url: doc/java/agent-21-multi-agent.html
+              - listitem [ref=e845]:
+                - link "→ agent-22-evaluation.html ✅" [ref=e846] [cursor=pointer]:
+                  - /url: doc/java/agent-22-evaluation.html
+              - listitem [ref=e847]:
+                - link "→ agent-23-security.html ✅" [ref=e848] [cursor=pointer]:
+                  - /url: doc/java/agent-23-security.html
+              - listitem [ref=e849]:
+                - link "→ agent-24-cost-control.html ✅" [ref=e850] [cursor=pointer]:
+                  - /url: doc/java/agent-24-cost-control.html
+              - listitem [ref=e851]:
+                - link "→ agent-25-cicd.html ✅" [ref=e852] [cursor=pointer]:
+                  - /url: doc/java/agent-25-cicd.html
+          - generic [ref=e853]:
+            - generic [ref=e854]:
+              - text: 22 · Agent 系统设计 & 面试题
+              - generic [ref=e855]: 4 files
+            - list [ref=e856]:
+              - listitem [ref=e857]:
+                - generic [ref=e858]:
+                  - text: · agent-26-system-design.html
+                  - generic [ref=e859]: · TODO
+              - listitem [ref=e860]:
+                - generic [ref=e861]:
+                  - text: · agent-27-streaming-concurrency.html
+                  - generic [ref=e862]: · TODO
+              - listitem [ref=e863]:
+                - generic [ref=e864]:
+                  - text: · agent-28-event-driven.html
+                  - generic [ref=e865]: · TODO
+              - listitem [ref=e866]:
+                - link "→ agent-29-interview.html ✅" [ref=e867] [cursor=pointer]:
+                  - /url: doc/java/agent-29-interview.html
+  - button "切换亮色/暗色主题" [ref=e868] [cursor=pointer]: ◑

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2013年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2013 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 · 本周精读全部</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1 ★本周</a>
+  <a href="#t2">Text 2 ★本周</a>
+  <a href="#t3">Text 3 ★本周</a>
+  <a href="#t4">Text 4 ★本周</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · 本周精读 ★</div>
+<div class="info-bar">
+  <span class="tag topic">经济 / 就业与自动化</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 430 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>In an essay entitled "Making It in America," the author Adam Davidson relates a joke from cotton country about just how much a modern textile mill has been automated: the average mill has only two employees today — "a man and a dog. The man is there to feed the dog, and the dog is there to keep the man away from the machines."</p>
+
+<p>Davidson's article is one of a number of pieces that have recently appeared making the point that the reason we have such stubbornly high unemployment and declining middle-class incomes today is largely because of the big drop in demand because of the Great Recession, but it is also because of advances in both globalization and the information technology revolution, which are more rapidly than ever replacing labor with machines or foreign workers.</p>
+
+<p>In the past, workers with average skills, doing an average job, could earn an average lifestyle. But, today, average is officially over. Being average just won't earn you what it used to. It can't when so many more employers have so much more access to so much more above-average cheap foreign labor, cheap robotics, cheap software, cheap automation and cheap genius. Therefore, everyone needs to find their extra — their unique value contribution that makes them stand out in whatever is their field of employment. Average is over.</p>
+
+<p>Yes, new technology has been eating jobs forever, and always will. As they say, if horses could have voted, there never would have been cars. But there's been an acceleration. As Davidson notes, "In the 10 years ending in 2009, factories shed workers so fast that they erased almost all the gains of the previous 70 years; roughly one out of every three manufacturing jobs — about 6 million in total — disappeared."</p>
+
+<p>There will always be change — new jobs, new products, new services. But the one thing we know for sure is that with each advance in globalization and the I.T. revolution, the best jobs will require workers to have more and better education to make themselves above average.</p>
+
+<p>In a world where average is officially over, there are many things we need to do to buttress employment, but nothing would be more important than passing some kind of G.I. Bill for the 21st century that ensures that every American has access to post-high school education.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>entitle</td><td>v. 给…命名；赋予权利</td></tr>
+    <tr><td>automate</td><td>v. 使自动化</td></tr>
+    <tr><td>stubbornly</td><td>adv. 顽固地；难以摆脱地</td></tr>
+    <tr><td>above-average</td><td>adj. 高于平均水平的</td></tr>
+    <tr><td>acceleration</td><td>n. 加速</td></tr>
+    <tr><td>shed</td><td>v. 去除；裁减（员工）</td></tr>
+    <tr><td>buttress</td><td>v. 支撑；支持</td></tr>
+    <tr><td>post-high school</td><td>phr. 高中后的（高等教育）</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. The joke in Paragraph 1 is used to illustrate _____.</div><div class="q-opt">[A] the impact of technological advances<br>[B] the alleviation of job pressure<br>[C] the shrinkage of textile mills<br>[D] the decline of middle-class incomes</div></div>
+      <div class="q-item"><div class="q-stem">22. According to Paragraph 3, to be a successful employee, one has to _____.</div><div class="q-opt">[A] work on cheap software<br>[B] ask for a moderate salary<br>[C] adopt an average lifestyle<br>[D] contribute something unique</div></div>
+      <div class="q-item"><div class="q-stem">23. The quotation in Paragraph 4 explains that _____.</div><div class="q-opt">[A] gains of technology have been erased<br>[B] job opportunities are disappearing at a high speed<br>[C] factories are making much less money than before<br>[D] new jobs and services have been offered</div></div>
+      <div class="q-item"><div class="q-stem">24. According to the author, to reduce unemployment, the most important is _____.</div><div class="q-opt">[A] to accelerate the I.T. revolution<br>[B] to ensure more education for people<br>[C] to advance economic globalization<br>[D] to pass more bills in the 21st century</div></div>
+      <div class="q-item"><div class="q-stem">25. Which of the following would be the most appropriate title for the text?</div><div class="q-opt">[A] New Law Takes Effect<br>[B] Technology Goes Cheap<br>[C] Average Is Over<br>[D] Recession Is Bad</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>21 &nbsp; <span>D</span>22 &nbsp; <span>B</span>23 &nbsp; <span>B</span>24 &nbsp; <span>C</span>25</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · 本周精读 ★</div>
+<div class="info-bar">
+  <span class="tag topic">社会 / 移民政策</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 410 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>A century ago, the immigrants from across the Atlantic included both settlers and sojourners. Along with the many folks looking to make a permanent home in the United States came those who had no intention to stay, and who would make some money and then go home. Between 1908 and 1915, about 7 million people arrived while about 2 million departed. About a quarter of all Italian immigrants, for example, eventually returned to Italy for good. They even had an affectionate nickname, "uccelli di passaggio," birds of passage.</p>
+
+<p>Today, we are much more rigid about immigrants. We divide newcomers into two categories: legal or illegal, good or bad. We call them "Americans in waiting" or "illegal aliens," a framework that largely contributes to our broken immigration system and the long political paralysis over how to fix it. We don't need more categories, but we need to change the way we think about categories. We need to look beyond strict definitions of legal and illegal. To start, we can recognize the new birds of passage, those living and thriving in the gray areas, who could then begin to solve our immigration challenges.</p>
+
+<p>Crop pickers, violinists, construction workers, entrepreneurs, engineers, home health-care aides and particle physicists are among today's birds of passage. They are energetic participants in a global economy driven by the flow of work, money and ideas. They prefer to come and go as opportunity calls them. They can manage to have a job in one place and a family in another.</p>
+
+<p>With or without permission, they straddle laws, jurisdictions and identities with ease. We need them to imagine the United States as a place where they can be productive for a while without committing themselves to staying forever. We need them to feel that home can be both here and there and that they can belong to two nations honorably.</p>
+
+<p>Accommodating this world of people in motion will require new attitudes on both sides of the immigration battle. Looking beyond the culture war logic of right or wrong means opening up the middle ground and recognizing that managing immigration today requires multiple paths and multiple outcomes, including some that are not easy to accomplish legally in the existing system.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>sojourner</td><td>n. 旅居者；暂居者</td></tr>
+    <tr><td>for good</td><td>phr. 永久地；一去不返地</td></tr>
+    <tr><td>birds of passage</td><td>phr. 候鸟；短居移民</td></tr>
+    <tr><td>rigid</td><td>adj. 刻板的；严格的</td></tr>
+    <tr><td>paralysis</td><td>n. 瘫痪；无所作为</td></tr>
+    <tr><td>thrive</td><td>v. 繁荣；茁壮成长</td></tr>
+    <tr><td>straddle</td><td>v. 跨越；横跨</td></tr>
+    <tr><td>jurisdiction</td><td>n. 司法管辖权；辖区</td></tr>
+    <tr><td>honorably</td><td>adv. 体面地；光荣地</td></tr>
+    <tr><td>accommodate</td><td>v. 适应；容纳</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. "Birds of passage" refers to those who _____.</div><div class="q-opt">[A] immigrate across the Atlantic<br>[B] leave their home countries for good<br>[C] stay in a foreign country temporarily<br>[D] find permanent jobs overseas</div></div>
+      <div class="q-item"><div class="q-stem">27. It is implied in Paragraph 2 that the current immigration system in the US _____.</div><div class="q-opt">[A] needs new immigrant categories<br>[B] has loosened control over immigrants<br>[C] should be adapted to meet challenges<br>[D] has been fixed via political means</div></div>
+      <div class="q-item"><div class="q-stem">28. According to the author, today's birds of passage want _____.</div><div class="q-opt">[A] financial incentives<br>[B] a global recognition<br>[C] opportunities to get regular jobs<br>[D] the freedom to stay and leave</div></div>
+      <div class="q-item"><div class="q-stem">29. The author suggests that the birds of passage today should be treated _____.</div><div class="q-opt">[A] as faithful partners<br>[B] with economic favors<br>[C] with legal tolerance<br>[D] as mighty rivals</div></div>
+      <div class="q-item"><div class="q-stem">30. Which of the following would be the most appropriate title for the text?</div><div class="q-opt">[A] Come and Go: Big Mistake<br>[B] Living and Thriving: Great Risk<br>[C] With or Without: Great Risk<br>[D] Legal or Illegal: Big Mistake</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>C</span>26 &nbsp; <span>C</span>27 &nbsp; <span>D</span>28 &nbsp; <span>C</span>29 &nbsp; <span>D</span>30</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · 本周精读 ★</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 快速决策</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 430 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Scientists have found that although we are prone to snap overreactions, if we take a moment and think about how we are likely to react, we can reduce or even eliminate the negative effects of our quick, hard-wired responses.</p>
+
+<p>Snap decisions can be important defense mechanisms; if we are judging whether someone is dangerous, our brains and bodies are hard-wired to react very quickly, within milliseconds. But we need more time to assess other factors. To accurately tell whether someone is sociable, studies show, we need at least a minute, preferably five. It takes a while to judge complex aspects of personality, like neuroticism or open-mindedness.</p>
+
+<p>But snap decisions in reaction to rapid stimuli aren't exclusive to the interpersonal realm. University of Toronto psychologists found that viewing a fast-food logo for milliseconds primes us to read 20 percent faster, even though reading has little to do with eating. People unconsciously associate fast food with speed and impatience and carry those impulses into whatever else we're doing. Those exposed to fast-food flashes also tend to think a musical piece lasts too long.</p>
+
+<p>Yet we can reverse such influences. If we know we will overreact to consumer products when seeing a happy face, we can pause before buying. If female job screeners tend to reject attractive applicants, we can help screeners understand their biases — or hire outside screeners.</p>
+
+<p>John Gottman, the marriage expert, explains that we quickly "thin slice" information reliably only after we ground such snap reactions in "thick sliced" long-term study. When Dr. Gottman really wants to assess whether a couple will stay together, he invites them to his island retreat for a much longer evaluation: two days, not two seconds.</p>
+
+<p>Our ability to mute our hard-wired reactions by pausing is what differentiates us from animals: dogs can think about the future only intermittently or for a few minutes. Historically, people spend about 12% of their days contemplating the longer term. Although technology might change the way we react, it hasn't changed our nature. We still have the imaginative capacity to rise above temptation and reverse the high-speed trend.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>be prone to</td><td>phr. 易于…的；倾向于</td></tr>
+    <tr><td>snap</td><td>adj. 仓促的；突然的</td></tr>
+    <tr><td>overreaction</td><td>n. 过度反应</td></tr>
+    <tr><td>hard-wired</td><td>adj. 本能的；天生的</td></tr>
+    <tr><td>sociable</td><td>adj. 好交际的；友善的</td></tr>
+    <tr><td>neuroticism</td><td>n. 神经质</td></tr>
+    <tr><td>stimulus</td><td>n. 刺激（复数 stimuli）</td></tr>
+    <tr><td>exclusive</td><td>adj. 独有的；排外的</td></tr>
+    <tr><td>realm</td><td>n. 领域；范围</td></tr>
+    <tr><td>thin slice</td><td>phr. 薄片；（快速）切片判断</td></tr>
+    <tr><td>intermittently</td><td>adv. 间歇地；断断续续地</td></tr>
+    <tr><td>contemplate</td><td>v. 沉思；盘算</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. The time needed in making decisions may _____.</div><div class="q-opt">[A] vary according to the urgency of the situation<br>[B] prove the complexity of our brain reaction<br>[C] depend on the importance of the assessment<br>[D] predetermine the accuracy of our judgment</div></div>
+      <div class="q-item"><div class="q-stem">32. Our reaction to a fast-food logo shows that snap decisions _____.</div><div class="q-opt">[A] can be associative<br>[B] are not unconscious<br>[C] can be dangerous<br>[D] are not impulsive</div></div>
+      <div class="q-item"><div class="q-stem">33. To reverse the negative influences of snap decisions, we should _____.</div><div class="q-opt">[A] trust our first impression<br>[B] do as people usually do<br>[C] think before we act<br>[D] ask for expert advice</div></div>
+      <div class="q-item"><div class="q-stem">34. John Gottman says that reliable snap reactions are based on _____.</div><div class="q-opt">[A] critical assessment<br>[B] "thin sliced" study<br>[C] sensible explanation<br>[D] adequate information</div></div>
+      <div class="q-item"><div class="q-stem">35. The author's attitude toward reversing the high-speed trend is _____.</div><div class="q-opt">[A] tolerant<br>[B] uncertain<br>[C] optimistic<br>[D] doubtful</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>D</span>31 &nbsp; <span>A</span>32 &nbsp; <span>C</span>33 &nbsp; <span>D</span>34 &nbsp; <span>C</span>35</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · 本周精读 ★</div>
+<div class="info-bar">
+  <span class="tag topic">社会 / 性别平等与高管配额</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 430 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Europe is not a gender-equality heaven. The corporate workplace will not be fully family-friendly until women join senior management, yet Europe's top corporate-governance positions remain overwhelmingly male. Women hold only 14 percent of positions on European corporate boards.</p>
+
+<p>The European Union is considering legislation to compel corporate boards to maintain a certain proportion of women — up to 60 percent. This proposed mandate stems from frustration. Last year, European Commission Vice President Viviane Reding issued a call to voluntary action, inviting corporations to sign up for a goal of 40 percent female board membership. But her appeal was considered a failure: only 24 companies took it up.</p>
+
+<p>Do we need quotas to ensure that women can continue to climb the corporate ladder fairly as they balance work and family?</p>
+
+<p>"Personally, I don't like quotas," Reding said recently. "But I like what the quotas do." Quotas "open the way to equality and they break through the glass ceiling," a result seen in France and other countries with legally binding provisions on placing women in top business positions.</p>
+
+<p>I understand Reding's reluctance and frustration. I don't like quotas either; they run counter to my belief in meritocracy, government by the capable. Yet considering the obstacles to achieving meritocratic ideals, it does look as if a fairer world must be temporarily ordered.</p>
+
+<p>Four decades of evidence show that corporations in Europe and the United States are evading the meritocratic hiring and promotion of women to top positions — no matter how much "soft pressure" is put upon them. When women break through to corporate power — as Sheryl Sandberg recently did at Facebook — they attract massive attention precisely because they remain the exception to the rule.</p>
+
+<p>If appropriate public policies were in place to help all women — whether CEOs or their children's caregivers — and all families, Sandberg would be no more newsworthy than any other highly capable person living in a more just society.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>overwhelmingly</td><td>adv. 压倒性地；绝大多数地</td></tr>
+    <tr><td>compel</td><td>v. 强迫；迫使</td></tr>
+    <tr><td>mandate</td><td>n. 授权；指令；强制规定</td></tr>
+    <tr><td>stem from</td><td>phr. 源于；由…引起</td></tr>
+    <tr><td>quota</td><td>n. 配额；定额</td></tr>
+    <tr><td>glass ceiling</td><td>phr. 玻璃天花板（无形晋升障碍）</td></tr>
+    <tr><td>binding</td><td>adj. 有约束力的</td></tr>
+    <tr><td>provision</td><td>n. 规定；条款</td></tr>
+    <tr><td>reluctance</td><td>n. 不情愿；勉强</td></tr>
+    <tr><td>run counter to</td><td>phr. 与…相悖；违背</td></tr>
+    <tr><td>meritocracy</td><td>n. 精英管理制度；贤能治国</td></tr>
+    <tr><td>evade</td><td>v. 逃避；规避</td></tr>
+    <tr><td>newsworthy</td><td>adj. 有新闻价值的</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. In the European corporate workplace, generally _____.</div><div class="q-opt">[A] women take the lead<br>[B] men have the final say<br>[C] corporate governance is overwhelmed<br>[D] senior management is family-friendly</div></div>
+      <div class="q-item"><div class="q-stem">37. The European Union's intended legislation is _____.</div><div class="q-opt">[A] a reflection of gender balance<br>[B] a reluctant choice<br>[C] a response to Reding's call<br>[D] a voluntary action</div></div>
+      <div class="q-item"><div class="q-stem">38. According to Reding, quotas may help women _____.</div><div class="q-opt">[A] get top business positions<br>[B] see through the glass ceiling<br>[C] balance work and family<br>[D] anticipate legal results</div></div>
+      <div class="q-item"><div class="q-stem">39. The author's attitude toward Reding's appeal is one of _____.</div><div class="q-opt">[A] skepticism<br>[B] objectiveness<br>[C] indifference<br>[D] approval</div></div>
+      <div class="q-item"><div class="q-stem">40. Women entering top management become headlines due to the lack of _____.</div><div class="q-opt">[A] more social justice<br>[B] massive media attention<br>[C] suitable public policies<br>[D] greater "soft pressure"</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>A</span>37 &nbsp; <span>A</span>38 &nbsp; <span>D</span>39 &nbsp; <span>C</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>

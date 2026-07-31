@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>408 计算机网络 · 数据链路层考点全解</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.7;font-size:14px}
+header{background:var(--bg2);padding:42px 64px 30px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+header::before{content:'DLL';position:absolute;right:40px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--watermark);letter-spacing:-.04em;pointer-events:none}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:12px}
+h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--tx2);max-width:760px;line-height:1.8}
+.pills{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 11px;border-radius:14px;border:1px solid var(--bd);color:var(--tx2);background:var(--bg3)}
+.pill.accent{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg)}
+.pill.warn{color:var(--orange);border-color:var(--ora-b);background:var(--ora-bg)}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 12px;border-bottom:2px solid transparent;white-space:nowrap}
+nav a:hover{color:var(--tx);border-color:var(--bd2)}
+main{padding:40px 64px 80px;max-width:1360px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin:52px 0 18px;padding-bottom:9px;border-bottom:1px solid var(--bd);scroll-margin-top:58px}
+.sec:first-child{margin-top:0}.sec .snum{color:var(--blue);margin-right:6px}
+.lead{font-size:14.5px;color:var(--tx2);line-height:1.85;margin-bottom:18px}.lead strong{color:var(--tx)}
+h3.sub{font-size:15px;font-weight:700;margin:24px 0 10px;padding-left:12px;border-left:3px solid var(--blue);scroll-margin-top:58px}
+.g2,.g3{display:grid;gap:12px;margin:12px 0}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.cc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:18px 22px;margin-bottom:12px}
+.g2 .cc,.g3 .cc{margin-bottom:0}.cc h3{font-size:15px;font-weight:700;margin-bottom:10px}.cc p{font-size:13.5px;color:var(--tx2);line-height:1.85;margin-bottom:8px}.cc p strong,.cc li strong{color:var(--tx)}
+.cc ul,.cheat ul{list-style:none;margin:6px 0}.cc li,.cheat li{font-size:13px;color:var(--tx2);line-height:1.85;padding-left:16px;position:relative;margin-bottom:3px}
+.cc li::before,.cheat li::before{content:'▸';position:absolute;left:2px;color:var(--blue);font-size:10px;top:5px}
+.pri,.tag{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;margin-left:7px;vertical-align:middle;display:inline-block}
+.pri.a{color:var(--red);background:var(--red-bg);border:1px solid var(--red-b)}
+.pri.b{color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b)}
+.pri.c{color:var(--tx3);background:var(--bg3);border:1px solid var(--bd)}
+.tag{color:var(--purple);background:var(--pur-bg);border:1px solid var(--pur-b)}
+.note{margin:12px 0;border-radius:7px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start}
+.note.info{background:var(--blu-bg);border:1px solid var(--blu-b)}.note.warn{background:var(--ora-bg);border:1px solid var(--ora-b)}.note.tip{background:var(--grn-bg);border:1px solid var(--grn-b)}.note.bad{background:var(--red-bg);border:1px solid var(--red-b)}
+.nlbl{font-family:'IBM Plex Mono',monospace;font-size:10px;border-radius:3px;padding:2px 7px;flex-shrink:0;margin-top:1px;font-weight:600;border:1px solid}
+.info .nlbl{color:var(--blue);border-color:var(--blu-b)}.warn .nlbl{color:var(--orange);border-color:var(--ora-b)}.tip .nlbl{color:var(--green);border-color:var(--grn-b)}.bad .nlbl{color:var(--red);border-color:var(--red-b)}
+.note p{font-size:12.8px;color:var(--tx2);line-height:1.8}.note strong{color:var(--tx)}
+.tbl{width:100%;border-collapse:collapse;font-size:12.8px;margin:12px 0;background:var(--bg2);border:1px solid var(--bd)}
+.tbl th{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);padding:9px 13px;border-bottom:2px solid var(--bd);text-align:left;background:var(--bg3)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--bd);color:var(--tx2);vertical-align:top;line-height:1.7}.tbl td:first-child{font-weight:600;color:var(--tx)}.tbl tr:last-child td{border-bottom:0}
+.fmla{text-align:center;font-size:16px;margin:12px 0;padding:15px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;font-family:'IBM Plex Mono',monospace;color:var(--tx);overflow-x:auto}
+.fmla.hero{font-size:24px;font-weight:700;padding:24px 20px;border:2px solid var(--blue);background:var(--blu-bg);color:var(--blue)}
+.fmla small{display:block;color:var(--tx2);font:12px 'Inter',sans-serif;margin-top:8px}
+.vs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:12px 0}.vs>div{padding:16px 19px;background:var(--bg2)}.vs>div:first-child{border-right:1px solid var(--bd)}.vs h4{font-size:13px;margin-bottom:7px}.vs p{font-size:12.8px;color:var(--tx2);line-height:1.8}
+.visual{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin:14px 0;overflow-x:auto}.visual h4{font-size:13px;margin-bottom:10px}.visual svg{display:block;min-width:680px;width:100%;height:auto}.visual figcaption{font-size:12px;color:var(--tx3);margin-top:10px;line-height:1.7}
+.svg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5}.svg-a{fill:var(--blu-bg);stroke:var(--blue);stroke-width:1.5}.svg-b{fill:var(--grn-bg);stroke:var(--green);stroke-width:1.5}.svg-w{fill:var(--ora-bg);stroke:var(--orange);stroke-width:1.5}.svg-r{fill:var(--red-bg);stroke:var(--red);stroke-width:1.5}.svg-t{fill:var(--tx);font:12px 'IBM Plex Mono',monospace}.svg-s{fill:var(--tx2);font:11px 'Inter',sans-serif}.svg-line{stroke:var(--tx3);stroke-width:1.5;fill:none}.svg-dash{stroke:var(--orange);stroke-width:2;stroke-dasharray:6 5;fill:none}
+.ex{background:var(--bg2);border:1px solid var(--bd);border-left:4px solid var(--blue);border-radius:8px;padding:16px 20px;margin:14px 0}.ex-head{font:600 11px 'IBM Plex Mono',monospace;color:var(--blue);margin-bottom:8px}.ex-q{font-size:13.5px;font-weight:500;margin-bottom:10px}.step{display:flex;gap:10px;margin:6px 0}.n{flex:0 0 20px;height:20px;border-radius:50%;background:var(--blu-bg);color:var(--blue);border:1px solid var(--blu-b);font:700 10px 'IBM Plex Mono',monospace;display:flex;align-items:center;justify-content:center}.t{font-size:12.8px;color:var(--tx2)}.ans{margin-top:10px;padding:8px 12px;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:6px;color:var(--green);font:600 12px 'IBM Plex Mono',monospace}
+.cheat{background:linear-gradient(135deg,var(--blu-bg),transparent);border:1px solid var(--blu-b);border-radius:10px;padding:18px 22px;margin:14px 0}.cheat h3{font-size:14px;color:var(--blue);margin-bottom:10px}
+code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;color:var(--tx)}
+@media(max-width:768px){header,nav,main{padding-left:20px;padding-right:20px}header::before{font-size:64px;right:16px}.g2,.g3,.vs{grid-template-columns:1fr}.vs>div:first-child{border-right:0;border-bottom:1px solid var(--bd)}h1{font-size:23px}.tbl{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="htag">408 · 计算机网络</div>
+  <h1>数据链路层考点全解 · 帧 / 可靠传输 / 介质访问 / 交换机</h1>
+  <p class="subtitle">按 2026 版 408 考纲展开，但不追求“每个标准都背”。目标是总分 110：计算和稳定辨析题必须拿，低频协议细节明确降级。页面标注 A 必学、B 会辨析、C 时间紧可跳过，并用图解串起最难的四个过程。</p>
+  <div class="pills">
+    <span class="pill accent">考纲第三章</span><span class="pill">计网总计约 25 分</span>
+    <span class="pill">本层经验约 2–6 分</span><span class="pill warn">综合题可能跨层加码</span>
+  </div>
+</header>
+<nav>
+  <a href="#overview">考情与取舍</a><a href="#function">功能与组帧</a><a href="#error">差错控制</a>
+  <a href="#reliable">可靠传输</a><a href="#mac">介质访问</a><a href="#lan">以太网</a>
+  <a href="#wan">PPP</a><a href="#switch">交换机</a><a href="#cheat">速记</a><a href="#exercises">练习</a>
+</nav>
+<main>
+<div class="sec" id="overview"><span class="snum">§0</span> 考情、题型与 110 分取舍</div>
+<p class="lead">408 满分 <strong>150 分</strong>，其中计算机网络约 <strong>25 分</strong>；全卷 40 道单选题共 80 分，综合应用题共 70 分。数据链路层没有官方固定分值，历年常见形态是 <strong>1～3 道选择题（约 2～6 分）</strong>，也会和传播时延、吞吐量、IP 地址规划拼成一道网络综合题。</p>
+<div class="note warn"><span class="nlbl">概率说明</span><p>“高频/中频/低频”只表示历年命题形态与投入产出，不是下一年准确概率。单年波动很大；尤其滑动窗口曾进入综合题，不能因为某几年只考选择就跳过。</p></div>
+<table class="tbl">
+  <tr><th>优先级</th><th>内容</th><th>为什么</th><th>学习标准</th></tr>
+  <tr><td>A 必学</td><td>CRC、海明码、停等/GBN/SR、窗口与序号、利用率、CSMA/CD、最短帧长、以太网帧、交换机自学习、冲突域/广播域</td><td>公式固定，能出计算或稳定辨析，也容易跨章节综合</td><td>会算、会画过程、能解释边界</td></tr>
+  <tr><td>B 会辨析</td><td>组帧、复用、ALOHA/CSMA、CSMA/CA、VLAN、802.11、PPP</td><td>多为选择题，掌握核心差异即可</td><td>能判断说法和典型场景</td></tr>
+  <tr><td>C 时间紧可跳过</td><td>令牌协议细枝末节、IEEE 子标准编号、前导码逐位背诵、PPP 每个状态和字段、HDLC 扩展细节</td><td>记忆成本高、迁移价值低或不在现行考纲明列</td><td>不投入成块时间</td></tr>
+</table>
+<div class="note tip"><span class="nlbl">110 分策略</span><p>110/150 约为 73% 得分率。数据链路层建议用 <strong>4～6 小时</strong>完成主线，再做 10～15 道对应真题。A 类错题必须回炉；B 类只整理一张对比表；C 类不要挤占数据结构、组成原理和操作系统的主力时间。</p></div>
+
+<div class="sec" id="function"><span class="snum">§1</span> 功能与组帧</div>
+<p class="lead">物理层只负责送 0/1；数据链路层把一串比特组织成<strong>帧</strong>，尽量让同一条链路两端能识别边界、发现差错，并协调谁可以使用共享信道。</p>
+<div class="g2">
+  <div class="cc"><h3>数据链路层的功能 <span class="pri b">B 会辨析</span></h3><ul>
+    <li><strong>组帧</strong>：给网络层分组加首部和尾部，标出边界。</li>
+    <li><strong>差错控制</strong>：检测或纠正传输中的比特错误。</li>
+    <li><strong>流量控制</strong>：避免发送方太快，压垮接收方。</li>
+    <li><strong>介质访问控制</strong>：共享信道里决定谁先发。</li>
+  </ul></div>
+  <div class="cc"><h3>帧、链路与数据链路 <span class="pri b">B 会辨析</span></h3><p><strong>链路</strong>是相邻节点之间的物理通道；<strong>数据链路</strong>是在链路上加了控制协议后的逻辑通道；<strong>帧</strong>是本层传输单位。</p><p>一句话：网络层看“从源主机到目的主机”，链路层看“这一跳怎么送过去”。</p></div>
+</div>
+<div class="cc"><h3>四种组帧方法 <span class="pri b">B 会辨析</span></h3>
+<table class="tbl"><tr><th>方法</th><th>做法</th><th>透明传输手段</th><th>常见陷阱</th></tr>
+<tr><td>字符计数法</td><td>首部字段写帧长度</td><td>无需转义</td><td>长度字段错会连锁失步</td></tr>
+<tr><td>字符填充法</td><td>特殊字符标帧首尾</td><td>数据中出现特殊字符就在前面加转义字符</td><td>按字符处理</td></tr>
+<tr><td>零比特填充法</td><td><code>01111110</code> 标边界</td><td>数据连续 5 个 1 后插入 0；接收端删除</td><td>插入的是 0，不是整个标志串</td></tr>
+<tr><td>违规编码法</td><td>用正常编码不会出现的信号标边界</td><td>物理编码天然区分</td><td>依赖编码方案</td></tr></table>
+</div>
+
+<div class="sec" id="error"><span class="snum">§2</span> 差错控制</div>
+<h3 class="sub">CRC 循环冗余校验 <span class="pri a">A 必学 · 高频计算</span></h3>
+<div class="cc"><p>CRC 是<strong>检错码</strong>：发送方和接收方约定生成多项式 G。若 G 的最高次为 r，就在数据后补 r 个 0，做模 2 除法，把 r 位余数填回尾部。接收端再除一次，余数为 0 表示“未检出错误”，不等于绝对无错。</p>
+<div class="fmla hero">发送码字 = 原数据 + r 位 CRC 余数<small>模 2 加减都等价于异或：同为 0，不同为 1；计算过程不借位。</small></div>
+<ul><li>生成多项式 <code>G(x)=x³+x+1</code> 对应二进制 <code>1011</code>，最高次 r=3。</li><li>余数位数必须是 r；不足时左侧补 0。</li><li>CRC 擅长检错，尤其是突发错误；它本身不负责重传。</li></ul></div>
+<div class="ex"><div class="ex-head">典型例题 · CRC</div><div class="ex-q">数据为 1101，生成多项式为 1011，求发送码字。</div>
+<div class="step"><span class="n">1</span><span class="t">生成多项式 4 位，最高次 r=3，在数据后补 3 个 0：<code>1101000</code>。</span></div>
+<div class="step"><span class="n">2</span><span class="t">用 <code>1101000</code> 模 2 除以 <code>1011</code>，得到 3 位余数 <code>001</code>。</span></div>
+<div class="step"><span class="n">3</span><span class="t">用余数替换末尾 3 个 0，发送码字为 <code>1101001</code>。</span></div><div class="ans">答案：1101001</div></div>
+
+<h3 class="sub">海明码 <span class="pri a">A 必学 · 中高频计算</span></h3>
+<div class="g2"><div class="cc"><h3>监督位数量</h3><p>k 个数据位需要 r 个监督位。r 个监督位要能指出“无错”以及 k+r 个可能出错位置，因此：</p><div class="fmla">2<sup>r</sup> ≥ k + r + 1</div><p>例：k=4 时，r=3，因为 8≥4+3+1。</p></div>
+<div class="cc"><h3>监督位放哪里</h3><p>监督位放在编号为 1、2、4、8…的位置，即 2 的幂。每个监督位检查位置编号二进制中相应位为 1 的那些位置。校验结果组成的二进制数就是错误位置。</p><div class="note warn"><span class="nlbl">边界</span><p>普通海明码能纠正 1 位错，但不能可靠区分“1 位错”和某些“2 位错”。增加一个总校验位后可实现 SEC-DED：纠正 1 位、检测 2 位。</p></div></div></div>
+
+<div class="sec" id="reliable"><span class="snum">§3</span> 流量控制与可靠传输</div>
+<p class="lead">这部分真正考的是：帧可以连续发多少个、丢帧后重传多少个、序号会不会绕回后与旧帧混淆，以及长时延链路如何把管道“填满”。</p>
+<figure class="visual"><h4>图 1 · 滑动窗口状态与 GBN / SR 差异</h4>
+<svg viewBox="0 0 900 300" role="img" aria-labelledby="window-title window-desc"><title id="window-title">滑动窗口示意图</title><desc id="window-desc">上半部分展示发送窗口中已确认、已发送未确认、可以发送和窗口外的序号；下半部分对比 GBN 接收窗口为 1 与 SR 接收窗口等于发送窗口。</desc>
+<text x="20" y="28" class="svg-t">发送方窗口（示例 Wt=4）</text>
+<rect x="20" y="48" width="90" height="55" rx="5" class="svg-b"/><rect x="110" y="48" width="90" height="55" rx="5" class="svg-a"/><rect x="200" y="48" width="90" height="55" rx="5" class="svg-a"/><rect x="290" y="48" width="90" height="55" rx="5" class="svg-w"/><rect x="380" y="48" width="90" height="55" rx="5" class="svg-w"/><rect x="470" y="48" width="90" height="55" rx="5" class="svg-box"/><rect x="560" y="48" width="90" height="55" rx="5" class="svg-box"/>
+<text x="62" y="80" class="svg-t">0</text><text x="152" y="80" class="svg-t">1</text><text x="242" y="80" class="svg-t">2</text><text x="332" y="80" class="svg-t">3</text><text x="422" y="80" class="svg-t">4</text><text x="512" y="80" class="svg-t">5</text><text x="602" y="80" class="svg-t">6</text>
+<text x="20" y="125" class="svg-s">已确认</text><text x="110" y="125" class="svg-s">已发未确认</text><text x="290" y="125" class="svg-s">窗口内可发送</text><text x="500" y="125" class="svg-s">窗口外</text>
+<text x="20" y="174" class="svg-t">GBN</text><rect x="95" y="148" width="430" height="58" rx="6" class="svg-a"/><text x="115" y="171" class="svg-s">发送窗口可大于 1；接收窗口 Wr=1</text><text x="115" y="192" class="svg-s">中间帧丢失 → 丢弃后续失序帧 → 从缺失帧起全部重传</text>
+<text x="20" y="250" class="svg-t">SR</text><rect x="95" y="224" width="430" height="58" rx="6" class="svg-b"/><text x="115" y="247" class="svg-s">发送窗口 = 接收窗口；缓存失序帧</text><text x="115" y="268" class="svg-s">中间帧丢失 → 只重传缺失帧</text>
+<text x="565" y="172" class="svg-t">n 位序号</text><text x="565" y="196" class="svg-s">GBN：Wt ≤ 2ⁿ−1</text><text x="565" y="246" class="svg-s">SR：Wt=Wr≤2ⁿ⁻¹</text>
+</svg><figcaption>颜色之外还用文字标出状态。GBN 的接收方只按序接收；SR 会缓存窗口内的失序帧，所以必须把序号空间至少分成两半，避免新旧帧混淆。</figcaption></figure>
+<div class="g3">
+  <div class="cc"><h3>停止-等待 <span class="pri a">A 必学</span></h3><p>发 1 帧就停下来等 ACK。超时未收到确认就重传；接收方靠序号 0/1 识别重复帧。</p><ul><li>优点：简单。</li><li>缺点：长时延链路利用率极低。</li></ul></div>
+  <div class="cc"><h3>GBN <span class="pri a">A 必学</span></h3><p>发送方可连续发多帧；接收窗口为 1，只接收下一个期望帧。ACK 通常是累计确认。若帧 k 超时，从 k 开始重传所有未确认帧。</p></div>
+  <div class="cc"><h3>SR <span class="pri a">A 必学</span></h3><p>接收方缓存窗口内失序帧并逐帧确认；只重传真正丢失或损坏的帧。效率更高，但缓存和控制更复杂。</p></div>
+</div>
+<div class="fmla hero">U = T<sub>t</sub> / (T<sub>t</sub> + 2T<sub>p</sub> + T<sub>ack</sub>)<small>停止-等待信道利用率。若 ACK 发送时延可忽略：U≈1/(1+2a)，a=T<sub>p</sub>/T<sub>t</sub>。</small></div>
+<div class="cc"><h3>连续发送时如何填满信道</h3><p>窗口协议一次能发 W 帧，忽略 ACK 发送时延时：</p><div class="fmla">U = min(1, W / (1 + 2a))</div><p>要让利用率达到 100%，至少需要 <code>W ≥ 1+2a</code>。注意最后再取整，并同时满足 GBN/SR 的序号空间限制。</p></div>
+<div class="note bad"><span class="nlbl">高频陷阱</span><p><strong>确认号含义看题目定义。</strong>“ACK k 表示 k 及以前已收到”与“ACK k 表示下一帧期望 k”会差 1。不要凭习惯，先读题干。</p></div>
+
+<div class="sec" id="mac"><span class="snum">§4</span> 介质访问控制</div>
+<h3 class="sub">静态划分、随机访问与轮询 <span class="pri b">B 会辨析</span></h3>
+<table class="tbl"><tr><th>大类</th><th>代表方法</th><th>核心特点</th><th>复习投入</th></tr>
+<tr><td>信道划分</td><td>FDM、TDM、WDM、CDM</td><td>预先切分频率、时间、波长或码片；不会冲突，但空闲份额可能浪费</td><td>会区分即可</td></tr>
+<tr><td>随机访问</td><td>ALOHA、CSMA、CSMA/CD、CSMA/CA</td><td>有数据就竞争；负载低时灵活，负载高时冲突增多</td><td>重点掌握 CSMA/CD</td></tr>
+<tr><td>轮询访问</td><td>轮询、令牌传递</td><td>控制权依次传递；无冲突，但有等待和控制开销</td><td>C：细节可跳</td></tr></table>
+<div class="vs"><div><h4>CSMA/CD：有线以太网 <span class="pri a">A 必学</span></h4><p>先听后发、边发边听、冲突停发、随机重发。能一边发送一边检测电压变化，因此能检测碰撞。</p></div><div><h4>CSMA/CA：无线局域网 <span class="pri b">B 会辨析</span></h4><p>无线端难以边发边听，还存在隐蔽站，因此尽量避免冲突：预约信道、ACK、随机退避，可选 RTS/CTS。</p></div></div>
+<figure class="visual"><h4>图 2 · CSMA/CD 为什么需要 2τ</h4>
+<svg viewBox="0 0 900 300" role="img" aria-labelledby="cd-title cd-desc"><title id="cd-title">CSMA/CD 冲突检测时序</title><desc id="cd-desc">站点 A 与最远站点 B 相距单程传播时延 tau。A 发送后，B 在信号即将到达时发送并发生冲突，冲突信号再用 tau 返回 A，因此 A 最迟在 2 tau 时发现冲突。</desc>
+<line x1="150" y1="42" x2="150" y2="260" class="svg-line"/><line x1="750" y1="42" x2="750" y2="260" class="svg-line"/>
+<text x="112" y="28" class="svg-t">站点 A</text><text x="712" y="28" class="svg-t">最远站 B</text>
+<path d="M150 62 L735 145" class="svg-line"/><text x="330" y="88" class="svg-s">A 在 t=0 开始发送</text>
+<path d="M750 142 L460 183" class="svg-dash"/><text x="610" y="128" class="svg-s">B 恰在到达前发送</text>
+<circle cx="460" cy="183" r="9" class="svg-r"/><text x="412" y="210" class="svg-t">发生冲突</text>
+<path d="M460 183 L150 238" class="svg-dash"/><text x="250" y="246" class="svg-s">冲突信号返回 A</text>
+<text x="30" y="66" class="svg-s">t=0</text><text x="30" y="242" class="svg-s">t=2τ</text>
+<rect x="560" y="220" width="300" height="54" rx="6" class="svg-a"/><text x="580" y="242" class="svg-t">最短帧长 = 2τ × 数据率</text><text x="580" y="262" class="svg-s">发送完之前必须仍能检测到最远冲突</text>
+</svg><figcaption>τ 是网络两端之间的单程传播时延。帧若在 2τ 之前就发完，A 可能把已发生冲突的帧误当成成功发送。</figcaption></figure>
+<div class="cc"><h3>二进制指数退避 <span class="pri a">A 必学</span></h3><p>发生第 k 次冲突后，从 <code>0～2ᵐ−1</code> 中随机选 r，等待 r 个争用期再发，其中 <code>m=min(k,10)</code>。连续 16 次冲突后放弃并报告失败。</p></div>
+
+<div class="sec" id="lan"><span class="snum">§5</span> 局域网、以太网与 VLAN</div>
+<h3 class="sub">MAC 地址与以太网帧 <span class="pri a">A 必学 · 高频辨析</span></h3>
+<div class="g2"><div class="cc"><h3>MAC 地址</h3><p>通常为 48 bit（6 字节），用于局域网一跳内标识网络接口。全 1 地址 <code>FF:FF:FF:FF:FF:FF</code> 是广播地址。</p><p>路由器转发 IP 数据报时，<strong>源/目的 IP 通常不变，源/目的 MAC 每一跳都重新封装</strong>。</p></div>
+<div class="cc"><h3>无连接、不可靠</h3><p>传统以太网 MAC 层不建立连接，也不为每个帧返回确认；发现差错就丢弃，可靠性由需要它的上层协议负责。这里的“不可靠”不是说以太网经常坏，而是“不承诺恢复”。</p></div></div>
+<figure class="visual"><h4>图 3 · 以太网 MAC 帧格式</h4>
+<svg viewBox="0 0 900 205" role="img" aria-labelledby="frame-title frame-desc"><title id="frame-title">以太网帧字段</title><desc id="frame-desc">以太网 MAC 帧依次包含 6 字节目的地址、6 字节源地址、2 字节类型、46 到 1500 字节数据和 4 字节 FCS。帧长从目的地址到 FCS 为 64 到 1518 字节。</desc>
+<rect x="20" y="58" width="145" height="64" class="svg-a"/><rect x="165" y="58" width="145" height="64" class="svg-b"/><rect x="310" y="58" width="90" height="64" class="svg-w"/><rect x="400" y="58" width="360" height="64" class="svg-box"/><rect x="760" y="58" width="115" height="64" class="svg-r"/>
+<text x="50" y="84" class="svg-t">目的 MAC</text><text x="72" y="106" class="svg-s">6 B</text><text x="200" y="84" class="svg-t">源 MAC</text><text x="218" y="106" class="svg-s">6 B</text><text x="331" y="84" class="svg-t">类型</text><text x="344" y="106" class="svg-s">2 B</text><text x="530" y="84" class="svg-t">数据 + 填充</text><text x="542" y="106" class="svg-s">46～1500 B</text><text x="798" y="84" class="svg-t">FCS</text><text x="804" y="106" class="svg-s">4 B</text>
+<path d="M20 150 L875 150" class="svg-line"/><path d="M20 143 L20 157 M875 143 L875 157" class="svg-line"/><text x="330" y="178" class="svg-t">MAC 帧长：64～1518 B</text>
+</svg><figcaption>前导码和帧开始定界符用于同步，通常不计入 64～1518 B 的 MAC 帧长度。若数据不足 46 B，需要填充到最小帧长 64 B。</figcaption></figure>
+<div class="fmla hero">最短帧长 = 2τ × 数据率<small>经典共享式以太网为保证 CSMA/CD 检测冲突而设；10 Mb/s、争用期 51.2 μs → 512 bit = 64 B。</small></div>
+<h3 class="sub">VLAN 与 802.1Q <span class="pri b">B 会辨析</span></h3>
+<div class="cc"><p>VLAN 在同一套交换网络上划分多个逻辑广播域。不同 VLAN 的主机即使接在同一交换机，也不能仅靠二层直接通信；跨 VLAN 通信需要三层设备。</p><ul><li><strong>Access 端口</strong>：通常接终端，只属于一个 VLAN，收发普通以太网帧。</li><li><strong>Trunk 端口</strong>：通常连接交换机，承载多个 VLAN，使用 802.1Q 标签。</li><li>802.1Q 标签增加 4 B，因此带标签帧的最大长度相应增加。</li></ul></div>
+<h3 class="sub">IEEE 802.11 无线局域网 <span class="pri b">B 会辨析</span></h3>
+<div class="cc"><p>无线网络常通过 AP 组成基础设施网络。由于发送时难以同时检测冲突，并有隐蔽站问题，使用 CSMA/CA。802.11 帧可能出现 3 个或 4 个地址字段，因为既要描述无线收发节点，也要保留真正的源和目的。</p><div class="note tip"><span class="nlbl">取舍</span><p>110 分目标只需掌握 CSMA/CA、ACK、退避、RTS/CTS 和“为什么地址字段更多”。各子标准速率与频段不值得专门背。</p></div></div>
+
+<div class="sec" id="wan"><span class="snum">§6</span> 广域网与 PPP</div>
+<div class="g2"><div class="cc"><h3>广域网的链路层 <span class="pri b">B 会辨析</span></h3><p>广域网跨越较大地理范围，重点是点到点链路。它与局域网的“共享介质竞争”不是同一个问题，因此点到点链路不需要 CSMA/CD。</p></div>
+<div class="cc"><h3>PPP 协议 <span class="pri b">B 会辨析</span></h3><p>PPP 面向点到点链路，提供组帧、差错检测、链路控制 LCP，以及为不同网络层协议配置参数的 NCP。</p><ul><li>只检错，不纠错；不使用序号和确认实现可靠传输。</li><li>字节填充用于异步链路，零比特填充用于同步链路。</li><li>不支持多点线路，不负责流量控制。</li></ul></div></div>
+<div class="note warn"><span class="nlbl">低性价比</span><p>PPP 的每个字段取值、完整状态机，以及教材延伸的 HDLC 细节，时间紧可以跳过。现行大纲明确列 PPP，没有单列 HDLC。</p></div>
+
+<div class="sec" id="switch"><span class="snum">§7</span> 网桥与以太网交换机</div>
+<p class="lead">交换机是多端口网桥，工作在数据链路层。它查看 MAC 地址，把每个端口隔离成独立冲突域；默认情况下，所有端口仍属于同一个广播域，除非用 VLAN 划分。</p>
+<figure class="visual"><h4>图 4 · 交换机自学习与转发</h4>
+<svg viewBox="0 0 900 330" role="img" aria-labelledby="sw-title sw-desc"><title id="sw-title">交换机自学习过程</title><desc id="sw-desc">主机 A 从端口 1 向主机 C 发送帧。交换机先学习源 MAC A 位于端口 1，再查找目的 MAC C。若表中未知则向除入口外的端口泛洪；C 回复后学习 C 位于端口 3，后续 A 到 C 只转发到端口 3。</desc>
+<rect x="340" y="95" width="220" height="120" rx="10" class="svg-a"/><text x="412" y="126" class="svg-t">二层交换机</text><text x="365" y="158" class="svg-s">① 学习源 MAC → 入口端口</text><text x="365" y="184" class="svg-s">② 查目的 MAC → 决定动作</text>
+<rect x="25" y="35" width="120" height="55" rx="6" class="svg-b"/><text x="48" y="60" class="svg-t">主机 A</text><text x="43" y="79" class="svg-s">MAC=A</text><line x1="145" y1="65" x2="340" y2="120" class="svg-line"/><text x="190" y="75" class="svg-s">端口 1</text>
+<rect x="25" y="235" width="120" height="55" rx="6" class="svg-box"/><text x="48" y="260" class="svg-t">主机 B</text><text x="43" y="279" class="svg-s">MAC=B</text><line x1="145" y1="260" x2="340" y2="190" class="svg-line"/><text x="190" y="243" class="svg-s">端口 2</text>
+<rect x="755" y="35" width="120" height="55" rx="6" class="svg-w"/><text x="778" y="60" class="svg-t">主机 C</text><text x="773" y="79" class="svg-s">MAC=C</text><line x1="560" y1="120" x2="755" y2="65" class="svg-line"/><text x="665" y="75" class="svg-s">端口 3</text>
+<rect x="755" y="235" width="120" height="55" rx="6" class="svg-box"/><text x="778" y="260" class="svg-t">主机 D</text><text x="773" y="279" class="svg-s">MAC=D</text><line x1="560" y1="190" x2="755" y2="260" class="svg-line"/><text x="665" y="243" class="svg-s">端口 4</text>
+<rect x="300" y="245" width="300" height="65" rx="6" class="svg-b"/><text x="320" y="268" class="svg-t">A→C 首帧：学 A/1，未知 C → 泛洪</text><text x="320" y="292" class="svg-s">C 回复后学 C/3；以后 A→C 只发端口 3</text>
+</svg><figcaption>交换机永远先学习源地址。已知目的且出口等于入口时过滤；已知目的且出口不同则定向转发；目的未知、广播或组播通常泛洪到除入口外的端口。</figcaption></figure>
+<table class="tbl"><tr><th>目的 MAC 查询结果</th><th>动作</th><th>原因</th></tr>
+<tr><td>表中有记录，出口≠入口</td><td>只向记录端口转发</td><td>目的位置已知</td></tr>
+<tr><td>表中有记录，出口=入口</td><td>过滤，不转发</td><td>目的与源在同一网段/端口方向</td></tr>
+<tr><td>表中无记录</td><td>向除入口外所有端口泛洪</td><td>未知单播</td></tr>
+<tr><td>广播地址</td><td>向除入口外所有端口泛洪</td><td>需要送达本广播域所有节点</td></tr></table>
+<div class="g2"><div class="cc"><h3>冲突域 <span class="pri a">A 必学</span></h3><p>交换机的<strong>每个端口是一个独立冲突域</strong>。集线器所有端口共享一个冲突域。全双工交换式以太网理论上不发生传统碰撞，也不使用 CSMA/CD。</p></div><div class="cc"><h3>广播域 <span class="pri a">A 必学</span></h3><p>普通二层交换机<strong>不隔离广播域</strong>；一台路由器的不同接口隔离广播域；VLAN 也能把一台交换机逻辑切成多个广播域。</p></div></div>
+
+<div class="sec" id="cheat"><span class="snum">§8</span> 速记、易错与跳过清单</div>
+<div class="cheat"><h3>A 类必须背到能直接写出的公式</h3><ul>
+<li><strong>海明码：</strong><code>2^r ≥ k+r+1</code></li>
+<li><strong>停等利用率：</strong><code>U≈1/(1+2a)</code>，连续 W 帧为 <code>U=min(1,W/(1+2a))</code></li>
+<li><strong>GBN：</strong>n 位序号，<code>Wt≤2^n−1</code>，接收窗口为 1</li>
+<li><strong>SR：</strong><code>Wt=Wr≤2^(n−1)</code></li>
+<li><strong>CSMA/CD：</strong><code>最短帧长=2τ×数据率</code></li>
+<li><strong>以太网：</strong>MAC 帧 64～1518 B，数据 46～1500 B，地址各 6 B，FCS 4 B</li></ul></div>
+<div class="g2"><div class="cc"><h3>最容易丢分</h3><ul>
+<li>CRC 余数位数看生成多项式<strong>最高次数</strong>，不是二进制串长度。</li>
+<li>GBN 丢一帧会从缺失处重传一串；SR 只重传缺失帧。</li>
+<li>交换机根据<strong>源 MAC 学习</strong>，根据目的 MAC 转发。</li>
+<li>交换机隔离冲突域，不自动隔离广播域。</li>
+<li>CSMA/CD 是有线共享式半双工以太网；无线用 CSMA/CA。</li></ul></div>
+<div class="cc"><h3>C 类时间紧可跳过</h3><ul>
+<li>令牌环维护、令牌帧字段等细节。</li><li>802.3/802.11 各子版本编号、速率和频段表。</li><li>前导码每一位、PPP 每个字段取值及完整状态机。</li><li>HDLC 帧类型和控制字段细节。</li></ul><p>跳过不是“完全没见过”，而是不做专项背诵和难题。</p></div></div>
+
+<div class="sec" id="exercises"><span class="snum">§9</span> 典型题练手</div>
+<div class="ex"><div class="ex-head">题 1 · GBN 窗口</div><div class="ex-q">GBN 使用 4 bit 帧序号，发送窗口最大是多少？若已发送 0～7 且均未确认，帧 2 超时，需要重传哪些帧？</div>
+<div class="step"><span class="n">1</span><span class="t">GBN 最大窗口 <code>2⁴−1=15</code>。</span></div><div class="step"><span class="n">2</span><span class="t">GBN 从超时帧开始重传所有未确认帧，因此重传 2～7。</span></div><div class="ans">答案：最大 15；重传 2、3、4、5、6、7</div></div>
+<div class="ex"><div class="ex-head">题 2 · SR 序号空间</div><div class="ex-q">SR 的发送窗口和接收窗口都为 8，至少需要几位序号？</div>
+<div class="step"><span class="n">1</span><span class="t">SR 要求 <code>W≤2^(n−1)</code>。</span></div><div class="step"><span class="n">2</span><span class="t"><code>8≤2^(n−1)</code>，所以 n−1≥3，n≥4。</span></div><div class="ans">答案：至少 4 bit</div></div>
+<div class="ex"><div class="ex-head">题 3 · 最短帧长</div><div class="ex-q">共享总线网络数据率 100 Mb/s，最远两站单程传播时延 2 μs。为检测冲突，最短帧长是多少？</div>
+<div class="step"><span class="n">1</span><span class="t">争用期为 <code>2τ=4 μs</code>。</span></div><div class="step"><span class="n">2</span><span class="t"><code>100×10⁶ bit/s × 4×10⁻⁶ s = 400 bit</code>。</span></div><div class="step"><span class="n">3</span><span class="t">换算为字节：400/8=50 B。</span></div><div class="ans">答案：400 bit，即 50 B</div></div>
+<div class="ex"><div class="ex-head">题 4 · 交换机自学习</div><div class="ex-q">交换机表为空，A 从端口 1 向 C 发帧。交换机先做什么？若 C 在端口 3 回复，之后 A 再发给 C 会怎样？</div>
+<div class="step"><span class="n">1</span><span class="t">学习源地址 A→端口 1。</span></div><div class="step"><span class="n">2</span><span class="t">目的 C 未知，向除端口 1 外的端口泛洪。</span></div><div class="step"><span class="n">3</span><span class="t">C 回复时学习 C→端口 3；之后 A→C 只转发到端口 3。</span></div><div class="ans">答案：先学源、未知泛洪；学到 C 后定向转发</div></div>
+<div class="note tip"><span class="nlbl">收尾建议</span><p>做到这里后，不要继续扩充笔记。直接做真题：先筛 CRC/海明码、窗口协议、CSMA/CD、以太网和交换机题；错题回到对应 A 类小节。连续两轮正确率达到 80% 以上，就把时间转给网络层与 TCP。</p></div>
+</main>
+</body>
+</html>

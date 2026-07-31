@@ -1,0 +1,340 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - text: JAVA
+    - generic [ref=e3]: JAVA · 学习规划
+    - heading "Java 技术学习方案" [level=1] [ref=e4]
+    - paragraph [ref=e5]: 2026.07.13 → 2026.11.30 · 20周 · 两阶段推进 · 面向面试
+  - navigation [ref=e6]:
+    - link "总览" [ref=e7] [cursor=pointer]:
+      - /url: "#overview"
+    - link "第一阶段" [ref=e8] [cursor=pointer]:
+      - /url: "#phase1"
+    - link "第二阶段" [ref=e9] [cursor=pointer]:
+      - /url: "#phase2"
+    - link "汇总" [ref=e10] [cursor=pointer]:
+      - /url: "#summary"
+  - main [ref=e11]:
+    - generic [ref=e12]: 学习路径总览
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: Phase 1 · 7月下—8月
+        - generic [ref=e16]: Java 核心全覆盖
+        - generic [ref=e17]: 7 周 · 每周 4 个专题
+        - generic [ref=e18]: 快速覆盖 Java 基础 → JVM → 并发 → Spring → MySQL → Redis → Kafka → 微服务 → 分布式 → 设计模式
+      - generic [ref=e19]:
+        - generic [ref=e20]: Phase 2 · 9月—11月
+        - generic [ref=e21]: 按专题集中深挖
+        - generic [ref=e22]: 13 周 · 7 个专题块
+        - generic [ref=e23]: 基础/JVM/并发 → Spring 全家桶 → 中间件 → 分布式/Dubbo/设计模式 → 系统设计/算法 → 模拟面试
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]: "20"
+        - text: 周
+      - generic [ref=e27]: ·
+      - generic [ref=e28]:
+        - generic [ref=e29]: "7"
+        - text: 周全覆盖
+      - generic [ref=e30]: ·
+      - generic [ref=e31]:
+        - generic [ref=e32]: "13"
+        - text: 周深挖面试
+      - generic [ref=e33]: ·
+      - generic [ref=e34]:
+        - generic [ref=e35]: "7"
+        - text: 个专题块
+      - generic [ref=e36]: ·
+      - generic [ref=e37]:
+        - generic [ref=e38]: ~500
+        - text: 道面试题
+    - generic [ref=e39]: 第一阶段 · Java 核心全覆盖（7.13 — 8.31，7周）
+    - paragraph [ref=e40]:
+      - text: 每周 4 个专题，7 周快速覆盖 Java 核心到中间件，建立完整知识体系。已有详细文档，重点在
+      - strong [ref=e41]: 串联知识点 + 理解核心原理
+      - text: 。
+    - table [ref=e42]:
+      - rowgroup [ref=e43]:
+        - row "周次 日期 专题 1 专题 2 专题 3 专题 4" [ref=e44]:
+          - columnheader "周次" [ref=e45]
+          - columnheader "日期" [ref=e46]
+          - columnheader "专题 1" [ref=e47]
+          - columnheader "专题 2" [ref=e48]
+          - columnheader "专题 3" [ref=e49]
+          - columnheader "专题 4" [ref=e50]
+        - row "W1 7.13–7.19 Java 基础（上） OOP / 关键字 / String / 异常 Java 基础（下） 集合框架 / 泛型 / 反射 / 注解 JVM（上） 内存模型 / 对象创建 / 引用类型 JVM（下） GC 算法 / 收集器 / 类加载 / 双亲委派" [ref=e51]:
+          - cell "W1" [ref=e52]
+          - cell "7.13–7.19" [ref=e53]
+          - cell "Java 基础（上） OOP / 关键字 / String / 异常" [ref=e54]:
+            - strong [ref=e55]: Java 基础（上）
+            - text: OOP / 关键字 / String / 异常
+          - cell "Java 基础（下） 集合框架 / 泛型 / 反射 / 注解" [ref=e56]:
+            - strong [ref=e57]: Java 基础（下）
+            - text: 集合框架 / 泛型 / 反射 / 注解
+          - cell "JVM（上） 内存模型 / 对象创建 / 引用类型" [ref=e58]:
+            - strong [ref=e59]: JVM（上）
+            - text: 内存模型 / 对象创建 / 引用类型
+          - cell "JVM（下） GC 算法 / 收集器 / 类加载 / 双亲委派" [ref=e60]:
+            - strong [ref=e61]: JVM（下）
+            - text: GC 算法 / 收集器 / 类加载 / 双亲委派
+        - row "W2 7.20–7.26 并发（上） JMM / volatile / synchronized / AQS 并发（下） 线程池 / JUC 工具 / ThreadLocal Spring（上） IoC / Bean 生命周期 / 循环依赖 / AOP Spring（下） 事务 / Spring MVC / Spring Boot" [ref=e62]:
+          - cell "W2" [ref=e63]
+          - cell "7.20–7.26" [ref=e64]
+          - cell "并发（上） JMM / volatile / synchronized / AQS" [ref=e65]:
+            - strong [ref=e66]: 并发（上）
+            - text: JMM / volatile / synchronized / AQS
+          - cell "并发（下） 线程池 / JUC 工具 / ThreadLocal" [ref=e67]:
+            - strong [ref=e68]: 并发（下）
+            - text: 线程池 / JUC 工具 / ThreadLocal
+          - cell "Spring（上） IoC / Bean 生命周期 / 循环依赖 / AOP" [ref=e69]:
+            - strong [ref=e70]: Spring（上）
+            - text: IoC / Bean 生命周期 / 循环依赖 / AOP
+          - cell "Spring（下） 事务 / Spring MVC / Spring Boot" [ref=e71]:
+            - strong [ref=e72]: Spring（下）
+            - text: 事务 / Spring MVC / Spring Boot
+        - row "W3 7.27–8.2 MySQL（上） 索引 B+Tree / 最左前缀 / 覆盖索引 MySQL（下） MVCC / 锁 / InnoDB 架构 / SQL 优化 ORM MyBatis 原理 / 插件 / MyBatis-Plus Redis（上） 数据结构 / 缓存策略 / 穿透击穿雪崩" [ref=e73]:
+          - cell "W3" [ref=e74]
+          - cell "7.27–8.2" [ref=e75]
+          - cell "MySQL（上） 索引 B+Tree / 最左前缀 / 覆盖索引" [ref=e76]:
+            - strong [ref=e77]: MySQL（上）
+            - text: 索引 B+Tree / 最左前缀 / 覆盖索引
+          - cell "MySQL（下） MVCC / 锁 / InnoDB 架构 / SQL 优化" [ref=e78]:
+            - strong [ref=e79]: MySQL（下）
+            - text: MVCC / 锁 / InnoDB 架构 / SQL 优化
+          - cell "ORM MyBatis 原理 / 插件 / MyBatis-Plus" [ref=e80]:
+            - strong [ref=e81]: ORM
+            - text: MyBatis 原理 / 插件 / MyBatis-Plus
+          - cell "Redis（上） 数据结构 / 缓存策略 / 穿透击穿雪崩" [ref=e82]:
+            - strong [ref=e83]: Redis（上）
+            - text: 数据结构 / 缓存策略 / 穿透击穿雪崩
+        - row "W4 8.3–8.9 Redis（下） 分布式锁 / 持久化 / 集群 / 热Key大Key Kafka（上） 架构 / Producer / Consumer / 可靠性 Kafka（下） 幂等 / 事务 / Controller选举 / 调优 中间件对比 故障转移对比 / Redis vs Kafka" [ref=e84]:
+          - cell "W4" [ref=e85]
+          - cell "8.3–8.9" [ref=e86]
+          - cell "Redis（下） 分布式锁 / 持久化 / 集群 / 热Key大Key" [ref=e87]:
+            - strong [ref=e88]: Redis（下）
+            - text: 分布式锁 / 持久化 / 集群 / 热Key大Key
+          - cell "Kafka（上） 架构 / Producer / Consumer / 可靠性" [ref=e89]:
+            - strong [ref=e90]: Kafka（上）
+            - text: 架构 / Producer / Consumer / 可靠性
+          - cell "Kafka（下） 幂等 / 事务 / Controller选举 / 调优" [ref=e91]:
+            - strong [ref=e92]: Kafka（下）
+            - text: 幂等 / 事务 / Controller选举 / 调优
+          - cell "中间件对比 故障转移对比 / Redis vs Kafka" [ref=e93]:
+            - strong [ref=e94]: 中间件对比
+            - text: 故障转移对比 / Redis vs Kafka
+        - row "W5 8.10–8.16 Spring Cloud（上） 注册中心 / 配置中心 / 网关 Spring Cloud（下） 远程调用 / Sentinel / Seata Dubbo（上） RPC 原理 / 架构 / SPI 机制 Dubbo（下） 注册中心 / 负载均衡 / 集群容错" [ref=e95]:
+          - cell "W5" [ref=e96]
+          - cell "8.10–8.16" [ref=e97]
+          - cell "Spring Cloud（上） 注册中心 / 配置中心 / 网关" [ref=e98]:
+            - strong [ref=e99]: Spring Cloud（上）
+            - text: 注册中心 / 配置中心 / 网关
+          - cell "Spring Cloud（下） 远程调用 / Sentinel / Seata" [ref=e100]:
+            - strong [ref=e101]: Spring Cloud（下）
+            - text: 远程调用 / Sentinel / Seata
+          - cell "Dubbo（上） RPC 原理 / 架构 / SPI 机制" [ref=e102]:
+            - strong [ref=e103]: Dubbo（上）
+            - text: RPC 原理 / 架构 / SPI 机制
+          - cell "Dubbo（下） 注册中心 / 负载均衡 / 集群容错" [ref=e104]:
+            - strong [ref=e105]: Dubbo（下）
+            - text: 注册中心 / 负载均衡 / 集群容错
+        - row "W6 8.17–8.23 分布式（上） CAP / Raft / Paxos / 分布式事务 分布式（下） 分布式锁 / 分布式 ID / 一致性协议 设计模式（上） 创建型 / 结构型，高频 5 个 设计模式（下） 行为型 / 系统设计原则" [ref=e106]:
+          - cell "W6" [ref=e107]
+          - cell "8.17–8.23" [ref=e108]
+          - cell "分布式（上） CAP / Raft / Paxos / 分布式事务" [ref=e109]:
+            - strong [ref=e110]: 分布式（上）
+            - text: CAP / Raft / Paxos / 分布式事务
+          - cell "分布式（下） 分布式锁 / 分布式 ID / 一致性协议" [ref=e111]:
+            - strong [ref=e112]: 分布式（下）
+            - text: 分布式锁 / 分布式 ID / 一致性协议
+          - cell "设计模式（上） 创建型 / 结构型，高频 5 个" [ref=e113]:
+            - strong [ref=e114]: 设计模式（上）
+            - text: 创建型 / 结构型，高频 5 个
+          - cell "设计模式（下） 行为型 / 系统设计原则" [ref=e115]:
+            - strong [ref=e116]: 设计模式（下）
+            - text: 行为型 / 系统设计原则
+        - row "W7 8.24–8.31 JDK 新特性 8→21：Lambda / Stream / Record / Virtual Thread JVM 调优 Arthas / 内存泄漏 / GC 日志分析 系统设计入门 短链 / 秒杀 / Feed流 / 限流器 阶段收尾 Java 全栈面试题 100 道速刷" [ref=e117]:
+          - cell "W7" [ref=e118]
+          - cell "8.24–8.31" [ref=e119]
+          - cell "JDK 新特性 8→21：Lambda / Stream / Record / Virtual Thread" [ref=e120]:
+            - strong [ref=e121]: JDK 新特性
+            - text: 8→21：Lambda / Stream / Record / Virtual Thread
+          - cell "JVM 调优 Arthas / 内存泄漏 / GC 日志分析" [ref=e122]:
+            - strong [ref=e123]: JVM 调优
+            - text: Arthas / 内存泄漏 / GC 日志分析
+          - cell "系统设计入门 短链 / 秒杀 / Feed流 / 限流器" [ref=e124]:
+            - strong [ref=e125]: 系统设计入门
+            - text: 短链 / 秒杀 / Feed流 / 限流器
+          - cell "阶段收尾 Java 全栈面试题 100 道速刷" [ref=e126]:
+            - strong [ref=e127]: 阶段收尾
+            - text: Java 全栈面试题 100 道速刷
+    - generic [ref=e128]: 第二阶段 · 按专题集中深挖（9.1 — 11.30，13周）
+    - paragraph [ref=e129]:
+      - text: 第一阶段已建立完整知识体系，第二阶段
+      - strong [ref=e130]: 按专题深挖面试题
+      - text: ，每个专题集中 1-2 周，配合已有的
+      - code [ref=e131]: "*-interview.html"
+      - text: 面试题文档。
+    - generic [ref=e132]:
+      - generic [ref=e133]:
+        - generic [ref=e134]: 专题 1
+        - generic [ref=e135]: Java 基础 + JVM + 并发
+        - generic [ref=e136]: 2 周
+      - generic [ref=e137]:
+        - generic [ref=e138]:
+          - generic [ref=e139]: W8 · 9.1—9.7 · Java 基础深挖
+          - generic [ref=e140]:
+            - text: 集合源码（HashMap / ArrayList / LinkedList）· String 常量池 · 泛型擦除 · 反射原理 · 动态代理 · JDK 8→21 新特性 ·
+            - strong [ref=e141]: 面试题 32 道
+        - generic [ref=e142]:
+          - generic [ref=e143]: W9 · 9.8—9.14 · JVM + 并发
+          - generic [ref=e144]:
+            - text: JVM 调优参数 · GC 日志分析 · 内存泄漏排查 · 锁升级 · AQS 源码 · 线程池参数 ·
+            - strong [ref=e145]: 面试题 25+32 道
+    - generic [ref=e146]:
+      - generic [ref=e147]:
+        - generic [ref=e148]: 专题 2
+        - generic [ref=e149]: Spring 全家桶
+        - generic [ref=e150]: 2 周
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - generic [ref=e153]: W10 · 9.15—9.21 · Spring 核心
+          - generic [ref=e154]:
+            - text: IoC 容器源码级 · Bean 生命周期 · 循环依赖三级缓存 · AOP 原理 · 事务失效 8 场景 · 事件机制 ·
+            - strong [ref=e155]: 面试题 32 道
+        - generic [ref=e156]:
+          - generic [ref=e157]: W11 · 9.22—9.30 · Spring Boot + Spring Cloud
+          - generic [ref=e158]:
+            - text: 自动配置原理 · Starter 机制 · 注册中心对比 · 网关 · 熔断降级 · 分布式事务 Seata ·
+            - strong [ref=e159]: 面试题 32 道
+    - generic [ref=e160]:
+      - generic [ref=e161]:
+        - generic [ref=e162]: 专题 3
+        - generic [ref=e163]: 中间件：MySQL + Redis + Kafka
+        - generic [ref=e164]: 2 周
+      - generic [ref=e165]:
+        - generic [ref=e166]:
+          - generic [ref=e167]: W12 · 10.1—10.7 · MySQL + ORM
+          - generic [ref=e168]:
+            - text: 索引优化实战 · Explain 分析 · 分库分表 · MVCC 版本链 · 间隙锁 · MyBatis 插件 ·
+            - strong [ref=e169]: 面试题 32+24 道
+        - generic [ref=e170]:
+          - generic [ref=e171]: W13 · 10.8—10.14 · Redis + Kafka
+          - generic [ref=e172]:
+            - text: 缓存穿透击穿雪崩 · 热Key大Key · Redlock · 集群 · 消息可靠性 · 重复消费 · 顺序消息 ·
+            - strong [ref=e173]: 面试题全覆盖
+    - generic [ref=e174]:
+      - generic [ref=e175]:
+        - generic [ref=e176]: 专题 4
+        - generic [ref=e177]: 分布式 + Dubbo + 设计模式
+        - generic [ref=e178]: 2 周
+      - generic [ref=e179]:
+        - generic [ref=e180]:
+          - generic [ref=e181]: W14 · 10.15—10.21 · 分布式系统
+          - generic [ref=e182]:
+            - text: CAP 取舍 · Raft 选举 · 分布式事务（2PC / TCC / Saga）· 分布式锁（Redis / ZK 对比）· 分布式 ID ·
+            - strong [ref=e183]: 面试题 32 道
+        - generic [ref=e184]:
+          - generic [ref=e185]: W15 · 10.22—10.28 · Dubbo + 设计模式
+          - generic [ref=e186]:
+            - text: SPI 机制 · 负载均衡 · 集群容错 · 23 种设计模式核心 10 个 ·
+            - strong [ref=e187]: 面试题 29+32 道
+    - generic [ref=e188]:
+      - generic [ref=e189]:
+        - generic [ref=e190]: 专题 5
+        - generic [ref=e191]: 系统设计 + 算法
+        - generic [ref=e192]: 1 周
+      - generic [ref=e194]:
+        - generic [ref=e195]: W16 · 10.29—11.4
+        - generic [ref=e196]:
+          - strong [ref=e197]: 系统设计 10 题：
+          - text: 短链 · 秒杀 · Feed流 · 限流器 · 分布式ID · 配置中心 · 消息队列设计 · 推荐系统 · 搜索 · IM
+          - strong [ref=e198]: 算法：
+          - text: LeetCode Hot 100 精选 30 道（数组 / 链表 / 树 / DP）
+    - generic [ref=e199]:
+      - generic [ref=e200]:
+        - generic [ref=e201]: 专题 6
+        - generic [ref=e202]: 综合模拟面试 + 收尾
+        - generic [ref=e203]: 3 周
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - generic [ref=e207]: W17 · 11.5—11.11
+          - generic [ref=e208]:
+            - strong [ref=e209]: 一轮模拟：
+            - text: Java 基础 + JVM + 并发
+            - text: 弱项专题复习
+        - generic [ref=e210]:
+          - generic [ref=e211]: W18 · 11.12—11.18
+          - generic [ref=e212]:
+            - strong [ref=e213]: 二轮模拟：
+            - text: Spring + 中间件 + 分布式
+            - text: 弱项专题复习
+        - generic [ref=e214]:
+          - generic [ref=e215]: W19 · 11.19—11.25
+          - generic [ref=e216]:
+            - strong [ref=e217]: 三轮模拟：
+            - text: 系统设计 + 算法 + 行为面试
+            - text: 简历更新
+        - generic [ref=e218]:
+          - generic [ref=e219]: W20 · 11.26—11.30
+          - generic [ref=e220]:
+            - strong [ref=e221]: 全流程模拟 2 轮
+            - text: 复盘总结
+    - generic [ref=e222]: 资料索引
+    - paragraph [ref=e223]: 以下为已有文档与各周对应的关系，学习时可直接打开对应文档。
+    - table [ref=e224]:
+      - rowgroup [ref=e225]:
+        - row "技术栈 已有文档 对应周次" [ref=e226]:
+          - columnheader "技术栈" [ref=e227]
+          - columnheader "已有文档" [ref=e228]
+          - columnheader "对应周次" [ref=e229]
+        - row "Java 基础 java-basic-01 ~ 06 W1, W8" [ref=e230]:
+          - cell "Java 基础" [ref=e231]
+          - cell "java-basic-01 ~ 06" [ref=e232]
+          - cell "W1, W8" [ref=e233]
+        - row "JVM jvm-01 ~ 04 W1, W9" [ref=e234]:
+          - cell "JVM" [ref=e235]
+          - cell "jvm-01 ~ 04" [ref=e236]
+          - cell "W1, W9" [ref=e237]
+        - row "Java 并发 concurrent-01 ~ 06 W2, W9" [ref=e238]:
+          - cell "Java 并发" [ref=e239]
+          - cell "concurrent-01 ~ 06" [ref=e240]
+          - cell "W2, W9" [ref=e241]
+        - row "Spring spring-01 ~ 07 W2, W10" [ref=e242]:
+          - cell "Spring" [ref=e243]
+          - cell "spring-01 ~ 07" [ref=e244]
+          - cell "W2, W10" [ref=e245]
+        - row "Spring Cloud sc-01 ~ 05 W5, W11" [ref=e246]:
+          - cell "Spring Cloud" [ref=e247]
+          - cell "sc-01 ~ 05" [ref=e248]
+          - cell "W5, W11" [ref=e249]
+        - row "Dubbo / RPC dubbo-01 ~ 05 W5, W15" [ref=e250]:
+          - cell "Dubbo / RPC" [ref=e251]
+          - cell "dubbo-01 ~ 05" [ref=e252]
+          - cell "W5, W15" [ref=e253]
+        - row "MySQL mysql-01 ~ 05 W3, W12" [ref=e254]:
+          - cell "MySQL" [ref=e255]
+          - cell "mysql-01 ~ 05" [ref=e256]
+          - cell "W3, W12" [ref=e257]
+        - row "ORM orm-01 ~ 03 W3, W12" [ref=e258]:
+          - cell "ORM" [ref=e259]
+          - cell "orm-01 ~ 03" [ref=e260]
+          - cell "W3, W12" [ref=e261]
+        - row "Redis redis-data-types / hotkey-bigkey / election-redis-kafka W3–W4, W13" [ref=e262]:
+          - cell "Redis" [ref=e263]
+          - cell "redis-data-types / hotkey-bigkey / election-redis-kafka" [ref=e264]
+          - cell "W3–W4, W13" [ref=e265]
+        - row "Kafka kafka-01 ~ 06 W4, W13" [ref=e266]:
+          - cell "Kafka" [ref=e267]
+          - cell "kafka-01 ~ 06" [ref=e268]
+          - cell "W4, W13" [ref=e269]
+        - row "分布式系统 dist-01 ~ 04 W6, W14" [ref=e270]:
+          - cell "分布式系统" [ref=e271]
+          - cell "dist-01 ~ 04" [ref=e272]
+          - cell "W6, W14" [ref=e273]
+        - row "设计模式 design-01 ~ 05 W6, W15" [ref=e274]:
+          - cell "设计模式" [ref=e275]
+          - cell "design-01 ~ 05" [ref=e276]
+          - cell "W6, W15" [ref=e277]
+        - row "综合面试 interview_redis_kafka_jvm / java_interview_knowledge_map W7, W16–W20" [ref=e278]:
+          - cell "综合面试" [ref=e279]
+          - cell "interview_redis_kafka_jvm / java_interview_knowledge_map" [ref=e280]
+          - cell "W7, W16–W20" [ref=e281]
+  - button "切换亮色/暗色主题" [ref=e282] [cursor=pointer]: ◑

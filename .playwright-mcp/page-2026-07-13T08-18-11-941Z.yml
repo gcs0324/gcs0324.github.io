@@ -1,0 +1,586 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "🔬 AI Intelligence Briefing" [level=1] [ref=e4]
+    - generic [ref=e5]: MCP 生态大爆发，Agent 安全成为焦点，Claude Code 技能生态初具规模
+    - generic [ref=e6]: 2026-07-13
+    - generic [ref=e7]: 本周 GitHub 上 MCP 相关项目密集涌现，Agent 安全方向（沙箱、渗透测试、命令拦截）成独立赛道；Claude Code 技能生态从单一技能扩展到 345+ 技能集合；OpenAI 发布 GPT-5.6 系列；跨模型协作（Codex ↔ Claude Code）成为新范式。
+  - generic [ref=e8]:
+    - 'heading "📰 Section 1: 本周 Top 10 动态" [level=2] [ref=e9]'
+    - generic [ref=e10]:
+      - heading "#1 🥇 openai/codex-plugin-cc — Claude Code 调用 Codex 跨模型协作" [level=3] [ref=e11]
+      - generic [ref=e12]:
+        - generic [ref=e13]: "82"
+        - generic [ref=e14]: 本周最热
+        - generic [ref=e15]: 跨模型协作
+        - text: GitHub · ⭐ 2,803/周
+      - generic [ref=e16]:
+        - heading "📊 深度分析" [level=4] [ref=e17]
+        - paragraph [ref=e18]:
+          - strong [ref=e19]: 核心创新：
+          - text: OpenAI 官方发布 Codex CLI 的 Claude Code 插件，实现从 Claude Code 中直接调用 Codex 进行代码审查或任务委派。这是首次有两家头部 AI 公司的编码工具以"插件"形态互操作，标志着 Agent 工具链进入"跨模型协作"时代。
+        - paragraph [ref=e20]:
+          - strong [ref=e21]: 技术意义：
+          - text: 不再局限于单模型 Agent，而是让不同模型各司其职——Claude Code 负责交互和编排，Codex 负责特定代码审查任务。这种"模型联邦"模式比单一 Agent 更灵活。
+        - paragraph [ref=e22]:
+          - strong [ref=e23]: 对研发工程师：
+          - text: 如果你同时有 Claude Code 和 Codex 权限，现在可以让两者协作。这是 Agent 编排的实战案例，值得研究其架构。
+    - generic [ref=e24]:
+      - heading "#2 🥈 TencentCloud/CubeSandbox — AI Agent 即时安全沙箱" [level=3] [ref=e25]
+      - generic [ref=e26]:
+        - generic [ref=e27]: "78"
+        - generic [ref=e28]: Agent 安全
+        - generic [ref=e29]: 基础设施
+        - text: GitHub · ⭐ 2,490/周 · Rust
+      - generic [ref=e30]:
+        - heading "📊 深度分析" [level=4] [ref=e31]
+        - paragraph [ref=e32]:
+          - strong [ref=e33]: 核心创新：
+          - text: 腾讯云开源的轻量级 Agent 沙箱，主打"即时、并发、安全、轻量"。用 Rust 实现，启动速度极快，支持多 Agent 并发隔离执行。
+        - paragraph [ref=e34]:
+          - strong [ref=e35]: 技术意义：
+          - text: Agent 执行不可信代码（如生成的脚本、Shell 命令）是刚需。CubeSandbox 填补了"Agent 安全执行环境"这一空白，与 DesktopCommanderMCP 等工具形成互补——一个开放能力，一个兜底安全。
+        - paragraph [ref=e36]:
+          - strong [ref=e37]: 对研发工程师：
+          - text: 如果你在开发 Agent 系统，沙箱是必备基础设施。CubeSandbox 的 Rust 实现值得学习其安全隔离设计。
+    - generic [ref=e38]:
+      - heading "#3 🥉 stablyai/orca — 并行 Agent 舰队管理器" [level=3] [ref=e39]
+      - generic [ref=e40]:
+        - generic [ref=e41]: "78"
+        - generic [ref=e42]: 多 Agent
+        - generic [ref=e43]: Agent 编排
+        - text: GitHub · ⭐ 4,481/周 · TypeScript
+      - generic [ref=e44]:
+        - heading "📊 深度分析" [level=4] [ref=e45]
+        - paragraph [ref=e46]:
+          - strong [ref=e47]: 核心创新：
+          - text: "\"ADE (Agent Development Environment)\"——用自己的 API 订阅并行运行多个 Coding Agent。把多个 Agent 当\"舰队\"管理，每个 Agent 负责不同任务，在终端中统一调度。"
+        - paragraph [ref=e48]:
+          - strong [ref=e49]: 技术意义：
+          - text: 这是目前最直观的"多 Agent 并行"实践。不同于 LangGraph 的图编排，orca 走的是"终端级 Agent 多路复用"路线，更贴近开发者日常使用习惯。
+        - paragraph [ref=e50]:
+          - strong [ref=e51]: 对研发工程师：
+          - text: 如果你经常同时处理多个编码任务，orca 可以让你并行跑多个 Agent。架构设计值得学习——如何管理多个 Agent 的生命周期、输出和资源。
+    - generic [ref=e52]:
+      - heading "#4 DesktopCommanderMCP — 给 Claude 完整的终端控制权" [level=3] [ref=e53]
+      - generic [ref=e54]:
+        - generic [ref=e55]: "74"
+        - generic [ref=e56]: MCP
+        - generic [ref=e57]: Claude Code
+        - text: GitHub · ⭐ 1,678/周 · TypeScript
+      - generic [ref=e58]:
+        - heading "📊 深度分析" [level=4] [ref=e59]
+        - paragraph [ref=e60]:
+          - strong [ref=e61]: 核心创新：
+          - text: 一个 MCP Server，为 Claude 提供终端控制、文件系统搜索和 diff 文件编辑能力。目前 GitHub 本周 MCP 方向最热的项目之一，直接扩展了 Claude Code 的能力边界。
+        - paragraph [ref=e62]:
+          - strong [ref=e63]: 技术意义：
+          - text: MCP 正在从"概念验证"走向"生产级工具"。DesktopCommanderMCP 是 MCP 生态成熟的标志——它不再是简单的 demo，而是真正能改变开发者工作流的工具。
+    - generic [ref=e64]:
+      - heading "#5 usestrix/strix — 开源 AI 渗透测试工具" [level=3] [ref=e65]
+      - generic [ref=e66]:
+        - generic [ref=e67]: "74"
+        - generic [ref=e68]: AI 安全
+        - generic [ref=e69]: 渗透测试
+        - text: GitHub · ⭐ 4,143/周 · Python
+      - generic [ref=e70]:
+        - heading "📊 深度分析" [level=4] [ref=e71]
+        - paragraph [ref=e72]:
+          - strong [ref=e73]: 核心创新：
+          - text: 用 AI 驱动的渗透测试，自动发现和修复应用漏洞。将 AI Agent 能力引入安全测试领域，自动化程度高。
+        - paragraph [ref=e74]:
+          - strong [ref=e75]: 技术意义：
+          - text: AI + 安全正在形成独立赛道。本周 strix (4,143 stars) 和 pentagi (1,989 stars) 同时上榜，说明"AI 安全测试"需求旺盛。Agent 能做的不只是写代码，还能主动攻击测试。
+    - generic [ref=e76]:
+      - heading "#6 Claude Code 安全框架 — 蚂蚁安全开源" [level=3] [ref=e77]
+      - generic [ref=e78]:
+        - generic [ref=e79]: "72"
+        - generic [ref=e80]: 安全
+        - generic [ref=e81]: 开源
+        - text: 来源：量子位
+      - generic [ref=e82]:
+        - heading "📊 深度分析" [level=4] [ref=e83]
+        - paragraph [ref=e84]:
+          - strong [ref=e85]: 核心内容：
+          - text: 蚂蚁安全团队针对 Claude Code 在企业使用中的安全风险，开源了两大安全框架。这是国内首次有企业级团队系统性解决 Coding Agent 的安全问题。
+        - paragraph [ref=e86]:
+          - strong [ref=e87]: 技术意义：
+          - text: 企业级 Agent 安全从"最佳实践建议"阶段进入"可落地的安全框架"阶段。结合 CubeSandbox、destructive_command_guard 等工具，Agent 安全基础设施正在快速成型。
+    - generic [ref=e88]:
+      - heading "#7 herdr — 终端里的 Agent 多路复用器" [level=3] [ref=e89]
+      - generic [ref=e90]:
+        - generic [ref=e91]: "70"
+        - generic [ref=e92]: Agent 编排
+        - generic [ref=e93]: CLI
+        - text: GitHub · ⭐ 3,928/周 · Rust
+      - generic [ref=e94]:
+        - heading "📊 深度分析" [level=4] [ref=e95]
+        - paragraph [ref=e96]:
+          - strong [ref=e97]: 核心创新：
+          - text: 在终端里管理多个 Agent 的多路复用器——像 tmux 管理多个终端会话一样管理多个 Agent。用 Rust 实现，性能极高。
+        - paragraph [ref=e98]:
+          - strong [ref=e99]: 技术意义：
+          - text: herdr + orca 代表了"终端内 Agent 管理"的新范式。开发者不需要离开终端就能调度多个 Agent 并行工作，这与 IDE 插件路线形成互补。
+    - generic [ref=e100]:
+      - heading "#8 ChromeDevTools MCP — 浏览器 DevTools 向 Agent 开放" [level=3] [ref=e101]
+      - generic [ref=e102]:
+        - generic [ref=e103]: "70"
+        - generic [ref=e104]: MCP
+        - generic [ref=e105]: Chrome
+        - text: GitHub · ⭐ 872/周 · TypeScript
+      - generic [ref=e106]:
+        - heading "📊 深度分析" [level=4] [ref=e107]
+        - paragraph [ref=e108]:
+          - strong [ref=e109]: 核心创新：
+          - text: Chrome 官方团队的 MCP Server，让 Coding Agent 直接操作 Chrome DevTools 进行调试。这对 Web 前端开发者意义重大——Agent 可以自动诊断性能问题、检查 DOM、分析网络请求。
+        - paragraph [ref=e110]:
+          - strong [ref=e111]: 技术意义：
+          - text: Chrome 团队亲自下场做 MCP 集成，说明 MCP 协议正在被主流工具链认可。这是 MCP 从"社区驱动"走向"官方支持"的关键里程碑。
+    - generic [ref=e112]:
+      - heading "#9 GPT-5.6 系列发布 + OpenAI 安全主管离职" [level=3] [ref=e113]
+      - generic [ref=e114]:
+        - generic [ref=e115]: "68"
+        - generic [ref=e116]: 模型发布
+        - generic [ref=e117]: OpenAI
+        - text: 来源：IT之家 / 36氪 / 量子位
+      - generic [ref=e118]:
+        - heading "📊 深度分析" [level=4] [ref=e119]
+        - paragraph [ref=e120]:
+          - strong [ref=e121]: 核心内容：
+          - text: GPT-5.6 系列三款模型正式向所有用户开放，流量达此前峰值约两倍，临时取消部分额度限制。同时，OpenAI 安全主管离职（两年内第六位安全负责人离开）。此外，"幽灵字体"对抗样本事件显示 GPT-5.6 在视觉对抗方面仍有弱点。
+        - paragraph [ref=e122]:
+          - strong [ref=e123]: 技术意义：
+          - text: 模型能力持续提升，但安全团队动荡 + 对抗样本频出，说明 AI 安全仍然是行业短板。对研发工程师来说，模型能力提升意味着 Agent 的"大脑"更强，但安全风险同步增加。
+    - generic [ref=e124]:
+      - heading "#10 destructive_command_guard + caveman + claude-skills — Claude Code 技能生态" [level=3] [ref=e125]
+      - generic [ref=e126]:
+        - generic [ref=e127]: 68-70
+        - generic [ref=e128]: Claude Code
+        - generic [ref=e129]: 技能生态
+        - text: GitHub · 多个项目累计 ⭐ 6,000+/周
+      - generic [ref=e130]:
+        - heading "📊 深度分析" [level=4] [ref=e131]
+        - paragraph [ref=e132]:
+          - strong [ref=e133]: 三个项目代表了 Claude Code 技能生态的三个方向：
+        - list [ref=e134]:
+          - listitem [ref=e135]:
+            - strong [ref=e136]: destructive_command_guard
+            - text: （⭐444/日）：安全防护——阻止 Agent 执行危险命令
+          - listitem [ref=e137]:
+            - strong [ref=e138]: caveman
+            - text: （⭐3,992/周）：成本优化——用极简 prompt 节省 65% token
+          - listitem [ref=e139]:
+            - strong [ref=e140]: claude-skills
+            - text: （⭐1,993/周）：生态聚合——345 个即用技能覆盖工程、营销、合规等领域
+        - paragraph [ref=e141]:
+          - strong [ref=e142]: 技术意义：
+          - text: Claude Code 的技能生态正在从"散兵游勇"走向"体系化"。安全、成本、效率三个维度都有成熟方案，说明 Claude Code 已具备生产级使用的条件。
+  - generic [ref=e143]:
+    - 'heading "🐙 Section 2: GitHub 高价值项目评估" [level=2] [ref=e144]'
+    - table [ref=e145]:
+      - rowgroup [ref=e146]:
+        - row "项目 Stars 学习价值 推荐指数 立即关注 一句话" [ref=e147]:
+          - columnheader "项目" [ref=e148]
+          - columnheader "Stars" [ref=e149]
+          - columnheader "学习价值" [ref=e150]
+          - columnheader "推荐指数" [ref=e151]
+          - columnheader "立即关注" [ref=e152]
+          - columnheader "一句话" [ref=e153]
+        - row "openai/codex-plugin-cc ⭐2,803/周 9/10 9/10 ✅ 跨模型协作的标杆案例，Agent 编排必学" [ref=e154]:
+          - cell "openai/codex-plugin-cc" [ref=e155]:
+            - link "openai/codex-plugin-cc" [ref=e156] [cursor=pointer]:
+              - /url: https://github.com/openai/codex-plugin-cc
+          - cell "⭐2,803/周" [ref=e157]
+          - cell "9/10" [ref=e158]
+          - cell "9/10" [ref=e159]
+          - cell "✅" [ref=e160]
+          - cell "跨模型协作的标杆案例，Agent 编排必学" [ref=e161]
+        - row "TencentCloud/CubeSandbox ⭐2,490/周 8/10 9/10 ✅ Agent 安全沙箱，Rust 实现，生产级" [ref=e162]:
+          - cell "TencentCloud/CubeSandbox" [ref=e163]:
+            - link "TencentCloud/CubeSandbox" [ref=e164] [cursor=pointer]:
+              - /url: https://github.com/TencentCloud/CubeSandbox
+          - cell "⭐2,490/周" [ref=e165]
+          - cell "8/10" [ref=e166]
+          - cell "9/10" [ref=e167]
+          - cell "✅" [ref=e168]
+          - cell "Agent 安全沙箱，Rust 实现，生产级" [ref=e169]
+        - row "stablyai/orca ⭐4,481/周 8/10 8/10 ✅ 并行 Agent 舰队管理，多 Agent 实战" [ref=e170]:
+          - cell "stablyai/orca" [ref=e171]:
+            - link "stablyai/orca" [ref=e172] [cursor=pointer]:
+              - /url: https://github.com/stablyai/orca
+          - cell "⭐4,481/周" [ref=e173]
+          - cell "8/10" [ref=e174]
+          - cell "8/10" [ref=e175]
+          - cell "✅" [ref=e176]
+          - cell "并行 Agent 舰队管理，多 Agent 实战" [ref=e177]
+        - row "DesktopCommanderMCP ⭐1,678/周 7/10 9/10 ✅ MCP Server 最佳实践，直接可用" [ref=e178]:
+          - cell "DesktopCommanderMCP" [ref=e179]:
+            - link "DesktopCommanderMCP" [ref=e180] [cursor=pointer]:
+              - /url: https://github.com/wonderwhy-er/DesktopCommanderMCP
+          - cell "⭐1,678/周" [ref=e181]
+          - cell "7/10" [ref=e182]
+          - cell "9/10" [ref=e183]
+          - cell "✅" [ref=e184]
+          - cell "MCP Server 最佳实践，直接可用" [ref=e185]
+        - row "usestrix/strix ⭐4,143/周 8/10 8/10 ✅ AI 渗透测试，安全方向 Agent 实战" [ref=e186]:
+          - cell "usestrix/strix" [ref=e187]:
+            - link "usestrix/strix" [ref=e188] [cursor=pointer]:
+              - /url: https://github.com/usestrix/strix
+          - cell "⭐4,143/周" [ref=e189]
+          - cell "8/10" [ref=e190]
+          - cell "8/10" [ref=e191]
+          - cell "✅" [ref=e192]
+          - cell "AI 渗透测试，安全方向 Agent 实战" [ref=e193]
+        - row "ChromeDevTools-MCP ⭐872/周 7/10 8/10 ✅ 官方 MCP 集成，Web 开发者必看" [ref=e194]:
+          - cell "ChromeDevTools-MCP" [ref=e195]:
+            - link "ChromeDevTools-MCP" [ref=e196] [cursor=pointer]:
+              - /url: https://github.com/ChromeDevTools/chrome-devtools-mcp
+          - cell "⭐872/周" [ref=e197]
+          - cell "7/10" [ref=e198]
+          - cell "8/10" [ref=e199]
+          - cell "✅" [ref=e200]
+          - cell "官方 MCP 集成，Web 开发者必看" [ref=e201]
+        - row "ogulcancelik/herdr ⭐3,928/周 7/10 7/10 — 终端 Agent 多路复用，Rust 性能参考" [ref=e202]:
+          - cell "ogulcancelik/herdr" [ref=e203]:
+            - link "ogulcancelik/herdr" [ref=e204] [cursor=pointer]:
+              - /url: https://github.com/ogulcancelik/herdr
+          - cell "⭐3,928/周" [ref=e205]
+          - cell "7/10" [ref=e206]
+          - cell "7/10" [ref=e207]
+          - cell "—" [ref=e208]
+          - cell "终端 Agent 多路复用，Rust 性能参考" [ref=e209]
+        - row "JuliusBrussee/caveman ⭐3,992/周 6/10 9/10 ✅ token 优化技能，即装即用" [ref=e210]:
+          - cell "JuliusBrussee/caveman" [ref=e211]:
+            - link "JuliusBrussee/caveman" [ref=e212] [cursor=pointer]:
+              - /url: https://github.com/JuliusBrussee/caveman
+          - cell "⭐3,992/周" [ref=e213]
+          - cell "6/10" [ref=e214]
+          - cell "9/10" [ref=e215]
+          - cell "✅" [ref=e216]
+          - cell "token 优化技能，即装即用" [ref=e217]
+        - row "alirezarezvani/claude-skills ⭐1,993/周 7/10 8/10 ✅ 345 个 Claude Code 技能，技能设计参考" [ref=e218]:
+          - cell "alirezarezvani/claude-skills" [ref=e219]:
+            - link "alirezarezvani/claude-skills" [ref=e220] [cursor=pointer]:
+              - /url: https://github.com/alirezarezvani/claude-skills
+          - cell "⭐1,993/周" [ref=e221]
+          - cell "7/10" [ref=e222]
+          - cell "8/10" [ref=e223]
+          - cell "✅" [ref=e224]
+          - cell "345 个 Claude Code 技能，技能设计参考" [ref=e225]
+        - row "alibaba/page-agent ⭐2,666/周 7/10 7/10 — GUI Agent，自然语言控制 Web 界面" [ref=e226]:
+          - cell "alibaba/page-agent" [ref=e227]:
+            - link "alibaba/page-agent" [ref=e228] [cursor=pointer]:
+              - /url: https://github.com/alibaba/page-agent
+          - cell "⭐2,666/周" [ref=e229]
+          - cell "7/10" [ref=e230]
+          - cell "7/10" [ref=e231]
+          - cell "—" [ref=e232]
+          - cell "GUI Agent，自然语言控制 Web 界面" [ref=e233]
+        - row "diegosouzapw/OmniRoute ⭐4,506/周 6/10 7/10 — AI 网关，231+ 提供商统一接入" [ref=e234]:
+          - cell "diegosouzapw/OmniRoute" [ref=e235]:
+            - link "diegosouzapw/OmniRoute" [ref=e236] [cursor=pointer]:
+              - /url: https://github.com/diegosouzapw/OmniRoute
+          - cell "⭐4,506/周" [ref=e237]
+          - cell "6/10" [ref=e238]
+          - cell "7/10" [ref=e239]
+          - cell "—" [ref=e240]
+          - cell "AI 网关，231+ 提供商统一接入" [ref=e241]
+        - row "system_prompts_leaks ⭐7,155/周 6/10 6/10 — 系统提示词泄露，了解各模型 Prompt 设计" [ref=e242]:
+          - cell "system_prompts_leaks" [ref=e243]:
+            - link "system_prompts_leaks" [ref=e244] [cursor=pointer]:
+              - /url: https://github.com/asgeirtj/system_prompts_leaks
+          - cell "⭐7,155/周" [ref=e245]
+          - cell "6/10" [ref=e246]
+          - cell "6/10" [ref=e247]
+          - cell "—" [ref=e248]
+          - cell "系统提示词泄露，了解各模型 Prompt 设计" [ref=e249]
+  - generic [ref=e250]:
+    - 'heading "📡 Section 3: Signal Radar — 未来 3-12 个月可能爆发的方向" [level=2] [ref=e251]'
+    - paragraph [ref=e252]: ⚠️ 基于 2/3 项数据源输入（GitHub Trending + 猫猫新闻），Arxiv 论文数据本次采集失败，权重已按比例重新分配。
+    - generic [ref=e253]:
+      - generic [ref=e254]:
+        - generic [ref=e255]: 🔴 MCP 协议生态化
+        - generic [ref=e256]: ★★★★★
+        - generic [ref=e257]: "85"
+      - generic [ref=e258]:
+        - strong [ref=e259]: 信号来源：
+        - text: DesktopCommanderMCP、ChromeDevTools-MCP、destructive_command_guard 等 MCP 项目本周密集上榜。Chrome 官方团队亲自下场做 MCP 集成。
+        - strong [ref=e260]: 判断：
+        - text: MCP 正在从"社区实验"走向"事实标准"。Chrome 官方的加入标志着工具链厂商开始主动适配 MCP，而非等社区来适配。未来 3-6 个月，预计会有更多 IDE、数据库、云服务厂商推出官方 MCP Server。
+        - strong [ref=e261]: 跟踪建议：
+        - text: 关注 MCP 协议演进和官方 MCP Server 列表，学习自建 MCP Server 的最佳实践。
+      - generic [ref=e262]: 基于 2/3 项数据源输入（GitHub + 新闻）
+    - generic [ref=e263]:
+      - generic [ref=e264]:
+        - generic [ref=e265]: 🟠 Agent 安全基础设施
+        - generic [ref=e266]: ★★★★★
+        - generic [ref=e267]: "82"
+      - generic [ref=e268]:
+        - strong [ref=e269]: 信号来源：
+        - text: CubeSandbox（沙箱）、strix+pentagi（渗透测试）、destructive_command_guard（命令拦截）、蚂蚁安全框架——多个安全方向项目同时爆发。
+        - strong [ref=e270]: 判断：
+        - text: Agent 安全正在从"事后补救"转向"事前防护"。当 Agent 开始执行代码、操作文件、调用 API 时，安全不再是可选项。未来 6-12 个月，Agent 安全将成为独立赛道，类似当年"云安全"从"网络安全"中分化出来。
+        - strong [ref=e271]: 跟踪建议：
+        - text: 关注 Agent 沙箱技术、命令过滤机制、Agent 操作审计日志。
+      - generic [ref=e272]: 基于 2/3 项数据源输入（GitHub + 新闻）
+    - generic [ref=e273]:
+      - generic [ref=e274]:
+        - generic [ref=e275]: 🟡 跨模型 Agent 协作
+        - generic [ref=e276]: ★★★★
+        - generic [ref=e277]: "78"
+      - generic [ref=e278]:
+        - strong [ref=e279]: 信号来源：
+        - text: codex-plugin-cc（Claude Code ↔ Codex）、OmniRoute（231+ 提供商统一接入）、orca（多 Agent 并行）。
+        - strong [ref=e280]: 判断：
+        - text: 单模型 Agent 的天花板已现，跨模型协作是下一步。不同模型在编码、推理、安全等维度各有优劣，让它们协作而非竞争是更高效的方案。未来 6-12 个月，"模型联邦"可能成为 Agent 架构的标配。
+        - strong [ref=e281]: 跟踪建议：
+        - text: 研究 codex-plugin-cc 的跨模型通信机制，尝试用 OmniRoute 做多模型路由。
+      - generic [ref=e282]: 基于 2/3 项数据源输入（GitHub + 新闻）
+    - generic [ref=e283]:
+      - generic [ref=e284]:
+        - generic [ref=e285]: 🟢 Claude Code 技能市场
+        - generic [ref=e286]: ★★★★
+        - generic [ref=e287]: "75"
+      - generic [ref=e288]:
+        - strong [ref=e289]: 信号来源：
+        - text: claude-skills（345 技能）、caveman（token 优化）、claude-code-templates、hallmark（设计技能）——技能生态从零星项目走向体系化。
+        - strong [ref=e290]: 判断：
+        - text: 类似 VS Code 的插件市场，Claude Code 正在形成自己的"技能市场"。技能的质量、复用性和发现机制将成为关键。未来 3-6 个月，可能出现技能管理工具、技能商店等衍生项目。
+        - strong [ref=e291]: 跟踪建议：
+        - text: 学习 claude-skills 中的技能设计模式，尝试写自己的 Claude Code 技能。
+      - generic [ref=e292]: 基于 2/3 项数据源输入（GitHub + 新闻）
+    - generic [ref=e293]:
+      - generic [ref=e294]:
+        - generic [ref=e295]: 🔵 终端内 Agent 管理
+        - generic [ref=e296]: ★★★
+        - generic [ref=e297]: "68"
+      - generic [ref=e298]:
+        - strong [ref=e299]: 信号来源：
+        - text: herdr（agent multiplexer）、orca（ADE）、background-agents（后台 agent）。
+        - strong [ref=e300]: 判断：
+        - text: 终端正在成为 Agent 管理的新界面。不同于 IDE 插件的重量级方案，终端内的 Agent 管理更轻量、更灵活、更符合 Unix 哲学。这是"Agent 即命令行工具"的方向。
+        - strong [ref=e301]: 跟踪建议：
+        - text: 关注 herdr 和 orca 的架构设计，思考终端 Agent 管理的最佳实践。
+      - generic [ref=e302]: 基于 2/3 项数据源输入（GitHub + 新闻）
+    - generic [ref=e303]:
+      - generic [ref=e304]:
+        - generic [ref=e305]: ⚪ GUI Agent / 页面 Agent
+        - generic [ref=e306]: ★★★
+        - generic [ref=e307]: "62"
+      - generic [ref=e308]:
+        - strong [ref=e309]: 信号来源：
+        - text: alibaba/page-agent（自然语言控制 Web 界面）、iOfficeAI/OfficeCLI（Agent 操作 Office 文档）。
+        - strong [ref=e310]: 判断：
+        - text: Agent 的能力正在从"纯文本/代码"扩展到"图形界面操作"。GUI Agent 和 Office Agent 代表了 Agent 在非开发场景的落地。但当前成熟度较低，更多是概念验证。
+        - strong [ref=e311]: 跟踪建议：
+        - text: 了解 page-agent 的 Web 自动化实现，关注 GUI Agent 在测试自动化中的应用。
+      - generic [ref=e312]: 基于 2/3 项数据源输入（GitHub + 新闻）
+  - generic [ref=e313]:
+    - 'heading "🗺️ Section 4: 趋势地图" [level=2] [ref=e314]'
+    - generic [ref=e315]:
+      - generic [ref=e316]:
+        - heading "🌱 萌芽" [level=4] [ref=e317]
+        - list [ref=e318]:
+          - listitem [ref=e319]: GUI Agent（page-agent）
+          - listitem [ref=e320]: Office Agent（OfficeCLI）
+          - listitem [ref=e321]: Agent 审计日志
+          - listitem [ref=e322]: 跨模型联邦
+      - generic [ref=e323]:
+        - heading "📈 成长" [level=4] [ref=e324]
+        - list [ref=e325]:
+          - listitem [ref=e326]: Agent 安全沙箱
+          - listitem [ref=e327]: 终端 Agent 管理
+          - listitem [ref=e328]: Claude Code 技能生态
+          - listitem [ref=e329]: AI 渗透测试
+      - generic [ref=e330]:
+        - heading "💥 爆发" [level=4] [ref=e331]
+        - list [ref=e332]:
+          - listitem [ref=e333]: MCP 协议生态
+          - listitem [ref=e334]: 多 Agent 并行编排
+          - listitem [ref=e335]: Agent 命令安全
+          - listitem [ref=e336]: 跨模型协作
+      - generic [ref=e337]:
+        - heading "🏛️ 成熟" [level=4] [ref=e338]
+        - list [ref=e339]:
+          - listitem [ref=e340]: RAG 检索增强
+          - listitem [ref=e341]: Function Calling
+          - listitem [ref=e342]: Prompt Engineering
+          - listitem [ref=e343]: LLM API 网关
+  - generic [ref=e344]:
+    - 'heading "📚 Section 5: 学习建议" [level=2] [ref=e345]'
+    - generic [ref=e346]:
+      - heading "🔴 本周最值得学（3项）" [level=3] [ref=e347]
+      - generic [ref=e348]:
+        - heading "1. MCP Server 开发实战" [level=4] [ref=e349]
+        - paragraph [ref=e350]:
+          - strong [ref=e351]: 为什么：
+          - text: MCP 正在成为 Agent 工具的标准协议，Chrome 官方已下场。现在学会自建 MCP Server，相当于 2015 年学会写 VS Code 插件。
+          - strong [ref=e352]: 怎么学：
+          - text: 克隆 DesktopCommanderMCP 源码，理解其 MCP Server 实现；用 TypeScript 或 Python 写一个自己的 MCP Server（如数据库查询、API 调用）。
+          - strong [ref=e353]: 投入：
+          - text: 4-6 小时
+      - generic [ref=e354]:
+        - heading "2. Agent 安全基础" [level=4] [ref=e355]
+        - paragraph [ref=e356]:
+          - strong [ref=e357]: 为什么：
+          - text: Agent 安全是本周最密集的信号，沙箱、命令拦截、渗透测试三个方向同时爆发。Agent 开发者必须懂安全。
+          - strong [ref=e358]: 怎么学：
+          - text: 阅读 CubeSandbox 的隔离设计；给 Claude Code 安装 destructive_command_guard 体验命令拦截；了解 strix 的渗透测试流程。
+          - strong [ref=e359]: 投入：
+          - text: 3-4 小时
+      - generic [ref=e360]:
+        - heading "3. 跨模型协作架构" [level=4] [ref=e361]
+        - paragraph [ref=e362]:
+          - strong [ref=e363]: 为什么：
+          - text: codex-plugin-cc 展示了跨模型 Agent 协作的可行方案。单模型 Agent 的天花板已现，跨模型协作是下一步。
+          - strong [ref=e364]: 怎么学：
+          - text: 研究 codex-plugin-cc 的通信机制（如何让 Claude Code 调用 Codex）；尝试用 OmniRoute 做多模型路由。
+          - strong [ref=e365]: 投入：
+          - text: 3-4 小时
+  - generic [ref=e366]:
+    - 'heading "🧪 Section 6: 实验项目推荐（周末可完成）" [level=2] [ref=e367]'
+    - generic [ref=e368]:
+      - heading "🥇 项目 1：自建 MCP Server 并接入 Claude Code" [level=3] [ref=e369]
+      - paragraph [ref=e370]:
+        - text: 用 TypeScript 或 Python 写一个 MCP Server，提供数据库查询能力，接入 Claude Code 让它能直接查数据库。
+        - strong [ref=e371]: 技术栈：
+        - text: MCP SDK + SQLite/PostgreSQL + Claude Code
+        - strong [ref=e372]: 时间：
+        - text: 4-5 小时
+        - strong [ref=e373]: 收获：
+        - text: 理解 MCP 协议，拥有自己的 MCP 工具
+    - generic [ref=e374]:
+      - heading "🥈 项目 2：Agent 安全沙箱 Demo" [level=3] [ref=e375]
+      - paragraph [ref=e376]:
+        - text: 基于 CubeSandbox 或手动实现一个简单的 Agent 命令执行沙箱：拦截危险命令（rm -rf、sudo 等），记录执行日志。
+        - strong [ref=e377]: 技术栈：
+        - text: Rust 或 Python + subprocess 拦截
+        - strong [ref=e378]: 时间：
+        - text: 3-4 小时
+        - strong [ref=e379]: 收获：
+        - text: 理解 Agent 安全防护原理
+    - generic [ref=e380]:
+      - heading "🥉 项目 3：多 Agent 并行代码审查" [level=3] [ref=e381]
+      - paragraph [ref=e382]:
+        - text: 用 orca 或手动编排，让多个 Agent 同时审查同一段代码（一个查安全漏洞，一个查性能问题，一个查代码风格），汇总结果。
+        - strong [ref=e383]: 技术栈：
+        - text: Claude Code + Codex（或只用 Claude Code 多开）
+        - strong [ref=e384]: 时间：
+        - text: 2-3 小时
+        - strong [ref=e385]: 收获：
+        - text: 体验多 Agent 协作的实际效果
+  - generic [ref=e386]:
+    - 'heading "🔧 Section 7: 工具推荐（本周最值得尝鲜）" [level=2] [ref=e387]'
+    - table [ref=e388]:
+      - rowgroup [ref=e389]:
+        - row "# 工具 类型 推荐理由 上手难度" [ref=e390]:
+          - columnheader "#" [ref=e391]
+          - columnheader "工具" [ref=e392]
+          - columnheader "类型" [ref=e393]
+          - columnheader "推荐理由" [ref=e394]
+          - columnheader "上手难度" [ref=e395]
+        - row "1 DesktopCommanderMCP MCP Server 给 Claude Code 完整的终端控制能力，安装即用 ⭐ 低" [ref=e396]:
+          - cell "1" [ref=e397]
+          - cell "DesktopCommanderMCP" [ref=e398]:
+            - link "DesktopCommanderMCP" [ref=e399] [cursor=pointer]:
+              - /url: https://github.com/wonderwhy-er/DesktopCommanderMCP
+          - cell "MCP Server" [ref=e400]
+          - cell "给 Claude Code 完整的终端控制能力，安装即用" [ref=e401]
+          - cell "⭐ 低" [ref=e402]
+        - row "2 caveman Claude Code 技能 节省 65% token，极简 prompt 风格 ⭐ 低" [ref=e403]:
+          - cell "2" [ref=e404]
+          - cell "caveman" [ref=e405]:
+            - link "caveman" [ref=e406] [cursor=pointer]:
+              - /url: https://github.com/JuliusBrussee/caveman
+          - cell "Claude Code 技能" [ref=e407]
+          - cell "节省 65% token，极简 prompt 风格" [ref=e408]
+          - cell "⭐ 低" [ref=e409]
+        - row "3 CubeSandbox Agent 沙箱 Rust 实现，轻量高效，Agent 安全必备 ⭐⭐ 中" [ref=e410]:
+          - cell "3" [ref=e411]
+          - cell "CubeSandbox" [ref=e412]:
+            - link "CubeSandbox" [ref=e413] [cursor=pointer]:
+              - /url: https://github.com/TencentCloud/CubeSandbox
+          - cell "Agent 沙箱" [ref=e414]
+          - cell "Rust 实现，轻量高效，Agent 安全必备" [ref=e415]
+          - cell "⭐⭐ 中" [ref=e416]
+        - row "4 stablyai/orca Agent 编排 并行 Agent 舰队管理，终端内多 Agent 调度 ⭐⭐ 中" [ref=e417]:
+          - cell "4" [ref=e418]
+          - cell "stablyai/orca" [ref=e419]:
+            - link "stablyai/orca" [ref=e420] [cursor=pointer]:
+              - /url: https://github.com/stablyai/orca
+          - cell "Agent 编排" [ref=e421]
+          - cell "并行 Agent 舰队管理，终端内多 Agent 调度" [ref=e422]
+          - cell "⭐⭐ 中" [ref=e423]
+        - row "5 ChromeDevTools-MCP MCP Server Chrome 官方 MCP，Web 开发者调试利器 ⭐ 低" [ref=e424]:
+          - cell "5" [ref=e425]
+          - cell "ChromeDevTools-MCP" [ref=e426]:
+            - link "ChromeDevTools-MCP" [ref=e427] [cursor=pointer]:
+              - /url: https://github.com/ChromeDevTools/chrome-devtools-mcp
+          - cell "MCP Server" [ref=e428]
+          - cell "Chrome 官方 MCP，Web 开发者调试利器" [ref=e429]
+          - cell "⭐ 低" [ref=e430]
+  - generic [ref=e431]:
+    - 'heading "✅ Section 8: 行动清单" [level=2] [ref=e432]'
+    - generic [ref=e433]:
+      - heading "🔴 P0 — 本周必做" [level=4] [ref=e434]
+      - paragraph [ref=e435]:
+        - strong [ref=e436]: ① 安装 DesktopCommanderMCP + caveman：
+        - text: 两个 Claude Code 增强工具，加起来 15 分钟搞定，立即提升日常开发效率。
+        - strong [ref=e437]: 原因：
+        - text: MCP 生态正在爆发，尽早熟悉 MCP Server 的使用方式，后续学习自建 MCP Server 会更容易。
+        - strong [ref=e438]: 收益：
+        - text: 终端控制 + token 节省 65%
+        - strong [ref=e439]: 投入：
+        - text: 30 分钟
+    - generic [ref=e440]:
+      - heading "🟠 P1 — 本周内完成" [level=4] [ref=e441]
+      - paragraph [ref=e442]:
+        - strong [ref=e443]: ② 研究 codex-plugin-cc 的跨模型协作架构：
+        - text: 如果你有 Codex 权限，安装体验；如果没有，至少阅读源码理解其通信机制。
+        - strong [ref=e444]: 原因：
+        - text: 跨模型 Agent 协作是未来 6-12 个月的重要方向，现在理解其架构，后续做 Agent 项目时可以直接用上。
+        - strong [ref=e445]: 收益：
+        - text: 理解跨模型 Agent 编排
+        - strong [ref=e446]: 投入：
+        - text: 2-3 小时
+        - strong [ref=e447]: ③ 阅读 CubeSandbox 源码的隔离设计：
+        - text: 重点看它如何实现进程隔离、文件系统隔离、网络隔离。
+        - strong [ref=e448]: 原因：
+        - text: Agent 安全是本周最密集的信号，做 Agent 开发必须懂安全。
+        - strong [ref=e449]: 收益：
+        - text: 理解 Agent 沙箱原理
+        - strong [ref=e450]: 投入：
+        - text: 1-2 小时
+    - generic [ref=e451]:
+      - heading "🔵 P2 — 本月内完成" [level=4] [ref=e452]
+      - paragraph [ref=e453]:
+        - strong [ref=e454]: ④ 自建一个 MCP Server：
+        - text: 用 TypeScript 或 Python 写一个简单的 MCP Server（如查天气、查数据库、执行 SQL）。
+        - strong [ref=e455]: 原因：
+        - text: MCP 是本周最明确的信号，学会自建 MCP Server 是 Agent 开发的必备技能。
+        - strong [ref=e456]: 收益：
+        - text: 掌握 MCP 协议，拥有自己的 Agent 工具
+        - strong [ref=e457]: 投入：
+        - text: 4-6 小时
+        - strong [ref=e458]: ⑤ 尝试多 Agent 并行工作流：
+        - text: 用 orca 或手动编排，让多个 Agent 并行处理不同任务（如一个写代码、一个写测试、一个做代码审查）。
+        - strong [ref=e459]: 原因：
+        - text: 多 Agent 编排是 Agent 工程的高级技能，实战经验比理论更重要。
+        - strong [ref=e460]: 收益：
+        - text: 理解多 Agent 协作的 trade-off
+        - strong [ref=e461]: 投入：
+        - text: 2-3 小时
+  - generic [ref=e462]:
+    - strong [ref=e463]: 📋 数据源说明
+    - text: ✅ GitHub Trending（daily + weekly）— 成功采集
+    - text: ✅ 猫猫新闻 — 成功采集
+    - text: ❌ Arxiv 论文搜索 — 3 次尝试均失败（API 400 错误），Signal Radar 基于 2/3 数据源输入，论文增长率权重已重新分配
+    - strong [ref=e464]: 📅 报告日期：
+    - text: 2026-07-13
+    - strong [ref=e465]: 📊 数据覆盖：
+    - text: 本周 GitHub 19 个 AI 相关项目 + 猫猫新闻 10 条 AI 资讯
+    - strong [ref=e466]: ⭐ 深度分析：
+    - text: 15 条高价值内容（评分 ≥ 60）
+    - strong [ref=e467]: 📡 信号识别：
+    - text: 6 个未来趋势信号
+    - strong [ref=e468]: 🎯 核心主题：
+    - text: MCP 生态爆发 · Agent 安全独立赛道 · 跨模型协作 · Claude Code 技能生态

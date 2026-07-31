@@ -1,0 +1,282 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]: KAOYAN · 精读
+    - heading "2012 年英语二 · 阅读真题原文" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Text 1-4 完整原文 + 核心词汇 · 本周精读 Text 3-4
+  - navigation [ref=e6]:
+    - link "Text 1" [ref=e7] [cursor=pointer]:
+      - /url: "#t1"
+    - link "Text 2" [ref=e8] [cursor=pointer]:
+      - /url: "#t2"
+    - link "Text 3 ★本周" [ref=e9] [cursor=pointer]:
+      - /url: "#t3"
+    - link "Text 4 ★本周" [ref=e10] [cursor=pointer]:
+      - /url: "#t4"
+  - main [ref=e11]:
+    - generic [ref=e12]: Text 1 · 已完成
+    - generic [ref=e13]:
+      - generic [ref=e14]: 教育政策
+      - generic [ref=e15]: ⭐⭐
+      - generic [ref=e16]: 约 400 词 · 建议 18 分钟
+    - generic [ref=e17]:
+      - paragraph [ref=e18]: Homework has never been terribly popular with students and even many parents, but in recent years it has been particularly scorned. School districts across the country, most recently Los Angeles Unified, are revising their thinking on this educational ritual. Unfortunately, L.A. Unified has produced an inflexible policy which mandates that with the exception of some advanced courses, homework may no longer count for more than 10% of a student's academic grade.
+      - paragraph [ref=e19]: This rule is meant to address the difficulty that students from impoverished or chaotic homes might have in completing their homework. But the policy is unclear and contradictory. Certainly, no homework should be assigned that students cannot do without expensive equipment. But if the district is essentially giving a pass to students who do not do their homework because of complicated family lives, it is going riskily close to the implication that standards need to be lowered for poor children.
+      - paragraph [ref=e20]: "District administrators say that homework will still be a part of schooling: teachers are allowed to assign as much of it as they want. But with homework counting for no more than 10% of their grades, students can easily skip half their homework and see very little difference on their report cards. Some students might do well on state tests without completing their homework, but what about the students who performed well on the tests and did their homework? It is quite possible that the homework helped. Yet rather than empowering teachers to find what works best for their students, the policy imposes a flat, across-the-board rule."
+      - paragraph [ref=e21]: At the same time, the policy addresses none of the truly thorny questions about homework. If the district finds homework to be unimportant to its students' academic achievement, it should move to reduce or eliminate the assignments, not make them count for almost nothing. Conversely, if homework matters, it should account for a significant portion of the grade. Meanwhile, this policy does nothing to ensure that the homework students receive is meaningful or appropriate, or that teachers are not assigning more than they are willing to review and correct.
+      - paragraph [ref=e22]: The homework rules should be put on hold while the school board, which is responsible for setting educational policy, looks into the matter and conducts public hearings. It is not too late for L.A. Unified to do homework right.
+    - generic [ref=e23]:
+      - heading "📝 核心词汇" [level=4] [ref=e24]
+      - table [ref=e25]:
+        - rowgroup [ref=e26]:
+          - row "scorned v. 被鄙视、被轻视" [ref=e27]:
+            - cell "scorned" [ref=e28]
+            - cell "v. 被鄙视、被轻视" [ref=e29]
+          - row "mandate v. 强制规定、授权" [ref=e30]:
+            - cell "mandate" [ref=e31]
+            - cell "v. 强制规定、授权" [ref=e32]
+          - row "impoverished adj. 贫困的" [ref=e33]:
+            - cell "impoverished" [ref=e34]
+            - cell "adj. 贫困的" [ref=e35]
+          - row "contradictory adj. 矛盾的" [ref=e36]:
+            - cell "contradictory" [ref=e37]
+            - cell "adj. 矛盾的" [ref=e38]
+          - row "thorny adj. 棘手的、多刺的" [ref=e39]:
+            - cell "thorny" [ref=e40]
+            - cell "adj. 棘手的、多刺的" [ref=e41]
+          - row "conversely adv. 相反地" [ref=e42]:
+            - cell "conversely" [ref=e43]
+            - cell "adv. 相反地" [ref=e44]
+          - row "across-the-board adj. 一刀切的、全面的" [ref=e45]:
+            - cell "across-the-board" [ref=e46]
+            - cell "adj. 一刀切的、全面的" [ref=e47]
+          - row "put on hold phr. 暂停、搁置" [ref=e48]:
+            - cell "put on hold" [ref=e49]
+            - cell "phr. 暂停、搁置" [ref=e50]
+    - generic [ref=e51]:
+      - group [ref=e52]:
+        - generic "📋 Text 1 题目 ▲" [ref=e217] [cursor=pointer]
+        - generic [ref=e218]:
+          - generic [ref=e219]:
+            - generic [ref=e220]: 21. It is implied in paragraph 1 that nowadays homework _____.
+            - generic [ref=e221]:
+              - text: "[A] is receiving more criticism [B] is no longer an educational ritual"
+              - text: "[C] is not required for advanced courses [D] is gaining more preferences"
+          - generic [ref=e222]:
+            - generic [ref=e223]: 22. L.A. Unified has made the rule about homework mainly because poor students _____.
+            - generic [ref=e224]:
+              - text: "[A] tend to have moderate expectations for their education"
+              - text: "[B] have asked for a different educational standard"
+              - text: "[C] may have problems finishing their homework"
+              - text: "[D] have voiced their complaints about homework"
+          - generic [ref=e225]:
+            - generic [ref=e226]: 23. According to Paragraph 3, one problem with the policy is that it may _____.
+            - generic [ref=e227]:
+              - text: "[A] discourage students from doing homework"
+              - text: "[B] result in students' indifference to their report cards"
+              - text: "[C] undermine the authority of state tests"
+              - text: "[D] restrict teachers' power in education"
+          - generic [ref=e228]:
+            - generic [ref=e229]: 24. As mentioned in Paragraph 4, a key question unanswered about homework is whether _____.
+            - generic [ref=e230]:
+              - text: "[A] it should be eliminated [B] it counts much in schooling"
+              - text: "[C] it places extra burdens on teachers [D] it is important for grades"
+          - generic [ref=e231]:
+            - generic [ref=e232]: 25. A suitable title for this text could be _____.
+            - generic [ref=e233]:
+              - text: "[A] Wrong Interpretation of an Educational Policy"
+              - text: "[B] A Welcomed Policy for Poor Students"
+              - text: "[C] Thorny Questions about Homework"
+              - text: "[D] A Faulty Approach to Homework"
+      - group [ref=e54]:
+        - generic "✅ Text 1 答案 ▼" [ref=e55] [cursor=pointer]
+    - generic [ref=e56]: Text 2 · 已完成
+    - generic [ref=e57]:
+      - generic [ref=e58]: 社会文化 / 性别营销
+      - generic [ref=e59]: ⭐⭐⭐
+      - generic [ref=e60]: 约 410 词 · 建议 18 分钟
+    - generic [ref=e61]:
+      - paragraph [ref=e62]: "Pretty in pink: adult women do not remember being so obsessed with the colour, yet it is pervasive in our young girls' lives. It is not that pink is intrinsically bad, but it is such a tiny slice of the rainbow and, though it may celebrate girlhood in one way, it also repeatedly and firmly fuses girls' identity to appearance. Then it presents that connection, even among two-year-olds, between girls as not only innocent but as evidence of innocence. Looking around, I despaired at the singular lack of imagination about girls' lives and interests."
+      - paragraph [ref=e63]: "Girls' attraction to pink may seem unavoidable, somehow encoded in their DNA, but according to Jo Paoletti, an associate professor of American Studies, it is not. Children were not colour-coded at all until the early 20th century: in the era before domestic washing machines all babies wore white as a practical matter, since the only way of getting clothes clean was to boil them. What's more, both boys and girls wore what were thought of as gender-neutral dresses. When nursery colours were introduced, pink was actually considered the more masculine colour, a pastel version of red, which was associated with strength. Blue, with its intimations of the Virgin Mary, constancy and faithfulness, symbolised femininity. It was not until the mid-1980s, when amplifying age and sex differences became a dominant children's marketing strategy, that pink fully came into its own, when it began to seem innately attractive to girls, part of what defined them as female, at least for the first few critical years."
+      - paragraph [ref=e64]: "I had not realised how profoundly marketing trends dictated our perception of what is natural to kids, including our core beliefs about their psychological development. Take the toddler. I assumed that phase was something experts developed after years of research into children's behaviour: wrong. Turns out, according to Daniel Cook, a historian of childhood consumerism, it was popularised as a marketing gimmick by clothing manufacturers in the 1930s."
+      - paragraph [ref=e65]: Trade publications counseled department stores that, in order to increase sales, they should create a "third stepping stone" between infant wear and older kids' clothes. It was only after "toddler" became a common shoppers' term that it evolved into a broadly accepted developmental stage. Splitting kids, or adults, into ever-tinier categories has proved a sure-fire way to boost profits. And one of the easiest ways to segment a market is to magnify gender differences — or invent them where they did not previously exist.
+    - generic [ref=e66]:
+      - heading "📝 核心词汇" [level=4] [ref=e67]
+      - table [ref=e68]:
+        - rowgroup [ref=e69]:
+          - row "pervasive adj. 无处不在的、弥漫的" [ref=e70]:
+            - cell "pervasive" [ref=e71]
+            - cell "adj. 无处不在的、弥漫的" [ref=e72]
+          - row "intrinsically adv. 本质上、内在地" [ref=e73]:
+            - cell "intrinsically" [ref=e74]
+            - cell "adv. 本质上、内在地" [ref=e75]
+          - row "fuse v. 融合、熔合" [ref=e76]:
+            - cell "fuse" [ref=e77]
+            - cell "v. 融合、熔合" [ref=e78]
+          - row "masculine adj. 男性的、阳刚的" [ref=e79]:
+            - cell "masculine" [ref=e80]
+            - cell "adj. 男性的、阳刚的" [ref=e81]
+          - row "femininity n. 女性气质" [ref=e82]:
+            - cell "femininity" [ref=e83]
+            - cell "n. 女性气质" [ref=e84]
+          - row "amplify v. 放大、增强" [ref=e85]:
+            - cell "amplify" [ref=e86]
+            - cell "v. 放大、增强" [ref=e87]
+          - row "innately adv. 天生地、固有地" [ref=e88]:
+            - cell "innately" [ref=e89]
+            - cell "adv. 天生地、固有地" [ref=e90]
+          - row "gimmick n. 噱头、花招" [ref=e91]:
+            - cell "gimmick" [ref=e92]
+            - cell "n. 噱头、花招" [ref=e93]
+          - row "segment v. 分割、细分（市场）" [ref=e94]:
+            - cell "segment" [ref=e95]
+            - cell "v. 分割、细分（市场）" [ref=e96]
+          - row "magnify v. 放大、夸大" [ref=e97]:
+            - cell "magnify" [ref=e98]
+            - cell "v. 放大、夸大" [ref=e99]
+    - generic [ref=e100]:
+      - group [ref=e101]:
+        - generic "📋 Text 2 题目 ▼" [ref=e102] [cursor=pointer]
+      - group [ref=e103]:
+        - generic "✅ Text 2 答案 ▼" [ref=e104] [cursor=pointer]
+    - generic [ref=e105]: Text 3 · 本周精读 ★
+    - generic [ref=e106]:
+      - generic [ref=e107]: 法律 / 生物科技
+      - generic [ref=e108]: ⭐⭐⭐
+      - generic [ref=e109]: 约 430 词 · 建议 18 分钟
+    - generic [ref=e110]:
+      - paragraph [ref=e111]: In 2010, a federal judge shook America's biotech industry to its core. Companies had won patents for isolated DNA for decades — by 2005 some 20% of human genes were patented. But in March 2010 a judge ruled that genes were unpatentable. Executives were violently agitated. The Biotechnology Industry Organisation (BIO), a trade group, assured members that this was just a "preliminary step" in a longer battle.
+      - paragraph [ref=e112]: On July 29th they were relieved, at least temporarily. A federal appeals court overturned the prior decision, ruling that Myriad Genetics could indeed hold patents to two genes that help forecast a woman's risk of breast cancer. The chief executive of Myriad, a company in Utah, said the ruling was a blessing to firms and patients alike.
+      - paragraph [ref=e113]: "But as companies continue their attempts at personalised medicine, the courts will remain rather busy. The Myriad case itself is probably not over. Critics make three main arguments against gene patents: a gene is a product of nature, so it may not be patented; gene patents suppress innovation rather than reward it; and patents' monopolies restrict access to genetic tests such as Myriad's. A growing number seem to agree. Last year a federal task-force urged reform for patents related to genetic tests. In October the Department of Justice filed a brief in the Myriad case, arguing that an isolated DNA molecule \"is no less a product of nature... than are cotton fibres that have been separated from cotton seeds.\""
+      - paragraph [ref=e114]: Despite the appeals court's decision, big questions remain unanswered. For example, it is unclear whether the sequencing of a whole genome violates the patents of individual genes within it. The case may yet reach the Supreme Court.
+      - paragraph [ref=e115]: As the industry advances, however, other suits may have an even greater impact. Companies are unlikely to file many more patents for human DNA molecules — most are already patented or in the public domain. Firms are now studying how genes interact, looking for correlations that might be used to determine the causes of disease or predict a drug's efficacy. Companies are eager to win patents for "connecting the dots," explains Hans Sauer, a lawyer for the BIO.
+      - paragraph [ref=e116]: Their success may be determined by a suit related to this issue, brought by the Mayo Clinic, which the Supreme Court will hear in its next term. The BIO recently held a convention which included sessions to coach lawyers on the shifting landscape for patents. Each meeting was packed.
+    - generic [ref=e117]:
+      - heading "📝 核心词汇" [level=4] [ref=e118]
+      - table [ref=e119]:
+        - rowgroup [ref=e120]:
+          - row "shake to its core phr. 彻底动摇、震撼" [ref=e121]:
+            - cell "shake to its core" [ref=e122]
+            - cell "phr. 彻底动摇、震撼" [ref=e123]
+          - row "agitated adj. 焦虑不安的、激动的" [ref=e124]:
+            - cell "agitated" [ref=e125]
+            - cell "adj. 焦虑不安的、激动的" [ref=e126]
+          - row "preliminary adj. 初步的、预备的" [ref=e127]:
+            - cell "preliminary" [ref=e128]
+            - cell "adj. 初步的、预备的" [ref=e129]
+          - row "overturn v. 推翻（判决）" [ref=e130]:
+            - cell "overturn" [ref=e131]
+            - cell "v. 推翻（判决）" [ref=e132]
+          - row "suppress v. 压制、抑制" [ref=e133]:
+            - cell "suppress" [ref=e134]
+            - cell "v. 压制、抑制" [ref=e135]
+          - row "monopoly n. 垄断" [ref=e136]:
+            - cell "monopoly" [ref=e137]
+            - cell "n. 垄断" [ref=e138]
+          - row "sequencing n. 测序（基因）" [ref=e139]:
+            - cell "sequencing" [ref=e140]
+            - cell "n. 测序（基因）" [ref=e141]
+          - row "genome n. 基因组" [ref=e142]:
+            - cell "genome" [ref=e143]
+            - cell "n. 基因组" [ref=e144]
+          - row "correlation n. 相关性、关联" [ref=e145]:
+            - cell "correlation" [ref=e146]
+            - cell "n. 相关性、关联" [ref=e147]
+          - row "efficacy n. 功效、效力" [ref=e148]:
+            - cell "efficacy" [ref=e149]
+            - cell "n. 功效、效力" [ref=e150]
+          - row "connecting the dots phr. 把线索串联起来" [ref=e151]:
+            - cell "connecting the dots" [ref=e152]
+            - cell "phr. 把线索串联起来" [ref=e153]
+    - generic [ref=e154]:
+      - group [ref=e155]:
+        - generic "📋 Text 3 题目 ▲" [active] [ref=e234] [cursor=pointer]
+        - generic [ref=e235]:
+          - generic [ref=e236]:
+            - generic [ref=e237]: 31. It can be learned from paragraph 1 that the biotech companies would like _____.
+            - generic [ref=e238]:
+              - text: "[A] their executives to be active [B] judges to rule out gene patenting"
+              - text: "[C] genes to be patentable [D] the BIO to issue a warning"
+          - generic [ref=e239]:
+            - generic [ref=e240]: 32. Those who are against gene patents believe that _____.
+            - generic [ref=e241]:
+              - text: "[A] genetic tests are not reliable"
+              - text: "[B] only man-made products are patentable"
+              - text: "[C] patents on genes depend much on innovations"
+              - text: "[D] courts should restrict access to genetic tests"
+          - generic [ref=e242]:
+            - generic [ref=e243]: 33. According to Hans Sauer, companies are eager to win patents for _____.
+            - generic [ref=e244]:
+              - text: "[A] establishing disease correlations [B] discovering gene interactions"
+              - text: "[C] drawing pictures of genes [D] identifying human DNA"
+          - generic [ref=e245]:
+            - generic [ref=e246]: 34. By saying "each meeting was packed" (Line 4, Para.6) the author means that _____.
+            - generic [ref=e247]:
+              - text: "[A] the Supreme Court was authoritative"
+              - text: "[B] the BIO was a powerful organization"
+              - text: "[C] gene patenting was a great concern"
+              - text: "[D] lawyers were keen to attend conventions"
+          - generic [ref=e248]:
+            - generic [ref=e249]: 35. Generally speaking, the author's attitude toward gene patenting is _____.
+            - generic [ref=e250]: "[A] critical [B] supportive [C] scornful [D] objective"
+      - group [ref=e157]:
+        - generic "✅ Text 3 答案 ▼" [ref=e158] [cursor=pointer]
+    - generic [ref=e159]: Text 4 · 本周精读 ★
+    - generic [ref=e160]:
+      - generic [ref=e161]: 经济 / 社会
+      - generic [ref=e162]: ⭐⭐⭐
+      - generic [ref=e163]: 约 420 词 · 建议 18 分钟
+    - generic [ref=e164]:
+      - paragraph [ref=e165]: The great recession may be over, but this era of high joblessness is probably beginning. Before it ends, it will likely change the life course and character of a generation of young adults. And ultimately, it is likely to reshape our politics, our culture, and the character of our society for years.
+      - paragraph [ref=e166]: "No one tries harder than the jobless to find silver linings in this national economic disaster. Many said that unemployment, while extremely painful, had improved them in some ways: they had become less materialistic and more financially prudent; they were more aware of the struggles of others. In limited respects, perhaps the recession will leave society better off. At the very least, it has awoken us from our national fever dream of easy riches and bigger houses, and put a necessary end to an era of reckless personal spending."
+      - paragraph [ref=e167]:
+        - text: But for the most part, these benefits seem thin, uncertain, and far off. In
+        - emphasis [ref=e168]: The Moral Consequences of Economic Growth
+        - text: ", the economic historian Benjamin Friedman argues that both inside and outside the U.S., lengthy periods of economic stagnation or decline have almost always left society more mean-spirited and less inclusive, and have usually stopped or reversed the advance of rights and freedoms. Anti-immigrant sentiment typically increases, as does conflict between races and classes."
+      - paragraph [ref=e169]: "Income inequality usually falls during a recession, but it has not shrunk in this one. Indeed, this period of economic weakness may reinforce class divides, and decrease opportunities to cross them — especially for young people. The research of Till Von Wachter, an economist at Columbia University, suggests that not all people graduating into a recession see their life chances dimmed: those with degrees from elite universities catch up fairly quickly to where they otherwise would have been if they had graduated in better times; it is the masses beneath them that are left behind."
+      - paragraph [ref=e170]: In the internet age, it is particularly easy to see the resentment that has always been hidden within American society. More difficult, in the moment, is discerning precisely how these lean times are affecting society's character. In many respects, the U.S. was more socially tolerant entering this recession than at any time in its history, and a variety of national polls on social conflict since then have shown mixed results. We will have to wait and see exactly how these hard times will reshape our social fabric. But they certainly will reshape it, and all the more so the longer they extend.
+    - generic [ref=e171]:
+      - heading "📝 核心词汇" [level=4] [ref=e172]
+      - table [ref=e173]:
+        - rowgroup [ref=e174]:
+          - row "silver lining phr. 一线希望、黑暗中的光明" [ref=e175]:
+            - cell "silver lining" [ref=e176]
+            - cell "phr. 一线希望、黑暗中的光明" [ref=e177]
+          - row "materialistic adj. 物质主义的" [ref=e178]:
+            - cell "materialistic" [ref=e179]
+            - cell "adj. 物质主义的" [ref=e180]
+          - row "prudent adj. 谨慎的、节俭的" [ref=e181]:
+            - cell "prudent" [ref=e182]
+            - cell "adj. 谨慎的、节俭的" [ref=e183]
+          - row "reckless adj. 鲁莽的、不计后果的" [ref=e184]:
+            - cell "reckless" [ref=e185]
+            - cell "adj. 鲁莽的、不计后果的" [ref=e186]
+          - row "stagnation n. 停滞、不景气" [ref=e187]:
+            - cell "stagnation" [ref=e188]
+            - cell "n. 停滞、不景气" [ref=e189]
+          - row "mean-spirited adj. 心胸狭隘的、刻薄的" [ref=e190]:
+            - cell "mean-spirited" [ref=e191]
+            - cell "adj. 心胸狭隘的、刻薄的" [ref=e192]
+          - row "inclusive adj. 包容的" [ref=e193]:
+            - cell "inclusive" [ref=e194]
+            - cell "adj. 包容的" [ref=e195]
+          - row "reinforce v. 加强、强化" [ref=e196]:
+            - cell "reinforce" [ref=e197]
+            - cell "v. 加强、强化" [ref=e198]
+          - row "dim v. 使变暗淡" [ref=e199]:
+            - cell "dim" [ref=e200]
+            - cell "v. 使变暗淡" [ref=e201]
+          - row "resentment n. 怨恨、不满" [ref=e202]:
+            - cell "resentment" [ref=e203]
+            - cell "n. 怨恨、不满" [ref=e204]
+          - row "discern v. 辨别、察觉" [ref=e205]:
+            - cell "discern" [ref=e206]
+            - cell "v. 辨别、察觉" [ref=e207]
+          - row "social fabric phr. 社会结构、社会纽带" [ref=e208]:
+            - cell "social fabric" [ref=e209]
+            - cell "phr. 社会结构、社会纽带" [ref=e210]
+    - generic [ref=e211]:
+      - group [ref=e212]:
+        - generic "📋 Text 4 题目 ▼" [ref=e213] [cursor=pointer]
+      - group [ref=e214]:
+        - generic "✅ Text 4 答案 ▼" [ref=e215] [cursor=pointer]
+  - button "切换亮色/暗色主题" [ref=e216] [cursor=pointer]: ◑
