@@ -122,6 +122,25 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 /* 真题年份徽章 */
 .yr{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;color:var(--tx3);background:var(--bg3);border:1px solid var(--bd);margin-left:6px;}
 
+/* 110 分目标优先级 */
+.pri{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;margin-left:7px;vertical-align:middle;display:inline-block;}
+.pri.a{color:var(--red);background:var(--red-bg);border:1px solid var(--red-b);}
+.pri.b{color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);}
+.pri.c{color:var(--tx3);background:var(--bg3);border:1px solid var(--bd);}
+
+/* 内嵌图解 */
+.visual{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin:14px 0;overflow-x:auto;}
+.visual h4{font-size:13px;margin-bottom:10px;}
+.visual svg{display:block;min-width:720px;width:100%;height:auto;}
+.visual figcaption{font-size:12px;color:var(--tx3);margin-top:10px;line-height:1.7;}
+.svg-box{fill:var(--bg3);stroke:var(--bd2);stroke-width:1.5;}
+.svg-a{fill:var(--blu-bg);stroke:var(--blue);stroke-width:1.5;}
+.svg-b{fill:var(--grn-bg);stroke:var(--green);stroke-width:1.5;}
+.svg-t{fill:var(--tx);font:12px 'IBM Plex Mono',monospace;}
+.svg-s{fill:var(--tx2);font:11px 'Inter',sans-serif;}
+.svg-line{stroke:var(--tx3);stroke-width:2;fill:none;}
+.svg-mid{stroke:var(--orange);stroke-width:1;stroke-dasharray:4 4;}
+
 /* 速记表 */
 .cheat{background:linear-gradient(135deg,var(--blu-bg),transparent);border:1px solid var(--blu-b);border-radius:10px;padding:18px 22px;margin:14px 0;}
 .cheat h3{font-size:14px;color:var(--blue);margin-bottom:10px;font-weight:700;}
@@ -143,12 +162,12 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 <header>
   <div class="htag">408 · 计算机网络</div>
   <h1>物理层考点全解 · 通信基础 / 传输介质 / 物理层设备</h1>
-  <p class="subtitle">按 408 考纲第二章逐条展开，每个考点标注考法（计算 / 概念 / 比较 / 设备识别）与真题年份，附公式、易错点与典型例题。物理层在 408 中年均 1-3 分，几乎只出选择题，但奈奎斯特 / 香农计算题命中率极高，属于"必拿分"。</p>
+  <p class="subtitle">按 2026 版 408 考纲第二章展开，并按总分 110 的目标做取舍：奈奎斯特 / 香农和速率换算必须会算，编码、交换与设备要会辨析，介质型号和接口细枝末节不投入成块时间。</p>
   <div class="meta-pills">
     <span class="pill accent">考纲第二章</span>
-    <span class="pill">分值约 1-3 分</span>
-    <span class="pill">考查形式：选择题为主</span>
-    <span class="pill warn">高频：奈氏 / 香农计算</span>
+    <span class="pill">经验约 1–3 分</span>
+    <span class="pill">题型：选择题为主</span>
+    <span class="pill warn">A 类：奈氏 / 香农 / 速率换算</span>
   </div>
 </header>
 
@@ -166,7 +185,26 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 
 <main>
 
-<div class="sec" id="overview"><span class="snum">§0</span> 物理层考点总览</div>
+<div class="sec" id="overview"><span class="snum">§0</span> 考情、题型与 110 分取舍</div>
+
+<p class="lead">408 满分 <strong>150 分</strong>，计算机网络约 <strong>25 分</strong>。物理层没有官方固定分值，历年常见为 <strong>1 道选择题左右，经验约 1–3 分</strong>；题型集中在公式计算、概念辨析和设备分层。它分值不大，但公式套路固定，适合用较少时间换稳定得分。</p>
+
+<div class="note warn">
+  <span class="nlbl">概率说明</span>
+  <div class="nb"><p>这里用<strong>高频 / 中频 / 低频</strong>表达历年命题形态，不给“90% 必考”之类的精确概率。单年可能不考物理层，也可能把速率、时延与后续章节拼成综合场景；历史频次不能当下一年概率。</p></div>
+</div>
+
+<table class="tbl">
+  <tr><th>优先级</th><th>内容</th><th>学习标准</th><th>建议投入</th></tr>
+  <tr><td>A 必学</td><td>码元/波特/比特率、奈氏与香农、dB 换算、采样定理、交换时延基础</td><td>公式能默写，给数字能独立算完并检查单位</td><td>约 60%</td></tr>
+  <tr><td>B 会辨析</td><td>曼彻斯特/差分曼彻斯特、ASK/FSK/PSK/QAM、PCM、三种交换、数据报/虚电路、集线器/中继器</td><td>能判断定义、差异和典型场景</td><td>约 30%</td></tr>
+  <tr><td>C 时间紧可跳过</td><td>线缆型号与距离表、接口针脚细节、调制波形推导、过时广域网技术细节</td><td>只留基本印象，不专项背诵</td><td>不超过 10%</td></tr>
+</table>
+
+<div class="note tip">
+  <span class="nlbl">110 分策略</span>
+  <div class="nb"><p>建议用 <strong>2～3 小时</strong>完成本页主线，再做 5～8 道真题。A 类题必须拿稳；B 类整理一张对比表即可；C 类不要挤占数据结构、组成原理、操作系统以及计网网络层/TCP 的时间。</p></div>
+</div>
 
 <p class="lead">物理层是 OSI 参考模型的第 1 层，它的任务很单一：<strong>在传输媒体上透明地传送比特流</strong>。"透明"指上层看不到物理层怎么把 0/1 变成信号的细节，只管把比特交下去、从对面收上来。</p>
 
@@ -178,25 +216,20 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 </div>
 
 <table class="tbl">
-  <tr><th>考点</th><th>考纲条目</th><th>常见考法</th><th>难度</th></tr>
-  <tr><td>基本概念</td><td>信道/信号/带宽/码元/波特/速率/信源信宿</td><td>概念辨析选择题</td><td>⭐⭐</td></tr>
-  <tr><td>奈奎斯特定理</td><td>理想信道无码间串扰上限</td><td><code>C=2W log₂V</code> 计算</td><td>⭐⭐⭐</td></tr>
-  <tr><td>香农定理</td><td>有噪信道容量上限</td><td><code>C=W log₂(1+S/N)</code> 计算</td><td>⭐⭐⭐</td></tr>
-  <tr><td>编码与调制</td><td>数字→数字 / 数字→模拟 等 4 类</td><td>识别编码波形、辨析概念</td><td>⭐⭐</td></tr>
-  <tr><td>交换方式</td><td>电路/报文/分组；数据报/虚电路</td><td>特点对比选择题</td><td>⭐⭐</td></tr>
-  <tr><td>传输介质</td><td>双绞线/同轴/光纤/无线 + 接口特性</td><td>分类与特性辨析</td><td>⭐</td></tr>
-  <tr><td>物理层设备</td><td>中继器、集线器</td><td>设备所属层次、 работы原理、冲突域</td><td>⭐⭐</td></tr>
+  <tr><th>考点</th><th>考纲条目</th><th>常见考法</th><th>优先级</th></tr>
+  <tr><td>基本概念</td><td>信道/信号/带宽/码元/波特/速率/信源信宿</td><td>概念辨析、速率换算</td><td>A 必学</td></tr>
+  <tr><td>奈奎斯特定理</td><td>理想信道无码间串扰上限</td><td><code>C=2W log₂V</code> 计算</td><td>A 必学</td></tr>
+  <tr><td>香农定理</td><td>有噪信道容量上限</td><td><code>C=W log₂(1+S/N)</code> 计算</td><td>A 必学</td></tr>
+  <tr><td>编码与调制</td><td>数字→数字 / 数字→模拟 等 4 类</td><td>识别编码波形、辨析概念</td><td>B 会辨析</td></tr>
+  <tr><td>交换方式</td><td>电路/报文/分组；数据报/虚电路</td><td>特点对比、时延判断</td><td>A/B</td></tr>
+  <tr><td>传输介质</td><td>双绞线/同轴/光纤/无线 + 接口特性</td><td>分类与特性辨析</td><td>C 时间紧可跳细节</td></tr>
+  <tr><td>物理层设备</td><td>中继器、集线器</td><td>设备层次、工作原理、冲突域</td><td>B 会辨析</td></tr>
 </table>
-
-<div class="note tip">
-  <span class="nlbl">分值预期</span>
-  <div class="nb"><p>计网在整个 408 中约占 25 分，物理层通常占 <strong>1-3 分</strong>，基本是 1 道选择题，偶尔配一道设备/介质辨析。分值不大但"<strong>白送的计算题</strong>"极多——2009/2014/2017 年都考了奈氏+香农，套路固定，务必拿满。</p></div>
-</div>
 
 <!-- ============= 一、通信基础 ============= -->
 <div class="sec" id="comm"><span class="snum">§1</span> 一、通信基础</div>
 
-<h3 class="sub">基本概念：先把术语分清楚</h3>
+<h3 class="sub">基本概念：先把术语分清楚 <span class="pri a">A 必学</span></h3>
 
 <div class="g2">
   <div class="cc">
@@ -246,7 +279,7 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
   <span class="ef concept">概念辨析</span><span class="desc">典型提问："波特率与比特率关系"、"带宽单位"、"单工/半双工/全双工举例"。2009/2016 出过。</span>
 </div>
 
-<h3 class="sub" id="nyquist">奈奎斯特定理与香农定理（本节核心计算区）</h3>
+<h3 class="sub" id="nyquist">奈奎斯特定理与香农定理（本节核心计算区） <span class="pri a">A 必学 · 高频计算</span></h3>
 
 <div class="cc">
   <h3>奈奎斯特定理（奈氏准则）<span class="tag" style="color:var(--orange);background:var(--ora-bg);border:1px solid var(--ora-b);">理想信道</span></h3>
@@ -318,10 +351,10 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 </div>
 
 <div class="exam-form">
-  <span class="ef calc">计算</span><span class="ef freq">高频</span><span class="desc">2009-34、2014-35、2017-34 都考奈氏+香农。务必熟记两公式 + 取 min + dB 换算。</span>
+  <span class="ef calc">计算</span><span class="ef freq">高频</span><span class="desc">历年多次出现奈氏、香农或速率换算。务必熟记两公式 + 取 min + dB 换算，但不要把历史频次理解成下一年必考。</span>
 </div>
 
-<h3 class="sub" id="code">编码与调制</h3>
+<h3 class="sub" id="code">编码与调制 <span class="pri b">B 会辨析</span></h3>
 
 <p class="lead">数据要变成信号才能传。<strong>数字数据 / 模拟数据</strong> → <strong>数字信号 / 模拟信号</strong>，两两组合共 4 种变换：<strong>编码</strong>特指"→数字信号"，<strong>调制</strong>特指"→模拟信号"。</p>
 
@@ -332,6 +365,28 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
   <tr><td>模拟数据编码为数字信号</td><td>模拟数据 → 数字信号</td><td>PCM 脉冲编码调制（采样→量化→编码）</td><td>必须遵循<strong>采样定理</strong>：采样频率 ≥ 2 × 模拟信号最高频率</td></tr>
   <tr><td>模拟数据调制为模拟信号</td><td>模拟数据 → 模拟信号</td><td>AM 调幅、FM 调频、PM 调相</td><td>例如无线电广播</td></tr>
 </table>
+
+<figure class="visual">
+  <h4>图解 · NRZ、曼彻斯特与差分曼彻斯特（示例比特 1 0 1 1）</h4>
+  <svg viewBox="0 0 920 300" role="img" aria-labelledby="coding-title coding-desc">
+    <title id="coding-title">三种数字编码波形对比</title>
+    <desc id="coding-desc">以比特序列 1 0 1 1 为例，NRZ 每位保持固定电平；曼彻斯特每位中间必跳变，跳变方向表示数据；差分曼彻斯特每位中间也必跳变，位开始处是否跳变表示数据。</desc>
+    <text x="170" y="25" class="svg-t">1</text><text x="350" y="25" class="svg-t">0</text><text x="530" y="25" class="svg-t">1</text><text x="710" y="25" class="svg-t">1</text>
+    <line x1="100" y1="36" x2="820" y2="36" class="svg-line"/>
+    <line x1="100" y1="36" x2="100" y2="278" class="svg-mid"/><line x1="280" y1="36" x2="280" y2="278" class="svg-mid"/><line x1="460" y1="36" x2="460" y2="278" class="svg-mid"/><line x1="640" y1="36" x2="640" y2="278" class="svg-mid"/><line x1="820" y1="36" x2="820" y2="278" class="svg-mid"/>
+    <line x1="190" y1="36" x2="190" y2="278" class="svg-mid"/><line x1="370" y1="36" x2="370" y2="278" class="svg-mid"/><line x1="550" y1="36" x2="550" y2="278" class="svg-mid"/><line x1="730" y1="36" x2="730" y2="278" class="svg-mid"/>
+    <text x="18" y="88" class="svg-t">NRZ</text>
+    <path d="M100 60 H280 V110 H460 V60 H820" class="svg-line"/>
+    <text x="18" y="178" class="svg-t">曼彻斯特</text>
+    <path d="M100 200 H190 V150 H280 V150 H370 V200 H460 V200 H550 V150 H640 V200 H730 V150 H820" class="svg-line"/>
+    <text x="18" y="258" class="svg-t">差分曼彻斯特</text>
+    <path d="M100 230 H190 V280 H280 V230 H370 V280 H460 V280 H550 V230 H640 V230 H730 V280 H820" class="svg-line"/>
+    <rect x="650" y="72" width="220" height="55" rx="6" class="svg-a"/>
+    <text x="665" y="94" class="svg-s">虚线：每个比特的中点</text>
+    <text x="665" y="114" class="svg-s">两种曼彻斯特编码中点必跳变</text>
+  </svg>
+  <figcaption>重点不是死背整张波形，而是抓住判别规则：曼彻斯特看“中间跳变方向”；差分曼彻斯特看“每位开始处是否跳变”。题目若自定义 0/1 对应方向，以题干为准。</figcaption>
+</figure>
 
 <div class="note info">
   <span class="nlbl">重点记忆</span>
@@ -353,7 +408,7 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
   <p><strong>带通信号</strong>：把基带信号搬移到较高频段（载波调制）后的信号。用带通信号传叫<strong>带通传输</strong>（宽带/广域网常用）。</p>
 </div>
 
-<h3 class="sub" id="switch">三种交换方式 + 数据报/虚电路</h3>
+<h3 class="sub" id="switch">三种交换方式 + 数据报/虚电路 <span class="pri a">A/B</span></h3>
 
 <div class="g3">
   <div class="cc">
@@ -405,6 +460,11 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 
 <p class="lead">传输介质也叫<strong>传输媒体</strong>，是物理层下面、信号真正通过的物理通路。分两大类：<strong>导引型（有线）</strong>和<strong>非导引型（无线）</strong>。</p>
 
+<div class="note info">
+  <span class="nlbl">学习取舍</span>
+  <div class="nb"><p><strong>B 会辨析：</strong>双绞线、同轴、光纤和无线各自的核心特点；<strong>C 时间紧可跳过：</strong>具体线缆代际、接口针脚、最大距离与速率表。除非你的错题反复出现，否则不要单独背一整张介质参数表。</p></div>
+</div>
+
 <div class="g2">
   <div class="cc">
     <h3>双绞线 <span class="tag" style="color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-b);">最常用</span></h3>
@@ -455,6 +515,11 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 <div class="sec" id="device"><span class="snum">§3</span> 三、物理层设备</div>
 
 <p class="lead">考纲明确列了两个物理层设备：<strong>中继器</strong>和<strong>集线器</strong>。它们都在物理层工作，只看比特、不看地址。这块考法集中在"设备工作在第几层""是否会隔离冲突域/广播域"。</p>
+
+<div class="note tip">
+  <span class="nlbl">B 会辨析</span>
+  <div class="nb"><p>记住一条链即可：<strong>中继器/集线器看比特，交换机看 MAC，路由器看 IP</strong>。物理层设备既不隔离冲突域，也不隔离广播域；不需要深挖内部电路。</p></div>
+</div>
 
 <div class="g2">
   <div class="cc">
@@ -556,8 +621,8 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
   <div class="ex-head">📐 真题 2　<span class="yr">2017-34</span> 曼彻斯特编码带宽</div>
   <div class="ex-q">若采用曼彻斯特编码，数据传输率为 1 Mb/s，所需信道带宽至少是多少？</div>
   <div class="ex-step"><div class="n">1</div><div class="t">曼彻斯特每个比特要 2 个信号电平周期（中间必跳变），<strong>波特率是比特率的 2 倍</strong>。</div></div>
-  <div class="ex-step"><div class="n">2</div><div class="t">带宽下限 ≈ 波特率/2 → 但按"每位 2 个码元"化简，所需<strong>带宽 = 数据率 × 2 的关系</strong>→ 实际取<b>= 2 × 数据率</b>对应：带宽下限 = 2 × 1 = <strong>2 MHz</strong>。</div></div>
-  <div class="ans">至少 2 MHz（曼彻斯特编码所需的带宽是比特率的 2 倍）</div>
+  <div class="ex-step"><div class="n">2</div><div class="t">按理想低通信道的奈氏码元速率上限 <strong>2W Baud</strong>，令 2W ≥ 2 Mbaud，可得 W ≥ <strong>1 MHz</strong>。</div></div>
+  <div class="ans">按 408 常用理想低通模型：至少 1 MHz。曼彻斯特的码元速率是比特率的 2 倍，不等于带宽必为比特率的 2 倍。</div>
 </div>
 
 <div class="ex">
@@ -586,7 +651,7 @@ h4.subsub{font-size:13.5px;font-weight:600;margin:16px 0 8px;color:var(--tx2);}
 
 <div class="note info" style="margin-top:24px">
   <span class="nlbl">复习建议</span>
-  <div class="nb"><p>物理层分值低但"<strong>送分稳</strong>"。优先把<strong>奈氏+香农计算</strong>刷到肌肉记忆（9 成概率出题），其次把<strong>交换方式</strong>和<strong>设备分层</strong>做成对照表反复看，<strong>编码调制</strong>抓"曼彻斯特、QAM、PCM 三步"三个点，介质和接口特性当常识过一遍即可。建议总共花 <strong>2-3 小时复盘 + 5 道真题</strong>就够拿稳这一节分。</p></div>
+  <div class="nb"><p>物理层分值低但公式套路稳定。优先把<strong>奈氏 + 香农 + 速率换算</strong>刷熟，其次把<strong>交换方式</strong>和<strong>设备分层</strong>做成对照表，编码调制抓住“曼彻斯特、QAM、PCM 三步”。介质和接口特性当常识过一遍即可。建议总共花 <strong>2～3 小时复盘 + 5～8 道真题</strong>，不要继续扩充冷门笔记。</p></div>
   <p style="font-size:12px;color:var(--tx3);margin-top:6px;">配套练习可参见 <a href="kaoyan-plan.html" style="color:var(--blue);">考研学习清单</a> 与 <a href="kaoyan-schedule.html" style="color:var(--blue);">时间分配表</a>。</p>
 </div>
 
