@@ -113,9 +113,23 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <div class="step"><span class="n">2</span><span class="t">用 <code>1101000</code> 模 2 除以 <code>1011</code>，得到 3 位余数 <code>001</code>。</span></div>
 <div class="step"><span class="n">3</span><span class="t">用余数替换末尾 3 个 0，发送码字为 <code>1101001</code>。</span></div><div class="ans">答案：1101001</div></div>
 
-<h3 class="sub">海明码 <span class="pri a">A 必学 · 中高频计算</span></h3>
+<h3 class="sub">海明码 <span class="pri a">A 必学 · 低成本计算</span></h3>
 <div class="g2"><div class="cc"><h3>监督位数量</h3><p>k 个数据位需要 r 个监督位。r 个监督位要能指出“无错”以及 k+r 个可能出错位置，因此：</p><div class="fmla">2<sup>r</sup> ≥ k + r + 1</div><p>例：k=4 时，r=3，因为 8≥4+3+1。</p></div>
 <div class="cc"><h3>监督位放哪里</h3><p>监督位放在编号为 1、2、4、8…的位置，即 2 的幂。每个监督位检查位置编号二进制中相应位为 1 的那些位置。校验结果组成的二进制数就是错误位置。</p><div class="note warn"><span class="nlbl">边界</span><p>普通海明码能纠正 1 位错，但不能可靠区分“1 位错”和某些“2 位错”。增加一个总校验位后可实现 SEC-DED：纠正 1 位、检测 2 位。</p></div></div></div>
+<div class="note info"><span class="nlbl">真题怎么问</span><p>常见问法有三种：<strong>① 给 k 位数据，求至少需要几位监督位；② 给数据位和奇偶校验规则，构造完整海明码；③ 给接收码或校验结果，定位并纠正错误位。</strong>选择题经常把三步串起来，所以只会背公式不够。</p></div>
+<div class="ex"><div class="ex-head">2013 年 408 第 15 题 · 真题原型</div><div class="ex-q">用海明码对长度为 8 位的数据进行检/纠错，若能纠正一位错，则校验位数至少为多少？</div>
+<div class="step"><span class="n">1</span><span class="t">代入 <code>2^r≥k+r+1</code>，其中 k=8。</span></div>
+<div class="step"><span class="n">2</span><span class="t">r=3 时：<code>8&lt;8+3+1=12</code>，不够；r=4 时：<code>16≥8+4+1=13</code>，满足。</span></div>
+<div class="ans">答案：4 位（原题选 C）</div></div>
+<div class="ex"><div class="ex-head">真题型例题 · 构造海明码并定位错误</div><div class="ex-q">4 位数据为 1011，采用偶校验构造 7 位海明码。数据位按顺序放入 D₁、D₂、D₃、D₄。若传输后第 5 位发生错误，接收端如何定位？</div>
+<div class="step"><span class="n">1</span><span class="t">先求监督位数量：<code>2³=8≥4+3+1</code>，所以需要 3 个监督位。</span></div>
+<div class="step"><span class="n">2</span><span class="t">P₁、P₂、P₄ 放在位置 1、2、4；数据 1011 放在位置 3、5、6、7：<code>P₁ P₂ 1 P₄ 0 1 1</code>。</span></div>
+<div class="step"><span class="n">3</span><span class="t">P₁ 检查位置 1、3、5、7。已有数据位为 1、0、1，共 2 个 1，偶校验取 <strong>P₁=0</strong>。</span></div>
+<div class="step"><span class="n">4</span><span class="t">P₂ 检查位置 2、3、6、7。已有 1、1、1，共 3 个 1，偶校验取 <strong>P₂=1</strong>。</span></div>
+<div class="step"><span class="n">5</span><span class="t">P₄ 检查位置 4、5、6、7。已有 0、1、1，共 2 个 1，偶校验取 <strong>P₄=0</strong>。发送码为 <code>0110011</code>。</span></div>
+<div class="step"><span class="n">6</span><span class="t">第 5 位出错后收到 <code>0110111</code>。重新校验得到 <code>S₄S₂S₁=101₂=5</code>，因此定位到第 5 位，将它取反即可纠正。</span></div>
+<div class="ans">发送码：0110011；校验综合征：101₂；错误位置：第 5 位</div></div>
+<div class="note bad"><span class="nlbl">易错点</span><p>不同教材可能规定数据位装入方向不同，或者使用奇校验。<strong>位置与校验规则以题干为准</strong>；但监督位一定放在 1、2、4、8…，综合征转成十进制后仍表示错误位置。</p></div>
 
 <div class="sec" id="reliable"><span class="snum">§3</span> 流量控制与可靠传输</div>
 <p class="lead">这部分真正考的是：帧可以连续发多少个、丢帧后重传多少个、序号会不会绕回后与旧帧混淆，以及长时延链路如何把管道“填满”。</p>
@@ -136,6 +150,13 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 </div>
 <div class="fmla hero">U = T<sub>t</sub> / (T<sub>t</sub> + 2T<sub>p</sub> + T<sub>ack</sub>)<small>停止-等待信道利用率。若 ACK 发送时延可忽略：U≈1/(1+2a)，a=T<sub>p</sub>/T<sub>t</sub>。</small></div>
 <div class="cc"><h3>连续发送时如何填满信道</h3><p>窗口协议一次能发 W 帧，忽略 ACK 发送时延时：</p><div class="fmla">U = min(1, W / (1 + 2a))</div><p>要让利用率达到 100%，至少需要 <code>W ≥ 1+2a</code>。注意最后再取整，并同时满足 GBN/SR 的序号空间限制。</p></div>
+<div class="note info"><span class="nlbl">真题怎么问</span><p>通常把<strong>帧长、链路速率、单向传播时延、目标利用率</strong>放在同一道题里，先算发送时延与 a，再求窗口 W，最后结合 GBN/SR 的序号范围求至少几位序号。</p></div>
+<div class="note tip"><span class="nlbl">2025 真题</span><p>网络综合题曾给卫星链路、1500 B 帧和“利用率不低于 80%”，要求计算 GBN 发送窗口下限与帧序号位数。也就是说，这部分会作为综合题的一小问出现，不只是背窗口公式。</p></div>
+<div class="ex"><div class="ex-head">真题型例题 · 利用率、窗口与序号位数</div><div class="ex-q">某链路发送一帧需要 1 ms，单向传播时延为 20 ms，忽略 ACK 发送时延。若采用 GBN，并要求信道利用率至少为 80%，发送窗口至少多大？帧序号至少需要几位？</div>
+<div class="step"><span class="n">1</span><span class="t"><code>a=Tₚ/Tₜ=20/1=20</code>，所以一个“发送到确认返回”的周期相当于 <code>1+2a=41</code> 个帧发送时间。</span></div>
+<div class="step"><span class="n">2</span><span class="t">连续发送时 <code>U=min(1,W/41)</code>。要求 U≥0.8，因此 <code>W≥0.8×41=32.8</code>，窗口向上取整为 <strong>33</strong>。</span></div>
+<div class="step"><span class="n">3</span><span class="t">GBN 要求 <code>W≤2ⁿ−1</code>。5 位序号最多支持 31，不够；6 位最多支持 63，因此至少需要 <strong>6 bit</strong>。</span></div>
+<div class="ans">发送窗口至少 33；帧序号至少 6 bit</div></div>
 <div class="note bad"><span class="nlbl">高频陷阱</span><p><strong>确认号含义看题目定义。</strong>“ACK k 表示 k 及以前已收到”与“ACK k 表示下一帧期望 k”会差 1。不要凭习惯，先读题干。</p></div>
 
 <div class="sec" id="mac"><span class="snum">§4</span> 介质访问控制</div>
@@ -157,6 +178,10 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <rect x="560" y="220" width="300" height="54" rx="6" class="svg-a"/><text x="580" y="242" class="svg-t">最短帧长 = 2τ × 数据率</text><text x="580" y="262" class="svg-s">发送完之前必须仍能检测到最远冲突</text>
 </svg><figcaption>τ 是网络两端之间的单程传播时延。帧若在 2τ 之前就发完，A 可能把已发生冲突的帧误当成成功发送。</figcaption></figure>
 <div class="cc"><h3>二进制指数退避 <span class="pri a">A 必学</span></h3><p>发生第 k 次冲突后，从 <code>0～2ᵐ−1</code> 中随机选 r，等待 r 个争用期再发，其中 <code>m=min(k,10)</code>。连续 16 次冲突后放弃并报告失败。</p></div>
+<div class="ex"><div class="ex-head">真题型例题 · 退避时间范围</div><div class="ex-q">某站发送帧时发生第 4 次冲突。按二进制指数退避算法，随机数 r 的取值范围是什么？若选到 r=9，需要等待多久？</div>
+<div class="step"><span class="n">1</span><span class="t"><code>m=min(k,10)=4</code>，所以 r 从 <code>0～2⁴−1</code> 中选择，即 <strong>0～15</strong>。</span></div>
+<div class="step"><span class="n">2</span><span class="t">等待时间是 <code>r×争用期</code>。若 r=9，就等待 <strong>9 个争用期</strong>；经典以太网一个争用期为 512 bit 时间。</span></div>
+<div class="ans">r∈{0,1,…,15}；等待 9×512 bit 时间</div></div>
 
 <div class="sec" id="lan"><span class="snum">§5</span> 局域网、以太网与 VLAN</div>
 <h3 class="sub">MAC 地址与以太网帧 <span class="pri a">A 必学 · 高频辨析</span></h3>
@@ -169,6 +194,11 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <path d="M20 150 L875 150" class="svg-line"/><path d="M20 143 L20 157 M875 143 L875 157" class="svg-line"/><text x="330" y="178" class="svg-t">MAC 帧长：64～1518 B</text>
 </svg><figcaption>前导码和帧开始定界符用于同步，通常不计入 64～1518 B 的 MAC 帧长度。若数据不足 46 B，需要填充到最小帧长 64 B。</figcaption></figure>
 <div class="fmla hero">最短帧长 = 2τ × 数据率<small>经典共享式以太网为保证 CSMA/CD 检测冲突而设；10 Mb/s、争用期 51.2 μs → 512 bit = 64 B。</small></div>
+<div class="note info"><span class="nlbl">真题怎么问</span><p>以太网帧常考字段长度、最小/最大帧长与填充。题目会给上层数据长度，要求判断是否填充、填多少，或者反推一个以太网帧最多承载多少字节数据。</p></div>
+<div class="ex"><div class="ex-head">真题型例题 · 以太网最小帧与填充</div><div class="ex-q">以太网 MAC 层收到 30 B 的上层数据。忽略 VLAN 标签，需要填充多少字节？从目的 MAC 到 FCS 的帧长是多少？</div>
+<div class="step"><span class="n">1</span><span class="t">以太网数据字段最少为 46 B，因此需要填充 <code>46−30=16 B</code>。</span></div>
+<div class="step"><span class="n">2</span><span class="t">MAC 帧长度为目的地址 6 + 源地址 6 + 类型 2 + 数据与填充 46 + FCS 4，共 <strong>64 B</strong>。</span></div>
+<div class="ans">填充 16 B；MAC 帧长 64 B</div></div>
 <h3 class="sub">VLAN 与 802.1Q <span class="pri b">B 会辨析</span></h3>
 <div class="cc"><p>VLAN 在同一套交换网络上划分多个逻辑广播域。不同 VLAN 的主机即使接在同一交换机，也不能仅靠二层直接通信；跨 VLAN 通信需要三层设备。</p><ul><li><strong>Access 端口</strong>：通常接终端，只属于一个 VLAN，收发普通以太网帧。</li><li><strong>Trunk 端口</strong>：通常连接交换机，承载多个 VLAN，使用 802.1Q 标签。</li><li>802.1Q 标签增加 4 B，因此带标签帧的最大长度相应增加。</li></ul></div>
 <h3 class="sub">IEEE 802.11 无线局域网 <span class="pri b">B 会辨析</span></h3>
@@ -196,6 +226,10 @@ code{font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--bg3
 <tr><td>表中无记录</td><td>向除入口外所有端口泛洪</td><td>未知单播</td></tr>
 <tr><td>广播地址</td><td>向除入口外所有端口泛洪</td><td>需要送达本广播域所有节点</td></tr></table>
 <div class="g2"><div class="cc"><h3>冲突域 <span class="pri a">A 必学</span></h3><p>交换机的<strong>每个端口是一个独立冲突域</strong>。集线器所有端口共享一个冲突域。全双工交换式以太网理论上不发生传统碰撞，也不使用 CSMA/CD。</p></div><div class="cc"><h3>广播域 <span class="pri a">A 必学</span></h3><p>普通二层交换机<strong>不隔离广播域</strong>；一台路由器的不同接口隔离广播域；VLAN 也能把一台交换机逻辑切成多个广播域。</p></div></div>
+<div class="ex"><div class="ex-head">真题型例题 · 冲突域与广播域计数</div><div class="ex-q">一台 4 端口二层交换机：端口 1、2 各接一台主机，端口 3 接一台集线器，集线器再接 3 台主机，端口 4 接路由器。未配置 VLAN。交换机这一侧共有多少个冲突域和广播域？</div>
+<div class="step"><span class="n">1</span><span class="t">交换机每个被使用的端口形成一个冲突域。端口 3 后面的集线器不会继续分割，其下 3 台主机仍共享端口 3 这个冲突域。因此共有 <strong>4 个冲突域</strong>。</span></div>
+<div class="step"><span class="n">2</span><span class="t">普通二层交换机和集线器都不隔离广播域；路由器接口是广播域边界。所以交换机这一侧共有 <strong>1 个广播域</strong>。</span></div>
+<div class="ans">4 个冲突域，1 个广播域</div></div>
 
 <div class="sec" id="cheat"><span class="snum">§8</span> 速记、易错与跳过清单</div>
 <div class="cheat"><h3>A 类必须背到能直接写出的公式</h3><ul>
