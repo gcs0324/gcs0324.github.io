@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2014年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2014 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · Money and Happiness</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 金钱与幸福</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 420 词 · 建议 17 分钟</span>
+</div>
+
+<div class="passage">
+<p>What would you do with $590m? This is now a question for Gloria MacKenzie, an 84-year-old widow who recently emerged from her small, tin-roofed house in Florida to collect the biggest undivided lottery jackpot in history. If she hopes her new-found fortune will yield lasting feelings of fulfillment, she could do worse than read <em>Happy Money</em> by Elizabeth Dunn and Michael Norton.</p>
+
+<p>These two academics use an array of behavioral research to show that the most rewarding ways to spend money can be counterintuitive. Fantasies of great wealth often involve visions of fancy cars and extravagant homes. Yet satisfaction with these material purchases wears off fairly quickly — what was once exciting and new becomes old-hat; regret creeps in. It is far better to spend money on experiences, say Ms Dunn and Mr Norton, like interesting trips, unique meals or even going to the cinema. These purchases often become more valuable with time — as stories or memories — particularly if they involve feeling more connected to others.</p>
+
+<p>This slim volume is packed with tips to help wage slaves as well as lottery winners get the most "happiness bang for your buck." It seems most people would be better off if they could shorten their commutes to work, spend more time with friends and family and less of it watching television (something the average American spends a whopping two months a year doing, and is hardly jollier for it). Buying gifts or giving to charity is often more pleasurable than purchasing things for oneself, and luxuries are most enjoyable when they are consumed sparingly. This is apparently the reason McDonald's restricts the availability of its popular McRib — a marketing trick that has turned the pork sandwich into an object of obsession.</p>
+
+<p>Readers of <em>Happy Money</em> are clearly a privileged lot, anxious about fulfillment, not hunger. Money may not quite buy happiness, but people in wealthier countries are generally happier than those in poor ones. Yet the link between feeling good and spending money on others can be seen among rich and poor people around the world, and scarcity enhances the pleasure of most things for most people. Not everyone will agree with the authors' policy ideas, which range from mandating more holiday time to reducing tax incentives for American homebuyers. But most people will come away from this book believing it was money well spent.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>lottery jackpot</td><td>n. 彩票头奖</td></tr>
+    <tr><td>yield</td><td>v. 产生；产出</td></tr>
+    <tr><td>counterintuitive</td><td>adj. 反直觉的；有悖常理的</td></tr>
+    <tr><td>extravagant</td><td>adj. 奢侈的；浪费的</td></tr>
+    <tr><td>wear off</td><td>phr. 逐渐消失；消退</td></tr>
+    <tr><td>old-hat</td><td>adj. 过时的；不新鲜的</td></tr>
+    <tr><td>whopping</td><td>adj. 巨大的；庞大的</td></tr>
+    <tr><td>sparingly</td><td>adv. 节约地；有节制地</td></tr>
+    <tr><td>scarcity</td><td>n. 稀缺；不足</td></tr>
+    <tr><td>mandate</td><td>v. 命令；强制执行</td></tr>
+    <tr><td>tax incentive</td><td>phr. 税收优惠；税收激励</td></tr>
+    <tr><td>privileged lot</td><td>phr. 特权阶层</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. According to Dunn and Norton, which of the following is the most rewarding purchase?</div><div class="q-opt">[A] A big house<br>[B] A special tour<br>[C] A stylish car<br>[D] A rich meal</div></div>
+      <div class="q-item"><div class="q-stem">22. The author's attitude toward Americans' watching TV is _____.</div><div class="q-opt">[A] critical<br>[B] supportive<br>[C] sympathetic<br>[D] ambiguous</div></div>
+      <div class="q-item"><div class="q-stem">23. McRib is mentioned in Paragraph 3 to show that _____.</div><div class="q-opt">[A] consumers are sometimes irrational<br>[B] popularity usually comes after quality<br>[C] marketing tricks are often effective<br>[D] rarity generally increases pleasure</div></div>
+      <div class="q-item"><div class="q-stem">24. According to the last paragraph, <em>Happy Money</em> _____.</div><div class="q-opt">[A] has left much room for readers' criticism<br>[B] may prove to be a worthwhile purchase<br>[C] has predicted a wider income gap in the US<br>[D] may give its readers a sense of achievement</div></div>
+      <div class="q-item"><div class="q-stem">25. This text mainly discusses how to _____.</div><div class="q-opt">[A] balance feeling good and spending money<br>[B] spend large sums of money won in lotteries<br>[C] obtain lasting satisfaction from money spent<br>[D] become more reasonable in spending on luxuries</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>21 &nbsp; <span>A</span>22 &nbsp; <span>D</span>23 &nbsp; <span>B</span>24 &nbsp; <span>C</span>25</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · Self-Enhancement Bias</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 自我认知偏差</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 430 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>An article in <em>Scientific American</em> has pointed out that empirical research says that, actually, you think you're more beautiful than you are. We have a deep-seated need to feel good about ourselves and we naturally employ a number of self-enhancing strategies to reinforce the "above average effect", or "illusory superiority", and research has shown that, for example, 70% of us rate ourselves as above average in leadership, 93% in driving and 85% at getting on well with others — all obviously statistical impossibilities.</p>
+
+<p>We rose-tint our memories and put ourselves into self-affirming situations. We become defensive when criticised, and apply negative stereotypes to others to boost our own self-esteem. We stalk around thinking we're hot stuff.</p>
+
+<p>Psychologist and behavioral scientist Nicholas Epley oversaw a key study into self-enhancement and attractiveness. Rather than have people simply rate their beauty compared with others, he asked them to identify an original photograph of themselves from a line-up including versions that had been altered to appear more and less attractive. Visual recognition, reads the study, is "an automatic psychological process occurring rapidly and intuitively with little or no apparent conscious deliberation". If the subjects quickly chose a falsely-flattering image — which most did — they genuinely believed it was really how they looked.</p>
+
+<p>Epley found no significant gender difference in responses. Nor was there any evidence that those who self-enhanced the most (that is, the participants who thought the most positively doctored picture were real) were doing so to make up for profound insecurities. In fact, those who thought that the images higher up the attractiveness scale were real directly corresponded with those who showed other markers for having higher self-esteem. "I don't think the findings that we have are any evidence of personal delusion," says Epley. "It's a reflection simply of people generally thinking well of themselves." If you are depressed, you won't be self-enhancing.</p>
+
+<p>Knowing the results of Epley's study, it makes sense that why people hate photographs of themselves so viscerally — on one level, they don't even recognise the person in the picture as themselves. Facebook, therefore, is a self-enhancer's paradise, where people can share only the most flattering photos, the cream of their wit, style, beauty, intellect and lifestyles. "It's not that people's profiles are dishonest," says Catalina Toma of Wisconsin-Madison University, "but they portray an idealised version of themselves."</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>empirical</td><td>adj. 经验主义的；以观察为依据的</td></tr>
+    <tr><td>deep-seated</td><td>adj. 根深蒂固的</td></tr>
+    <tr><td>illusory superiority</td><td>phr. 虚幻的优越感</td></tr>
+    <tr><td>rose-tint</td><td>v. 美化；粉饰（记忆）</td></tr>
+    <tr><td>self-affirming</td><td>adj. 自我肯定的</td></tr>
+    <tr><td>deliberation</td><td>n. 深思熟虑；仔细考虑</td></tr>
+    <tr><td>flattering</td><td>adj. 讨好的；美化的</td></tr>
+    <tr><td>doctored</td><td>adj. 篡改过的；修饰过的</td></tr>
+    <tr><td>delusion</td><td>n. 错觉；妄想；欺骗</td></tr>
+    <tr><td>viscerally</td><td>adv. 发自内心地；本能地</td></tr>
+    <tr><td>the cream of</td><td>phr. …的精华</td></tr>
+    <tr><td>portray</td><td>v. 描绘；呈现</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. According to the first paragraph, social psychologists have found that _____.</div><div class="q-opt">[A] our self-ratings are unrealistically high<br>[B] illusory superiority is a baseless effect<br>[C] our need for leadership is unnatural<br>[D] self-enhancing strategies are ineffective</div></div>
+      <div class="q-item"><div class="q-stem">27. Visual recognition is believed to be people's _____.</div><div class="q-opt">[A] rapid watching<br>[B] conscious choice<br>[C] intuitive response<br>[D] automatic self-defence</div></div>
+      <div class="q-item"><div class="q-stem">28. Epley found that people with higher self-esteem tended to _____.</div><div class="q-opt">[A] underestimate their insecurities<br>[B] believe in their attractiveness<br>[C] cover up their depressions<br>[D] oversimplify their illusions</div></div>
+      <div class="q-item"><div class="q-stem">29. The word "viscerally" (Line 1, Para.5) is closest in meaning to _____.</div><div class="q-opt">[A] instinctively<br>[B] occasionally<br>[C] particularly<br>[D] aggressively</div></div>
+      <div class="q-item"><div class="q-stem">30. It can be inferred that Facebook is a self-enhancer's paradise because people can _____.</div><div class="q-opt">[A] present their dishonest profiles<br>[B] define their traditional lifestyles<br>[C] share their intellectual pursuits<br>[D] withhold their unflattering sides</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>26 &nbsp; <span>C</span>27 &nbsp; <span>B</span>28 &nbsp; <span>A</span>29 &nbsp; <span>D</span>30</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · The Science of Tears</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 泪水与情绪</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 450 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Crying is hardly an activity encouraged by society. Tears, be they of sorrow, anger, or joy, typically make Americans feel uncomfortable and embarrassed. The shedder of tears is likely to apologize, even when a devastating tragedy was the provocation. The observer of tears is likely to do everything possible to put an end to the emotional outpouring. But judging from recent studies of crying behavior, links between illness and crying and the chemical composition of tears, both those responses to tears are often inappropriate and may even be counterproductive.</p>
+
+<p>Humans are the only animals definitely known to shed emotional tears. Since evolution has given rise to few, if any, purposeless physiological responses, it is logical to assume that crying has one or more functions that enhance survival.</p>
+
+<p>Although some observers have suggested that crying is a way to elicit assistance from others (as a crying baby might from its mother), the shedding of tears is hardly necessary to get help. Vocal cries would have been quite enough, more likely than tears to gain attention. So, it appears, there must be something special about tears themselves.</p>
+
+<p>Indeed, the new studies suggest that emotional tears may play a direct role in alleviating stress. University of Minnesota researchers who are studying the chemical composition of tears have recently isolated two important chemicals from emotional tears. Both chemicals are found only in tears that are shed in response to emotion. Tears shed because of exposure to a cut onion would contain no such substance.</p>
+
+<p>Researchers at several other institutions are investigating the usefulness of tears as a means of diagnosing human ills and monitoring drugs.</p>
+
+<p>At Tulane University's Tear Analysis Laboratory, Dr. Peter Kastl and his colleagues report that they can use tears to detect drug abuse and exposure to medication, to determine whether a contact lens fits properly or why it may be uncomfortable, to study the causes of "dry eye" syndrome and the effects of eye surgery, and perhaps even to measure exposure to environmental pollutants.</p>
+
+<p>At Columbia University, Dr. Linsy Faris and colleagues are studying tears for clues to the diagnosis of diseases away from the eyes. Tears can be obtained painlessly without invading the body and only tiny amounts are needed to perform highly refined analyses.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>shed</td><td>v. 流下；脱落 — shed tears 流泪</td></tr>
+    <tr><td>devastating</td><td>adj. 毁灭性的；令人震惊的</td></tr>
+    <tr><td>provocation</td><td>n. 挑衅；刺激；诱因</td></tr>
+    <tr><td>outpouring</td><td>n. 倾泻；涌出（情感流露）</td></tr>
+    <tr><td>counterproductive</td><td>adj. 适得其反的；产生反效果的</td></tr>
+    <tr><td>physiological</td><td>adj. 生理的；生理学的</td></tr>
+    <tr><td>elicit</td><td>v. 引出；探出</td></tr>
+    <tr><td>alleviate</td><td>v. 减轻；缓解</td></tr>
+    <tr><td>isolate</td><td>v. 分离；隔离</td></tr>
+    <tr><td>medication</td><td>n. 药物；药物治疗</td></tr>
+    <tr><td>syndrome</td><td>n. 综合征</td></tr>
+    <tr><td>refined analysis</td><td>phr. 精密分析</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. It is known from the first paragraph that _____.</div><div class="q-opt">[A] shedding tears gives unpleasant feelings to Americans<br>[B] crying may often imitate people or even result in tragedy<br>[C] crying usually wins sympathy from other people<br>[D] one who sheds tears in public will be blamed</div></div>
+      <div class="q-item"><div class="q-stem">32. What does "both those responses to tears" (Line 6, Para.1) refer to?</div><div class="q-opt">[A] Crying out of sorrow and shedding tears for happiness<br>[B] The embarrassment and unpleasant sensation of the observers<br>[C] The tear shedder's apology and the observer's effort to stop the crying<br>[D] Linking illness with crying and finding the chemical composition of tears</div></div>
+      <div class="q-item"><div class="q-stem">33. "Counterproductive" (Line 7, Para.1) very probably means "_____".</div><div class="q-opt">[A] having no effect at all<br>[B] leading to tension<br>[C] producing disastrous impact<br>[D] harmful to health</div></div>
+      <div class="q-item"><div class="q-stem">34. What does the author say about crying?</div><div class="q-opt">[A] It is a pointless physiological response to the environment.<br>[B] It must have a role to play in man's survival.<br>[C] It is meant to get attention and assistance.<br>[D] It usually produces the desired effect.</div></div>
+      <div class="q-item"><div class="q-stem">35. What can be inferred from the new studies of tears?</div><div class="q-opt">[A] Emotional tears have the function of reducing stress.<br>[B] Exposure to excessive medication may increase emotional tears.<br>[C] Emotional tears can give rise to "dry eye" syndrome in some cases.<br>[D] Environmental pollutants can induce the shedding of emotional tears.</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>31 &nbsp; <span>C</span>32 &nbsp; <span>C</span>33 &nbsp; <span>B</span>34 &nbsp; <span>A</span>35</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · Housing and Infrastructure</div>
+<div class="info-bar">
+  <span class="tag topic">经济 / 住房政策</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 450 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>When the government talks about infrastructure contributing to the economy the focus is usually on roads, railways, broadband and energy. Housing is seldom mentioned.</p>
+
+<p>Why is that? To some extent the housing sector must shoulder the blame. We have not been good at communicating the real value that housing can contribute to economic growth. Then there is the scale of the typical housing project. It is hard to shove for attention among multibillion-pound infrastructure projects, so it is inevitable that the attention is focused elsewhere. But perhaps the most significant reason is that the issue has always been so politically charged.</p>
+
+<p>Nevertheless, the affordable housing situation is desperate. Waiting lists increase all the time and we are simply not building enough new homes.</p>
+
+<p>The comprehensive spending review offers an opportunity for the government to help rectify this. It needs to put historical prejudices to one side and take some steps to address our urgent housing need.</p>
+
+<p>There are some indications that it is preparing to do just that. The communities minister, Don Foster, has hinted that George Osborne, Chancellor of the Exchequer, may introduce more flexibility to the current cap on the amount that local authorities can borrow against their housing stock debt. Evidence shows that 60,000 extra new homes could be built over the next five years if the cap were lifted, increasing GDP by 0.6%.</p>
+
+<p>Ministers should also look at creating greater certainty in the rental environment, which would have a significant impact on the ability of registered providers to fund new developments from revenues.</p>
+
+<p>But it is not just down to the government. While these measures would be welcome in the short term, we must face up to the fact that the existing £4.5bn programme of grants to fund new affordable housing, set to expire in 2015, is unlikely to be extended beyond then. The Labour party has recently announced that it will retain a large part of the coalition's spending plans if it returns to power. The housing sector needs to accept that we are very unlikely to ever return to an era of large-scale public grants. We need to adjust to this changing climate.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>infrastructure</td><td>n. 基础设施</td></tr>
+    <tr><td>shoulder the blame</td><td>phr. 承担责备</td></tr>
+    <tr><td>shove for attention</td><td>phr. 争取关注</td></tr>
+    <tr><td>politically charged</td><td>phr. 带有政治色彩的</td></tr>
+    <tr><td>comprehensive spending review</td><td>phr. 全面支出审查</td></tr>
+    <tr><td>rectify</td><td>v. 纠正；矫正</td></tr>
+    <tr><td>prejudice</td><td>n. 偏见</td></tr>
+    <tr><td>cap</td><td>n. 上限；限制</td></tr>
+    <tr><td>stock debt</td><td>phr. 存量债务</td></tr>
+    <tr><td>registered provider</td><td>phr. 注册供应机构</td></tr>
+    <tr><td>grant</td><td>n. 拨款；补助金</td></tr>
+    <tr><td>expire</td><td>v. 到期；失效</td></tr>
+    <tr><td>large-scale</td><td>adj. 大规模的</td></tr>
+    <tr><td>coalition</td><td>n. 联合政府；联盟</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. The author believes that the housing sector _____.</div><div class="q-opt">[A] has attracted much attention<br>[B] involves certain political factors<br>[C] shoulders too much responsibility<br>[D] has lost its real value in economy</div></div>
+      <div class="q-item"><div class="q-stem">37. It can be learned that affordable housing has _____.</div><div class="q-opt">[A] increased its home supply<br>[B] offered spending opportunities<br>[C] suffered government biases<br>[D] disappointed the government</div></div>
+      <div class="q-item"><div class="q-stem">38. According to Paragraph 5, George Osborne may _____.</div><div class="q-opt">[A] allow greater government debt for housing<br>[B] stop local authorities from building homes<br>[C] prepare to reduce housing stock debt<br>[D] release a lifted GDP growth forecast</div></div>
+      <div class="q-item"><div class="q-stem">39. It can be inferred that a stable rental environment would _____.</div><div class="q-opt">[A] lower the costs of registered providers<br>[B] lessen the impact of government interference<br>[C] contribute to funding new developments<br>[D] relieve the ministers of responsibilities</div></div>
+      <div class="q-item"><div class="q-stem">40. The author believes that after 2015, the government may _____.</div><div class="q-opt">[A] implement more policies to support housing<br>[B] review the need for large-scale public grants<br>[C] renew the affordable housing grants programme<br>[D] stop generous funding to the housing sector</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>C</span>37 &nbsp; <span>A</span>38 &nbsp; <span>C</span>39 &nbsp; <span>D</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>
