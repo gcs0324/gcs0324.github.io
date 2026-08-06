@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2015年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2015 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · Stress at Home vs. Work</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 压力与性别</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 450 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>A new study suggests that contrary to most surveys, people are actually more stressed at home than at work. Researchers measured people's cortisol, which is a stress marker, while they were at work and while they were at home and found it higher at what is supposed to be a place of refuge.</p>
+
+<p>"Further contradicting conventional wisdom, we found that women as well as men have lower levels of stress at work than at home," writes one of the researchers, Sarah Damaske. In fact women even say they feel better at work, she notes. "It is men, not women, who report being happier at home than at work." Another surprise is that the findings hold true for both those with children and without, but more so for nonparents. This is why people who work outside the home have better health.</p>
+
+<p>What the study doesn't measure is whether people are still doing work when they're at home, whether it is household work or work brought home from the office. For many men, the end of the workday is a time to kick back. For women who stay home, they never get to leave the office. And for women who work outside the home, they often are playing catch-up-with-household tasks. With the blurring of roles, and the fact that the home front lags well behind the workplace in making adjustments for working women, it's not surprising that women are more stressed at home.</p>
+
+<p>But it's not just a gender thing. At work, people pretty much know what they're supposed to be doing: working, making money, doing the tasks they have to do in order to draw an income. The bargain is very pure: Employee puts in hours of physical or mental labor and employee draws out life-sustaining moola.</p>
+
+<p>On the home front, however, people have no such clarity. Rare is the household in which the division of labor is so clinically and methodically laid out. There are a lot of tasks to be done, there are inadequate rewards for most of them. Your home colleagues — your family — have no clear rewards for their labor; they need to be talked into it, or if they're teenagers, threatened with complete removal of all electronic devices. Plus, they're your family. You cannot fire your family. You never really get to go home from home.</p>
+
+<p>So it's not surprising that people are more stressed at home. Not only are the tasks apparently infinite, the co-workers are much harder to motivate.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>cortisol</td><td>n. 皮质醇（压力指标）</td></tr>
+    <tr><td>refuge</td><td>n. 避难所；庇护所</td></tr>
+    <tr><td>contradict</td><td>v. 与…矛盾；反驳</td></tr>
+    <tr><td>conventional wisdom</td><td>phr. 传统观点；常识</td></tr>
+    <tr><td>kick back</td><td>phr. 放松；休息</td></tr>
+    <tr><td>catch-up-with</td><td>phr. 追赶；弥补（落下的）</td></tr>
+    <tr><td>blurring</td><td>n. 模糊；界限不清</td></tr>
+    <tr><td>home front</td><td>phr. 家庭前线；家庭生活领域</td></tr>
+    <tr><td>moola</td><td>n. [俚语] 钱；钞票</td></tr>
+    <tr><td>clarity</td><td>n. 清晰；明确</td></tr>
+    <tr><td>clinically</td><td>adv. 冷静客观地；临床地</td></tr>
+    <tr><td>methodically</td><td>adv. 有条不紊地</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. According to Paragraph 1, most previous surveys found that home _____.</div><div class="q-opt">[A] offered greater relaxation than the workplace<br>[B] was an ideal place for stress measurement<br>[C] generated more stress than the workplace<br>[D] was an unrealistic place for relaxation</div></div>
+      <div class="q-item"><div class="q-stem">22. According to Damaske, who are likely to be the happiest at home?</div><div class="q-opt">[A] Childless wives<br>[B] Working mothers<br>[C] Childless husbands<br>[D] Working fathers</div></div>
+      <div class="q-item"><div class="q-stem">23. The blurring of working women's roles refers to the fact that _____.</div><div class="q-opt">[A] it is difficult for them to leave their office<br>[B] their home is also a place for kicking back<br>[C] there is often much housework left behind<br>[D] they are both bread winners and housewives</div></div>
+      <div class="q-item"><div class="q-stem">24. The word "moola" (Line 4, Para 4) most probably means _____.</div><div class="q-opt">[A] skills<br>[B] energy<br>[C] earnings<br>[D] nutrition</div></div>
+      <div class="q-item"><div class="q-stem">25. The home front differs from the workplace in that _____.</div><div class="q-opt">[A] division of labor at home is seldom clear-cut<br>[B] home is hardly a cozier working environment<br>[C] household tasks are generally more motivating<br>[D] family labor is often adequately rewarded</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>21 &nbsp; <span>C</span>22 &nbsp; <span>D</span>23 &nbsp; <span>C</span>24 &nbsp; <span>A</span>25</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · First-Generation College Students</div>
+<div class="info-bar">
+  <span class="tag topic">教育 / 社会阶层与学业差距</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 430 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>For years, studies have found that first-generation college students — those who do not have a parent with a college degree — lag other students on a range of education achievement factors. Their grades are lower and their dropout rates are higher. But since such students are most likely to advance economically if they succeed in higher education, colleges and universities have pushed for decades to recruit more of them. This has created "a paradox" in that recruiting first-generation students, but then watching many of them fail, means that higher education has "continued to reproduce and widen, rather than close" an achievement gap based on social class, according to the depressing beginning of a paper forthcoming in the journal <em>Psychological Science</em>.</p>
+
+<p>But the article is actually quite optimistic, as it outlines a potential solution to this problem, suggesting that an approach (which involves a one-hour, next-to-no-cost program) can close 63 percent of the achievement gap (measured by such factors as grades) between first-generation and other students.</p>
+
+<p>The authors of the paper are from different universities, and their findings are based on a study involving 147 students (who completed the project) at an unnamed private university. First generation was defined as not having a parent with a four-year college degree. Most of the first-generation students (59.1 percent) were recipients of Pell Grants, a federal grant for undergraduates with financial need, while this was true only for 8.6 percent of the students with at least one parent with a four-year degree.</p>
+
+<p>Their thesis — that a relatively modest intervention could have a big impact — was based on the view that first-generation students may be most lacking not in potential but in practical knowledge about how to deal with the issues that face most college students. They cite past research by several authors to show that this is the gap that must be narrowed to close the achievement gap.</p>
+
+<p>Many first-generation students "struggle to navigate the middle-class culture of higher education, learn the 'rules of the game,' and take advantage of college resources," they write. And this becomes more of a problem when colleges don't talk about the class advantages and disadvantages of different groups of students. "Because US colleges and universities seldom acknowledge how social class can affect students' educational experiences, many first-generation students lack insight about why they are struggling and do not understand how students 'like them' can improve."</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>first-generation</td><td>adj. 第一代的（父母无大学学历的）</td></tr>
+    <tr><td>lag</td><td>v. 落后；滞后</td></tr>
+    <tr><td>dropout</td><td>n. 辍学；退学</td></tr>
+    <tr><td>recruit</td><td>v. 招收；招募</td></tr>
+    <tr><td>paradox</td><td>n. 悖论；矛盾</td></tr>
+    <tr><td>reproduce</td><td>v. 复制；再现</td></tr>
+    <tr><td>forthcoming</td><td>adj. 即将出版的；即将发生的</td></tr>
+    <tr><td>intervention</td><td>n. 干预；介入</td></tr>
+    <tr><td>Pell Grant</td><td>n. 佩尔助学金（美国联邦助学金）</td></tr>
+    <tr><td>beneficiary / recipient</td><td>n. 受益人；接受者</td></tr>
+    <tr><td>navigate</td><td>v. 驾驭；航行于</td></tr>
+    <tr><td>acknowledge</td><td>v. 承认；认可</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. Recruiting more first-generation students has _____.</div><div class="q-opt">[A] reduced their dropout rates<br>[B] narrowed the achievement gap<br>[C] missed its original purpose<br>[D] depressed college students</div></div>
+      <div class="q-item"><div class="q-stem">27. The authors of the research article are optimistic because _____.</div><div class="q-opt">[A] the problem is solvable<br>[B] their approach is costless<br>[C] the recruiting rate has increased<br>[D] their findings appeal to students</div></div>
+      <div class="q-item"><div class="q-stem">28. The study suggests that most first-generation students _____.</div><div class="q-opt">[A] study at private universities<br>[B] are from single-parent families<br>[C] are in need of financial support<br>[D] have failed their college</div></div>
+      <div class="q-item"><div class="q-stem">29. The authors of the paper believe that first-generation students _____.</div><div class="q-opt">[A] are actually indifferent to the achievement gap<br>[B] can have a potential influence on other students<br>[C] may lack opportunities to apply for research projects<br>[D] are inexperienced in handling their issues at college</div></div>
+      <div class="q-item"><div class="q-stem">30. We may infer from the last paragraph that _____.</div><div class="q-opt">[A] universities often reject the culture of the middle-class<br>[B] students are usually to blame for their lack of resources<br>[C] social class greatly helps enrich educational experiences<br>[D] colleges are partly responsible for the problem in question</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>C</span>26 &nbsp; <span>A</span>27 &nbsp; <span>C</span>28 &nbsp; <span>D</span>29 &nbsp; <span>D</span>30</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · The New Corporate Language</div>
+<div class="info-bar">
+  <span class="tag topic">商业 / 职场语言与文化</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 430 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Even in traditional offices, "the lingua franca of corporate America has gotten much more emotional and much more right-brained than it was 20 years ago," said Harvard Business School professor Nancy Koehn. She started spinning off examples. "If you and I parachuted back to Fortune 500 companies in 1990, we would see much less frequent use of terms like journey, mission, passion. There were goals, there were strategies, there were objectives, but we didn't talk about energy; we didn't talk about passion."</p>
+
+<p>Koehn pointed out that this new era of corporate vocabulary is very "team"-oriented — and not by coincidence. "Let's not forget sports — in male-dominated corporate America, it's still a big deal. It's not explicitly conscious; it's the idea that I'm a coach, and you're my team, and we're in this together. There are lots and lots of CEOs in very different companies, but most think of themselves as coaches and this is their team and they want to win."</p>
+
+<p>These terms are also intended to infuse work with meaning — and, as Khurana points out, increase allegiance to the firm. "You have the importation of terminology that historically used to be associated with non-profit organizations and religious organizations: Terms like vision, values, passion, and purpose," said Khurana.</p>
+
+<p>This new focus on personal fulfillment can help keep employees motivated amid increasingly loud debates over work-life balance. The "mommy wars" of the 1990s are still going on today, prompting arguments about why women still can't have it all and books like Sheryl Sandberg's <em>Lean In</em>, whose title has become a buzzword in its own right. Terms like unplug, offline, life-hack, bandwidth, and capacity are all about setting boundaries between the office and the home. But if your work is your "passion," you'll be more likely to devote yourself to it, even if that means going home for dinner and then working long after the kids are in bed.</p>
+
+<p>But this seems to be the irony of office speak: Everyone makes fun of it, but managers love it, companies depend on it, and regular people willingly absorb it. As Nunberg said, "You can get people to think it's nonsense at the same time that you buy into it." In a workplace that's fundamentally indifferent to your life and its meaning, office speak can help you figure out how you relate to your work — and how your work defines who you are.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>lingua franca</td><td>n. 通用语；共同语言</td></tr>
+    <tr><td>right-brained</td><td>adj. 右脑型的；感性/直觉的</td></tr>
+    <tr><td>spin off</td><td>phr. 衍生出；随口说出</td></tr>
+    <tr><td>parachute back to</td><td>phr. 空降回到；穿越回</td></tr>
+    <tr><td>by coincidence</td><td>phr. 巧合地</td></tr>
+    <tr><td>infuse</td><td>v. 注入；灌输</td></tr>
+    <tr><td>allegiance</td><td>n. 忠诚；效忠</td></tr>
+    <tr><td>terminology</td><td>n. 术语；专门用语</td></tr>
+    <tr><td>buzzword</td><td>n. 流行词；热词</td></tr>
+    <tr><td>unplug / offline</td><td>n./adj. 断网；离线（划清工作与生活界限）</td></tr>
+    <tr><td>life-hack</td><td>n. 生活技巧；效率窍门</td></tr>
+    <tr><td>buy into</td><td>phr. 相信；接受（某观点）</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. According to Nancy Koehn, office language has become _____.</div><div class="q-opt">[A] more emotional<br>[B] more objective<br>[C] less strategic<br>[D] less energetic</div></div>
+      <div class="q-item"><div class="q-stem">32. "Team"-oriented corporate vocabulary is closely related to _____.</div><div class="q-opt">[A] historical incidents<br>[B] gender difference<br>[C] sports culture<br>[D] athletic executives</div></div>
+      <div class="q-item"><div class="q-stem">33. Khurana believes that the importation of terminology aims to _____.</div><div class="q-opt">[A] revive historical terms<br>[B] promote company image<br>[C] foster corporate cooperation<br>[D] strengthen employee loyalty</div></div>
+      <div class="q-item"><div class="q-stem">34. It can be inferred that <em>Lean In</em> _____.</div><div class="q-opt">[A] voices for working women<br>[B] appeals to passionate workaholics<br>[C] triggers debates among mommies<br>[D] praises motivated employees</div></div>
+      <div class="q-item"><div class="q-stem">35. Which of the following statements is true about office speak?</div><div class="q-opt">[A] Managers say it but don't believe in it<br>[B] Language experts consider it insignificant<br>[C] Companies find it to be fundamental to management<br>[D] Regular people mock it but accept it</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>31 &nbsp; <span>C</span>32 &nbsp; <span>D</span>33 &nbsp; <span>A</span>34 &nbsp; <span>D</span>35</div></div>
+  </details>
+</div>
+
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · Employment and Obamacare</div>
+<div class="info-bar">
+  <span class="tag topic">经济 / 就业与医保政策</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 450 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Many people talked of the 288,000 new jobs the Labor Department reported for June, along with the drop in the unemployment rate to 6.1 percent, as good news. And they were right. For now it appears the economy is creating jobs at a decent pace. We still have a long way to go to get back to full employment, but at least we are now finally moving forward at a faster pace.</p>
+
+<p>However, there is another important part of the jobs picture that was largely overlooked. There was a big jump in the number of people who report voluntarily working part-time. This figure is now 830,000 (4.4 percent) above its year ago level.</p>
+
+<p>Before explaining the connection to the Obamacare, it is worth making an important distinction. Many people who work part-time jobs actually want full-time jobs. They take part-time work because this is all they can get. An increase in involuntary part-time work is evidence of weakness in the labor market and it means that many people will be having a very hard time making ends meet.</p>
+
+<p>There was an increase in involuntary part-time in June, but the general direction has been down. Involuntary part-time employment is still far higher than before the recession, but it is down by 640,000 (7.9 percent) from its year ago level.</p>
+
+<p>We know the difference between voluntary and involuntary part-time employment because people tell us. The survey used by the Labor Department asks people if they worked less than 35 hours in the reference week. If the answer is "yes", they are classified as working part-time. The survey then asks whether they worked less than 35 hours in that week because they wanted to work less than full time or because they had no choice. They are only classified as voluntary part-time workers if they tell the survey taker they chose to work less than 35 hours a week.</p>
+
+<p>The issue of voluntary part-time relates to Obamacare because one of the main purposes was to allow people to get insurance outside of employment. For many people, especially those with serious health conditions or family members with serious health conditions, before Obamacare the only way to get insurance was through a job that provided health insurance.</p>
+
+<p>However, Obamacare has allowed more than 12 million people to either get insurance through Medicaid or the exchanges. These are people who may previously have felt the need to get a full-time job that provided insurance in order to cover themselves and their families. With Obamacare there is no longer a link between employment and insurance.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>at a decent pace</td><td>phr. 以不错的速度</td></tr>
+    <tr><td>full employment</td><td>phr. 充分就业</td></tr>
+    <tr><td>overlook</td><td>v. 忽视；忽略</td></tr>
+    <tr><td>voluntarily</td><td>adv. 自愿地；主动地</td></tr>
+    <tr><td>distinction</td><td>n. 区别；区分</td></tr>
+    <tr><td>involuntary</td><td>adj. 非自愿的；被迫的</td></tr>
+    <tr><td>make ends meet</td><td>phr. 收支平衡；勉强度日</td></tr>
+    <tr><td>recession</td><td>n. 经济衰退</td></tr>
+    <tr><td>classified as</td><td>phr. 被归类为</td></tr>
+    <tr><td>survey taker</td><td>n. 调查员</td></tr>
+    <tr><td>Obamacare</td><td>n. 奥巴马医改法案</td></tr>
+    <tr><td>insurance exchange</td><td>phr. 保险交易所（医保平台）</td></tr>
+    <tr><td>Medicaid</td><td>n. 联邦医疗补助</td></tr>
+    <tr><td>precondition</td><td>n. 先决条件</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. Which part of the jobs picture was neglected?</div><div class="q-opt">[A] The prospect of a thriving job market<br>[B] The increase of voluntary part-time jobs<br>[C] The possibility of full employment<br>[D] The acceleration of job creation</div></div>
+      <div class="q-item"><div class="q-stem">37. Many people work part-time because they _____.</div><div class="q-opt">[A] prefer part-time jobs to full-time jobs<br>[B] feel that is enough to make ends meet<br>[C] cannot get their hands on full-time jobs<br>[D] haven't seen the weakness of the market</div></div>
+      <div class="q-item"><div class="q-stem">38. Involuntary part-time employment in the US _____.</div><div class="q-opt">[A] satisfies the real need of the jobless<br>[B] is harder to acquire than one year ago<br>[C] shows a general tendency of decline<br>[D] is lower than before the recession</div></div>
+      <div class="q-item"><div class="q-stem">39. It can be learned that with Obamacare _____.</div><div class="q-opt">[A] it is no longer easy for part-timers to get insurance<br>[B] full-time employment is still essential for insurance<br>[C] it is still challenging to get insurance for family members<br>[D] employment is no longer a precondition to get insurance</div></div>
+      <div class="q-item"><div class="q-stem">40. The text mainly discusses _____.</div><div class="q-opt">[A] employment in the US<br>[B] part-timer classification<br>[C] insurance through Medicaid<br>[D] Obamacare's trouble</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>C</span>37 &nbsp; <span>C</span>38 &nbsp; <span>D</span>39 &nbsp; <span>A</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>
