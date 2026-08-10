@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2017年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2017 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与参考答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · The Parkrun Phenomenon</div>
+<div class="info-bar">
+  <span class="tag topic">体育 / 大众跑步</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 397 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Every Saturday morning, at 9 am, more than 50,000 runners set off to run 5km around their local park. The Parkrun phenomenon began with a dozen friends and has inspired 400 events in the UK and more abroad. Events are free, staffed by thousands of volunteers. Runners range from four years old to grandparents; their times range from Andrew Baddeley&#x27;s world record 13 minutes 48 seconds up to an hour.</p>
+<p>Parkrun is succeeding where London&#x27;s Olympic &quot;legacy&quot; is failing. Ten years ago on Monday, it was announced that the Games of the 30th Olympiad would be in London. Planning documents pledged that the great legacy of the Games would be to lever a nation of sport lovers away from their couches. The population would be fitter, healthier and produce more winners. It has not happened. The number of adults doing weekly sport did rise, by nearly 2 million in the run-up to 2012 – but the general population was growing faster. Worse, the numbers are now falling at an accelerating rate. The opposition claims primary school pupils doing at least two hours of sport a week have nearly halved. Obesity has risen among adults and children. Official retrospections continue as to why London 2012 failed to &quot;inspire a generation.&quot; The success of Parkrun offers answers.</p>
+<p>Parkun is not a race but a time trial: Your only competitor is the clock. The ethos welcomes anybody. There is as much joy over a puffed-out first-timer being clapped over the line as there is about top talent shining. The Olympic bidders, by contrast, wanted to get more people doing sport and to produce more elite athletes. The dual aim was mixed up: The stress on success over taking part was intimidating for newcomers.</p>
+<p>Indeed, there is something a little absurd in the state getting involved in the planning of such a fundamentally &quot;grassroots&quot; concept as community sports associations. If there is a role for government, it should really be getting involved in providing common goods – making sure there is space for playing fields and the money to pave tennis and netball courts, and encouraging the provision of all these activities in schools. But successive governments have presided over selling green spaces, squeezing money from local authorities and declining attention on sport in education. Instead of wordy, worthy strategies, future governments need to do more to provide the conditions for sport to thrive. Or at least not make them worse.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>phenomenon</td><td>n. 现象</td></tr>
+    <tr><td>grassroots</td><td>adj. 基层的；大众的</td></tr>
+    <tr><td>volunteers</td><td>n. 志愿者</td></tr>
+    <tr><td>accelerating</td><td>adj. 加速的</td></tr>
+    <tr><td>opposition</td><td>n. 反对</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. According to Paragraph 1, Parkrun has____.</div><div class="q-opt">[ A ]gained great popularity<br>[ B ]created many jobs<br>[ C ]strengthened community ties<br>[ D ]become an official festival</div></div>
+      <div class="q-item"><div class="q-stem">22. The author believes that London&#x27;s Olympic &quot;legacy&quot; has failed to____.</div><div class="q-opt">[ A ]boost population growth<br>[ B ]promote sport participation<br>[ C ]improve the city&#x27;s image<br>[ D ]increase sport hours in schools</div></div>
+      <div class="q-item"><div class="q-stem">23. Parkrun is different from Olympic games in that it____.</div><div class="q-opt">[ A ]aims at discovering talents<br>[ B ]focuses on mass competition<br>[ C ]does not emphasize elitism<br>[ D ]does not attract first-timers</div></div>
+      <div class="q-item"><div class="q-stem">24. With regard to mass sports, the author holds that governments should____.</div><div class="q-opt">[ A ]organize &quot;grassroots&quot; sports events<br>[ B ]supervise local sports associations<br>[ C ]increase funds for sports clubs<br>[ D ]invest in public sports facilities</div></div>
+      <div class="q-item"><div class="q-stem">25. The author&#x27;s attitude to what UK governments have done for sports is____.</div><div class="q-opt">[ A ]tolerant<br>[ B ]critical<br>[ C ]uncertain<br>[ D ]sympathetic</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>21 &nbsp; <span>B</span>22 &nbsp; <span>C</span>23 &nbsp; <span>D</span>24 &nbsp; <span>B</span>25</div></div>
+  </details>
+</div>
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · Parents and Screen Time</div>
+<div class="info-bar">
+  <span class="tag topic">家庭 / 屏幕使用</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 418 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>With so much focus on children&#x27;s use of screens, it&#x27;s easy for parents to forget about their own screen use. &quot;Tech is designed to really suck you in,&quot; says Jenny Radesky in her study of digital play, &quot;and digital products are there to promote maximal engagement. It makes it hard to disengage, and leads to a lot of bleed-over into the family routine.&quot;</p>
+<p>Radesky has studied the use of mobile phones and tablets at mealtimes by giving mother-child pairs a food-testing exercise. She found that mothers who used devices during the exercise started 20 per cent fewer verbal and 39 per cent fewer nonverbal interactions with their children. During a separate observation, she saw that phones became a source of tension in the family. Parents would be looking at their emails while the children would be making excited bids for their attention.</p>
+<p>Infants are wired to look at parents&#x27; faces to try to understand their world, and if those faces are blank and unresponsive – as they often are when absorbed in a device – it can be extremely disconcerting for the children. Radesky cites the &quot;still face experiment&quot; devised by developmental psychologist Ed Tronick in the 1970s. In it, a mother is asked to interact with her child in a normal way before putting on a blank expression and not giving them any visual social feedback: The child becomes increasingly distressed as she tries to capture her mother&#x27;s attention. &quot;Parents don&#x27;t have to be exquisitely present at all times, but there needs to be a balance and parents need to be responsive and sensitive to a child&#x27;s verbal or nonverbal expressions of an emotional need,&quot; says Radesky.</p>
+<p>On the other hand, Tronick himself is concerned that the worries about kids&#x27; use of screens are born out of an &quot;oppressive ideology that demands that parents should always be interacting&quot; with their children: &quot;It&#x27;s based on a somewhat fantasised, very white, very upper-middle-class ideology that says if you&#x27;re failing to expose your child to 30,000 words you are neglecting them.&quot; Tronick believes that just because a child isn&#x27;t learning from the screen doesn&#x27;t mean there&#x27;s no value to it – particularly if it gives parents time to have a shower, do housework or simply have a break from their child. Parents, he says, can get a lot out of using their devices to speak to a friend or get some work out of the way. This can make them feel happier, which lets them be more available to their child the rest of the time.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>engagement</td><td>n. 投入；参与</td></tr>
+    <tr><td>disengage</td><td>v. 脱离</td></tr>
+    <tr><td>bleed-over</td><td>n. 外溢影响</td></tr>
+    <tr><td>responsive</td><td>adj. 有回应的</td></tr>
+    <tr><td>distressed</td><td>adj. 苦恼的</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. According to Jenny Radesky, digital products are designed to____.</div><div class="q-opt">[ A ]simplify routine matters<br>[ B ]absorb user attention<br>[ C ]better interpersonal relations<br>[ D ]increase work efficiency</div></div>
+      <div class="q-item"><div class="q-stem">27. Radesky&#x27;s food-testing exercise shows that mothers&#x27; use of devices____.</div><div class="q-opt">[ A ]takes away babies&#x27; appetite<br>[ B ]distracts children&#x27;s attention<br>[ C ]slows down babies&#x27; verbal development<br>[ D ]reduces mother-child communication</div></div>
+      <div class="q-item"><div class="q-stem">28. Radesky cites the &quot;still face experiment&quot; to show that____.</div><div class="q-opt">[ A ]it is easy for children to get used to blank expressions<br>[ B ]verbal expressions are unnecessary for emotional exchange<br>[ C ]children are insensitive to changes in their parents&#x27; mood<br>[ D ]parents need to respond to children&#x27;s emotional needs</div></div>
+      <div class="q-item"><div class="q-stem">29. The oppressive ideology mentioned by Tronick requires parents to____.</div><div class="q-opt">[ A ]protect kids from exposure to wild fantasies<br>[ B ]teach their kids at least 30,000 words a year<br>[ C ]ensure constant interaction with their children<br>[ D ]remain concerned about kids&#x27; use of screens</div></div>
+      <div class="q-item"><div class="q-stem">30. According to Tronick, kids&#x27; use of screens may____.</div><div class="q-opt">[ A ]give their parents some free time<br>[ B ]make their parents more creative<br>[ C ]help them with their homework<br>[ D ]help them become more attentive</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>26 &nbsp; <span>D</span>27 &nbsp; <span>D</span>28 &nbsp; <span>C</span>29 &nbsp; <span>A</span>30</div></div>
+  </details>
+</div>
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · In Favor of the Gap Year</div>
+<div class="info-bar">
+  <span class="tag topic">教育 / 间隔年</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 398 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Today, widespread social pressure to immediately go to college in conjunction with increasingly high expectations in a fast-moving world often causes students to completely overlook the possibility of taking a gap year. After all, if everyone you know is going to college in the fall, it seems silly to stay back a year, doesn&#x27;t it? And after going to school for 12 years, it doesn&#x27;t feel natural to spend a year doing something that isn&#x27;t academic.</p>
+<p>But while this may be true, it&#x27;s not a good enough reason to condemn gap years. There&#x27;s always a constant fear of falling behind everyone else on the socially perpetuated &quot;race to the finish line,&quot; whether that be toward graduate school, medical school or a lucrative career. But despite common misconceptions, a gap year does not hinder the success of academic pursuits – in fact, it probably enhances it.</p>
+<p>Studies from the United States and Australia show that students who take a gap year are generally better prepared for and perform better in college than those who do not. Rather than pulling students back, a gap year pushes them ahead by preparing them for independence, new responsibilities and environmental changes – all things that first-year students often struggle with the most. Gap year experiences can lessen the blow when it comes to adjusting to college and being thrown into a brand new environment, making it easier to focus on academics and activities rather than acclimation blunders.</p>
+<p>If you&#x27;re not convinced of the inherent value in taking a year off to explore interests, then consider its financial impact on future academic choices. According to the National Center for Education Statistics, nearly 80 percent of college students end up changing their majors at least once. This isn&#x27;t surprising, considering the basic mandatory high school curriculum leaves students with a poor understanding of the vast academic possibilities that await them in college. Many students find themselves listing one major on their college applications, but switching to another after taking college classes. It&#x27;s not necessarily a bad thing, but depending on the school, it can be costly to make up credits after switching too late in the game. At Boston College, for example, you would have to complete an extra year were you to switch to the nursing school from another department. Taking a gap year to figure things out initially can help prevent stress and save money later on.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>perpetuated</td><td>adj. 被持续强化的</td></tr>
+    <tr><td>misconception</td><td>n. 错误观念</td></tr>
+    <tr><td>acclimation</td><td>n. 适应</td></tr>
+    <tr><td>mandatory</td><td>adj. 强制的</td></tr>
+    <tr><td>inherent</td><td>adj. 内在的</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. One of the reasons for high-school graduates not taking a gap year is that____.</div><div class="q-opt">[ A ]they think it academically misleading<br>[ B ]they have a lot of fun to expect in college<br>[ C ]it feels strange to do differently from others<br>[ D ]it seems worthless to take off-campus courses</div></div>
+      <div class="q-item"><div class="q-stem">32. Studies from the US and Australia imply that taking a gap year helps____.</div><div class="q-opt">[ A ]keep students from being unrealistic<br>[ B ]lower risks in choosing careers<br>[ C ]ease freshmen&#x27;s financial burdens<br>[ D ]relieve freshmen of pressures</div></div>
+      <div class="q-item"><div class="q-stem">33. The word &quot;acclimation&quot; (Para. 3) is closest in meaning to____.</div><div class="q-opt">[ A ]adaptation<br>[ B ]application<br>[ C ]motivation<br>[ D ]competition</div></div>
+      <div class="q-item"><div class="q-stem">34. A gap year may save money for students by helping them____.</div><div class="q-opt">[ A ]avoid academic failures<br>[ B ]establish long-term goals<br>[ C ]switch to another college<br>[ D ]decide on the right major</div></div>
+      <div class="q-item"><div class="q-stem">35. The most suitable title for this text would be____.</div><div class="q-opt">[ A ]In Favor of the Gap Year<br>[ B ]The ABCs of the Gap Year<br>[ C ]The Gap Year Comes Back<br>[ D ]The Gap Year: A Dilemma</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>C</span>31 &nbsp; <span>D</span>32 &nbsp; <span>A</span>33 &nbsp; <span>D</span>34 &nbsp; <span>A</span>35</div></div>
+  </details>
+</div>
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · Living with Wildfires</div>
+<div class="info-bar">
+  <span class="tag topic">环境 / 山火治理</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 400 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Though often viewed as a problem for western states, the growing frequency of wildfires is a national concern because of its impact on federal tax dollars, says Professor Max Moritz, a specialist in fire ecology and management.</p>
+<p>In 2015, the US Forest Service for the first time spent more than half of its $5.5 billion annual budget fighting fires – nearly double the percentage it spent on such efforts 20 years ago. In effect, fewer federal funds today are going towards the agency&#x27;s other work – such as forest conservation, watershed and cultural resources management, and infrastructure upkeep – that affect the lives of all Americans.</p>
+<p>Another nationwide concern is whether public funds from other agencies are going into construction in fire-prone districts. As Moritz puts it, how often are federal dollars building homes that are likely to be lost to a wildfire?</p>
+<p>&quot;It&#x27;s already a huge problem from a public expenditure perspective for the whole country,&quot; he says. &quot;We need to take a magnifying glass to that. Like, &#x27;Wait a minute, is this OK?&#x27; Do we want instead to redirect those funds to concentrate on lower-hazard parts of the landscape?&quot;</p>
+<p>Such a view would require a corresponding shift in the way US society today views fire, researchers say.</p>
+<p>For one thing, conversations about wildfires need to be more inclusive. Over the past decade, the focus has been on climate change – how the warming of the Earth from greenhouse gases is leading to conditions that worsen fires.</p>
+<p>While climate is a key element, Moritz says, it shouldn&#x27;t come at the expense of the rest of the equation.</p>
+<p>&quot;The human systems and the landscapes we live on are linked, and the interactions go both ways,&quot; he says. Failing to recognize that, he notes, leads to &quot;an overly simplified view of what the solutions might be. Our perception of the problem and of what the solution is becomes very limited.&quot;</p>
+<p>At the same time, people continue to treat fire as an event that needs to be wholly controlled and unleashed only out of necessity, says Professor Balch at the University of Colorado. But acknowledging fire&#x27;s inevitable presence in human life is an attitude crucial to developing the laws, policies, and practices that make it as safe as possible, she says.</p>
+<p>&quot;We&#x27;ve disconnected ourselves from living with fire,&quot; Balch says. &quot;It is really important to understand and try and tease out what is the human connection with fire today.&quot;</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>wildfire</td><td>n. 山火</td></tr>
+    <tr><td>watershed</td><td>n. 流域</td></tr>
+    <tr><td>fire-prone</td><td>adj. 易发生火灾的</td></tr>
+    <tr><td>expenditure</td><td>n. 支出</td></tr>
+    <tr><td>inevitable</td><td>adj. 不可避免的</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. More frequent wildfires have become a national concern because in 2015 they____.</div><div class="q-opt">[ A ]exhausted unprecedented management efforts<br>[ B ]consumed a record-high percentage of budget<br>[ C ]severely damaged the ecology of western states<br>[ D ]caused a huge rise of infrastructure expenditure</div></div>
+      <div class="q-item"><div class="q-stem">37. Moritz calls for the use of &quot;a magnifying glass&quot; to____.</div><div class="q-opt">[ A ]raise more funds for fire-prone areas<br>[ B ]avoid the redirection of federal money<br>[ C ]find wildfire-free parts of the landscape<br>[ D ]guarantee safer spending of public funds</div></div>
+      <div class="q-item"><div class="q-stem">38. While admitting that climate is a key element, Moritz notes that____.</div><div class="q-opt">[ A ]public debates have not settled yet<br>[ B ]fire-fighting conditions are improving<br>[ C ]other factors should not be overlooked<br>[ D ]a shift in the view of fire has taken place</div></div>
+      <div class="q-item"><div class="q-stem">39. The overly simplified view Moritz mentions is a result of failing to____.</div><div class="q-opt">[ A ]discover the fundamental makeup of nature<br>[ B ]explore the mechanism of the human systems<br>[ C ]maximize the role of landscape in human life<br>[ D ]understand the interrelations of man and nature</div></div>
+      <div class="q-item"><div class="q-stem">40. Professor Balch points out that fire is something man should____.</div><div class="q-opt">[ A ]do away with<br>[ B ]come to terms with<br>[ C ]pay a price for<br>[ D ]keep away from</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>D</span>37 &nbsp; <span>C</span>38 &nbsp; <span>D</span>39 &nbsp; <span>B</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>

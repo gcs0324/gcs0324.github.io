@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2016年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2016 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与参考答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · Coding Education</div>
+<div class="info-bar">
+  <span class="tag topic">编程教育</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 387 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>It&#x27;s true that high-school coding classes aren&#x27;t essential for learning computer science in college. Students without experience can catch up after a few introductory courses, said Tom Cortina, the assistant dean at Carnegie Mellon&#x27;s School of Computer Science.</p>
+<p>However, Cortina said, early exposure is beneficial. When younger kids learn computer science, they learn that it&#x27;s not just a confusing, endless string of letters and numbers – but a tool to build apps, or create artwork, or test hypotheses. It&#x27;s not as hard for them to transform their thought processes as it is for older students. Breaking down problems into bite-sized chunks and using code to solve them becomes normal. Giving more children this training could increase the number of people interested in the field and help fill the jobs gap, Cortina said.</p>
+<p>Students also benefit from learning something about coding before they get to college, where introductory computer-science classes are packed to the brim, which can drive the less-experienced or less-determined students away.</p>
+<p>The Flatiron School, where people pay to learn programming, started as one of the many coding bootcamps that have become popular for adults looking for a career change. The high-schoolers get the same curriculum, but &quot;we try to gear lessons toward things they&#x27;re interested in,&quot; said Victoria Friedman, an instructor. For instance, one of the apps the students are developing suggests movies based on your mood.</p>
+<p>The students in the Flatiron class probably won&#x27;t drop out of high school and build the next Facebook. Programming languages have a quick turnover, so the &quot;Ruby on Rails&quot; language they learned may not even be relevant by the time they enter the job market. But the skills they learn – how to think logically through a problem and organize the results – apply to any coding language, said Deborah Seehorn, an education consultant for the state of North Carolina.</p>
+<p>Indeed, the Flatiron students might not go into IT at all. But creating a future army of coders is not the sole purpose of the classes. These kids are going to be surrounded by computers – in their pockets, in their offices, in their homes – for the rest of their lives. The younger they learn how computers think, how to coax the machine into producing what they want – the earlier they learn that they have the power to do that – the better.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>introductory</td><td>adj. 入门的</td></tr>
+    <tr><td>exposure</td><td>n. 接触；体验</td></tr>
+    <tr><td>curriculum</td><td>n. 课程体系</td></tr>
+    <tr><td>turnover</td><td>n. 更新；更替</td></tr>
+    <tr><td>thought processes</td><td>phr. 思维过程</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. Cortina holds that early exposure to computer science makes it easier to____.</div><div class="q-opt">[ A ]complete future job training<br>[ B ]remodel the way of thinking<br>[ C ]formulate logical hypotheses<br>[ D ]perfect artwork production</div></div>
+      <div class="q-item"><div class="q-stem">22. In delivering lessons for high-schoolers, Flatiron has considered their____.</div><div class="q-opt">[ A ]experience<br>[ B ]interest<br>[ C ]career prospects<br>[ D ]academic backgrounds</div></div>
+      <div class="q-item"><div class="q-stem">23. Deborah Seehorn believes that the skills learned at Flatiron will____.</div><div class="q-opt">[ A ]help students learn other computer languages<br>[ B ]have to be upgraded when new technologies come<br>[ C ]need improving when students look for jobs<br>[ D ]enable students to make big quick money</div></div>
+      <div class="q-item"><div class="q-stem">24. According to the last paragraph, Flatiron students are expected to____.</div><div class="q-opt">[ A ]bring forth innovative computer technologies<br>[ B ]stay longer in the information technology industry<br>[ C ]become better prepared for the digitalized world<br>[ D ]compete with a future army of programmers</div></div>
+      <div class="q-item"><div class="q-stem">25. The word &quot;coax&quot; (Line 4, Para. 6) is closest in meaning to____.</div><div class="q-opt">[ A ]persuade<br>[ B ]frighten<br>[ C ]misguide<br>[ D ]challenge</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>21 &nbsp; <span>B</span>22 &nbsp; <span>A</span>23 &nbsp; <span>C</span>24 &nbsp; <span>A</span>25</div></div>
+  </details>
+</div>
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · The Lesser Prairie Chicken</div>
+<div class="info-bar">
+  <span class="tag topic">生态保护 / 草原松鸡</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 393 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Biologists estimate that as many as 2 million lesser prairie chickens – a kind of bird living on stretching grasslands – once lent red to the often grey landscape of the midwestern and southwestern United States. But just some 22,000 birds remain today, occupying about 16% of the species&#x27; historic range.</p>
+<p>The crash was a major reason the U.S. Fish and Wildlife Service (USFWS) decided to formally list the bird as threatened. &quot;The lesser prairie chicken is in a desperate situation,&quot; said USFWS Director Daniel Ashe. Some environmentalists, however, were disappointed. They had pushed the agency to designate the bird as &quot;endangered,&quot; a status that gives federal officials greater regulatory power to crack down on threats. But Ashe and others argued that the &quot;threatened&quot; tag gave the federal government flexibility to try out new, potentially less confrontational conservation approaches. In particular, they called for forging closer collaborations with western state governments, which are often uneasy with federal action, and with the private landowners who control an estimated 95% of the prairie chicken&#x27;s habitat.</p>
+<p>Under the plan, for example, the agency said it would not prosecute landowners or businesses that unintentionally kill, harm, or disturb the bird, as long as they had signed a range-wide management plan to restore prairie chicken habitat. Negotiated by USFWS and the states, the plan requires individuals and businesses that damage habitat as part of their operations to pay into a fund to replace every acre destroyed with 2 new acres of suitable habitat. The fund will also be used to compensate landowners who set aside habitat. USFWS also set an interim goal of restoring prairie chicken populations to an annual average of 67,000 birds over the next 10 years. And it gives the Western Association of Fish and Wildlife Agencies (WAFWA), a coalition of state agencies, the job of monitoring progress. Overall, the idea is to let &quot;states remain in the driver&#x27;s seat for managing the species,&quot; Ashe said.</p>
+<p>Not everyone buys the win-win rhetoric. Some Congress members are trying to block the plan, and at least a dozen industry groups, four states, and three environmental groups are challenging it in federal court. Not surprisingly, industry groups and states generally argue it goes too far; environmentalists say it doesn&#x27;t go far enough. &quot;The federal government is giving responsibility for managing the bird to the same industries that are pushing it to extinction,&quot; says biologist Jay Lininger.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>grasslands</td><td>n. 草原</td></tr>
+    <tr><td>habitat</td><td>n. 栖息地</td></tr>
+    <tr><td>conservation</td><td>n. 保护</td></tr>
+    <tr><td>regulatory</td><td>adj. 监管的</td></tr>
+    <tr><td>prosecute</td><td>v. 起诉</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. The major reason for listing the lesser prairie chicken as threatened is____.</div><div class="q-opt">[ A ]its drastically decreased population<br>[ B ]the underestimate of the grassland acreage<br>[ C ]a desperate appeal from some biologists<br>[ D ]the insistence of private landowners</div></div>
+      <div class="q-item"><div class="q-stem">27. The &quot;threatened&quot; tag disappointed some environmentalists in that it____.</div><div class="q-opt">[ A ]was a give-in to governmental pressure<br>[ B ]would involve fewer agencies in action<br>[ C ]granted less federal regulatory power<br>[ D ]went against conservation policies</div></div>
+      <div class="q-item"><div class="q-stem">28. It can be learned from Paragraph 3 that unintentional harm-doers will not be prosecuted if they____.</div><div class="q-opt">[ A ]agree to pay a sum for compensation<br>[ B ]volunteer to set up an equally big habitat<br>[ C ]offer to support the WAFWA monitoring job<br>[ D ]promise to raise funds for USFWS operations</div></div>
+      <div class="q-item"><div class="q-stem">29. According to Ashe, the leading role in managing the species is____.</div><div class="q-opt">[ A ]the federal government<br>[ B ]the wildlife agencies<br>[ C ]the landowners<br>[ D ]the states</div></div>
+      <div class="q-item"><div class="q-stem">30. Jay Lininger would most likely support____.</div><div class="q-opt">[ A ]industry groups<br>[ B ]the win-win rhetoric<br>[ C ]environmental groups<br>[ D ]the plan under challenge</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>26 &nbsp; <span>C</span>27 &nbsp; <span>A</span>28 &nbsp; <span>D</span>29 &nbsp; <span>C</span>30</div></div>
+  </details>
+</div>
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · Finding Time to Read</div>
+<div class="info-bar">
+  <span class="tag topic">阅读习惯 / 时间管理</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 412 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>That everyone&#x27;s too busy these days is a cliché. But one specific complaint is made especially mournfully: There&#x27;s never any time to read.</p>
+<p>What makes the problem thornier is that the usual time-management techniques don&#x27;t seem sufficient. The web&#x27;s full of articles offering tips on making time to read: &quot;Give up TV&quot; or &quot;Carry a book with you at all times.&quot; But in my experience, using such methods to free up the odd 30 minutes doesn&#x27;t work. Sit down to read and the flywheel of work-related thoughts keeps spinning – or else you&#x27;re so exhausted that a challenging book&#x27;s the last thing you need. The modern mind, Tim Parks, a novelist and critic, writes, &quot;is overwhelmingly inclined toward communication… It is not simply that one is interrupted; it is that one is actually inclined to interruption.&quot; Deep reading requires not just time, but a special kind of time which can&#x27;t be obtained merely by becoming more efficient.</p>
+<p>In fact, &quot;becoming more efficient&quot; is part of the problem. Thinking of time as a resource to be maximised means you approach it instrumentally, judging any given moment as well spent only in so far as it advances progress toward some goal. Immersive reading, by contrast, depends on being willing to risk inefficiency, goallessness, even time-wasting. Try to slot it in as a to-do list item and you&#x27;ll manage only goal-focused reading – useful, sometimes, but not the most fulfilling kind. &quot;The future comes at us like empty bottles along an unstoppable and nearly infinite conveyor belt,&quot; writes Gary Eberle in his book Sacred Time, and &quot;we feel a pressure to fill these different-sized bottles (days, hours, minutes) as they pass, for if they get by without being filled, we will have wasted them.&quot; No mind-set could be worse for losing yourself in a book.</p>
+<p>So what does work? Perhaps surprisingly, scheduling regular times for reading. You&#x27;d think this might fuel the efficiency mind-set, but in fact, Eberle notes, such ritualistic behaviour helps us &quot;step outside time&#x27;s flow&quot; into &quot;soul time.&quot; You could limit distractions by reading only physical books, or on single-purpose e-readers. &quot;Carry a book with you at all times&quot; can actually work, too – providing you dip in often enough, so that reading becomes the default state from which you temporarily surface to take care of business, before dropping back down. On a really good day, it no longer feels as if you&#x27;re &quot;making time to read,&quot; but just reading, and making time for everything else.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>cliché</td><td>n. 陈词滥调</td></tr>
+    <tr><td>mournfully</td><td>adv. 哀叹地</td></tr>
+    <tr><td>immersive</td><td>adj. 沉浸式的</td></tr>
+    <tr><td>distraction</td><td>n. 干扰</td></tr>
+    <tr><td>ritual</td><td>n. 固定习惯</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. The usual time-management techniques don&#x27;t work because____.</div><div class="q-opt">[ A ]what they can offer does not ease the modern mind<br>[ B ]what challenging books demand is repetitive reading<br>[ C ]what people often forget is carrying a book with them<br>[ D ]what deep reading requires cannot be guaranteed</div></div>
+      <div class="q-item"><div class="q-stem">32. The &quot;empty bottles&quot; metaphor illustrates that people feel a pressure to____.</div><div class="q-opt">[ A ]update their to-do lists<br>[ B ]make passing time fulfilling<br>[ C ]carry their plans through<br>[ D ]pursue carefree reading</div></div>
+      <div class="q-item"><div class="q-stem">33. Eberle would agree that scheduling regular times for reading helps____.</div><div class="q-opt">[ A ]encourage the efficiency mind-set<br>[ B ]develop online reading habits<br>[ C ]promote ritualistic reading<br>[ D ]achieve immersive reading</div></div>
+      <div class="q-item"><div class="q-stem">34. &quot;Carry a book with you at all times&quot; can work if____.</div><div class="q-opt">[ A ]reading becomes your primary business of the day<br>[ B ]all the daily business has been promptly dealt with<br>[ C ]you are able to drop back to business after reading<br>[ D ]time can be evenly split for reading and business</div></div>
+      <div class="q-item"><div class="q-stem">35. The best title for this text could be____.</div><div class="q-opt">[ A ]How to Enjoy Easy Reading<br>[ B ]How to Find Time to Read<br>[ C ]How to Set Reading Goals<br>[ D ]How to Read Extensively</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>D</span>31 &nbsp; <span>B</span>32 &nbsp; <span>D</span>33 &nbsp; <span>A</span>34 &nbsp; <span>B</span>35</div></div>
+  </details>
+</div>
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · A New Road Map to Adulthood</div>
+<div class="info-bar">
+  <span class="tag topic">社会 / 青年成功观</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 413 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Against a backdrop of drastic changes in economy and population structure, younger Americans are drawing a new 21st-century road map to success, the latest poll has found.</p>
+<p>Across generational lines, Americans continue to prize many of the same traditional milestones of a successful life, including getting married, having children, owning a home, and retiring in their sixties. But while young and old mostly agree on what constitutes the finish line of a fulfilling life, they offer strikingly different paths for reaching it.</p>
+<p>Young people who are still getting started in life were more likely than older adults to prioritize personal fulfillment in their work, to believe they will advance their careers most by regularly changing jobs, to favor communities with more public services and a faster pace of life, to agree that couples should be financially secure before getting married or having children, and to maintain that children are best served by two parents working outside the home, the survey found.</p>
+<p>From career to community and family, these contrasts suggest that in the aftermath of the searing Great Recession, those just starting out in life are defining priorities and expectations that will increasingly spread through virtually all aspects of American life, from consumer preferences to housing patterns to politics.</p>
+<p>Young and old converge on one key point: Overwhelming majorities of both groups said they believe it is harder for young people today to get started in life than it was for earlier generations. While younger people are somewhat more optimistic than their elders about the prospects for those starting out today, big majorities in both groups believe those &quot;just getting started in life&quot; face a tougher climb than earlier generations in reaching such signpost achievements as securing a good-paying job, starting a family, managing debt, and finding affordable housing.</p>
+<p>Pete Schneider considers the climb tougher today. Schneider, a 27-year-old auto technician from the Chicago suburbs, says he struggled to find a job after graduating from college. Even now that he is working steadily, he said, &quot;I can&#x27;t afford to pay my monthly mortgage payments on my own, so I have to rent rooms out to people to make that happen.&quot; Looking back, he is struck that his parents could provide a comfortable life for their children even though neither had completed college when he was young. &quot;I still grew up in an upper middle-class home with parents who didn&#x27;t have college degrees,&quot; Schneider said. &quot;I don&#x27;t think people are capable of that anymore.&quot;</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>backdrop</td><td>n. 背景</td></tr>
+    <tr><td>milestones</td><td>n. 里程碑</td></tr>
+    <tr><td>generational</td><td>adj. 代际的</td></tr>
+    <tr><td>fulfilling</td><td>adj. 令人满足的</td></tr>
+    <tr><td>fulfillment</td><td>n. 满足感</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. One cross-generation mark of a successful life is____.</div><div class="q-opt">[ A ]trying out different lifestyles<br>[ B ]having a family with children<br>[ C ]working beyond retirement age<br>[ D ]setting up a profitable business</div></div>
+      <div class="q-item"><div class="q-stem">37. It can be learned from Paragraph 3 that young people tend to____.</div><div class="q-opt">[ A ]favor a slower life pace<br>[ B ]hold an occupation longer<br>[ C ]attach importance to pre-marital finance<br>[ D ]give priority to childcare outside the home</div></div>
+      <div class="q-item"><div class="q-stem">38. The priorities and expectations defined by the young will____.</div><div class="q-opt">[ A ]become increasingly clear<br>[ B ]focus on materialistic issues<br>[ C ]depend largely on political preferences<br>[ D ]reach almost all aspects of American life</div></div>
+      <div class="q-item"><div class="q-stem">39. Both young and old agree that____.</div><div class="q-opt">[ A ]good-paying jobs are less available<br>[ B ]the old made more life achievements<br>[ C ]housing loans today are easy to obtain<br>[ D ]getting established is harder for the young</div></div>
+      <div class="q-item"><div class="q-stem">40. Which of the following is true about Schneider?</div><div class="q-opt">[ A ]He found a dream job after graduating from college.<br>[ B ]His parents believe working steadily is a must for success.<br>[ C ]His parents&#x27; good life has little to do with a college degree.<br>[ D ]He thinks his job as a technician quite challenging.</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>C</span>37 &nbsp; <span>D</span>38 &nbsp; <span>D</span>39 &nbsp; <span>C</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>

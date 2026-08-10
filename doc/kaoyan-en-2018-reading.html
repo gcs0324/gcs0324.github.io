@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2018年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2018 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与参考答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · Practical Education</div>
+<div class="info-bar">
+  <span class="tag topic">教育 / 职业技能</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 369 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>It is curious that Stephen Koziatek feels almost as though he has to justify his efforts to give his students a better future.</p>
+<p>Mr. Koziatek is part of something pioneering. He is a teacher at a New Hampshire high school where learning is not something of books and tests and mechanical memorization, but practical. When did it become accepted wisdom that students should be able to name the 13th president of the United States but be utterly overwhelmed by a broken bike chain?</p>
+<p>As Koziatek knows, there is learning in just about everything. Nothing is necessarily gained by forcing students to learn geometry at a graffitied desk stuck with generations of discarded chewing gum. They can also learn geometry by assembling a bicycle.</p>
+<p>But he&#x27;s also found a kind of insidious prejudice. Working with your hands is seen as almost a mark of inferiority. Schools in the family of vocational education &quot;have that stereotype…that it&#x27;s for kids who can&#x27;t make it academically,&quot; he says.</p>
+<p>On one hand, that viewpoint is a logical product of America&#x27;s evolution. Manufacturing is not the economic engine that it once was. The job security that the US economy once offered to high school graduates has largely evaporated. More education is the new principle. We want more for our kids, and rightfully so.</p>
+<p>But the headlong push into bachelor&#x27;s degrees for all – and the subtle devaluing of anything less – misses an important point: That&#x27;s not the only thing the American economy needs. Yes, a bachelor&#x27;s degree opens more doors. But even now, 54 percent of the jobs in the country are middle-skill jobs, such as construction and high-skill manufacturing. But only 44 percent of workers are adequately trained.</p>
+<p>In other words, at a time when the working class has turned the country on its political head, frustrated that the opportunity that once defined America is vanishing, one obvious solution is staring us in the face. There is a gap in working-class jobs, but the workers who need those jobs most aren&#x27;t equipped to do them. Koziatek&#x27;s Manchester School of Technology High School is trying to fill that gap.</p>
+<p>Koziatek&#x27;s school is a wake-up call. When education becomes one-size-fits-all, it risks overlooking a nation&#x27;s diversity of gifts.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>pioneering</td><td>adj. 开创性的</td></tr>
+    <tr><td>vocational</td><td>adj. 职业教育的</td></tr>
+    <tr><td>inferiority</td><td>n. 低人一等</td></tr>
+    <tr><td>evaporate</td><td>v. 消失</td></tr>
+    <tr><td>middle-skill</td><td>adj. 中等技能的</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. A broken bike chain is mentioned to show students&#x27; lack of____.</div><div class="q-opt">[ A ]practical ability<br>[ B ]academic training<br>[ C ]pioneering spirit<br>[ D ]mechanical memorization</div></div>
+      <div class="q-item"><div class="q-stem">22. There exists the prejudice that vocational education is for kids who____.</div><div class="q-opt">[ A ]have a stereotyped mind<br>[ B ]have no career motivation<br>[ C ]are not academically successful<br>[ D ]are financially disadvantaged</div></div>
+      <div class="q-item"><div class="q-stem">23. We can infer from Paragraph 5 that high school graduates____.</div><div class="q-opt">[ A ]used to have big financial concerns<br>[ B ]used to have more job opportunities<br>[ C ]are reluctant to work in manufacturing<br>[ D ]are entitled to more educational privileges</div></div>
+      <div class="q-item"><div class="q-stem">24. The headlong push into bachelor&#x27;s degrees for all____.</div><div class="q-opt">[ A ]helps create a lot of middle-skill jobs<br>[ B ]may narrow the gap in working-class jobs<br>[ C ]is expected to yield a better-trained workforce<br>[ D ]indicates the overvaluing of higher education</div></div>
+      <div class="q-item"><div class="q-stem">25. The author&#x27;s attitude toward Koziatek&#x27;s school can be described as____.</div><div class="q-opt">[ A ]supportive<br>[ B ]tolerant<br>[ C ]disappointed<br>[ D ]cautious</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>21 &nbsp; <span>C</span>22 &nbsp; <span>B</span>23 &nbsp; <span>D</span>24 &nbsp; <span>A</span>25</div></div>
+  </details>
+</div>
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · The Renewable Energy Shift</div>
+<div class="info-bar">
+  <span class="tag topic">能源 / 可再生能源</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 408 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>While fossil fuels – coal, oil, gas – still generate roughly 85 percent of the world&#x27;s energy supply, it&#x27;s clearer than ever that the future belongs to renewable sources such as wind and solar. The move to renewables is picking up momentum around the world: They now account for more than half of new power sources going on line.</p>
+<p>Some growth stems from a commitment by governments and farsighted businesses to fund cleaner energy sources. But increasingly the story is about the plummeting prices of renewables, especially wind and solar. The cost of solar panels has dropped by 80 percent and the cost of wind turbines by close to one-third in the past eight years.</p>
+<p>In many parts of the world renewable energy is already a principal energy source. In Scotland, for example, wind turbines provide enough electricity to power 95 percent of homes. While the rest of the world takes the lead, notably China and Europe, the United States is also seeing a remarkable shift. In March, for the first time, wind and solar power accounted for more than 10 percent of the power generated in the US, reported the US Energy Information Administration.</p>
+<p>President Trump has underlined fossil fuels – especially coal – as the path to economic growth. In a recent speech in Iowa, he dismissed wind power as an unreliable energy source. But that message did not play well with many in Iowa, where wind turbines dot the fields and provide 36 percent of the state&#x27;s electricity generation – and where tech giants like Microsoft are being attracted by the availability of clean energy to power their data centers.</p>
+<p>The question &quot;what happens when the wind doesn&#x27;t blow or the sun doesn&#x27;t shine?&quot; has provided a quick put-down for skeptics. But a boost in the storage capacity of batteries is making their ability to keep power flowing around the clock more likely.</p>
+<p>The advance is driven in part by vehicle manufacturers, who are placing big bets on battery-powered electric vehicles. Although electric cars are still a rarity on roads now, this massive investment could change the picture rapidly in coming years.</p>
+<p>While there&#x27;s a long way to go, the trend lines for renewables are spiking. The pace of change in energy sources appears to be speeding up – perhaps just in time to have a meaningful effect in slowing climate change. What Washington does – or doesn&#x27;t do – to promote alternative energy may mean less and less at a time of a global shift in thought.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>renewable</td><td>adj. 可再生的</td></tr>
+    <tr><td>plummeting</td><td>adj. 急剧下降的</td></tr>
+    <tr><td>turbine</td><td>n. 涡轮机</td></tr>
+    <tr><td>storage capacity</td><td>phr. 储能容量</td></tr>
+    <tr><td>fossil fuel</td><td>phr. 化石燃料</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. The word &quot;plummeting&quot; (Line 3, Para. 2) is closest in meaning to____.</div><div class="q-opt">[ A ]stabilizing<br>[ B ]changing<br>[ C ]falling<br>[ D ]rising</div></div>
+      <div class="q-item"><div class="q-stem">27. According to Paragraph 3, the use of renewable energy in America____.</div><div class="q-opt">[ A ]is progressing notably<br>[ B ]is as extensive as in Europe<br>[ C ]faces many challenges<br>[ D ]has proved to be impractical</div></div>
+      <div class="q-item"><div class="q-stem">28. It can be learned that in Iowa, ____.</div><div class="q-opt">[ A ]wind is a widely used energy source<br>[ B ]wind energy has replaced fossil fuels<br>[ C ]tech giants are investing in clean energy<br>[ D ]there is a shortage of clean energy supply</div></div>
+      <div class="q-item"><div class="q-stem">29. Which of the following is true about clean energy according to Paragraphs 5&amp;6?</div><div class="q-opt">[ A ]Its application has boosted battery storage.<br>[ B ]It is commonly used in car manufacturing.<br>[ C ]Its continuous supply is becoming a reality.<br>[ D ]Its sustainable exploitation will remain difficult.</div></div>
+      <div class="q-item"><div class="q-stem">30. It can be inferred from the last paragraph that renewable energy____.</div><div class="q-opt">[ A ]will bring the US closer to other countries<br>[ B ]will accelerate global environmental change<br>[ C ]is not really encouraged by the US government<br>[ D ]is not competitive enough with regard to its cost</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>C</span>26 &nbsp; <span>A</span>27 &nbsp; <span>A</span>28 &nbsp; <span>C</span>29 &nbsp; <span>C</span>30</div></div>
+  </details>
+</div>
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · The Power of Digital Giants</div>
+<div class="info-bar">
+  <span class="tag topic">科技 / 数据竞争</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 393 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>The power and ambition of the giants of the digital economy are astonishing—Amazon has just announced the purchase of the upmarket grocery chain Whole Foods for $13.5bn, but two years ago Facebook paid even more than that to acquire the WhatsApp messaging service, which doesn&#x27;t have any physical product at all. What WhatsApp offered Facebook was an intricate and finely detailed web of its users&#x27; friendships and social lives.</p>
+<p>Facebook promised the European commission then that it would not link phone numbers to Facebook identities, but it broke the promise almost as soon as the deal went through. Even without knowing what was in the messages, the knowledge of who sent them and to whom was enormously revealing and still could be. What political journalist, what party whip, would not want to know the makeup of the WhatsApp groups in which Theresa May&#x27;s enemies are currently plotting? It may be that the value of Whole Foods to Amazon is not so much the 460 shops it owns, but the records of which customers have purchased what.</p>
+<p>Competition law appears to be the only way to address these imbalances of power. But it is clumsy. For one thing, it is very slow compared to the pace of change within the digital economy. By the time a problem has been addressed and remedied it may have vanished in the marketplace, to be replaced by new abuses of power. But there is a deeper conceptual problem, too. Competition law as presently interpreted deals with financial disadvantage to consumers and this is not obvious when the users of these services don&#x27;t pay for them. The users of their services are not their customers. That would be the people who buy advertising from them – and Facebook and Google, the two virtual giants, dominate digital advertising to the disadvantage of all other media and entertainment companies.</p>
+<p>The product they&#x27;re selling is data, and we, the users, convert our lives to data for the benefit of the digital giants. Just as some ants farm the bugs called aphids for the honeydew they produce when they feed, so Google farms us for the data that our digital lives yield. Ants keep predatory insects away from where their aphids feed; Gmail keeps the spammers out of our inboxes. It doesn&#x27;t feel like a human or democratic relationship, even if both sides benefit.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>acquire</td><td>v. 收购</td></tr>
+    <tr><td>intricate</td><td>adj. 错综复杂的</td></tr>
+    <tr><td>identities</td><td>n. 身份信息</td></tr>
+    <tr><td>revealing</td><td>adj. 能揭示真相的</td></tr>
+    <tr><td>political</td><td>adj. 政治层面的</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. According to Paragraph 1, Facebook acquired WhatsApp for its____.</div><div class="q-opt">[ A ]digital products<br>[ B ]user information<br>[ C ]physical assets<br>[ D ]quality service</div></div>
+      <div class="q-item"><div class="q-stem">32. Linking phone numbers to Facebook identities may____.</div><div class="q-opt">[ A ]worsen political disputes<br>[ B ]mess up customer records<br>[ C ]pose a risk to Facebook users<br>[ D ]mislead the European commission</div></div>
+      <div class="q-item"><div class="q-stem">33. According to the author, competition law____.</div><div class="q-opt">[ A ]should serve the new market powers<br>[ B ]may worsen the economic imbalance<br>[ C ]should not provide just one legal solution<br>[ D ]cannot keep pace with the changing market</div></div>
+      <div class="q-item"><div class="q-stem">34. Competition law as presently interpreted can hardly protect Facebook users because____.</div><div class="q-opt">[ A ]they are not defined as customers<br>[ B ]they are not financially reliable<br>[ C ]the services are generally digital<br>[ D ]the services are paid for by advertisers</div></div>
+      <div class="q-item"><div class="q-stem">35. The ants analogy is used to illustrate____.</div><div class="q-opt">[ A ]a win-win business model between digital giants<br>[ B ]a typical competition pattern among digital giants<br>[ C ]the benefits provided for digital giants&#x27; customers<br>[ D ]the relationship between digital giants and their users</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>31 &nbsp; <span>C</span>32 &nbsp; <span>D</span>33 &nbsp; <span>A</span>34 &nbsp; <span>D</span>35</div></div>
+  </details>
+</div>
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · Focus and Deep Work</div>
+<div class="info-bar">
+  <span class="tag topic">效率 / 深度工作</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 413 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>To combat the trap of putting a premium on being busy, Cal Newport, author of Deep Work: Rules for Focused Success in a Distracted World, recommends building a habit of &quot;deep work&quot; – the ability to focus without distraction.</p>
+<p>There are a number of approaches to mastering the art of deep work – be it lengthy retreats dedicated to a specific task; developing a daily ritual; or taking a &quot;journalistic&quot; approach to seizing moments of deep work when you can throughout the day. Whichever approach, the key is to determine your length of focus time and stick to it.</p>
+<p>Newport also recommends &quot;deep scheduling&quot; to combat constant interruptions and get more done in less time. &quot;At any given point, I should have deep work scheduled for roughly the next month. Once on the calendar, I protect this time like I would a doctor&#x27;s appointment or important meeting&quot;, he writes.</p>
+<p>Another approach to getting more done in less time is to rethink how you prioritise your day – in particular how we craft our to-do lists. Tim Harford, author of Messy: The Power of Disorder to Transform Our Lives, points to a study in the early 1980s that divided undergraduates into two groups: some were advised to set out monthly goals and study activities; others were told to plan activities and goals in much more detail, day by day.</p>
+<p>While the researchers assumed that the well-structured daily plans would be most effective when it came to the execution of tasks, they were wrong: the detailed daily plans demotivated students. Harford argues that inevitable distractions often render the daily to-do list ineffective, while leaving room for improvisation in such a list can reap the best results.</p>
+<p>In order to make the most of our focus and energy, we also need to embrace downtime, or as Newport suggests, &quot;be lazy&quot;.</p>
+<p>&quot;Idleness is not just a vacation, an indulgence or a vice; it is as indispensable to the brain as vitamin D is to the body…[idleness] is, paradoxically, necessary to getting any work done,&quot; he argues.</p>
+<p>Srini Pillay, an assistant professor of psychiatry at Harvard Medical School, believes this counterintuitive link between downtime and productivity may be due to the way our brains operate. When our brains switch between being focused and unfocused on a task, they tend to be more efficient.</p>
+<p>&quot;What people don&#x27;t realise is that in order to complete these tasks they need to use both the focus and unfocus circuits in their brain,&quot; says Pillay.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>premium</td><td>n. 重视；溢价</td></tr>
+    <tr><td>distracted</td><td>adj. 分心的</td></tr>
+    <tr><td>mastering</td><td>v. 掌握</td></tr>
+    <tr><td>interruptions</td><td>n. 打断</td></tr>
+    <tr><td>downtime</td><td>n. 休息时间</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. The key to mastering the art of deep work is to____.</div><div class="q-opt">[ A ]keep to your focus time<br>[ B ]list your immediate tasks<br>[ C ]make specific daily plans<br>[ D ]seize every minute to work</div></div>
+      <div class="q-item"><div class="q-stem">37. The study in the early 1980s cited by Harford shows that____.</div><div class="q-opt">[ A ]distractions may actually increase efficiency<br>[ B ]daily schedules are indispensable to studying<br>[ C ]students are hardly motivated by monthly goals<br>[ D ]detailed plans may not be as fruitful as expected</div></div>
+      <div class="q-item"><div class="q-stem">38. According to Newport, idleness is____.</div><div class="q-opt">[ A ]a desirable mental state for busy people<br>[ B ]a major contributor to physical health<br>[ C ]an effective way to save time and energy<br>[ D ]an essential factor in accomplishing any work</div></div>
+      <div class="q-item"><div class="q-stem">39. Pillay believes that our brains&#x27; shift between being focused and unfocused____.</div><div class="q-opt">[ A ]can result in psychological well-being<br>[ B ]can bring about greater efficiency<br>[ C ]is aimed at better balance in work<br>[ D ]is driven by task urgency</div></div>
+      <div class="q-item"><div class="q-stem">40. This text is mainly about____.</div><div class="q-opt">[ A ]ways to relieve the tension of busy life<br>[ B ]approaches to getting more done in less time<br>[ C ]the key to eliminating distractions<br>[ D ]the cause of the lack of focus time</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>36 &nbsp; <span>D</span>37 &nbsp; <span>D</span>38 &nbsp; <span>B</span>39 &nbsp; <span>B</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>

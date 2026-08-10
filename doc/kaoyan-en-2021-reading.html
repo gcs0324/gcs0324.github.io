@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2021年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2021 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与参考答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · The Need for Reskilling</div>
+<div class="info-bar">
+  <span class="tag topic">职场 / 技能重塑</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 414 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>&quot;Reskilling&quot; is something that sounds like a buzzword but is actually a requirement if we plan to have a future where a lot of would-be workers do not get left behind. We know we are moving into a period where the jobs in demand will change rapidly, as will the requirements of the jobs that remain. Research by the World Economic Forum finds that on average 42 per cent of the &quot;core skills&quot; within job roles will change by 2022. That is a very short timeline.</p>
+<p>The question of who should pay for reskilling is a thorny one. For individual companies, the temptation is always to let go of workers whose skills are no longer in demand and replace them with those whose skills are. That does not always happen. AT&amp;T is often given as the gold standard of a company who decided to do a massive reskilling program rather than go with a fire-and-hire strategy. Other companies including Amazon and Disney had also pledged to create their own plans. When the skills mismatch is in the broader economy though, the focus usually turns to government to handle. Efforts in Canada and elsewhere have been arguably languid at best, and have given us a situation where we frequently hear of employers begging for workers, even at times and in regions where unemployment is high.</p>
+<p>With the pandemic, unemployment is very high indeed. In February, at 3.5 per cent and 5.5 per cent respectively, unemployment rates in Canada and the United States were at generational lows and worker shortages were everywhere. As of May, those rates had spiked up to 13.3 per cent and 13.7 per cent, and although many worker shortages had disappeared, not all had done so. In the medical field, to take an obvious example, the pandemic meant that there were still clear shortages of doctors, nurses and other medical personnel.</p>
+<p>Of course, it is not like you can take an unemployed waiter and train him to be a doctor in a few weeks, no matter who pays for it. But even if you cannot close that gap, maybe you can close others, and doing so would be to the benefit of all concerned. That seems to be the case in Sweden: When forced to furlough 90 per cent of their cabin staff, Scandinavian Airlines decided to start up a short retraining program that reskilled the laid-off workers to support hospital staff. The effort was a collective one and involved other companies as well as a Swedish university.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>reskilling</td><td>n. 技能重塑</td></tr>
+    <tr><td>economic</td><td>adj. 经济的</td></tr>
+    <tr><td>mismatch</td><td>n. 不匹配</td></tr>
+    <tr><td>fire-and-hire</td><td>adj. 解雇再招聘式的</td></tr>
+    <tr><td>timeline</td><td>n. 时间线</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. Research by the World Economic Forum suggests____.</div><div class="q-opt">[ A ]an increase in full-time employment<br>[ B ]an urgent demand for new job skills<br>[ C ]a steady growth of job opportunities<br>[ D ]a controversy about the &quot;core skills&quot;</div></div>
+      <div class="q-item"><div class="q-stem">22. AT&amp;T is cited to show____.</div><div class="q-opt">[ A ]an alternative to the fire-and-hire strategy<br>[ B ]an immediate need for government support<br>[ C ]the importance of staff appraisal standards<br>[ D ]the characteristics of reskilling programs</div></div>
+      <div class="q-item"><div class="q-stem">23. Efforts to resolve the skills mismatch in Canada____.</div><div class="q-opt">[ A ]have driven up labour costs<br>[ B ]have proved to be inconsistent<br>[ C ]have met with fierce opposition<br>[ D ]have appeared to be insufficient</div></div>
+      <div class="q-item"><div class="q-stem">24. We can learn from Paragraph 3 that there was____.</div><div class="q-opt">[ A ]a call for policy adjustment<br>[ B ]a change in hiring practices<br>[ C ]a lack of medical workers<br>[ D ]a sign of economic recovery</div></div>
+      <div class="q-item"><div class="q-stem">25. Scandinavian Airlines decided to____.</div><div class="q-opt">[ A ]create job vacancies for the unemployed<br>[ B ]prepare their laid-off workers for other jobs<br>[ C ]retrain their cabin staff for better services<br>[ D ]finance their staff&#x27;s college education</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>21 &nbsp; <span>A</span>22 &nbsp; <span>D</span>23 &nbsp; <span>C</span>24 &nbsp; <span>B</span>25</div></div>
+  </details>
+</div>
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · Making Food Production Smarter</div>
+<div class="info-bar">
+  <span class="tag topic">农业 / 食品安全</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 380 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>With the global population predicted to hit close to 10 billion by 2050, and forecasts that agricultural production in some regions will need to nearly double to keep pace, food security is increasingly making headlines. In the UK, it has become a big talking point recently too, for a rather particular reason: Brexit.</p>
+<p>Brexit is seen by some as an opportunity to reverse a recent trend towards the UK importing food. The country produces only about 60 per cent of the food it eats, down from almost three-quarters in the late 1980s. A move back to self-sufficiency, the argument goes, would boost the farming industry, political sovereignty and even the nation&#x27;s health. Sounds great—but how feasible is this vision?</p>
+<p>According to a report on UK food production from the University of Leeds, UK, 85 per cent of the country&#x27;s total land area is associated with meat and dairy production. That supplies 80 per cent of what is consumed, so even covering the whole country in livestock farms wouldn&#x27;t allow us to cover all our meat and dairy needs.</p>
+<p>There are many caveats to those figures, but they are still grave. To become much more self-sufficient, the UK would need to drastically reduce its consumption of animal foods, and probably also farm more intensively—meaning fewer green fields and more factory-style production.</p>
+<p>But switching to a mainly plant-based diet wouldn&#x27;t help. There is a good reason why the UK is dominated by animal husbandry: most of its terrain doesn&#x27;t have the right soil or climate to grow crops on a commercial basis. Just 25 per cent of the country&#x27;s land is suitable for crop-growing, most of which is already occupied by arable fields. Even if we converted all the suitable land to fields of fruit and veg—which would involve taking out all the nature reserves and removing thousands of people from their homes—we would achieve only a 30 per cent boost in crop production.</p>
+<p>Just 23 per cent of the fruit and vegetables consumed in the UK are currently home-grown, so even with the most extreme measures we could meet only 30 per cent of our fresh produce needs. That is before we look for the space to grow the grains, sugars, seeds and oils that provide us with the vast bulk of our current calorie intake.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>food security</td><td>phr. 食品安全</td></tr>
+    <tr><td>agricultural</td><td>adj. 农业的</td></tr>
+    <tr><td>production</td><td>n. 产量；生产</td></tr>
+    <tr><td>self-sufficiency</td><td>n. 自给自足</td></tr>
+    <tr><td>forecasts</td><td>n. 预测</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. Some people argue that food self-sufficiency in the UK would____.</div><div class="q-opt">[ A ]be hindered by its population growth<br>[ B ]contribute to the nation&#x27;s well-being<br>[ C ]become a priority of the government<br>[ D ]pose a challenge to its farming industry</div></div>
+      <div class="q-item"><div class="q-stem">27. The report by the University of Leeds shows that in the UK____.</div><div class="q-opt">[ A ]farmland has been inefficiently utilized<br>[ B ]factory-style production needs reforming<br>[ C ]most land is used for meat and dairy production<br>[ D ]more green fields will be converted for farming</div></div>
+      <div class="q-item"><div class="q-stem">28. Crop-growing in the UK is restricted due to____.</div><div class="q-opt">[ A ]its farming technology<br>[ B ]its dietary tradition<br>[ C ]its natural conditions<br>[ D ]its commercial interests</div></div>
+      <div class="q-item"><div class="q-stem">29. It can be learned from the last paragraph that British people____.</div><div class="q-opt">[ A ]rely largely on imports for fresh produce<br>[ B ]enjoy a steady rise in fruit consumption<br>[ C ]are seeking effective ways to cut calorie intake<br>[ D ]are trying to grow new varieties of grains</div></div>
+      <div class="q-item"><div class="q-stem">30. The author&#x27;s attitude to food self-sufficiency in the UK is____.</div><div class="q-opt">[ A ]defensive<br>[ B ]doubtful<br>[ C ]tolerant<br>[ D ]optimistic</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>26 &nbsp; <span>C</span>27 &nbsp; <span>C</span>28 &nbsp; <span>A</span>29 &nbsp; <span>B</span>30</div></div>
+  </details>
+</div>
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · Microsoft and Acquired Apps</div>
+<div class="info-bar">
+  <span class="tag topic">科技 / 产品整合</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 400 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>When Microsoft bought task management app Wunderlist and mobile calendar Sunrise in 2015, it picked two newcomers that were attracting considerable buzz in Silicon Valley. Microsoft&#x27;s own Office dominates the market for &quot;productivity&quot; software, but the start-ups represented a new wave of technology designed from the ground up for the smartphone world.</p>
+<p>Both apps, however, were later scrapped, after Microsoft said it had used their best features in its own products. Their teams of engineers stayed on, making them two of the many &quot;acqui-hires&quot; that the biggest companies have used to feed their great hunger for tech talent.</p>
+<p>To Microsoft&#x27;s critics, the fates of Wunderlist and Sunrise are examples of a remorseless drive by Big Tech to chew up any innovative companies that lie in their path. &quot;They bought the seedlings and closed them down,&quot; complained Paul Arnold, a partner at San Francisco-based Switch Ventures, putting an end to businesses that might one day turn into competitors. Microsoft declined to comment.</p>
+<p>Like other start-up investors, Mr. Arnold&#x27;s own business often depends on selling start-ups to larger tech companies, though he admits to mixed feelings about the result: &quot;I think these things are good for me, if I put my selfish hat on. But are they good for the American economy? I don&#x27;t know.&quot;</p>
+<p>The US Federal Trade Commission says it wants to find the answer to that question. This week, it asked the five most valuable US tech companies for information about their many small acquisitions over the past decade. Although only a research project at this stage, the request has raised the prospect of regulators wading into early-stage tech markets that until now have been beyond their reach.</p>
+<p>Given their combined market value of more than $5.5 trillion, rifling through such small deals—many of them much less prominent than Wunderlist and Sunrise—might seem beside the point. Between them, the five biggest tech companies have spent an average of only $3.4 billion a year on sub-$1 billion acquisitions over the past five years—a drop in the ocean compared with their massive financial reserves, and the more than $130 billion of venture capital that was invested in the US last year.</p>
+<p>However, critics say the big companies use such deals to buy their most threatening potential competitors before their businesses have a chance to gain momentum, in some cases as part of a &quot;buy and kill&quot; tactic to simply close them down.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>acquisition</td><td>n. 收购</td></tr>
+    <tr><td>management</td><td>n. 管理</td></tr>
+    <tr><td>productivity</td><td>n. 生产力</td></tr>
+    <tr><td>scrapped</td><td>v. 被废弃</td></tr>
+    <tr><td>acqui-hires</td><td>n. 人才型收购</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. What is true about Wunderlist and Sunrise after their acquisitions?</div><div class="q-opt">[ A ]Their engineers were retained.<br>[ B ]Their market values declined.<br>[ C ]Their tech features improved.<br>[ D ]Their products were re-priced.</div></div>
+      <div class="q-item"><div class="q-stem">32. Microsoft&#x27;s critics believe that the big tech companies tend to____.</div><div class="q-opt">[ A ]exaggerate their product quality<br>[ B ]eliminate their potential competitors<br>[ C ]treat new tech talent unfairly<br>[ D ]ignore public opinions</div></div>
+      <div class="q-item"><div class="q-stem">33. Paul Arnold is concerned that small acquisitions might____.</div><div class="q-opt">[ A ]weaken big tech companies<br>[ B ]worsen market competition<br>[ C ]harm the national economy<br>[ D ]discourage start-up investors</div></div>
+      <div class="q-item"><div class="q-stem">34. The US Federal Trade Commission intends to____.</div><div class="q-opt">[ A ]limit Big Tech&#x27;s expansion<br>[ B ]encourage research collaboration<br>[ C ]examine small acquisitions<br>[ D ]supervise start-ups&#x27; operation</div></div>
+      <div class="q-item"><div class="q-stem">35. For the five biggest tech companies, their small acquisitions have____.</div><div class="q-opt">[ A ]brought little financial pressure<br>[ B ]raised few management challenges<br>[ C ]set an example for future deals<br>[ D ]generated considerable profits</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>A</span>31 &nbsp; <span>B</span>32 &nbsp; <span>C</span>33 &nbsp; <span>C</span>34 &nbsp; <span>A</span>35</div></div>
+  </details>
+</div>
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · Trusting First Impressions</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 第一印象</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 412 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>We&#x27;re fairly good at judging people based on first impressions, thin slices of experience ranging from a glimpse of a photo to five-minute interaction, and deliberation can be not only extraneous but intrusive. In one study of the ability she called &quot;thin slicing,&quot; the late psychologist Nalini Ambady asked participants to watch silent 10-second video clips of professors and to rate the instructor&#x27;s overall effectiveness. Their ratings correlated strongly with students&#x27; end-of-semester ratings. Another set of participants had to count backward from 1,000 by nines as they watched the clips, occupying their conscious working memory. Their ratings were just as accurate, demonstrating the intuitive nature of the social processing.</p>
+<p>Critically, another group was asked to spend a minute writing down reasons for their judgment, before giving the rating. Accuracy dropped dramatically. Ambady suspected that deliberation focused them on vivid but misleading cues, such as certain gestures or utterances, rather than letting the complex interplay of subtle signals form a holistic impression. She found similar interference when participants watched 15-second clips of pairs of people and judged whether they were strangers, friends, or dating partners.</p>
+<p>Other research shows we&#x27;re better at detecting deception from thin slices when we rely on intuition instead of reflection. &quot;It&#x27;s as if you&#x27;re driving a stick shift,&quot; says Judith Hall, a psychologist at Northeastern University, &quot;and if you start thinking about it too much, you can&#x27;t remember what you&#x27;re doing. But if you go on automatic pilot, you&#x27;re fine. Much of our social life is like that.&quot;</p>
+<p>Thinking too much can also harm our ability to form preferences. College students&#x27; ratings of strawberry jams and college courses aligned better with experts&#x27; opinions when the students weren&#x27;t asked to analyze their rationale. And people made car-buying decisions that were both objectively better and more personally satisfying when asked to focus on their feelings rather than on details, but only if the decision was complex—when they had a lot of information to process.</p>
+<p>Intuition&#x27;s special powers are unleashed only in certain circumstances. In one study, participants completed a battery of eight tasks, including four that tapped reflective thinking (discerning rules, comprehending vocabulary) and four that tapped intuition and creativity (generating new products or figures of speech). Then they rated the degree to which they had used intuition (&quot;gut feelings,&quot; &quot;hunches,&quot; &quot;my heart&quot;). Use of their gut hurt their performance on the first four tasks, as expected, and helped them on the rest. Sometimes the heart is smarter than the head.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>first impression</td><td>phr. 第一印象</td></tr>
+    <tr><td>deliberation</td><td>n. 深思熟虑</td></tr>
+    <tr><td>extraneous</td><td>adj. 多余的</td></tr>
+    <tr><td>intrusive</td><td>adj. 干扰性的</td></tr>
+    <tr><td>intuition</td><td>n. 直觉</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. Nalini Ambady&#x27;s study deals with____.</div><div class="q-opt">[ A ]the power of people&#x27;s memory<br>[ B ]the reliability of first impressions<br>[ C ]Instructor-student interaction<br>[ D ]people&#x27;s ability to influence others</div></div>
+      <div class="q-item"><div class="q-stem">37. In Ambady&#x27;s study, rating accuracy dropped when participants____.</div><div class="q-opt">[ A ]focused on specific details<br>[ B ]gave the rating in limited time<br>[ C ]watched shorter video clips<br>[ D ]discussed with one another</div></div>
+      <div class="q-item"><div class="q-stem">38. Judith Hall mentions driving to show that____.</div><div class="q-opt">[ A ]reflection can be distracting<br>[ B ]memory may be selective<br>[ C ]social skills must be cultivated<br>[ D ]deception is difficult to detect</div></div>
+      <div class="q-item"><div class="q-stem">39. When you are making complex decisions, it is advisable to____.</div><div class="q-opt">[ A ]collect enough data<br>[ B ]list your preferences<br>[ C ]seek expert advice<br>[ D ]follow your feelings</div></div>
+      <div class="q-item"><div class="q-stem">40. What can we learn from the last paragraph?</div><div class="q-opt">[ A ]Generating new products takes time.<br>[ B ]Intuition may affect reflective tasks.<br>[ C ]Vocabulary comprehension needs creativity.<br>[ D ]Objective thinking may boost intuitiveness.</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>A</span>37 &nbsp; <span>A</span>38 &nbsp; <span>D</span>39 &nbsp; <span>B</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>

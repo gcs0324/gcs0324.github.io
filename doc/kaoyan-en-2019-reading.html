@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2019年英语二阅读真题 · 精读原文</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.info-bar{display:flex;gap:12px;align-items:center;margin-bottom:20px;font-size:12px;color:var(--tx3);flex-wrap:wrap;}
+.info-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--bd);color:var(--tx3);}
+.info-bar .tag.topic{color:var(--blue);border-color:var(--blu-b);background:var(--blu-bg);}
+.info-bar .tag.diff{color:var(--green);border-color:var(--grn-b);background:var(--grn-bg);}
+
+.passage{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:28px 32px;margin-bottom:8px;line-height:2;font-size:15px;}
+.passage p{margin-bottom:16px;text-indent:0;}
+.passage p:last-child{margin-bottom:0;}
+.passage .highlight{background:rgba(88,166,255,0.12);padding:1px 0;}
+
+.vocab{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:16px 20px;margin-top:8px;margin-bottom:24px;}
+.vocab h4{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.06em;}
+.vocab table{width:100%;border-collapse:collapse;font-size:13px;}
+.vocab td{padding:4px 8px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.vocab td:first-child{font-weight:600;color:var(--tx);width:30%;}
+.vocab td:last-child{color:var(--tx3);font-size:12px;}
+.vocab tr:last-child td{border-bottom:none;}
+
+.q-block{margin-top:8px;margin-bottom:24px;}
+.q-block details{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;overflow:hidden;}
+.q-block summary{padding:12px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2);letter-spacing:.04em;user-select:none;list-style:none;transition:background .15s;}
+.q-block summary::-webkit-details-marker{display:none;}
+.q-block summary:hover{background:var(--bg3);}
+.q-block summary::after{content:' ▼';font-size:10px;color:var(--tx3);}
+.q-block details[open] summary::after{content:' ▲';}
+.q-block .q-body{padding:14px 20px;border-top:1px solid var(--bd);}
+.q-block .q-item{margin-bottom:14px;font-size:14px;line-height:1.7;}
+.q-block .q-item:last-child{margin-bottom:0;}
+.q-block .q-item .q-stem{font-weight:600;color:var(--tx);margin-bottom:4px;}
+.q-block .q-opt{display:flex;flex-direction:column;gap:2px;margin-left:16px;font-size:13px;color:var(--tx2);}
+.q-block .q-ans{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--green);padding:4px 0;}
+.q-block .q-ans span{display:inline-block;min-width:28px;text-align:center;font-weight:600;background:var(--grn-bg);border:1px solid var(--grn-b);border-radius:3px;padding:1px 6px;margin-right:4px;}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .passage{padding:18px 16px;font-size:14px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 精读</div>
+  <h1>2019 年英语二 · 阅读真题原文</h1>
+  <p class="subtitle">Text 1-4 完整原文 + 核心词汇 + 题目与参考答案</p>
+</header>
+
+<nav>
+  <a href="#t1">Text 1</a>
+  <a href="#t2">Text 2</a>
+  <a href="#t3">Text 3</a>
+  <a href="#t4">Text 4</a>
+</nav>
+
+<main>
+
+<!-- ====== Text 1 ====== -->
+<div class="sec" id="t1">Text 1 · Guilt and Social Development</div>
+<div class="info-bar">
+  <span class="tag topic">心理 / 儿童内疚感</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 413 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Unlike so-called basic emotions such as sadness, fear, and anger, guilt emerges a little later, in conjunction with a child&#x27;s growing grasp of social and moral norms. Children aren&#x27;t born knowing how to say &quot;I&#x27;m sorry&quot;; rather, they learn over time that such statements appease parents and friends – and their own consciences. This is why researchers generally regard so-called moral guilt, in the right amount, to be a good thing.</p>
+<p>In the popular imagination, of course, guilt still gets a bad rap. It is deeply uncomfortable – it&#x27;s the emotional equivalent of wearing a jacket weighted with stones. Yet this understanding is outdated. &quot;There has been a kind of revival or a rethinking about what guilt is and what role guilt can serve,&quot; says Amrisha Vaish, a psychology researcher at the University of Virginia, adding that this revival is part of a larger recognition that emotions aren&#x27;t binary – feelings that may be advantageous in one context may be harmful in another. Jealousy and anger, for example, may have evolved to alert us to important inequalities. Too much happiness can be destructive.</p>
+<p>And guilt, by prompting us to think more deeply about our goodness, can encourage humans to make up for errors and fix relationships. Guilt, in other words, can help hold a cooperative species together. It is a kind of social glue.</p>
+<p>Viewed in this light, guilt is an opportunity. Work by Tina Malti, a psychology professor at the University of Toronto, suggests that guilt may compensate for an emotional deficiency. In a number of studies, Malti and others have shown that guilt and sympathy may represent different pathways to cooperation and sharing. Some kids who are low in sympathy may make up for that shortfall by experiencing more guilt, which can rein in their nastier impulses. And vice versa: High sympathy can substitute for low guilt.</p>
+<p>In a 2014 study, for example, Malti looked at 244 children. Using caregiver assessments and the children&#x27;s self-observations, she rated each child&#x27;s overall sympathy level and his or her tendency to feel negative emotions after moral transgressions. Then the kids were handed chocolate coins, and given a chance to share them with an anonymous child. For the low-sympathy kids, how much they shared appeared to turn on how inclined they were to feel guilty. The guilt-prone ones shared more, even though they hadn&#x27;t magically become more sympathetic to the other child&#x27;s deprivation.</p>
+<p>&quot;That&#x27;s good news,&quot; Malti says. &quot;We can be prosocial because we caused harm and we feel regret.&quot;</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>guilt</td><td>n. 内疚</td></tr>
+    <tr><td>moral norms</td><td>phr. 道德规范</td></tr>
+    <tr><td>transgression</td><td>n. 过失；越界</td></tr>
+    <tr><td>recognition</td><td>n. 认识；承认</td></tr>
+    <tr><td>consciences</td><td>n. 良知</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 1 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">21. Researchers think that guilt can be a good thing because it may help____.</div><div class="q-opt">[ A ]regulate a child&#x27;s basic emotions<br>[ B ]improve a child&#x27;s intellectual ability<br>[ C ]foster a child&#x27;s moral development<br>[ D ]intensify a child&#x27;s positive feelings</div></div>
+      <div class="q-item"><div class="q-stem">22. According to Paragraph 2, many people still consider guilt to be____.</div><div class="q-opt">[ A ]deceptive<br>[ B ]burdensome<br>[ C ]addictive<br>[ D ]inexcusable</div></div>
+      <div class="q-item"><div class="q-stem">23. Vaish holds that the rethinking about guilt comes from an awareness that____.</div><div class="q-opt">[ A ]emotions are context-independent<br>[ B ]emotions are socially constructive<br>[ C ]emotional stability can benefit health<br>[ D ]an emotion can play opposing roles</div></div>
+      <div class="q-item"><div class="q-stem">24. Malti and others have shown that cooperation and sharing____.</div><div class="q-opt">[ A ]may help correct emotional deficiencies<br>[ B ]can result from either sympathy or guilt<br>[ C ]can bring about emotional satisfaction<br>[ D ]may be the outcome of impulsive acts</div></div>
+      <div class="q-item"><div class="q-stem">25. The word &quot;transgressions&quot; (Line 4, Para. 5) is closest in meaning to____.</div><div class="q-opt">[ A ]teachings<br>[ B ]discussions<br>[ C ]restrictions<br>[ D ]wrongdoings</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 1 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>C</span>21 &nbsp; <span>B</span>22 &nbsp; <span>D</span>23 &nbsp; <span>B</span>24 &nbsp; <span>D</span>25</div></div>
+  </details>
+</div>
+<!-- ====== Text 2 ====== -->
+<div class="sec" id="t2">Text 2 · Forests under Climate Change</div>
+<div class="info-bar">
+  <span class="tag topic">环境 / 森林与气候</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 391 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Forests give us shade, quiet and one of the harder challenges in the fight against climate change. Even as we humans count on forests to soak up a good share of the carbon dioxide we produce, we are threatening their ability to do so. The climate change we are hastening could one day leave us with forests that emit more carbon than they absorb.</p>
+<p>Thankfully, there is a way out of this trap – but it involves striking a subtle balance. Helping forests flourish as valuable &quot;carbon sinks&quot; long into the future may require reducing their capacity to absorb carbon now. California is leading the way, as it does on so many climate efforts, in figuring out the details.</p>
+<p>The state&#x27;s proposed Forest Carbon Plan aims to double efforts to thin out young trees and clear brush in parts of the forest. This temporarily lowers carbon-carrying capacity. But the remaining trees draw a greater share of the available moisture, so they grow and thrive, restoring the forest&#x27;s capacity to pull carbon from the air. Healthy trees are also better able to fend off insects. The landscape is rendered less easily burnable. Even in the event of a fire, fewer trees are consumed.</p>
+<p>The need for such planning is increasingly urgent. Already, since 2010, drought and insects have killed over 100 million trees in California, most of them in 2016 alone, and wildfires have burned hundreds of thousands of acres.</p>
+<p>California plans to treat 35,000 acres of forest a year by 2020, and 60,000 by 2030 – financed from the proceeds of the state&#x27;s emissions-permit auctions. That&#x27;s only a small share of the total acreage that could benefit, about half a million acres in all, so it will be vital to prioritize areas at greatest risk of fire or drought.</p>
+<p>The strategy also aims to ensure that carbon in woody material removed from the forests is locked away in the form of solid lumber or burned as biofuel in vehicles that would otherwise run on fossil fuels. New research on transportation biofuels is already under way.</p>
+<p>State governments are well accustomed to managing forests, but traditionally they&#x27;ve focused on wildlife, watersheds and opportunities for recreation. Only recently have they come to see the vital part forests will have to play in storing carbon. California&#x27;s plan, which is expected to be finalized by the governor next year, should serve as a model.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>soak up</td><td>phr. 吸收</td></tr>
+    <tr><td>moisture</td><td>n. 水分</td></tr>
+    <tr><td>restoring</td><td>v. 恢复</td></tr>
+    <tr><td>drought</td><td>n. 干旱</td></tr>
+    <tr><td>carbon sink</td><td>phr. 碳汇</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 2 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">26. By saying &quot;one of the harder challenges,&quot; the author implies that____.</div><div class="q-opt">[ A ]global climate change may get out of control<br>[ B ]people may misunderstand global warming<br>[ C ]extreme weather conditions may arise<br>[ D ]forests may become a potential threat</div></div>
+      <div class="q-item"><div class="q-stem">27. To maintain forests as valuable &quot;carbon sinks,&quot; we may need to____.</div><div class="q-opt">[ A ]preserve the diversity of species in them<br>[ B ]accelerate the growth of young trees<br>[ C ]strike a balance among different plants<br>[ D ]lower their present carbon-absorbing capacity</div></div>
+      <div class="q-item"><div class="q-stem">28. California&#x27;s Forest Carbon Plan endeavors to____.</div><div class="q-opt">[ A ]cultivate more drought-resistant trees<br>[ B ]reduce the density of some of its forests<br>[ C ]find more effective ways to kill insects<br>[ D ]restore its forests quickly after wildfires</div></div>
+      <div class="q-item"><div class="q-stem">29. What is essential to California&#x27;s plan according to Paragraph 5?</div><div class="q-opt">[ A ]To handle the areas in serious danger first.<br>[ B ]To carry it out before the year of 2020.<br>[ C ]To perfect the emissions-permit auctions.<br>[ D ]To obtain enough financial support.</div></div>
+      <div class="q-item"><div class="q-stem">30. The author&#x27;s attitude to California&#x27;s plan can best be described as____.</div><div class="q-opt">[ A ]ambiguous<br>[ B ]tolerant<br>[ C ]supportive<br>[ D ]cautious</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 2 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>D</span>26 &nbsp; <span>D</span>27 &nbsp; <span>B</span>28 &nbsp; <span>A</span>29 &nbsp; <span>C</span>30</div></div>
+  </details>
+</div>
+<!-- ====== Text 3 ====== -->
+<div class="sec" id="t3">Text 3 · The Farm Labor Shortage</div>
+<div class="info-bar">
+  <span class="tag topic">农业 / 移民劳工</span>
+  <span class="tag diff">⭐⭐⭐</span>
+  <span>约 416 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>American farmers have been complaining of labor shortages for several years. The complaints are unlikely to stop without an overhaul of immigration rules for farm workers.</p>
+<p>Congress has obstructed efforts to create a more straightforward visa for agricultural workers that would let foreign workers stay longer in the U.S. and change jobs within the industry. If this doesn&#x27;t change, American businesses, communities, and consumers will be the losers.</p>
+<p>Perhaps half of U.S. farm laborers are undocumented immigrants. As fewer such workers enter the country, the characteristics of the agricultural workforce are changing. Today&#x27;s farm laborers, while still predominantly born in Mexico, are more likely to be settled rather than migrating and more likely to be married than single. They&#x27;re also aging. At the start of this century, about one-third of crop workers were over the age of 35. Now more than half are. And picking crops is hard on older bodies. One oft-debated cure for this labor shortage remains as implausible as it&#x27;s been all along: Native U.S. workers won&#x27;t be returning to the farm.</p>
+<p>Mechanization isn&#x27;t the answer, either – not yet, at least. Production of corn, cotton, rice, soybeans, and wheat has been largely mechanized, but many high-value, labor-intensive crops, such as strawberries, need labor. Even dairy farms, where robots do a small share of milking, have a long way to go before they&#x27;re automated.</p>
+<p>As a result, farms have grown increasingly reliant on temporary guest workers using the H-2A visa to fill the gaps in the workforce. Starting around 2012, requests for the visas rose sharply; from 2011 to 2016 the number of visas issued more than doubled.</p>
+<p>The H-2A visa has no numerical cap, unlike the H-2B visa for nonagricultural work, which is limited to 66,000 a year. Even so, employers complain they aren&#x27;t given all the workers they need. The process is cumbersome, expensive, and unreliable. One survey found that bureaucratic delays led the average H-2A worker to arrive on the job 22 days late. The shortage is compounded by federal immigration raids, which remove some workers and drive others underground.</p>
+<p>In a 2012 survey, 71 percent of tree-fruit growers and almost 80 percent of raisin and berry growers said they were short of labor. Some western farmers have responded by moving operations to Mexico. From 1998 to 2000, 14.5 percent of the fruit Americans consumed was imported. Little more than a decade later, the share of imports was 25.8 percent.</p>
+<p>In effect, the U.S. can import food or it can import the workers who pick it.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>overhaul</td><td>n. 彻底改革</td></tr>
+    <tr><td>predominantly</td><td>adv. 主要地</td></tr>
+    <tr><td>immigration</td><td>n. 移民</td></tr>
+    <tr><td>shortages</td><td>n. 短缺</td></tr>
+    <tr><td>workforce</td><td>n. 劳动力</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 3 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">31. What problem should be addressed according to the first two paragraphs?</div><div class="q-opt">[ A ]Discrimination against foreign workers in the U.S.<br>[ B ]Biased laws in favor of some American businesses.<br>[ C ]Flaws in U.S. immigration rules for farm workers.<br>[ D ]Decline of job opportunities in U.S. agriculture.</div></div>
+      <div class="q-item"><div class="q-stem">32. One trouble with U.S. agricultural workforce is____.</div><div class="q-opt">[ A ]the rising number of illegal immigrants<br>[ B ]the high mobility of crop workers<br>[ C ]the lack of experienced laborers<br>[ D ]the aging of immigrant farm workers</div></div>
+      <div class="q-item"><div class="q-stem">33. What is the much-argued solution to the labor shortage in U.S. farming?</div><div class="q-opt">[ A ]To attract younger laborers to farm work.<br>[ B ]To get native U.S. workers back to farming.<br>[ C ]To use more robots to grow high-value crops.<br>[ D ]To strengthen financial support for farmers.</div></div>
+      <div class="q-item"><div class="q-stem">34. Agricultural employers complain about the H-2A visa for its____.</div><div class="q-opt">[ A ]slow granting procedures<br>[ B ]limit on duration of stay<br>[ C ]tightened requirements<br>[ D ]control of annual admissions</div></div>
+      <div class="q-item"><div class="q-stem">35. Which of the following could be the best title for this text?</div><div class="q-opt">[ A ]U.S. Agriculture in Decline?<br>[ B ]Import Food or Labor?<br>[ C ]America Saved by Mexico?<br>[ D ]Manpower vs. Automation?</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 3 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>C</span>31 &nbsp; <span>D</span>32 &nbsp; <span>B</span>33 &nbsp; <span>A</span>34 &nbsp; <span>B</span>35</div></div>
+  </details>
+</div>
+<!-- ====== Text 4 ====== -->
+<div class="sec" id="t4">Text 4 · Beat Plastic Pollution</div>
+<div class="info-bar">
+  <span class="tag topic">环保 / 塑料污染</span>
+  <span class="tag diff">⭐⭐</span>
+  <span>约 419 词 · 建议 18 分钟</span>
+</div>
+
+<div class="passage">
+<p>Arnold Schwarzenegger, Dia Mirza and Adrian Grenier have a message for you: It&#x27;s easy to beat plastic. They&#x27;re part of a bunch of celebrities starring in a new video for World Environment Day – encouraging you, the consumer, to swap out your single-use plastic staples like straws and cutlery to combat the plastics crisis.</p>
+<p>The key messages that have been put together for World Environment Day do include a call for governments to enact legislation to curb single-use plastics. But the overarching message is directed at individuals.</p>
+<p>My concern with leaving it up to the individual, however, is our limited sense of what needs to be achieved. On their own, taking our own bags to the grocery store or quitting plastic straws, for example, will accomplish little and require very little of us. They could even be detrimental, satisfying a need to have &quot;done our bit&quot; without ever progressing onto bigger, bolder, more effective actions – a kind of &quot;moral licensing&quot; that allays our concerns and stops us doing more and asking more of those in charge.</p>
+<p>While the conversation around our environment and our responsibility toward it remains centered on shopping bags and straws, we&#x27;re ignoring the balance of power that implies that as &quot;consumers&quot; we must shop sustainably, rather than as &quot;citizens&quot; hold our governments and industries to account to push for real systemic change.</p>
+<p>It&#x27;s important to acknowledge that the environment isn&#x27;t everyone&#x27;s priority – or even most people&#x27;s. We shouldn&#x27;t expect it to be. In her latest book, Why Good People Do Bad Environmental Things, Wellesley College professor Elizabeth R. DeSombre argues that the best way to collectively change the behavior of large numbers of people is for the change to be structural.</p>
+<p>This might mean implementing policy such as a plastic tax that adds a cost to environmentally problematic action, or banning single-use plastics altogether. India has just announced it will &quot;eliminate all single-use plastic in the country by 2022.&quot; There are also incentive-based ways of making better environmental choices easier, such as ensuring recycling is at least as easy as trash disposal.</p>
+<p>DeSombre isn&#x27;t saying people should stop caring about the environment. It&#x27;s just that individual actions are too slow, she says, for that to be the only, or even primary, approach to changing widespread behavior.</p>
+<p>None of this is about writing off the individual. It&#x27;s just about putting things into perspective. We don&#x27;t have time to wait. We need progressive policies that shape collective action (and rein in polluting businesses), alongside engaged citizens pushing for change.</p>
+</div>
+
+<div class="vocab">
+  <h4>📝 核心词汇</h4>
+  <table>
+    <tr><td>single-use</td><td>adj. 一次性的</td></tr>
+    <tr><td>consumer</td><td>n. 消费者</td></tr>
+    <tr><td>legislation</td><td>n. 立法</td></tr>
+    <tr><td>detrimental</td><td>adj. 有害的</td></tr>
+    <tr><td>eliminate</td><td>v. 消除</td></tr>
+  </table>
+</div>
+
+<div class="q-block">
+  <details>
+    <summary>📋 Text 4 题目</summary>
+    <div class="q-body">
+      <div class="q-item"><div class="q-stem">36. Some celebrities star in a new video to____.</div><div class="q-opt">[ A ]demand new laws on the use of plastics<br>[ B ]urge consumers to cut the use of plastics<br>[ C ]invite public opinion on the plastics crisis<br>[ D ]disclose the causes of the plastics crisis</div></div>
+      <div class="q-item"><div class="q-stem">37. The author is concerned that &quot;moral licensing&quot; may____.</div><div class="q-opt">[ A ]mislead us into doing worthless things<br>[ B ]prevent us from making further efforts<br>[ C ]weaken our sense of accomplishment<br>[ D ]suppress our desire for success</div></div>
+      <div class="q-item"><div class="q-stem">38. By pointing out our identity &quot;citizens&quot;, the author indicates that____.</div><div class="q-opt">[ A ]our focus should be shifted to community welfare<br>[ B ]our relationship with local industries is improving<br>[ C ]we have been actively exercising our civil rights<br>[ D ]we should press our government to lead the combat</div></div>
+      <div class="q-item"><div class="q-stem">39. DeSombre argues that the best way for a collective change should be____.</div><div class="q-opt">[ A ]a win-win arrangement<br>[ B ]a self-driven mechanism<br>[ C ]a cost-effective approach<br>[ D ]a top-down process</div></div>
+      <div class="q-item"><div class="q-stem">40. The author concludes that individual efforts____.</div><div class="q-opt">[ A ]can be too aggressive<br>[ B ]can be too inconsistent<br>[ C ]are far from sufficient<br>[ D ]are far from rational</div></div>
+    </div>
+  </details>
+  <details>
+    <summary>✅ Text 4 参考答案</summary>
+    <div class="q-body"><div class="q-ans"><span>B</span>36 &nbsp; <span>B</span>37 &nbsp; <span>D</span>38 &nbsp; <span>D</span>39 &nbsp; <span>C</span>40</div></div>
+  </details>
+</div>
+
+</main>
+</body>
+</html>
