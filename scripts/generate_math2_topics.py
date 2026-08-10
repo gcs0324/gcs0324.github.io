@@ -87,6 +87,7 @@ PROCEDURES = {
         },
         {
             "title": "间断点五步判定",
+            "detail": "discontinuity",
             "signal": "分母为 0、分段函数分界、对数或根式的定义域边界、tan/cot 等函数无定义处。",
             "steps": [
                 "先写定义域，找出所有可疑点，避免漏掉分段界点和定义域边界。",
@@ -102,6 +103,7 @@ PROCEDURES = {
     "derivative": [
         {
             "title": "不可导点五步判定",
+            "detail": "nondifferentiable",
             "signal": "分段点、绝对值内部为 0、根式定义域端点、尖点，以及函数本身不连续的点。",
             "steps": [
                 "从分段界点、绝对值零点和定义域边界中列出所有可疑点。",
@@ -258,7 +260,86 @@ def example(item, index):
     parts=''.join(f'<div class="step"><span class="n">{i}</span><span>{s}</span></div>' for i,s in enumerate(steps,1))
     return f'<div class="ex"><div class="exh">{"考试型练习" if index==5 else "教程例题"} · {title}</div><div class="q">{q}</div>{parts}<div class="ans">{ans}</div></div>'
 
+def mini_visual(kind):
+    paths={
+        "removable": '<path d="M4 31 C16 26 26 19 42 8"/><circle cx="25" cy="20" r="3.5"/><circle class="solid" cx="25" cy="31" r="3"/>',
+        "jump": '<path d="M4 29 H23"/><circle class="solid" cx="23" cy="29" r="3"/><path d="M27 12 H46"/><circle cx="27" cy="12" r="3.5"/>',
+        "infinite": '<path class="dash" d="M25 4 V37"/><path d="M4 34 C15 32 21 24 23 6 M27 6 C29 24 35 32 46 34"/>',
+        "oscillation": '<path d="M3 22 C7 5 11 39 15 22 S23 5 27 22 S35 39 39 22 S44 10 47 20"/>',
+        "corner": '<path d="M4 8 L25 31 L46 8"/>',
+        "cusp": '<path d="M4 8 C16 12 22 21 25 35 C28 21 34 12 46 8"/>',
+        "vertical": '<path d="M4 34 C17 33 24 25 25 5 C26 25 33 33 46 34"/>',
+        "broken": '<path d="M4 30 L20 18"/><circle cx="22" cy="16" r="3.5"/><path d="M29 10 L46 5"/><circle class="solid" cx="29" cy="10" r="3"/>',
+    }
+    return f'<svg viewBox="0 0 50 42" aria-hidden="true">{paths[kind]}</svg>'
+
+def type_card(kind, title, text):
+    return f'<div class="procedure-type">{mini_visual(kind)}<div><h5>{title}</h5><p>{text}</p></div></div>'
+
+def visual_flow(labels):
+    return '<div class="procedure-visual" aria-label="解题流程">'+''.join(f'<div class="procedure-visual-node"><span>{i}</span>{label}</div>{"<i>→</i>" if i<len(labels) else ""}' for i,label in enumerate(labels,1))+'</div>'
+
+def detail_step(number, title, body):
+    return f'<section class="procedure-detail-step procedure-step"><span class="procedure-no">{number}</span><div><h4>{title}</h4>{body}</div></section>'
+
+def detailed_procedure(item):
+    if item['detail']=="discontinuity":
+        suspects=''.join(f'<li>{x}</li>' for x in ["分母为 0 的点","对数真数为 0 或负数的边界","偶次根号内等于 0 的边界","分段函数的分界点","tan x、cot x 等函数的无定义点"])
+        types=''.join([
+            type_card("removable","可去间断点","左右极限存在且相等，但函数值不存在或不等于这个极限。"),
+            type_card("jump","跳跃间断点","左右极限都存在且有限，但两个数不相等。"),
+            type_card("infinite","无穷间断点","至少一个单侧极限为 +∞ 或 -∞。"),
+            type_card("oscillation","振荡间断点","至少一个单侧极限持续振荡，无法趋近一个确定值。"),
+        ])
+        steps=''.join([
+            detail_step(1,"第一步：找可疑点",f'<p>先从定义域和函数结构中找“可能断开”的位置。优先检查：</p><ul class="procedure-suspects procedure-signal">{suspects}</ul>'),
+            detail_step(2,"第二步：计算左右极限",'<p>对每个可疑点 x₀，必须从左、右两侧分别靠近。分段函数尤其不能只算一个整体极限。</p><div class="math-pair"><div class="math-block">lim<sub>x→x₀⁻</sub> f(x)</div><div class="math-block">lim<sub>x→x₀⁺</sub> f(x)</div></div>'),
+            detail_step(3,"第三步：判断连续性",'<p>函数在 x₀ 连续，下面三个条件必须同时成立，少一个都不行：</p><div class="math-block math-important">f(x₀) 有定义　＋　lim<sub>x→x₀</sub>f(x) 存在　＋　lim<sub>x→x₀</sub>f(x)=f(x₀)</div><p class="procedure-check"><strong>结果检查</strong>左右极限相等只能说明极限存在，还必须继续与函数值比较。</p>'),
+            detail_step(4,"第四步：判断间断点类型",f'<p>先看左右极限是否有限、是否相等，再判断能否通过补一个函数值把断点接上。</p><div class="procedure-types">{types}</div>'),
+        ])
+        example='''<section class="procedure-example"><div class="procedure-example-label">完整例题</div><h4>判断 f(x)=(x²-1)/(x-1) 的间断点及类型</h4>
+<div class="example-line"><span>1</span><p>分母在 x=1 时为 0，所以 x=1 是可疑点。原函数在这里没有定义。</p></div>
+<div class="example-line"><span>2</span><p>当 x≠1 时，x²-1=(x-1)(x+1)，因此可以先约去 x-1。</p></div>
+<div class="math-block">lim<sub>x→1</sub> (x²-1)/(x-1) = lim<sub>x→1</sub>(x+1) = 2</div>
+<div class="example-line"><span>3</span><p>左右极限都等于 2，但 f(1) 不存在。只要补定义 f(1)=2，函数就能连续。</p></div>
+<div class="procedure-example-answer">结论：x=1 是可去间断点。</div></section>'''
+        memory='找可疑点 → 算左右极限 → 比较函数值 → 判断间断类型'
+        goal='找出函数在哪些点不连续，并准确判断间断点属于哪一种类型。'
+        flow=["找可疑点","算左右极限","比较函数值","判断类型"]
+        mistake='不能看到“函数无定义”就直接写可去间断；类型由单侧极限决定。无穷大也不表示极限作为有限数存在。'
+    else:
+        suspects=''.join(f'<li>{x}</li>' for x in ["分段函数的分界点","绝对值内部等于 0 的点","根式内部等于 0 的点","图像的尖点、角点、竖直切线","函数的间断点"])
+        types=''.join([
+            type_card("corner","角点","左右导数都有限，但数值不相等。"),
+            type_card("cusp","尖点","左右斜率分别趋于 +∞ 和 -∞，方向相反。"),
+            type_card("vertical","竖直切线","两侧斜率趋于同一个无穷方向，切线竖直。"),
+            type_card("broken","其他不可导","函数不连续，或至少一个单侧导数不存在。"),
+        ])
+        steps=''.join([
+            detail_step(1,"第一步：找可疑点",f'<p>普通光滑区间通常可直接用求导公式，真正需要单独检查的是结构发生变化的位置：</p><ul class="procedure-suspects procedure-signal">{suspects}</ul><div class="math-block math-important">可导 ⇒ 连续</div><p>所以间断点一定不可导，可以先直接列入不可导点。</p>'),
+            detail_step(2,"第二步：先判断是否连续",'<p>对每个可疑点 x₀，先比较左极限、右极限和函数值：</p><div class="math-block">lim<sub>x→x₀⁻</sub>f(x) = lim<sub>x→x₀⁺</sub>f(x) = f(x₀)</div><p>若这个等式不成立，函数在 x₀ 不连续，也就不可能可导；不需要再算左右导数。</p>'),
+            detail_step(3,"第三步：计算左右导数",'<p>函数连续后，再回到导数定义。分段点不能只把 x₀ 代入两边的导函数公式。</p><div class="math-pair"><div class="math-block">f′₋(x₀)=lim<sub>x→x₀⁻</sub> [f(x)-f(x₀)]/(x-x₀)</div><div class="math-block">f′₊(x₀)=lim<sub>x→x₀⁺</sub> [f(x)-f(x₀)]/(x-x₀)</div></div><p class="procedure-check"><strong>结果检查</strong>左右导数都存在、有限且相等，函数才在 x₀ 可导。</p>'),
+            detail_step(4,"第四步：判断不可导类型",f'<p>不可导不只一种表现。根据两侧割线斜率的极限，可以进一步判断图像形状：</p><div class="procedure-types">{types}</div>'),
+        ])
+        example='''<section class="procedure-example"><div class="procedure-example-label">完整例题</div><h4>判断 f(x)=|x| 在 x=0 处是否可导</h4>
+<div class="example-line"><span>1</span><p>绝对值内部 x 在 0 处变号，因此 x=0 是可疑点；同时 lim[x→0]|x|=0=f(0)，函数在这里连续。</p></div>
+<div class="example-line"><span>2</span><p>x&lt;0 时 |x|=-x，所以左导数为：</p></div>
+<div class="math-block">f′₋(0)=lim<sub>x→0⁻</sub> |x|/x = lim<sub>x→0⁻</sub>(-x/x) = -1</div>
+<div class="example-line"><span>3</span><p>x&gt;0 时 |x|=x，所以右导数为：</p></div>
+<div class="math-block">f′₊(0)=lim<sub>x→0⁺</sub> |x|/x = 1</div>
+<div class="procedure-example-answer">结论：左右导数 -1 与 1 不相等，所以 x=0 不可导；图像在此处形成角点。</div></section>'''
+        memory='找可疑点 → 先判连续 → 算左右导数 → 判断不可导类型'
+        goal='在函数连续的基础上，找出左右导数不相等或导数不存在的点。'
+        flow=["找可疑点","先判连续","算左右导数","判断类型"]
+        mistake='连续只是可导的必要条件，不是充分条件；分段点要用单侧导数定义，不能只比较两侧导函数的形式。'
+    return f'''<article class="procedure procedure-detailed"><h3 class="procedure-title">{item['title']}</h3>
+<p class="procedure-goal"><strong>目标</strong>{goal}</p>{visual_flow(flow)}{steps}
+{example}<p class="procedure-mistake"><strong>易错点</strong>{mistake}</p>
+<div class="procedure-memory"><span>考试速记</span><b>{memory}</b></div></article>'''
+
 def procedure(item):
+    if item.get('detail'):
+        return detailed_procedure(item)
     steps=''.join(f'<li class="procedure-step"><span class="procedure-no">{i}</span><span>{step}</span></li>' for i,step in enumerate(item['steps'],1))
     return f'''<article class="procedure"><h3 class="procedure-title">{item['title']}</h3>
 <p class="procedure-signal"><strong>识别信号</strong>{item['signal']}</p>

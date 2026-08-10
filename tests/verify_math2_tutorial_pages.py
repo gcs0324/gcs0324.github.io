@@ -25,6 +25,10 @@ PROCEDURES = {
     "kaoyan-math2-vector-equations.html": 1,
     "kaoyan-math2-eigen-quadratic.html": 1,
 }
+DETAILED_PROCEDURES = {
+    "kaoyan-math2-limit.html": 1,
+    "kaoyan-math2-derivative.html": 1,
+}
 
 
 class Audit(HTMLParser):
@@ -50,6 +54,11 @@ class Audit(HTMLParser):
         self.procedure_signals = 0
         self.procedure_checks = 0
         self.procedure_mistakes = 0
+        self.detailed_procedures = 0
+        self.procedure_visuals = 0
+        self.procedure_examples = 0
+        self.procedure_memories = 0
+        self.procedure_detail_steps = 0
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -88,6 +97,16 @@ class Audit(HTMLParser):
             self.procedure_checks += 1
         if self._procedure_depth and "procedure-mistake" in classes:
             self.procedure_mistakes += 1
+        if "procedure-detailed" in classes:
+            self.detailed_procedures += 1
+        if "procedure-visual" in classes:
+            self.procedure_visuals += 1
+        if "procedure-example" in classes:
+            self.procedure_examples += 1
+        if "procedure-memory" in classes:
+            self.procedure_memories += 1
+        if "procedure-detail-step" in classes:
+            self.procedure_detail_steps += 1
         if tag == "link" and attrs.get("href") == "../shared/theme.css":
             self.theme_css = True
         if tag == "script" and attrs.get("src") == "../shared/theme.js":
@@ -131,6 +150,13 @@ def main():
             assert audit.procedure_checks == expected_procedures, f"{name}: procedure checks missing"
             assert audit.procedure_mistakes == expected_procedures, f"{name}: procedure mistakes missing"
             assert all(steps >= 4 for steps in audit.procedure_steps), f"{name}: procedure steps {audit.procedure_steps}"
+        expected_detailed = DETAILED_PROCEDURES.get(name, 0)
+        assert audit.detailed_procedures == expected_detailed, f"{name}: detailed procedures {audit.detailed_procedures}, expected {expected_detailed}"
+        if expected_detailed:
+            assert audit.procedure_visuals >= expected_detailed, f"{name}: detailed procedure visual missing"
+            assert audit.procedure_examples >= expected_detailed, f"{name}: detailed procedure example missing"
+            assert audit.procedure_memories >= expected_detailed, f"{name}: detailed procedure memory missing"
+            assert audit.procedure_detail_steps >= 4 * expected_detailed, f"{name}: detailed steps {audit.procedure_detail_steps}"
         assert not [href for href in audit.nav_hrefs if href[1:] not in audit.ids], f"{name}: broken nav anchor"
         for href in audit.local_pages:
             assert (path.parent / href).exists(), f"{name}: missing linked page {href}"
