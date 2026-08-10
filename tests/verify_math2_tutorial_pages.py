@@ -26,8 +26,13 @@ PROCEDURES = {
     "kaoyan-math2-eigen-quadratic.html": 1,
 }
 DETAILED_PROCEDURES = {
-    "kaoyan-math2-limit.html": 1,
-    "kaoyan-math2-derivative.html": 1,
+    "kaoyan-math2-limit.html": 2,
+    "kaoyan-math2-derivative.html": 3,
+    "kaoyan-math2-integral.html": 3,
+    "kaoyan-math2-multivariable.html": 1,
+    "kaoyan-math2-ode.html": 1,
+    "kaoyan-math2-vector-equations.html": 1,
+    "kaoyan-math2-eigen-quadratic.html": 1,
 }
 
 
