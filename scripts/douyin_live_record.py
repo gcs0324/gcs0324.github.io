@@ -41,6 +41,7 @@ UA = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
 BACKOFF = [5, 10, 20, 30, 60, 60, 60, 60]  # 断流重试间隔（秒），与 max_retries 配合
+_SHUTDOWN = False  # SIGTERM 信号标志，record_session 检视此标志快速退出
 
 
 def log(msg):
@@ -302,6 +303,9 @@ def record_session(room_id, out_dir, segment_minutes, max_retries, cookie,
     ended = False
     try:
         for attempt in range(1, max_retries + 1):
+            if _SHUTDOWN:
+                log("收到停止信号，跳过重试")
+                break
             if attempt > 1:
                 log(f"[{attempt}/{max_retries}] 断流重试：查状态并重新取签名地址")
             if is_live(room_id, cookie, quality) is False:
@@ -310,12 +314,17 @@ def record_session(room_id, out_dir, segment_minutes, max_retries, cookie,
                 break
             stream_url, _ = get_stream_url(room_id, cookie=cookie, quality=quality)
             if not stream_url:
+                if _SHUTDOWN:
+                    break
                 wait = BACKOFF[attempt - 1]
                 log(f"重新取流失败，{wait}s 后重试")
                 time.sleep(wait)
                 continue
 
             rc = run_ffmpeg(stream_url, session_dir, attempt, segment_minutes, duration)
+            if _SHUTDOWN:
+                log("录制被停止信号中断")
+                break
             if rc == 0:
                 log("直播正常结束")
                 ended = True
@@ -545,14 +554,13 @@ def main():
 
         if args.loop:
             # SIGTERM 优雅退出（launchd bootout 发 SIGTERM）
-            shutdown_flag = False
             def _on_term(signum, frame):
-                nonlocal shutdown_flag
-                shutdown_flag = True
+                global _SHUTDOWN
+                _SHUTDOWN = True
             signal.signal(signal.SIGTERM, _on_term)
 
             log(f"常驻监控模式：每 {args.check_interval}s 检查一次开播状态（Ctrl-C 退出）")
-            while not shutdown_flag:
+            while not _SHUTDOWN:
                 try:
                     started = record_session(
                         room_id, args.out_dir, args.segment_minutes,
@@ -563,15 +571,15 @@ def main():
                 except Exception as e:
                     log(f"监控循环出错（继续监控）: {e}")
                     started = False
-                if shutdown_flag:
+                if _SHUTDOWN:
                     break
                 if started:
                     log("本场录制结束，继续监控下一场...")
                 else:
                     log(f"未开播，{args.check_interval}s 后再次检查...")
-                # 分段 sleep，让 shutdown_flag 能及时响应
+                # 分段 sleep，让 _SHUTDOWN 能及时响应
                 for _ in range(args.check_interval):
-                    if shutdown_flag:
+                    if _SHUTDOWN:
                         break
                     time.sleep(1)
             log("收到停止信号，退出监控")
