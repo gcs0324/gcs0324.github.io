@@ -137,6 +137,27 @@ def _get_stream_url_from_page(room_id, timeout=15, cookie="", quality="or4"):
     html = r.text
     if re.search(r'"status"\s*:\s*4', html):
         return None, None  # 明确未开播
+    # 从页面内嵌 JSON 提取主播昵称（HTML 里是转义形式 nickname\\":\\"xxx\\"）
+    # 第一个 nickname 可能是 $undefined 占位，循环跳过它
+    nickname = None
+    bs = chr(92)
+    key = 'nickname' + bs + chr(34) + ':' + bs + chr(34)
+    pos = 0
+    while True:
+        i = html.find(key, pos)
+        if i < 0:
+            break
+        rest = html[i + len(key):]
+        end = rest.find(bs + chr(34))
+        cand = rest[:end] if end >= 0 else rest
+        if cand and cand != '$undefined':
+            nickname = cand
+            break
+        pos = i + 1
+    if not nickname:
+        m = re.search(r'"nickname"\s*:\s*"([^"]+)"', html)
+        if m:
+            nickname = m.group(1)
     # 宽松正则抓所有 hls/flv URL（HTML 里可能是标准 // 或转义 \\/，都支持）
     found = re.findall(r'https?://[^\s"\'<>]+', html)
     found = [f for f in found if '.m3u8' in f or '.flv' in f]
@@ -150,15 +171,15 @@ def _get_stream_url_from_page(room_id, timeout=15, cookie="", quality="or4"):
     for f_ in found:
         f2 = _clean_url(f_)
         if ".m3u8" in f2 and re.search(qpat, f2):
-            return f2, None
+            return f2, nickname
     # HLS 任意
     for f_ in found:
         f2 = _clean_url(f_)
         if ".m3u8" in f2:
-            return f2, None
+            return f2, nickname
     # 兜底：任意 flv 地址
     if found:
-        return _clean_url(found[0]), None
+        return _clean_url(found[0]), nickname
     raise RuntimeError("页面里没找到 flv 地址（可能需要登录 Cookie 或验证）")
 
 
