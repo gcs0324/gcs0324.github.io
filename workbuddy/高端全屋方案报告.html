@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高端全屋方案 · 软装 + 全屋智能 2026</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#171a21; --card2:#1d212b; --gold:#c9a86a;
+    --gold-dim:#8a7449; --teal:#5dcaa5; --red:#e28080;
+    --text:#e8e6e0; --text-dim:#9a958a; --border:#2a2e38;
+    --radius:14px; --radius-sm:10px;
+    -webkit-font-smoothing:antialiased;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+    line-height:1.75; font-size:15px;
+    background-image:
+      radial-gradient(circle at 85% 6%, rgba(201,168,106,0.10), transparent 40%),
+      radial-gradient(circle at 12% 95%, rgba(93,202,165,0.04), transparent 35%);
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+  .hero{position:relative;margin-top:24px;border:1px solid var(--gold);border-radius:var(--radius);background:linear-gradient(135deg,#1a1d26 0%,#13161c 100%);padding:46px 36px 40px;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-60px;right:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,0.28),transparent 70%);pointer-events:none}
+  .hero .kicker{color:var(--gold);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:700}
+  .hero h1{font-size:31px;font-weight:700;margin:12px 0 10px;line-height:1.3}
+  .hero h1 .g{color:var(--gold)}
+  .hero p.sub{color:var(--text-dim);font-size:15px;max-width:680px}
+  .hero .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}
+  .hero .meta span{font-size:12px;color:var(--text-dim);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+  .hero .meta span b{color:var(--gold);font-weight:600}
+
+  section{margin-top:56px;scroll-margin-top:20px}
+  .sec-head{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+  .sec-num{flex:0 0 auto;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;font-family:Georgia,serif;background:rgba(201,168,106,0.06)}
+  .sec-head h2{font-size:22px;font-weight:700}
+  .sec-head .line{flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent)}
+
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;border:1px solid var(--gold);color:var(--gold);background:rgba(201,168,106,0.08);letter-spacing:.5px;vertical-align:middle}
+  .tag.teal{border-color:var(--teal);color:var(--teal);background:rgba(93,202,165,0.08)}
+  .tag.red{border-color:var(--red);color:var(--red);background:rgba(226,128,128,0.08)}
+  .lead{color:var(--text-dim);font-size:15px;margin-bottom:20px}
+
+  /* ecobox */
+  .ecobox{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);padding:22px 24px;position:relative}
+  .ecobox.hot{border-color:var(--gold);background:linear-gradient(160deg,#1c1f29,#16191f)}
+  .ecobox.hot::after{content:"推荐";position:absolute;top:-10px;right:18px;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:1px}
+  .ecobox h3{font-size:17px;margin-bottom:6px}
+  .ecobox h3 .g{color:var(--gold)}
+  .ecobox .price{color:var(--teal);font-size:13px;font-weight:600;margin-bottom:12px}
+  .ecobox ul{list-style:none;font-size:13.5px}
+  .ecobox ul li{padding:4px 0;color:var(--text-dim)}
+  .ecobox ul li b{color:var(--text)}
+  .ecobox .vm{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);font-size:13px;color:var(--gold)}
+
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  @media(max-width:760px){.grid-3,.grid-2{grid-template-columns:1fr}}
+
+  /* pick card: 六维选购卡 */
+  .pick{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);padding:22px 24px;margin-bottom:20px}
+  .pick .ph{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .pick .ph h4{font-size:17px;font-weight:700}
+  .pick .ph h4 .g{color:var(--gold)}
+  .pick .cand{font-size:13px;color:var(--gold-dim);margin-bottom:14px}
+  .pick .cand::before{content:"① 具体型号　";color:var(--gold);font-size:11px;font-weight:700;letter-spacing:1px}
+  .pick .cand b{color:var(--teal)}
+  .dim{border-top:1px dashed var(--border);padding-top:10px;margin-top:4px}
+  .dim+.dim{margin-top:10px}
+  .dim .lbl{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:3px}
+  .dim .lbl .n{color:var(--gold)}
+  .dim p{font-size:13.5px;color:var(--text-dim)}
+  .dim p b{color:var(--text)}
+  .dim p .gp{color:var(--teal);font-weight:600}
+  .dim p .rd{color:var(--red);font-weight:600}
+  .dim .lbl.warn .n{color:var(--red)}
+
+  /* table */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:680px}
+  th{background:#22262f;color:var(--gold);font-weight:600;text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text-dim);vertical-align:top}
+  td b{color:var(--text)}
+  td .gp{color:var(--teal);font-weight:600}
+  td .rd{color:var(--red);font-weight:600}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(201,168,106,0.03)}
+
+  .verdict{border:1px solid var(--gold);border-left:3px solid var(--gold);background:rgba(201,168,106,0.06);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 18px;margin:14px 0;font-size:13.5px}
+  .verdict .vt{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:1px;margin-bottom:4px}
+  .redbox{border:1px solid var(--red);border-left:3px solid var(--red);background:rgba(226,128,128,0.06);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 18px;margin:14px 0;font-size:13.5px}
+  .redbox .rt{color:var(--red);font-weight:700;font-size:12px;letter-spacing:1px;margin-bottom:4px}
+
+  /* totbox */
+  .totbox{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);overflow:hidden;margin-bottom:16px}
+  .totbox .tb-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .totbox .tb-head h4{font-size:16px;font-weight:700}
+  .totbox .tb-head .total{color:var(--gold);font-size:20px;font-weight:700;font-family:Georgia,serif}
+  .totbox.gold{border-color:var(--gold)}
+  .totbox.gold .tb-head{background:rgba(201,168,106,0.08)}
+  .totbox table{min-width:auto}
+  .totbox th,.totbox td{padding:9px 18px;font-size:13.5px}
+  .totbox th{background:transparent}
+  .totbox td:last-child{text-align:right}
+  .totbox td .gp{color:var(--teal);font-weight:600}
+
+  .checklist{list-style:none}
+  .checklist li{padding:10px 0 10px 30px;position:relative;font-size:14px;border-bottom:1px dashed var(--border);color:var(--text-dim)}
+  .checklist li:last-child{border-bottom:none}
+  .checklist li::before{content:"✓";position:absolute;left:0;top:10px;color:var(--teal);font-weight:700}
+  .checklist li b{color:var(--text)}
+  .checklist li .warn{color:var(--red)}
+
+  .note{font-size:12.5px;color:var(--text-dim);margin-top:8px;padding-left:8px;border-left:2px solid var(--border)}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .toc a{font-size:12.5px;color:var(--gold);text-decoration:none;border:1px solid var(--border);padding:6px 14px;border-radius:20px;transition:.2s}
+  .toc a:hover{border-color:var(--gold);background:rgba(201,168,106,0.08)}
+  .h3-sub{font-size:16px;font-weight:700;color:var(--gold);margin:26px 0 14px;padding-left:12px;border-left:3px solid var(--gold)}
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--border);text-align:center;color:var(--text-dim);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="kicker">HIGH-END WHOLE-HOME SOLUTION · 2026</div>
+  <h1>高端全屋方案 <span class="g">·</span> 软装 + 全屋智能</h1>
+  <p class="sub">高端 ≠ 堆钱，而是把预算花在「体验密度」上——一套稳定好用的全屋智能、几件用料扎实的大家具、懂光的无主灯。本报告给出进阶 / 高端 / 旗舰三档预算，逐项标注每一分钱买到的体验，点名「伪高端」避坑。</p>
+  <div class="meta">
+    <span>数据时效 <b>2026.08</b></span>
+    <span>价格来源 <b>京东 / 天猫 / 品牌官网 / 专业评测</b></span>
+    <span>价格性质 <b>参考到手价（区间）</b></span>
+    <span>三档预算 <b>5–8w / 10–15w / 20w+</b></span>
+  </div>
+  <div class="toc">
+    <a href="#ch1">1.方案总览</a><a href="#ch2">2.智能生态选型</a><a href="#ch3">3.智能设备清单</a><a href="#ch4">4.高端软装</a><a href="#ch5">5.家电升级</a><a href="#ch6">6.预算总表</a><a href="#ch7">7.装修前置</a>
+  </div>
+</div>
+
+<!-- ============ CHAPTER 1 ============ -->
+<section id="ch1">
+  <div class="sec-head"><div class="sec-num">1</div><h2>方案总览 · 三档预算买到的体验</h2><div class="line"></div></div>
+  <p class="lead">三档的核心区别不在「贵不贵」，而在「体验密度」：同样花 1 万，是买一块会卡顿的大屏，还是买一套让家「活起来」的联动。下面四张卡说清三档在智能 / 灯光 / 床垫 / 沙发上分别买到了什么，以及它们各自最不该花的冤枉钱。</p>
+
+  <div class="grid-2">
+    <div class="ecobox">
+      <h3>进阶档 <span class="g">¥5–8 万</span></h3>
+      <p class="price">「让家变聪明」的第一道坎</p>
+      <ul>
+        <li><b>智能：</b>Aqara M200 网关 + D1 零火开关 ×6 + FP2 ×1 + 窗帘电机 E1（客厅+主卧）+ 指纹门锁，≈ ¥0.8w</li>
+        <li><b>灯光：</b>Yeelight Pro 无主灯基础套（筒灯+射灯+灯带），Ra≥95，≈ ¥0.8w</li>
+        <li><b>床垫：</b>金可儿护脊 3.0S / 舒达致眠 Pro，≈ ¥0.5w</li>
+        <li><b>沙发：</b>顾家头层牛皮 / 曲美实木框架，≈ ¥0.6–1w</li>
+      </ul>
+      <div class="vm">关键词：回家自动开灯、窗帘定时、语音关灯——「用了就回不去」的基础智能。</div>
+    </div>
+    <div class="ecobox hot">
+      <h3>高端档 <span class="g">¥10–15 万</span></h3>
+      <p class="price">「体验密度」的甜蜜点</p>
+      <ul>
+        <li><b>智能：</b>M200 网关 + D1 ×8 + FP2 ×2 + 窗帘 E1 ×4 套 + 门锁 U200 + 摄像头 G3 + 妙控屏 S1E，≈ ¥1.5w</li>
+        <li><b>灯光：</b>Yeelight Pro 全屋设计 + Lutron Caséta 调光（主卧+客厅），Ra≥97，≈ ¥2.5w</li>
+        <li><b>床垫：</b>丝涟奇迹 / 席梦思 Beautyrest 入门，≈ ¥1w</li>
+        <li><b>沙发：</b>NATUZZI Editions 三人位 / 意迪森电动，≈ ¥2–3w</li>
+      </ul>
+      <div class="vm">关键词：人走灯灭、存在感知、无主灯层次、真皮沙发——「客人来了会多看两眼」。</div>
+    </div>
+    <div class="ecobox">
+      <h3>旗舰档 <span class="g">¥20 万+</span></h3>
+      <p class="price">「把预算砸在刀刃上」</p>
+      <ul>
+        <li><b>智能：</b>Aqara M3 旗舰网关 + 全屋 Thread + FP2 ×4 + 窗帘全屋 + 门锁 U400 + G5 Pro 摄像头，≈ ¥3w</li>
+        <li><b>灯光：</b>Yeelight Pro 全屋 + Lutron RA2 Select + FLOS 进口点睛灯，Ra≥97，≈ ¥5w</li>
+        <li><b>床垫：</b>席梦思 Beautyrest 高端线 / 泰普尔，≈ ¥2–3w</li>
+        <li><b>沙发：</b>NATUZZI Italia 真皮 / 意迪森高配，≈ ¥4–8w</li>
+      </ul>
+      <div class="vm">关键词：整屋场景化、进口材质的触感与耐久、灯光成为空间设计语言——「十年不过时」。</div>
+    </div>
+  </div>
+
+  <div class="verdict"><div class="vt">一句话 · 体验密度的真相</div>进阶档 80% 的「聪明」体验来自 ¥0.8w 的 Aqara 核心套件，而不是更贵的开关面板；高端档与旗舰档的差价，主要买的是<u>床垫与沙发的用料升级</u>和<u>灯光的层次感</u>，而非「更多智能设备」。因此本报告的原则是：<b>智能做到「够用且稳」，软装和灯光才是高端感的杠杆点。</b></div>
+</section>
+
+<!-- ============ CHAPTER 2 ============ -->
+<section id="ch2">
+  <div class="sec-head"><div class="sec-num">2</div><h2>全屋智能 · 先选对生态</h2><div class="line"></div></div>
+  <p class="lead">生态选错了，后面每买一件设备都是沉没成本。三张卡讲清三大生态的底层协议差异，再给出一套「不锁死、可迁移」的推荐组合。</p>
+
+  <div class="grid-3">
+    <div class="ecobox">
+      <h3>米家 / <span class="g">Aqara</span></h3>
+      <p class="price">品类最全 · 性价比之王</p>
+      <ul>
+        <li><b>协议：</b>Zigbee + 蓝牙 Mesh + Wi-Fi，设备生态最开放</li>
+        <li><b>优势：</b>几十元传感器到万元电视全覆盖，自动化灵活</li>
+        <li><b>短板：</b>蓝牙 Mesh 大户型易延迟掉线；品质参差需挑选</li>
+        <li><b>入门：</b>¥2,000–5,000 可起步</li>
+      </ul>
+      <div class="vm">平层、预算有限的年轻家庭首选。</div>
+    </div>
+    <div class="ecobox">
+      <h3>华为鸿蒙 <span class="g">PLC</span></h3>
+      <p class="price">工业级稳定 · 但封闭</p>
+      <ul>
+        <li><b>协议：</b>PLC-IoT 电力线载波，通讯成功率 99.99%，128 设备 50ms 内响应</li>
+        <li><b>优势：</b>有线级稳定，断网本地照跑，别墅大户型无压力</li>
+        <li><b>短板：</b>生态封闭，设备换品牌≈报废；前装 ¥29,999 起</li>
+        <li><b>后装：</b>尝鲜版 ¥9,999 起，但覆盖与美观打折</li>
+      </ul>
+      <div class="vm">新房装修、预算充足、追求长期稳定不折腾的别墅业主。</div>
+    </div>
+    <div class="ecobox">
+      <h3>Apple <span class="g">HomeKit</span></h3>
+      <p class="price">体验与隐私最佳</p>
+      <ul>
+        <li><b>协议：</b>HomeKit + Thread + Matter，本地处理隐私好</li>
+        <li><b>优势：</b>App 体验最顺滑，Siri 生态，Aqara 340+ 认证设备最多</li>
+        <li><b>短板：</b>原生设备贵且少，需搭配 Aqara 等第三方补品类</li>
+        <li><b>门槛：</b>需 HomePod / Apple TV 作中枢</li>
+      </ul>
+      <div class="vm">苹果全家桶、在意隐私与交互质感的人群。</div>
+    </div>
+  </div>
+
+  <div class="h3-sub">推荐组合：Aqara 主生态，双 App 不锁死</div>
+  <div class="ecobox hot">
+    <h3>核心结论 <span class="g">· Aqara M200 网关做「主生态」</span></h3>
+    <p class="price">Zigbee + Thread + Matter 三合一，同时进米家 + 苹果家庭双 App，可迁移</p>
+    <ul>
+      <li><b>为什么是 M200：</b>它既是 Matter Controller、又是 Thread 边界路由器、还是 Aqara Zigbee 网关——一套硬件同时服务米家和 HomeKit，未来换生态设备不砖（Matter 是行业标准）。</li>
+      <li><b>具体型号：</b>Aqara Hub M200（国补备案型号 ZHWG26LM，京东常卖 ¥559，史低 ¥509，618 ¥534）。旗舰可选 M3（¥989，五协议，本地自动化更强）。</li>
+      <li><b>不选华为 PLC 的理由：</b>稳定性无敌但封闭——想切去米家/HomeKit 设备基本报废；Aqara 的 Thread+Matter 路线在「稳定」和「不锁死」之间取了平衡。</li>
+    </ul>
+    <div class="vm">一句话选型：大平层/别墅且不差钱、终身华为全家桶 → 华为 PLC；其余绝大多数人 → Aqara M200 + 米家/HomeKit 双 App。</div>
+  </div>
+
+  <div class="h3-sub">Aqara 务实采购清单（全屋智能核心 ≈ ¥7,000–8,000）</div>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>必买</th><th>型号</th><th>数量</th><th>参考价（单件）</th><th>花在哪</th></tr>
+      <tr><td>网关</td><td><b>M200</b>（备选 M3）</td><td>1</td><td class="gp">¥509–559</td><td>全屋设备互联的「大脑」，三协议不锁死</td></tr>
+      <tr><td>窗帘电机</td><td><b>E1</b>（3米内双轨套餐含测量安装）</td><td>2 套（客厅+主卧）</td><td class="gp">¥958–1,069/套</td><td>只做高频两处，别全屋铺</td></tr>
+      <tr><td>存在传感器</td><td><b>FP2</b>（毫米波雷达）</td><td>2</td><td class="gp">¥329–359</td><td>人来灯亮、人走灯灭，自动化核心</td></tr>
+      <tr><td>零火开关</td><td><b>D1</b>（QBKG24LM 零火双键）</td><td>6</td><td class="gp">¥92–135</td><td>灯光接入，有零线必选零火版</td></tr>
+      <tr><td>指纹门锁</td><td><b>U200</b>（Matter+HomeKey）</td><td>1</td><td class="gp">¥1,300–1,500</td><td>入户体验升级，0.3s 电容指纹</td></tr>
+      <tr><td>按需</td><td><b>摄像头 G3 / 燃气报警 / 水浸 / 妙控屏 S1E</b></td><td>按需</td><td class="gp">S1E ¥165–296</td><td>妙控屏留 1 个即可，别堆中控屏</td></tr>
+    </table>
+  </div>
+  <div class="redbox"><div class="rt">别买（伪高端智商税）</div>高价中控屏堆砌、全屋 RGB 灯带、智能床/智能枕、AI 主动智能付费订阅——这些要么体验鸡肋，要么把你锁进订阅，钱没花在「体验密度」上。</div>
+</section>
+
+<!-- ============ CHAPTER 3 ============ -->
+<section id="ch3">
+  <div class="sec-head"><div class="sec-num">3</div><h2>智能设备清单 · 每件钱花在哪</h2><div class="line"></div></div>
+  <p class="lead">每一件设备给一张六维选购卡：型号 → 参数 → 口碑短板 → 适合人群 → 选购逻辑 → 避坑。价格只是第②维里的一条字段。</p>
+
+  <!-- 网关 -->
+  <div class="pick">
+    <div class="ph"><h4>① 网关 <span class="g">· 全屋大脑</span></h4><span class="tag">必买 1 件</span></div>
+    <div class="cand">候选：<b>Aqara Hub M200（ZHWG26LM）</b> · <b>Aqara Hub M3</b> · 米家中枢网关 2</div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>M200：Zigbee 3.0 + Thread + Matter 三合一；支持 40 个 Zigbee + 40 个 Thread 设备；Wi-Fi 6 双频（2.4/5GHz）+ PoE 有线 + WPA3；360° 红外；90dB 喇叭。M3 支持五协议（加蓝牙）本地自动化更强。参考价 <span class="gp">M200 ¥509–559 · M3 ¥989</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>评测共识：M200 是「最佳多生态中枢」，跨平台兼容分最高。短板：Wi-Fi 依赖信号，大户型需靠近中心或走 PoE 有线；红外只能桥接 1 台空调。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>80–200㎡ 平层/复式选 M200；大平层多楼层或重度自动化选 M3。纯苹果 HomeKit 且设备少者，可省网关用 HomePod 直接 Thread。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：M200 的三协议 + Matter 桥接，是「现在好用、未来可迁移」的保险。便宜在哪：米家中枢网关 2 更便宜但生态更偏小米。钱花在哪：花在「不锁死」上。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>别为「品牌全家桶网关」多花钱——网关是基础设施，选协议开放的即可；也别买无 Matter 的老款网关，未来升级会成瓶颈。</p></div>
+  </div>
+
+  <!-- 无主灯智能灯具 -->
+  <div class="pick">
+    <div class="ph"><h4>② 无主灯 / 智能灯具 <span class="g">· 懂光的核心</span></h4><span class="tag">灯光杠杆点</span></div>
+    <div class="cand">候选：<b>Yeelight Pro E20/P20 磁吸轨道系列</b> · <b>Yeelight Pro 深防眩筒灯</b> · <b>飞利浦 Hue</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>Yeelight Pro 全光谱 <b>Ra≥97（部分 Ra≥99）</b>，色温 2700–4000K；深杯+蜂窝格栅防眩 <b>UGR&lt;16</b>；万分级调光（低至 0.08%）；48V 低压磁吸轨道。全屋设计+安装服务 <span class="gp">¥5,000–20,000</span>；飞利浦 Hue 单灯 Ra≥90–95，较贵。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>Yeelight Pro 5 年只换不修，服务覆盖广；短板是「单买单品性价比不明显」，全屋方案才是其价值。Hue 光品质公认，但溢价高、需 Hub。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>新房无主灯设计、在意「抬头不刺眼」高级感、要色温随昼夜变化的人群。老房不想大改顶面者慎入（需吊顶/开槽）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：Ra≥97 + UGR&lt;16 的「防眩光品质」是廉价筒灯（常 Ra80 且刺眼）给不了的。便宜在哪：相对 Hue 只花一半价格买同等光品质。钱花在哪：花在「光的舒适度」，而非灯本身的花哨。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>无主灯最大智商税是「照度不够堆灯带」或「只装射灯不装泛光」，结果家里要么昏暗要么光斑杂乱；另外别被 RGB 彩光灯带带偏，无主灯要的是「白的层次」不是「彩色跑马灯」。</p></div>
+  </div>
+
+  <!-- 电动窗帘 -->
+  <div class="pick">
+    <div class="ph"><h4>③ 电动窗帘 <span class="g">· 静音是灵魂</span></h4><span class="tag">客厅+主卧</span></div>
+    <div class="cand">候选：<b>Aqara 窗帘电机 E1</b> · <b>杜亚 DOOYA M5</b> · <b>欧瑞博天枢</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>Aqara E1：三档调速，慢速档实测 <b>约 34dB</b>（图书馆级）；最大负载约 12kg（26.4磅）；内置光照传感器，可 Wi-Fi 直连免网关；6000mAh 电池版可续航 12 个月。参考价 <span class="gp">单电机 ¥344–499 · 3米双轨套餐含测量安装 ¥958–1,069</span>；杜亚 M5 ¥449–549（原生 HomeKit+RF433 老人友好）；欧瑞博天枢 ¥599–699（瑞士 Maxon 电机最静音）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>E1 好评「静音+一年续航」，短板是机身偏厚、略吵于天枢；杜亚 M5 安装服务好（5000+ 合作师傅）；欧瑞博需认证安装且生态封闭。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>有飘窗/大窗、想卧室日出缓开、老人不想手动拉的场景。只装客厅+主卧两处高频窗即可，别全屋铺满。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：贵在「静音」和「扭力足够带厚遮光帘」——便宜的电机拉重帘会打滑、响。便宜在哪：E1 Wi-Fi 直连省掉网关。钱花在哪：花在每天早晚开关窗的「无感」体验上。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：给不常用的小窗/厨房窗装电机纯属浪费；电机认准「扭力标称 + 静音 dB」两个硬指标，别信「智能语音」话术。</p></div>
+  </div>
+
+  <!-- 门锁 -->
+  <div class="pick">
+    <div class="ph"><h4>④ 智能门锁 <span class="g">· 入户第一体验</span></h4><span class="tag">必买</span></div>
+    <div class="cand">候选：<b>Aqara U200</b> · <b>Aqara U100</b> · <b>Yale Assure Lock 2</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>U200：0.3s <b>电容式指纹</b>（非光学），100 枚指纹容量；支持 Apple Home Key 贴靠解锁；Matter over Thread；4 种开锁（指纹/PIN/NFC/机械钥匙）；可充电电池续航约 6 个月。参考价 <span class="gp">U200 ¥1,300–1,500 · U100 约 ¥1,080 · Yale Plus 约 ¥2,200</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>CNET 评 U200「HomeKit 生态最佳性价比指纹锁」；短板是远程控制需配 M3 网关、App 不如 Yale 精致、无 3D 人脸。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>苹果用户（Home Key 贴靠是杀手级）、常忘带钥匙、要给家政/访客发临时密码的家庭。要人脸识别可选 Lockly Visage 等 3D 人脸款。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：电容指纹 + Home Key 的「低拒真率」——光学指纹遇干手/脏手常失灵。便宜在哪：相对 Yale/Schlage 同级省 ¥500–800。钱花在哪：花在「每天开门不卡壳」。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：为「全自动锁体/人脸」多付上千，而电容指纹已够；警惕低价光学指纹锁（遇汗手失灵是通病）。</p></div>
+  </div>
+
+  <!-- 安防 -->
+  <div class="pick">
+    <div class="ph"><h4>⑤ 安防 <span class="g">· 摄像头/传感器</span></h4><span class="tag">按需</span></div>
+    <div class="cand">候选：<b>Aqara G3（摄像头中枢）</b> · <b>Aqara G5 Pro</b> · <b>FP2 存在传感器</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>G3：2K（2304×1296）360° 云台，支持 HomeKit Secure Video，可当 Zigbee 中枢；G5 Pro：4MP 真彩夜视、PoE 版更稳。FP2：<b>毫米波雷达</b>（非 PIR），40㎡ 覆盖、30 分区、可测 5 人、呼吸级静止检测。参考价 <span class="gp">G3 ¥339–640 · G5 Pro ¥1,400–1,650 · FP2 ¥329–359</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>FP2 被评「2026 最准的消费级存在传感器」，短板是探测距离 7m、Wi-Fi 非 Zigbee（不组网）、对风扇/窗帘误报需调参。G3 好评画质与隐私（本地 HKSV）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>客厅/卧室要「人走灯灭」用 FP2；有宠物/老人/独居要安防用摄像头。注意 FP2 需常供电（有线），别当移动传感器用。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：毫米波「静止也能测到人」（PIR 坐着不动就误判离场），这是自动化的灵魂。便宜在哪：一个 FP2 顶多个 PIR。钱花在哪：花在「场景不误触发」。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：全屋堆 PIR 人体传感器（坐着就灭灯）；摄像头别买「云存储订阅」绑定的品牌，选支持本地存储/HKSV 的。</p></div>
+  </div>
+
+  <!-- 环境 -->
+  <div class="pick">
+    <div class="ph"><h4>⑥ 环境 <span class="g">· 温湿度/空气</span></h4><span class="tag">按需</span></div>
+    <div class="cand">候选：<b>Aqara 温湿度传感器 W100</b> · <b>青萍空气检测仪</b> · <b>米家新风机联动</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>W100：温湿度+气压三合一，Matter 支持，可联动空调/新风；青萍检测 PM2.5/CO₂/甲醛。参考价 <span class="gp">W100 ¥250–350 · 青萍 ¥350–600</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>温湿度传感器便宜好用，短板是「联动空调」受空调品牌协议限制；CO₂ 检测对卧室睡眠有意义，但属锦上添花。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>有新风/空调联动需求、母婴或呼吸道敏感家庭。普通家庭可跳过。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>钱花在哪：花在「让空调/新风自动开」而非「看个读数」。别为花哨的空气质量大屏买单。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：几千块的「空气大屏」——检测数据手机 App 都能看，屏是多余溢价。</p></div>
+  </div>
+
+  <!-- 影音 -->
+  <div class="pick">
+    <div class="ph"><h4>⑦ 影音 <span class="g">· 回音壁</span></h4><span class="tag">按需</span></div>
+    <div class="cand">候选：<b>索尼 HT-A7100</b> · <b>索尼 HT-A3000 套装</b> · <b>三星 Q600F</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>A7100：5.1.2 物理声道 + 360 智能穹顶（物理反射天空声道），支持 4K/120Hz/VRR；A3000 套装含 SW3 低音炮 5.1.2 声道；Q600F：3.1.2 模拟天空。参考价 <span class="gp">A7100 套装 ¥7,000–9,000 · A3000 套装 ¥4,990 · Q600F ¥2,000–3,000</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>A7100 天空声道物理反射、沉浸感强；短板是需加购后环绕+低音炮才完整。Q600F 性价比高但天空感靠模拟。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>30㎡+ 客厅重度观影 / PS5 玩家选 A7100；20–35㎡ 轻度影音选 A3000；小户型入门选 Q600F。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：物理天空声道 vs 模拟——真正「头顶有声」的杜比全景声。钱花在哪：花在「沉浸感」而非「更大功率数字」。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：只看「总功率瓦数」不看声道数/是否物理天空声道；回音壁不是功率越大越好。</p></div>
+  </div>
+
+  <div class="redbox"><div class="rt">智能设备总避坑</div>① 别被「智能」二字溢价——先问「它省了我什么动作」；② 传感器是自动化的地基，多布几个体验完全不同；③ 一切需订阅/云绑定的设备慎选，断网要还能本地跑。</div>
+</section>
+
+<!-- ============ CHAPTER 4 ============ -->
+<section id="ch4">
+  <div class="sec-head"><div class="sec-num">4</div><h2>高端软装 · 床垫 / 沙发 / 灯光 / 窗帘</h2><div class="line"></div></div>
+  <p class="lead">软装是高端感的真正杠杆。这四样是「天天接触、一用十年」的品类，值得把预算从智能设备挪过来。每样一张六维选购卡。</p>
+
+  <!-- 床垫 -->
+  <div class="pick">
+    <div class="ph"><h4>① 床垫 <span class="g">· 睡得着比什么都贵</span></h4><span class="tag">软装杠杆 1</span></div>
+    <div class="cand">候选：<b>丝涟 奇迹</b> · <b>金可儿 护脊 3.0S</b> · <b>舒达 致眠 Pro</b>（高线：席梦思 Beautyrest）</div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>丝涟奇迹：<b>美姿感应弹簧</b>（上开口自适应 S 曲线）+ 1cm 回弹乳胶（含量 90%），软硬适中，10 年质保。金可儿护脊 3.0S：<b>七区独立袋弹簧</b> + 1.2cm 深睡乳胶（90%）+ 3D 护脊空气垫，偏硬护脊，ICC 国际护脊认证，5cm 海绵护边。舒达致眠 Pro：<b>妙乐扣整网弹簧</b>（中区加密）+ 1cm 云感乳胶（80%）+ 记忆绵，偏软包裹，25 年弹簧质保。参考价 <span class="gp">丝涟 ¥4,334–5,500 · 金可儿 ¥4,500–6,000 · 舒达 ¥4,125–5,999 · 席梦思 ¥6,000–30,000+</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>舒达致眠 Pro：整网弹簧整体刚性强、适合大体重，但<b>抗干扰弱、翻身有异响</b>（夫妻同床慎）。丝涟：贴合好但边缘支撑弱（无海绵护边）。金可儿：护脊扎实但质保仅 10 年、无双面。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>偏硬护脊/腰椎不适/久坐族 → 金可儿；追求动态贴合 → 丝涟；大体重/独睡 → 舒达；夫妻抗干扰 → 席梦思独立袋弹簧。都建议线下试躺 20 分钟以上。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：贵在「弹簧结构 + 乳胶含量」——独立袋弹簧比整网更抗干扰，乳胶 80–90% 与 60% 以下是两码事。便宜在哪：这三款正线 ¥4k–6k 已买到国际品牌核心技术，不必上贴牌引流款。钱花在哪：花在「支撑 + 抗干扰」，不是花在「乳胶越厚越好」的话术。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①「乳胶越厚越好」——超过 3cm 反而过软塌陷；②品牌贴牌引流款（同品牌低价线用料缩水）；③「智能床垫/按摩床垫」溢价巨大体验鸡肋。认准正线 + 试睡政策（丝涟 90 天/金可儿 100 天）。</p></div>
+  </div>
+
+  <!-- 沙发 -->
+  <div class="pick">
+    <div class="ph"><h4>② 沙发 <span class="g">· 用料决定十年质感</span></h4><span class="tag">软装杠杆 2</span></div>
+    <div class="cand">候选：<b>NATUZZI Editions</b> · <b>NATUZZI Italia</b> · <b>顾家 7005</b>（中式：曲美黑胡桃实木）</div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>NATUZZI 全线<b>头层牛皮</b>（植物鞣制，Pelle Frau 认证），Editions 线为入门真皮、Italia 线为全粒面皮 + 意大利原产框架；顾家 7005 头层牛皮接触面 + 实木框架；曲美黑胡桃全实木框架（榫卯）。参考价 <span class="gp">NATUZZI Editions 三人位 ¥18,000–32,000 · Italia 三人位 ¥36,000–64,000 · 顾家 7005 ¥3,500–6,000 · 曲美黑胡桃 ¥6,000–12,000</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>NATUZZI 好评皮料与做工，短板是<b>意大利定制货期 8–14 周、售后响应慢</b>（Trustpilot 4.1）。顾家国产性价比、服务快但皮料等级略逊。曲美实木耐用但风格偏中式。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>要意式设计 + 进口头层皮 → NATUZZI；预算有限要头层牛皮 → 顾家；要实木框架耐用中式风 → 曲美。注意「全皮」不等于「接触面真皮」。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：NATUZZI Italia 贵在「全粒面皮 + 意大利原产框架」，Editions 贵在「头层皮入门」。便宜在哪：顾家/曲美国产把「头层牛皮/实木框架」做到 ¥6k 内。钱花在哪：花在「框架材质 + 皮料等级」——框架决定十年不塌，皮料决定触感与耐久。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①「全皮沙发」话术——问清是「接触面真皮」还是「全真皮」，非接触面常用仿皮；②「科技布当皮卖」；③只看外观不看框架（松木框架易塌）。</p></div>
+  </div>
+
+  <!-- 灯光 -->
+  <div class="pick">
+    <div class="ph"><h4>③ 灯光 <span class="g">· 无主灯 + 调光 + 点睛</span></h4><span class="tag">软装杠杆 3</span></div>
+    <div class="cand">候选：<b>Yeelight Pro 无主灯</b> · <b>Lutron 路创调光</b> · <b>FLOS 进口点睛灯</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>Yeelight Pro：Ra≥97、UGR&lt;16，全屋方案 ¥5,000–20,000。Lutron：Caséta（3 房）约 ¥8,600–13,000，RA2 Select（全屋 12 区）约 ¥46,000–86,000，Palladiom 键盘 ¥2,100–3,000/个，Clear Connect 专有频段（434MHz）不受 Wi-Fi 干扰。FLOS：进口设计款（如 Arco 落地灯），作空间点睛。色温建议 2700–4000K。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>Lutron 被称「最可靠灯光系统，场景零漂移、寿命 15 年+」，短板是 RA2 需专业编程、Caséta 桥偶尔 Wi-Fi 拥堵掉线。Yeelight Pro 性价比高但品牌认知度不如 Lutron。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>要「开关像传统、场景键精致」选 Lutron RA2；预算有限要全光谱无主灯选 Yeelight Pro；要设计感点睛选 FLOS（1–2 件即可）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：Lutron 贵在「专有频段不卡顿 + 场景零漂移」，是稳定性的天花板。便宜在哪：Yeelight Pro 用一半价格买到 Ra≥97 全光谱。钱花在哪：花在「光的层次与防眩」，一盏 FLOS 点睛胜过十盏普通灯。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①「无主灯=全屋射灯」——没有泛光/灯带会照度不足；②只看瓦数不看 Ra/UGR；③无主灯不做分区调光，等于白装。</p></div>
+  </div>
+
+  <!-- 窗帘 -->
+  <div class="pick">
+    <div class="ph"><h4>④ 窗帘 <span class="g">· 面料 + 静音电机</span></h4><span class="tag">氛围软装</span></div>
+    <div class="cand">候选：<b>如鱼得水（面料）</b> · <b>Aqara E1 / 杜亚 M5（电机）</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>面料：如鱼得水高精密遮光面料（遮光率 90%+，垂感好）；电机：Aqara E1 慢速约 34dB / 杜亚 M5 静音。参考价 <span class="gp">面料 ¥100–300/米（含加工）· 电机 ¥344–1,069/套</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>如鱼得水面料垂感好、遮光强，短板是价格偏高；杜亚 M5 安装服务成熟；Aqara E1 静音但机身偏厚。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>卧室要强遮光助眠、客厅要垂感氛围。只做高频两处窗，其余手动或简单电动。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>钱花在哪：花在「面料垂感 + 遮光 + 静音电机」三件套——窗帘的高级感 80% 来自面料垂感，不是花色。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：只看花色不看「遮光率/克重/垂感」；「高档窗帘」收加工费翻倍的话术。面料按米算清，加工费另议。</p></div>
+  </div>
+
+  <div class="verdict"><div class="vt">氛围软装一句话</div>高级感 = <b>懂光的无主灯</b> + <b>一块垂感好的窗帘</b> + <b>一件设计感家具/灯具点睛</b>，而不是满墙挂画和摆件。留白比堆砌更显贵。</div>
+</section>
+
+<!-- ============ CHAPTER 5 ============ -->
+<section id="ch5">
+  <div class="sec-head"><div class="sec-num">5</div><h2>家电高端呼应 · 升级项与避坑原则</h2><div class="line"></div></div>
+  <p class="lead">家电的原则：优先「国产品牌旗舰线」，进口只在是「技术发明者」时值。<b>每类都标「甜蜜点价位」与「溢价区」</b>——甜蜜点是务实高端的落点；溢价区要么是天价旗舰、要么是「用不上的功能」，无特殊需求不必够。每件升级项一张六维卡，再给清洁/生活电器表和两条避坑原则。</p>
+
+  <!-- 冰箱 -->
+  <div class="pick">
+    <div class="ph"><h4>① 冰箱 <span class="g">· 保鲜技术是分水岭</span></h4><span class="tag">家电杠杆</span></div>
+    <div class="cand">候选：<b>卡萨帝 原石 550</b> · <b>日立 R-WX740KC（真空保鲜）</b> · <b>COLMO 黑珍珠 521</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>卡萨帝原石 550（法式 550L）：<b>双系统双蒸发器</b>（物理不串味）+ MRAplus 低氧窖藏 + -30℃ 深冷智冻，594mm 超薄零嵌，36dB。容声方糖 515：双系统 + 双 IDP 主动净味 + 蓝光 SPA 养鲜 + -31℃ 冰封锁鲜，59.8cm 超薄零嵌。COLMO 521：双系统 + 光量子增氧 + 60 分钟制冰。日立 R-WX740KC（<b>技术标杆，非默认推荐</b>）：真空冰温 + 铂金触媒，草莓 7 天腐坏率低 60%+。参考价 <span class="gp">容声 ¥8,500–9,500 · COLMO ¥9,200–9,900 · 卡萨帝 ¥11,000 · 日立 ¥46,000</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>日立保鲜天花板但<b>价格贵、电动抽屉模块更换 ¥1,500+、密封条需维护</b>；卡萨帝性价比高、嵌入颜值好；COLMO 智能联动强但保鲜深度略逊。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>务实高端：容声 ¥8.5k / COLMO ¥9.5k 已够 90% 家庭；要顶级保鲜+大宅质感 → 卡萨帝 ¥11k；预算适中要制冰 → COLMO。日立真空保鲜只适合「对食材保鲜有极致要求且不差钱」者，厨房不常做饭别上。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>同价位三选一：<b>容声 ¥8.5k</b> 最务实（双系统+双区除菌全齐）；<b>COLMO ¥9.5k</b> 赢在制冰+智能；<b>卡萨帝 ¥11k</b> 赢在保鲜深度+质感。日立 ¥4.6w 只贵在「真空保鲜」这一项别人没有的技术，其余镜面/电动抽屉都是溢价。钱花在哪：花在「不串味 + 保鲜时长」。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①冰箱大屏；②「富氢/矿化水」；③为「多门/镜面」多花上万；④日立 ¥4.6w 的<b>电动抽屉（换模块 ¥1,500+）、水晶镜面</b>是典型功能溢价——真空保鲜才是唯一值钱的技术。核心看「双系统 + 保鲜技术 + 零嵌尺寸」。</p></div>
+  </div>
+
+  <!-- 洗衣机 -->
+  <div class="pick">
+    <div class="ph"><h4>② 洗衣机 <span class="g">· 面料护理与静音</span></h4><span class="tag">家电杠杆</span></div>
+    <div class="cand">候选：<b>卡萨帝 揽光 GLD</b> · <b>卡萨帝 原石双子分区</b> · <b>东芝 玉兔 2.0 Ultra</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>揽光 GLD（10kg 洗烘一体）：<b>FPA 直驱变频</b>（磁悬浮减振）+ 热泵烘干，洗净比 1.15，1600 转/分。COLMO 黑珍珠 C3（12kg 滚筒）：BLDC 变频 + 冷萃银除菌 + 羊毛绿标认证，洗净比 1.15。原石双子 14kg：双筒分区洗（大筒 10kg+小筒 4kg）。东芝玉兔 2.0：UFB 纳米气泡 + 洗净比 1.32。参考价 <span class="gp">COLMO C3 ¥5,500–7,000 · 东芝玉兔 ¥9,000–11,000 · 揽光 GLD ¥9,276–11,999 · 原石双子 ¥11,498 · 指挥家洗烘 ¥18,000+（非遗面料洗护，溢价区）</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>卡萨帝直驱静音、护衣好（真丝损伤率 0.3%），短板是双筒容量略小、旗舰贵；东芝洗净强但品牌售后网点少于卡萨帝。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>务实高端选 COLMO C3（¥6k 已够）；有真丝/羊绒等贵价衣物 → 卡萨帝；母婴需分区洗 → 原石双子；重去渍日系极简 → 东芝。<b>指挥家 ¥18k 的「非遗面料洗护」对 99% 家庭用不上，别为它多付 1 万。</b></p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>同价位三选一：<b>COLMO C3 ¥6k</b> 是性价比高端（除菌+羊毛认证全有）；<b>卡萨帝 GLD ¥10k</b> 赢在 FPA 直驱的静音+低磨损；<b>东芝玉兔 ¥10k</b> 赢在洗净比 1.32。钱花在哪：花在「护衣 + 静音」，不是花在「洗得更干净」的伪升级、更不是非遗洗护。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①美诺洗衣机（同性能国产便宜一半）；②「空气洗」被神化（只去味非真洗）；③只看洗涤容量不看烘干容量（一体机烘干常打 5 折）；④「非遗/奢侈品面料洗护」是营销溢价——一年用不到几次。</p></div>
+  </div>
+
+  <!-- 空调 -->
+  <div class="pick">
+    <div class="ph"><h4>③ 空调 <span class="g">· 压缩机是心脏</span></h4><span class="tag">中央空调</span></div>
+    <div class="cand">候选：<b>三菱电机 菱之洁 Plus</b> · <b>三菱电机菱耀（中央）</b> · <b>大金 VRV（中央）</b> · <b>格力/美的旗舰</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>三菱菱之洁 Plus 1.5 匹：<b>APF 5.17</b> 超一级，自研 9.2cc 涡旋压缩机，外机 32kg（双排 48 根 7mm 铜管）。格力云锦 / 美的舒适星旗舰挂机：APF 5.0+ 超一级，价格约三菱一半。中央空调（仅大户型）：三菱菱耀 IPLV 4.5–4.7、6 匹一拖五约 ¥6 万；大金 VRV APF 5.28。参考价 <span class="gp">格力/美的旗舰挂机 ¥3,500–5,500 · 三菱挂机 ¥4,390–10,570 · 中央 6 匹一拖五 ¥6 万起（仅别墅/大平层）</span>（注：三菱 2026.8.1 全系涨价 5–10%）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>三菱「15–26 年不大修」口碑硬、睡眠模式 18–21dB；短板是价格高、8 月涨价。大金静音好但低负荷有冷凝滴落异响（12.3% 用户反馈）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p><b>120㎡ 以下用「挂机+柜机」最务实，别上中央空调</b>；大平层/别墅要中央 → 三菱/大金；预算敏感 → 格力云锦/美的舒适星（APF 已追平日系）。别为「日系」二字付溢价。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>同价位对比：<b>格力/美的旗舰 ¥4k–5.5k</b> APF 已到 5.0+，是三菱一半价、性能 95%；<b>三菱 ¥6k</b> 赢在「15 年寿命 + 全工况不衰减」——长期自住才值。中央空调 ¥6 万只适合别墅，120㎡ 以下是「装得起用不满」的浪费。钱花在哪：花在「压缩机 + 换热用料」，不是花在「智能大屏」。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①为「进口日系」付溢价却买低端系列；②<b>120㎡ 以下硬上中央空调</b>（一拖五 ¥6 万 vs 挂机全套 ¥1.5 万）；③中央空调匹数虚标（看 IPLV 不看匹数）；④只比价格不比「APF + 静音 dB + 质保年限」。</p></div>
+  </div>
+
+  <!-- 电视 -->
+  <div class="pick">
+    <div class="ph"><h4>④ 电视 <span class="g">· OLED 只认技术发明者</span></h4><span class="tag">按需</span></div>
+    <div class="cand">候选：<b>索尼 A95L（QD-OLED）</b> · <b>LG G4</b> · <b>TCL/海信旗舰 Mini LED</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>索尼 A95L：QD-OLED + 认知处理器 XR，Acoustic Surface Audio+（屏幕发声）。LG C4：OLED（WOLED evo，144Hz），性价比 OLED 首选。LG G4：OLED 峰值亮度约 1400nit，支持杜比视界 4K/120。TCL/海信 Mini LED：高亮度、价格腰斩。参考价 <span class="gp">LG C4 65" ¥9,300 · TCL/海信 Mini LED 65" ¥8,000–15,000 · 索尼 A95L 55" ¥16,000 / 65" ¥20,000–36,000 · LG G4 65" ¥18,500 · A95L 77" ¥25,000（溢价区）</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>A95L「史上最完整电视」，短板是亮度不如 Mini LED、仅 2 个满血 HDMI 2.1、OLED 有烧屏风险。LG G4 更亮但调色略逊索尼。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p><b>65" 是甜蜜点，够看又不溢价</b>；暗光环境/影音发烧/PS5 玩家 → 索尼 A95L；预算有限要 OLED → LG C4；亮光客厅 → Mini LED 更合适。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>同价位对比：<b>LG C4 ¥9.3k</b> 是 OLED 务实甜点；<b>索尼 A95L ¥20k+</b> 贵在 XR 调校（影音发烧才值）；<b>国产 Mini LED ¥8k–15k</b> 亮客厅反超。77" 是「尺寸溢价」，65" 才是价效比巅峰。钱花在哪：花在「暗光黑位与色彩」，亮客厅买 OLED 是浪费。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：① 8K 电视（8K 片源几乎没有）；②为「OLED」二字付溢价却在亮客厅用；③<b>77"/85" 巨幕是尺寸溢价</b>，观看距离不够反而晕；④只看尺寸不看面板类型。</p></div>
+  </div>
+
+  <!-- 全屋净水 -->
+  <div class="pick">
+    <div class="ph"><h4>⑤ 全屋净水 <span class="g">· 装修时预埋</span></h4><span class="tag">装修前置</span></div>
+    <div class="cand">候选：<b>立升 U5+M5 黄金组合</b> · <b>美的星河 2.0</b> · <b>3M/BWT 软水</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>立升黄金组合（中央超滤 U5 + 超滤伴侣 M5）：分质供水，参考价 ¥13,280（促销 ¥8,690）。美的星河 2.0：1200G 大通量 RO，主滤芯 6 年长效。参考价 <span class="gp">基础版（前置+末端）¥3,000–5,000 · 进阶版（+软水/中央净）¥8,000–15,000 · 旗舰版 ¥20,000+ · 3M/BWT 软水 ¥19,000–25,000（品牌溢价，国产够用）</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>立升技术积累深、分质供水成熟；短板是耗材/软水盐持续成本。进口 3M/BWT 软水机贵在品牌。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>水质偏硬（水垢多）、有宝宝、要保护热水器/地暖的家庭。水质好地区可只装前置+末端直饮。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>钱花在哪：花在「软水保护家电 + 入口直饮」；别为「进口品牌」多付，立升/美的国产方案性能够用。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①「矿化水/富氢水」功能溢价；②买净水器只看机器价不看换芯成本（年均 ¥300–1,000）；③不预埋管路后期改装代价翻倍。</p></div>
+  </div>
+
+  <!-- 热水器 -->
+  <div class="pick">
+    <div class="ph"><h4>⑥ 燃气热水器 <span class="g">· 恒温与零冷水</span></h4><span class="tag">装修前置</span></div>
+    <div class="cand">候选：<b>林内 氧霂 Ultra（RUS-UR16E89G-GH）</b> · <b>能率 温泉 16K6AA</b> · <b>卡萨帝 CWV7 MAX</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>林内氧霂 Ultra 16L：<b>全量水量伺服器</b> 恒温 ±0.5℃ + 内置增压循环泵（单管零冷水，免预埋回水管），一级能效。能率温泉 16K6AA：<b>双水量伺服</b> ±0.35℃、6 段燃烧、最小火力 1kW、一级静音认证。卡萨帝 CWV7 MAX：超一级能效 107.3%、<b>冷凝水雾化内排</b>（免打孔排冷凝水）、±0.3℃。参考价 <span class="gp">林内 ¥6,400–7,200 · 能率 ¥6,800–7,600 · 卡萨帝 ¥7,999–8,999 · 入门能率 E4 / 林内 GD31 ¥2,500–3,500</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>林内/能率日系恒温口碑稳，短板是<b>零冷水若不预埋回水管、单管循环费气</b>；卡萨帝冷凝内排是精装公寓福音，但价格上探；入门款用水箱可能用磷脱氧铜（不如旗舰无氧铜）。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>高层/老小区水压波动大、多点同时用水 → 双水量伺服机型；要即开即热 → 零冷水（<b>新房务必预埋回水管</b>）；精装小户型不想打孔 → 卡萨帝。一厨一卫水压稳选入门即可。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>贵在哪：贵在「水量伺服器 + 微火苗」——夏天不烫、多点用水不忽冷忽热。便宜在哪：美的/华帝国产把恒温做到 ¥2k 内。钱花在哪：花在「水温稳定」，不是花在「大屏/语音」。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①零冷水不预埋回水管（后期加装 ¥2,000–3,500 且费气）；②认铭牌「无氧铜换热器 + 强排式」，避开磷脱氧铜低价款；③升数虚标——看「产热率」而非单纯升数；④<b>「冷凝水雾化内排」是精装公寓特需</b>，普通毛坯房有排水管就用不上，别为它多花上千。</p></div>
+  </div>
+
+  <!-- 油烟机 -->
+  <div class="pick">
+    <div class="ph"><h4>⑦ 油烟机 / 灶具 <span class="g">· 大风量+高静压</span></h4><span class="tag">厨房电器</span></div>
+    <div class="cand">候选：<b>方太 L10</b> · <b>老板 小黑翼 D2</b> · <b>华帝 i11170（含灶具）</b></div>
+    <div class="dim"><div class="lbl"><span class="n">②</span> 核心参数</div><p>方太 L10：<b>爆炒风量 29m³/min、最大静压 1360Pa</b>、24h 哨兵净味，封闭/开放厨房通吃。老板小黑翼 D2：28m³/min、1350Pa、顶侧双吸、内腔免拆洗，噪音约 58dB。华帝 i11170：23m³/min + 5.0kW 大火力灶具套装。参考价 <span class="gp">方太 L10 ¥4,303 · 老板 D2 ¥4,310 · 华帝套装 ¥3,099 · 入门老板 F30 ¥1,910 · 卡萨帝 1.3m 超薄旗舰 ¥12,999（颜值溢价）</span>。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">③</span> 口碑与短板</div><p>方太技术均衡、烟灶联动好；老板静音控制出色；华帝同价位参数最强、性价比高。短板：顶吸会碰头、侧吸高锅受限，需按烹饪习惯选形态。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">④</span> 适合人群</div><p>开放式厨房/爱爆炒/高层 → 方太 L10 或老板 D2（高静压防倒灌）；小户型/侧吸偏好 → 老板星辰；预算有限含灶具 → 华帝套装。</p></div>
+    <div class="dim"><div class="lbl"><span class="n">⑤</span> 选购逻辑</div><p>同价位对比：<b>方太 L10 ¥4.3k</b> 烟灶联动+哨兵净味最均衡；<b>老板 D2 ¥4.3k</b> 静音+免拆洗；<b>华帝套装 ¥3.1k</b> 含 5.0kW 灶具最划算。卡萨帝 ¥1.3w 只贵在「1.3m 超薄平板」的颜值。钱花在哪：花在「控烟与静音」，不是花在「大屏菜谱」或超薄颜值。</p></div>
+    <div class="dim"><div class="lbl warn"><span class="n">⑥</span> 避坑</div><p>智商税：①只看风量不看「最大静压」（高层低静压会倒灌）；②油烟机大屏看菜谱（鸡肋）；③顶侧一体平嵌为颜值多花一倍，需确认值不值。</p></div>
+  </div>
+
+  <div class="h3-sub">清洁 / 生活电器表</div>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>品类</th><th>推荐型号</th><th>参考价</th><th>一句话价值</th></tr>
+      <tr><td>扫拖机器人</td><td><b>追觅 X 系列 / 石头 G 系列旗舰</b></td><td class="gp">¥4,000–6,000</td><td>热水洗拖布+自动集尘，真解放双手</td></tr>
+      <tr><td>洗地机</td><td><b>添可 / 追觅 高温蒸汽款</b></td><td class="gp">¥2,500–4,000</td><td>有娃家庭高频刚需</td></tr>
+      <tr><td>洗碗机</td><td><b>西门子 / 老板 大容量 16 套</b></td><td class="gp">¥4,000–8,000</td><td>看套数不看花哨功能</td></tr>
+      <tr><td>智能马桶</td><td><b>TOTO / 箭牌 旗舰即热款</b></td><td class="gp">¥4,000–10,000</td><td>即热 + 自洁，体验升级</td></tr>
+      <tr><td>蒸烤一体机</td><td><b>西门子 / 老板嵌入式</b></td><td class="gp">¥6,000–15,000</td><td>嵌入颜值 + 功能合一</td></tr>
+    </table>
+  </div>
+
+  <div class="verdict"><div class="vt">两条避坑原则</div><b>原则一：进口只在是「技术发明者」时值</b>——日立真空保鲜、索尼 OLED、三菱/大金压缩机，这类「别人做不出来」的技术才值得付进口溢价；美诺洗衣机、冰箱大屏、富氢水等「国产能平替」的，一律不碰。<br><b>原则二：优先国产品牌旗舰线</b>——卡萨帝、TCL/海信旗舰、格力/美的旗舰，已把 APF、保鲜、静音追到进口同级，价格腰斩。</div>
+</section>
+
+<!-- ============ CHAPTER 6 ============ -->
+<section id="ch6">
+  <div class="sec-head"><div class="sec-num">6</div><h2>预算总表 · 三档全屋</h2><div class="line"></div></div>
+  <p class="lead">三档总预算拆解（以 120–150㎡ 三室两厅为基准）。智能项为「够用且稳」的封顶值，软装/灯光才是上探空间。</p>
+
+  <div class="totbox">
+    <div class="tb-head"><h4>进阶档 · 聪明好用</h4><span class="total">¥5–8 万</span></div>
+    <table>
+      <tr><th>板块</th><th>内容</th><th>预算</th></tr>
+      <tr><td>全屋智能</td><td>Aqara M200 + D1×6 + FP2×1 + E1×2 + U200 门锁</td><td class="gp">¥7,000–8,000</td></tr>
+      <tr><td>灯光</td><td>Yeelight Pro 无主灯基础套</td><td class="gp">¥8,000</td></tr>
+      <tr><td>床垫</td><td>金可儿/舒达正线</td><td class="gp">¥5,000</td></tr>
+      <tr><td>沙发</td><td>顾家/曲美头层牛皮或实木</td><td class="gp">¥6,000–10,000</td></tr>
+      <tr><td>家电升级</td><td>格力/美的旗舰空调 + 国产旗舰冰箱/洗衣机</td><td class="gp">¥25,000–40,000</td></tr>
+    </table>
+  </div>
+
+  <div class="totbox gold">
+    <div class="tb-head"><h4>高端档 · 体验密度甜蜜点 <span class="tag">推荐</span></h4><span class="total">¥10–15 万</span></div>
+    <table>
+      <tr><th>板块</th><th>内容</th><th>预算</th></tr>
+      <tr><td>全屋智能</td><td>M200 + D1×8 + FP2×2 + E1×4 + U200 + G3 + S1E</td><td class="gp">¥13,000–15,000</td></tr>
+      <tr><td>灯光</td><td>Yeelight Pro 全屋设计 + Lutron Caséta 调光</td><td class="gp">¥25,000</td></tr>
+      <tr><td>床垫</td><td>丝涟奇迹 / 席梦思入门</td><td class="gp">¥10,000</td></tr>
+      <tr><td>沙发</td><td>NATUZZI Editions / 意迪森电动</td><td class="gp">¥20,000–30,000</td></tr>
+      <tr><td>窗帘面料</td><td>如鱼得水高精密遮光</td><td class="gp">¥8,000–12,000</td></tr>
+      <tr><td>家电升级</td><td>卡萨帝冰箱+洗衣机 + 格力/美的旗舰空调 + 国产 Mini LED / LG C4 电视</td><td class="gp">¥35,000–50,000</td></tr>
+    </table>
+  </div>
+
+  <div class="totbox">
+    <div class="tb-head"><h4>旗舰档 · 十年不过时</h4><span class="total">¥20 万+</span></div>
+    <table>
+      <tr><th>板块</th><th>内容</th><th>预算</th></tr>
+      <tr><td>全屋智能</td><td>Aqara M3 + Thread 全屋 + FP2×4 + 门锁 U400 + G5 Pro</td><td class="gp">¥28,000–30,000</td></tr>
+      <tr><td>灯光</td><td>Yeelight Pro 全屋 + Lutron RA2 Select + FLOS 点睛</td><td class="gp">¥50,000</td></tr>
+      <tr><td>床垫</td><td>席梦思 Beautyrest 高端 / 泰普尔</td><td class="gp">¥20,000–30,000</td></tr>
+      <tr><td>沙发</td><td>NATUZZI Italia 真皮</td><td class="gp">¥40,000–80,000</td></tr>
+      <tr><td>家电升级</td><td>日立真空冰箱 + 三菱中央空调 + 索尼 OLED（仅别墅/大平层才值）</td><td class="gp">¥80,000–120,000</td></tr>
+      <tr><td>全屋净水</td><td>前置+中央净+软水+末端+管线机</td><td class="gp">¥20,000–34,000</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 7 ============ -->
+<section id="ch7">
+  <div class="sec-head"><div class="sec-num">7</div><h2>装修前置 · 别等装完再后悔</h2><div class="line"></div></div>
+  <p class="lead">以下每一项都是「装修时花几十块、装完补要砸墙」的事。照清单打勾，能省下后期 80% 的返工。</p>
+
+  <div class="h3-sub">Checklist · 装修时就要做的</div>
+  <ul class="checklist">
+    <li><b>开关留零线</b> —— 无论选哪个生态，让电工在<b>所有开关盒留零线</b>，后期改造成本翻倍还难看。智能开关零火版比单火版稳定得多。</li>
+    <li><b>窗帘盒留电源</b> —— 每个要装电动窗帘的窗，窗帘盒内<b>预留 220V 电源</b>（或 48V 低压），别等想装电机才发现没电。</li>
+    <li><b>每房网线 + Mesh</b> —— 每个房间/客厅走<b>超六类网线</b>，路由器/AP 位置提前定，智能设备断网是最大体验杀手。</li>
+    <li><b>选华为 PLC 要预埋星型电力线</b> —— 若走华为 PLC 方案，水电阶段按<b>星型拓扑</b>预埋电力线，别让工人乱接（PLC 再稳也架不住乱接线）。</li>
+    <li><b>全屋净水预埋管路</b> —— 入户总阀处留前置过滤器位，软水机/中央净水机位提前规划（阳台/设备间），预埋分质供水管路。</li>
+    <li><b>零冷水热水器预埋回水管</b> —— 若要「即开即热」零冷水，装修时<b>预埋回水管路</b>（否则只能单管循环、费气且效果打折）；燃气管道 ≥DN15、入户水压需达标。</li>
+    <li><b>量好尺寸再下单</b> —— 入户门（门锁适配）、电梯/楼道（大件家具能否进）、床垫、沙发尺寸，家具电梯进不去是最常见的翻车。</li>
+    <li><b>中央空调/新风预埋</b> —— 中央空调、新风、地暖在水电阶段就要定方案，后期无法补。</li>
+    <li><b>传感器/摄像头预留电源位</b> —— FP2、摄像头等需常供电的设备，提前在墙面/天花板留插座或 5V 电源。</li>
+  </ul>
+
+  <div class="redbox"><div class="rt">高端避坑总纲（全文收束）</div>
+  <b>① 高端 = 体验密度，不是设备数量。</b>一套稳定好用的智能 + 几件用料扎实的大家具 + 懂光的无主灯，胜过满屋花哨的智能配件。<br>
+  <b>② 智能做到「够用且稳」即可封顶，</b>预算上探空间留给床垫、沙发、灯光这三样「天天接触」的软装。<br>
+  <b>③ 进口只在是技术发明者时值</b>（日立保鲜/索尼 OLED/三菱压缩机），其余一律国产旗舰平替。<br>
+  <b>④ 六个字避坑口诀：</b>问「省了什么动作」，看「硬指标不看话术」，认「正线不认贴牌」。</div>
+
+  <footer>
+    <p>本报告价格均为 2026.08 京东/天猫/品牌官网在售参考价（含大促/国补区间），实际以成交为准。</p>
+    <p>数据来源：品牌官网 · 京东/天猫旗舰店 · 专业评测（PCMag/CNET/What Hi-Fi/奥维云网）· 真实用户口碑（值得买/知乎/Trustpilot）。</p>
+    <p style="margin-top:8px;color:var(--gold)">高端全屋方案 · 软装 + 全屋智能 · 2026</p>
+  </footer>
+</section>
+
+</div>
+</body>
+</html>

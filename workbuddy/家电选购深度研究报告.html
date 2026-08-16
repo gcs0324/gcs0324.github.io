@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年全屋家电选购深度研究报告</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --primary: #185fa5;
+    --primary-light: #e8f1fb;
+    --green: #0f6e56;
+    --green-bg: #e6f5f0;
+    --yellow: #854f0b;
+    --yellow-bg: #fdf6e8;
+    --red: #a32d2d;
+    --red-bg: #fbeeee;
+    --gray-th: #eef0f3;
+    --gray-text: #5a6271;
+    --border: #e2e5ea;
+    --radius: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: #1a1d23;
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 980px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #185fa5 0%, #124a82 100%);
+    color: #fff;
+    padding: 40px 30px;
+    border-radius: var(--radius);
+    margin: 24px 0;
+  }
+  .hero h1 { font-size: 26px; margin-bottom: 8px; font-weight: 700; }
+  .hero .subtitle { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+  .hero .meta-row { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; }
+  .hero .meta-row span {
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* Section */
+  section { margin: 32px 0; }
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1d23;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  h3 { font-size: 16px; font-weight: 600; margin: 20px 0 10px; color: #2a2f38; }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 12px 0;
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  th {
+    background: var(--gray-th);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #3a3f4a;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #fafbfc; }
+
+  /* Pick card */
+  .pick {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .pick.best { border-left-color: var(--green); }
+  .pick.alt { border-left-color: var(--primary); }
+  .pick.budget { border-left-color: var(--yellow); }
+  .pick h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .pick .tagline {
+    font-size: 13px;
+    color: var(--gray-text);
+    margin-bottom: 10px;
+  }
+  .pick .price {
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+  .pick .price-budget { color: var(--yellow); }
+  .pick .price-best { color: var(--green); }
+  .pick .rows { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; font-size: 13px; }
+  .pick .rows .row { display: flex; gap: 6px; }
+  .pick .rows .row .k { color: var(--gray-text); white-space: nowrap; min-width: 60px; }
+  .pick .rows .row .v { color: #2a2f38; font-weight: 500; }
+  .pick .reason {
+    margin-top: 10px;
+    font-size: 13px;
+    padding: 8px 12px;
+    background: var(--primary-light);
+    border-radius: 6px;
+  }
+  .pick .con {
+    margin-top: 6px;
+    font-size: 13px;
+    padding: 8px 12px;
+    background: var(--red-bg);
+    border-radius: 6px;
+    color: var(--red);
+  }
+
+  /* Alert blocks */
+  .alert {
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin: 12px 0;
+    border-left: 4px solid;
+  }
+  .alert-green { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .alert-yellow { background: var(--yellow-bg); border-color: var(--yellow); color: var(--yellow); }
+  .alert-red { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .alert strong { font-weight: 700; }
+  .alert ul { margin: 6px 0 0 18px; }
+  .alert li { margin-bottom: 3px; }
+
+  /* Budget grid */
+  .budget-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .budget-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .budget-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  .budget-card .total {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 8px 0 12px;
+  }
+  .budget-card .total-best { color: var(--green); }
+  .budget-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .budget-item:last-child { border-bottom: none; }
+  .budget-item .name { color: var(--gray-text); }
+  .budget-item .val { font-weight: 600; }
+
+  /* Compare card (fridge) */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .compare-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-top: 4px solid var(--primary);
+  }
+  .compare-card.winner { border-top-color: var(--green); }
+  .compare-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .compare-card .compare-price { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+  .compare-card.winner .compare-price { color: var(--green); }
+
+  /* Rules list */
+  .rules { counter-reset: rule; }
+  .rule-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-item::before {
+    counter-increment: rule;
+    content: counter(rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .rule-item .rule-content { font-size: 14px; }
+  .rule-item .rule-content strong { color: var(--primary); }
+
+  /* Conclusion block */
+  .conclusion {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #f0f7ff 100%);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin: 16px 0;
+    border: 1px solid #d0e3f7;
+  }
+  .conclusion h4 { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .conclusion p { font-size: 14px; color: #2a2f38; }
+
+  /* Tip list */
+  .tip-list { list-style: none; padding: 0; }
+  .tip-list li {
+    padding: 10px 0 10px 28px;
+    position: relative;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tip-list li:last-child { border-bottom: none; }
+  .tip-list li::before {
+    content: "!";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 20px;
+    height: 20px;
+    background: var(--red);
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tip-list li strong { color: var(--red); }
+
+  /* Summary table */
+  .summary-table th { font-size: 13px; }
+  .summary-table td { font-size: 13px; }
+  .summary-table .cat { font-weight: 600; color: var(--primary); }
+  .summary-table .tier-best { color: var(--green); font-weight: 600; }
+  .summary-table .tier-alt { color: var(--primary); font-weight: 600; }
+  .summary-table .tier-budget { color: var(--yellow); font-weight: 600; }
+
+  /* Responsive */
+  @media (max-width: 680px) {
+    .container { padding: 0 12px 40px; }
+    .hero { padding: 28px 20px; }
+    .hero h1 { font-size: 21px; }
+    h2 { font-size: 17px; }
+    h2 .num { width: 28px; height: 28px; font-size: 13px; }
+    .card, .pick { padding: 16px; }
+    .pick .rows { grid-template-columns: 1fr; }
+    .budget-grid, .compare-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 6px; }
+    .summary-table { display: block; overflow-x: auto; white-space: nowrap; }
+  }
+
+  .source-note {
+    font-size: 12px;
+    color: var(--gray-text);
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--card);
+    border-radius: 8px;
+    border-top: 3px solid var(--border);
+  }
+  .source-note h4 { font-size: 13px; margin-bottom: 8px; color: #3a3f4a; }
+  .source-note ul { margin-left: 18px; }
+  .source-note li { margin-bottom: 4px; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--primary-light); color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Hero -->
+<div class="hero">
+  <h1>2026 年全屋家电选购深度研究报告</h1>
+  <div class="subtitle">冰箱 · 洗衣机 · 空调 · 电视 · 床垫 · 沙发 — 六品类多源交叉验证</div>
+  <div class="meta-row">
+    <span>基准时间：2026 年 8 月</span>
+    <span>价格含大促 + 国补以旧换新</span>
+    <span>数据来源：京东 / 天猫 / 专业评测 / 黑猫投诉</span>
+  </div>
+</div>
+
+<!-- ========== Chapter 1 ========== -->
+<section>
+  <h2><span class="num">1</span>最终推荐清单 · 直接照买版</h2>
+
+  <div class="card">
+    <h3>六品类三档推荐总表</h3>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>品类</th>
+          <th>首选（闭眼入）</th>
+          <th>备选（均衡）</th>
+          <th>预算紧（够用）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="cat">冰箱</td>
+          <td class="tier-best">海尔云溪 502L<br><small>¥4,398</small></td>
+          <td class="tier-alt">小米 508L Pro<br><small>¥3,183</small></td>
+          <td class="tier-budget">统帅 510L<br><small>¥2,400</small></td>
+        </tr>
+        <tr>
+          <td class="cat">洗衣机</td>
+          <td class="tier-best">海尔云溪 5.0<br><small>¥3,045</small></td>
+          <td class="tier-alt">海尔云溪 4.0<br><small>¥2,399</small></td>
+          <td class="tier-budget">小天鹅 628Plus<br><small>¥2,199</small></td>
+        </tr>
+        <tr>
+          <td class="cat">空调 3 匹柜机</td>
+          <td class="tier-best">小米巨省电 Pro<br><small>¥4,100</small></td>
+          <td class="tier-alt">格力云锦三代<br><small>¥5,605 · 10 年包修</small></td>
+          <td class="tier-budget">华凌神机二代<br><small>¥3,600</small></td>
+        </tr>
+        <tr>
+          <td class="cat">电视 75 英寸</td>
+          <td class="tier-best">小米 S Pro 2026<br><small>¥4,767</small></td>
+          <td class="tier-alt">海信 E5Q Pro<br><small>¥4,700 · 抗反光</small></td>
+          <td class="tier-budget">雷鸟鹤 6 Ultra<br><small>¥4,399 · 无广告</small></td>
+        </tr>
+        <tr>
+          <td class="cat">床垫</td>
+          <td class="tier-best">喜临门白骑士 2.0<br><small>¥3,000</small></td>
+          <td class="tier-alt">雅兰深睡智享版<br><small>¥3,500</small></td>
+          <td class="tier-budget">全友 105169<br><small>¥1,180</small></td>
+        </tr>
+        <tr>
+          <td class="cat">沙发</td>
+          <td class="tier-best">京东京造 D39 彼岸<br><small>¥1,700</small></td>
+          <td class="tier-alt">全友布艺可拆洗<br><small>¥2,649</small></td>
+          <td class="tier-budget">全友 2.2m 布艺<br><small>¥1,999</small></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="budget-grid">
+    <div class="budget-card">
+      <h4>性价比全屋方案</h4>
+      <div class="total">¥13,400</div>
+      <div class="budget-item"><span class="name">冰箱 小米 508L Pro</span><span class="val">¥3,183</span></div>
+      <div class="budget-item"><span class="name">洗衣机 小天鹅 628Plus</span><span class="val">¥2,199</span></div>
+      <div class="budget-item"><span class="name">空调 华凌神机二代</span><span class="val">¥3,600</span></div>
+      <div class="budget-item"><span class="name">电视 雷鸟鹤 6 Ultra</span><span class="val">¥4,399</span></div>
+    </div>
+    <div class="budget-card">
+      <h4>舒适全屋方案</h4>
+      <div class="total total-best">¥16,310</div>
+      <div class="budget-item"><span class="name">冰箱 海尔云溪 502L</span><span class="val">¥4,398</span></div>
+      <div class="budget-item"><span class="name">洗衣机 海尔云溪 5.0</span><span class="val">¥3,045</span></div>
+      <div class="budget-item"><span class="name">空调 小米巨省电 Pro</span><span class="val">¥4,100</span></div>
+      <div class="budget-item"><span class="name">电视 小米 S Pro 2026</span><span class="val">¥4,767</span></div>
+    </div>
+  </div>
+
+  <div class="alert alert-green">
+    <strong>下单三铁律</strong>
+    <ul>
+      <li>① 只买一级能效 — 2026 年国补仅补一级能效（15%、单品上限 ¥1,500），二级能效已不补</li>
+      <li>② 大促 + 国补叠加 — 京东搜「国补 730」、天猫搜「今日有福利」，实名核验后立减，非后返</li>
+      <li>③ 到手价 = 大促价 − 国补 15% — 四大件（冰箱/洗衣机/空调/电视）全国统一 6 类补贴，床垫沙发不在国补范围</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 2 ========== -->
+<section>
+  <h2><span class="num">2</span>结论速览</h2>
+  <div class="card">
+    <table>
+      <tr><td style="width:100px;font-weight:600;color:var(--primary);">冰箱</td><td>海尔云溪 502L 用全空间保鲜 + EPP 除农残技术栈碾压小米 508L，多花 ¥1,215 买的是保鲜核心科技，值。</td></tr>
+      <tr><td style="font-weight:600;color:var(--primary);">洗衣机</td><td>海尔云溪 5.0 洗净比 1.36 碾压级，AI 直驱 2.0 超静音是首选；预算卡 ¥2,400 选 4.0（双智投反而比 5.0 多）；小天鹅 628Plus 洗净比 1.28 同价位第一；冷凝式洗烘一体 = 智商税（热泵式除外）。</td></tr>
+      <tr><td style="font-weight:600;color:var(--primary);">空调</td><td>3 匹柜机首选小米巨省电 Pro（APF 5.31 + 64 根铜管用料最猛）；卧室 1.5 匹华凌神机二代 Pro（用料狠）和小米巨省电 Pro 2026（APF 6.30 + 10 年包修）二选一，到手价几乎平价；格力云锦三代十年包修最省心但贵 ¥1,500+。</td></tr>
+      <tr><td style="font-weight:600;color:var(--primary);">电视</td><td>小米 S Pro 2026 款 2304 分区 + 5200nit 画质碾压；雷鸟鹤 6 Ultra 无广告 + 4 满血 HDMI2.1 是游戏党福音。</td></tr>
+      <tr><td style="font-weight:600;color:var(--primary);">床垫</td><td>2000-5000 元黄金段，喜临门白骑士 2.0 护脊最靠谱；全友 105169 五区独袋弹簧 ¥1,180 是穷装党神器。</td></tr>
+      <tr><td style="font-weight:600;color:var(--primary);">沙发</td><td>京东京造 D39 彼岸 ¥1,700 到手、橡胶木框架 + 55-60cm 坐深，同价位无对手；科技布低于 ¥3,000 一律别碰。</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ========== Chapter 3 ========== -->
+<section>
+  <h2><span class="num">3</span>冰箱深度对比：海尔云溪 502L vs 小米 508L Pro</h2>
+
+  <div class="compare-grid">
+    <div class="compare-card winner">
+      <h4>海尔云溪 502L <span class="badge badge-green">首选</span></h4>
+      <div class="compare-price">¥4,398 到手</div>
+      <table style="margin:0;">
+        <tr><td style="color:var(--gray-text);">型号</td><td>BCD-502WGHTD1CWLU1</td></tr>
+        <tr><td style="color:var(--gray-text);">容量</td><td>502L（冷藏 318 + 冷冻 184）</td></tr>
+        <tr><td style="color:var(--gray-text);">能效</td><td>一级 · 0.92 度/天</td></tr>
+        <tr><td style="color:var(--gray-text);">制冷系统</td><td><strong>双系统双循环</strong></td></tr>
+        <tr><td style="color:var(--gray-text);">保鲜技术</td><td><strong>全空间保鲜</strong>（阻氧干湿分储 + 冷冻智能恒温）</td></tr>
+        <tr><td style="color:var(--gray-text);">净化</td><td>冷藏 <strong>EPP 超净</strong> + 冷冻黑金净化</td></tr>
+        <tr><td style="color:var(--gray-text);">速冻</td><td>-30℃ 深冷速冻</td></tr>
+        <tr><td style="color:var(--gray-text);">厚度</td><td>594mm 超薄零嵌</td></tr>
+        <tr><td style="color:var(--gray-text);">噪音</td><td>35dB</td></tr>
+      </table>
+    </div>
+    <div class="compare-card">
+      <h4>小米 508L Pro <span class="badge badge-blue">备选</span></h4>
+      <div class="compare-price">¥3,183 到手</div>
+      <table style="margin:0;">
+        <tr><td style="color:var(--gray-text);">型号</td><td>BCD-508WTMBI</td></tr>
+        <tr><td style="color:var(--gray-text);">容量</td><td>508L（冷藏 296 + 冷冻 183）</td></tr>
+        <tr><td style="color:var(--gray-text);">能效</td><td>一级 · 0.93 度/天</td></tr>
+        <tr><td style="color:var(--gray-text);">制冷系统</td><td>双系统双循环</td></tr>
+        <tr><td style="color:var(--gray-text);">保鲜技术</td><td>水分子筛保湿（湿度 >90%）</td></tr>
+        <tr><td style="color:var(--gray-text);">净化</td><td>全域离子净化 4.0（3 分钟净味）</td></tr>
+        <tr><td style="color:var(--gray-text);">速冻</td><td>-30℃ 深冷锁鲜</td></tr>
+        <tr><td style="color:var(--gray-text);">厚度</td><td>600mm 超薄平嵌</td></tr>
+        <tr><td style="color:var(--gray-text);">噪音</td><td>31dB（更安静）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>参数</th><th>海尔云溪 502L</th><th>小米 508L Pro</th><th>差价价值</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>到手价</td><td>¥4,398</td><td>¥3,183</td><td style="color:var(--red);font-weight:600;">+¥1,215</td></tr>
+      <tr><td>总容量</td><td>502L</td><td>508L</td><td>小米多 6L</td></tr>
+      <tr><td>制冷系统</td><td>双系统双循环</td><td>双系统双循环</td><td>平手</td></tr>
+      <tr><td>冷藏净化</td><td><strong>EPP 超净系统</strong></td><td>离子净化 4.0</td><td style="color:var(--green);">海尔胜（除农残）</td></tr>
+      <tr><td>冷冻净化</td><td><strong>黑金净化</strong></td><td>银离子抗菌</td><td style="color:var(--green);">海尔胜</td></tr>
+      <tr><td>保鲜专利</td><td><strong>全空间保鲜</strong>（阻氧干湿分储 + 冷冻恒温）</td><td>水分子筛保湿</td><td style="color:var(--green);">海尔碾压</td></tr>
+      <tr><td>厚度</td><td>594mm</td><td>600mm</td><td>海尔更薄</td></tr>
+      <tr><td>噪音</td><td>35dB</td><td>31dB</td><td style="color:var(--green);">小米更安静</td></tr>
+      <tr><td>智能互联</td><td>海尔智家</td><td>米家澎湃智联</td><td>看生态</td></tr>
+    </tbody>
+  </table>
+
+  <div class="conclusion">
+    <h4>结论：¥1,215 差价值不值？</h4>
+    <p>值。海尔云溪 502L 是 5000 元档唯一集齐「双系统 + EPP 超净 + 全空间保鲜 + 阻氧干湿分储 + -30℃ 速冻」大满贯配置的零嵌冰箱。EPP 超净系统的<strong>降农残功能</strong>是小米离子净化无法替代的——第三方检测（中轻检验认证）数据显示对甲拌磷、艾氏剂等农残降解率高达 <strong>99.999%</strong>，覆盖 119 种有害物质。如果你家里常存生鲜果蔬、注重食品安全，这 ¥1,215 花得值。预算实在紧就选小米 508L Pro，双系统 + 31dB 超静音在同价位也不差。</p>
+  </div>
+
+  <div class="pick budget">
+    <h4>预算紧档：统帅 510L</h4>
+    <div class="price price-budget">¥2,400 到手</div>
+    <div class="tagline">海尔子品牌，双循环 + 全域净化，594mm 超薄</div>
+    <div class="reason">没有 EPP 和全空间保鲜，但双系统双循环 + 一级能效 + 零嵌设计在同价位无对手。出租房 / 过渡房首选。</div>
+  </div>
+</section>
+
+<!-- ========== Chapter 4 ========== -->
+<section>
+  <h2><span class="num">4</span>洗衣机 · 滚筒 10kg</h2>
+
+  <div class="pick best">
+    <h4>首选：海尔云溪 5.0<span class="badge badge-green">最新款 · 洗净比 1.36</span></h4>
+    <div class="price price-best">¥3,045 到手</div>
+    <div class="tagline">AI 直驱 2.0 电机 · 雨沐洗 · 537mm 纯平全嵌 · 蓝盾双效除菌</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">XQG100-BLE7AD1U1</span></div>
+      <div class="row"><span class="k">电机</span><span class="v">AI 直驱 2.0（无皮带）</span></div>
+      <div class="row"><span class="k">容量</span><span class="v">10kg</span></div>
+      <div class="row"><span class="k">转速</span><span class="v">1400 转</span></div>
+      <div class="row"><span class="k">洗净比</span><span class="v"><strong style="color:var(--green);">1.36</strong>（碾压级）</span></div>
+      <div class="row"><span class="k">能效</span><span class="v">一级</span></div>
+      <div class="row"><span class="k">噪音</span><span class="v">超静音（磐石减震）</span></div>
+      <div class="row"><span class="k">深度</span><span class="v">537mm 纯平全嵌</span></div>
+    </div>
+    <div class="reason">5.0 是 4.0 的全面升级款：洗净比从 1.21 飙到 1.36（国标一级仅要求 1.03），雨沐洗技术用高压喷淋二次击打顽固污渍，39 分钟完成传统 62 分钟的洗净效果。AI 直驱 2.0 + 磐石减震系统夜间洗衣几乎无感。537mm 纯平全嵌门板齐平橱柜，嵌入首选。多花 ¥650 买的是洗净能力质的飞跃。</div>
+    <div class="con">短板：智能投放从 4.0 的双路降为<strong>单路</strong>（柔顺剂需手动加）；价格比 4.0 贵约 ¥650。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>性价比：海尔云溪 4.0<span class="badge badge-blue">直驱静音 · 双智投</span></h4>
+    <div class="price">¥2,399 到手</div>
+    <div class="tagline">FPA 直驱电机 · 活水精华洗 · 双智投 · 10 年电机包修</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">XQG100-BLEG583HU1</span></div>
+      <div class="row"><span class="k">电机</span><span class="v">FPA 直驱（无皮带）</span></div>
+      <div class="row"><span class="k">容量</span><span class="v">10kg</span></div>
+      <div class="row"><span class="k">转速</span><span class="v">1400 转</span></div>
+      <div class="row"><span class="k">洗净比</span><span class="v">1.21</span></div>
+      <div class="row"><span class="k">能效</span><span class="v">一级</span></div>
+      <div class="row"><span class="k">噪音</span><span class="v">48dB（洗涤）</span></div>
+      <div class="row"><span class="k">深度</span><span class="v">537mm 超薄</span></div>
+    </div>
+    <div class="reason">直驱电机比 BLDC 皮带噪音低 3-5dB，寿命 20 年无皮带损耗。<strong>双智投</strong>（洗衣液+柔顺剂自动投放）是 5.0 没有的优势。预算卡 ¥2,400 选 4.0 不亏。</div>
+    <div class="con">短板：洗净比 1.21 不如 5.0 的 1.36；非纯平全嵌；地面不平时直驱震动噪音会放大。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>备选：小天鹅小乌梅 3.0<span class="badge badge-blue">纯平全嵌</span></h4>
+    <div class="price">¥2,399 到手</div>
+    <div class="tagline">水魔方冷水洗 · 超微气泡 · 565mm 纯平全嵌</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">TG10VE40SE</span></div>
+      <div class="row"><span class="k">电机</span><span class="v">BLDC 皮带</span></div>
+      <div class="row"><span class="k">容量</span><span class="v">10kg</span></div>
+      <div class="row"><span class="k">转速</span><span class="v">1200 转</span></div>
+      <div class="row"><span class="k">洗净比</span><span class="v">1.21</span></div>
+      <div class="row"><span class="k">能效</span><span class="v">一级</span></div>
+      <div class="row"><span class="k">噪音</span><span class="v">55-60dB（脱水）</span></div>
+      <div class="row"><span class="k">深度</span><span class="v">565mm 纯平</span></div>
+    </div>
+    <div class="reason">水魔方冷水洗护色是真技术 — 30℃ 冷水达到 40℃ 热洗效果，省电不伤衣。565mm 纯平全嵌比海尔更薄，嵌入橱柜首选。</div>
+    <div class="con">短板：BLDC 皮带脱水噪音比直驱大 5-7dB；只有单智投（海尔是双智投）。</div>
+  </div>
+
+  <div class="pick budget">
+    <h4>预算紧：小天鹅 628Plus<span class="badge badge-yellow">洗净比王</span></h4>
+    <div class="price price-budget">¥2,199 到手</div>
+    <div class="tagline">洗净比 1.28 同价位第一 · AI 双智投 · 水魔方</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">TG10V628PLUS</span></div>
+      <div class="row"><span class="k">电机</span><span class="v">BLDC 皮带</span></div>
+      <div class="row"><span class="k">容量</span><span class="v">10kg</span></div>
+      <div class="row"><span class="k">转速</span><span class="v">1200 转</span></div>
+      <div class="row"><span class="k">洗净比</span><span class="v"><strong style="color:var(--green);">1.28</strong>（已验证）</span></div>
+      <div class="row"><span class="k">能效</span><span class="v">一级</span></div>
+      <div class="row"><span class="k">噪音</span><span class="v">46-47dB</span></div>
+      <div class="row"><span class="k">深度</span><span class="v">585mm（偏厚）</span></div>
+    </div>
+    <div class="reason">1.28 洗净比经中国家用电器研究院 2024Q3 抽检报告验证，同价位前 5%。水魔方 + AI 双智投 + 银离子 UV 除菌，2000 元档配置拉满。</div>
+    <div class="con">短板：585mm 深度偏厚，嵌入前量好尺寸；BLDC 皮带不如直驱静音。</div>
+  </div>
+
+  <h3>3000 元档补充</h3>
+  <div class="card">
+    <table>
+      <tr><th>型号</th><th>到手价</th><th>核心卖点</th><th>适合谁</th></tr>
+      <tr><td>海尔 EG100HBDC7SU1</td><td>¥3,199</td><td>10 洗 6 烘 + 直驱 DD</td><td>偶尔需要应急烘干</td></tr>
+      <tr><td>小天鹅 TG100V86WMADY5</td><td>¥2,699</td><td>BLDC 水魔方高配</td><td>想要水魔方但不追求纯平</td></tr>
+      <tr><td>海尔 G10090BD12S</td><td>¥3,000</td><td>FPA 直驱 + 巴氏除菌</td><td>直驱静音党加预算</td></tr>
+    </table>
+  </div>
+
+  <div class="alert alert-red">
+    <strong>洗衣机智商税重灾区</strong>
+    <ul>
+      <li><strong>冷凝式洗烘一体 = 智商税（热泵式除外）</strong>：低价洗烘一体多为<strong>冷凝式</strong>，标 10kg 洗涤烘干仅 6-7kg 需分两批；70-90℃ 高温伤真丝羊毛；无独立毛絮收集器内筒积毛；烘不透表面干内部潮；洗烘共用筒易发霉异味。价格逼近热泵独立机效果远不如。但<strong>热泵式洗烘一体</strong>（如海尔云溪 5.0 热泵版 ¥6,273）低温烘干不伤衣、有毛絮过滤，效果接近独立烘干机，预算充足可选。</li>
+      <li><strong>智能投放</strong>：传感器不准、堵管道、强制指定品牌洗衣液，维修费数百元</li>
+      <li><strong>空气洗 / 蒸汽洗</strong>：仅去味不能去污，溢价噱头</li>
+      <li><strong>超大触摸屏</strong>：阳台风吹日晒易故障，维修贵</li>
+      <li><strong>WiFi 远程控制</strong>：使用率 <15%，且需先放衣才能洗</li>
+      <li><strong>多维减震命名</strong>（六维/八维/九维）：本质普通减震器，看数量不看名字</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 5 ========== -->
+<section>
+  <h2><span class="num">5</span>立式空调 · 3 匹柜机</h2>
+
+  <div class="pick best">
+    <h4>用料王 + 性价比：华凌神机二代<span class="badge badge-green">QSY 拆机验证</span></h4>
+    <div class="price price-best">¥3,600 到手</div>
+    <div class="tagline">美芝 24cc 双转子 · 双排 56 根铜管 · 68℃ 高温制冷</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">KFR-72LW/N8HE1Ⅱ</span></div>
+      <div class="row"><span class="k">APF</span><span class="v">5.10（超一级）</span></div>
+      <div class="row"><span class="k">压缩机</span><span class="v">美芝 24cc 双转子</span></div>
+      <div class="row"><span class="k">冷凝器</span><span class="v">双排 56 根铜管（49.42m）</span></div>
+      <div class="row"><span class="k">膨胀阀</span><span class="v">三花 1.65mm 电子膨胀阀</span></div>
+      <div class="row"><span class="k">外机重</span><span class="v">42kg</span></div>
+      <div class="row"><span class="k">风量</span><span class="v">1800m³/h</span></div>
+      <div class="row"><span class="k">适用</span><span class="v">32-48㎡</span></div>
+    </div>
+    <div class="reason">QSY 拆机确认用料越级 — 24cc 大排量美芝压缩机同价位唯一，翅片面积 17㎡ 大于行业平均 15-16㎡。68℃ 高温制冷带冷媒环，西晒/顶楼稳定。</div>
+    <div class="con">短板：外机风扇用威灵 80W 铝线电机（非铜线）；一根碳钢分流管（非纯铜）；功能不如美的丰富。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>省电王：美的酷省电 Ultra<span class="badge badge-blue">冷媒环 + 液冷</span></h4>
+    <div class="price">¥4,200 到手</div>
+    <div class="tagline">AI 省电芯片年省 816 度 · 双散热 · 15 米远距送风</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">KFR-72LW/N8KS1-1U</span></div>
+      <div class="row"><span class="k">APF</span><span class="v">5.16</span></div>
+      <div class="row"><span class="k">压缩机</span><span class="v">美芝 24cc 双转子</span></div>
+      <div class="row"><span class="k">冷凝器</span><span class="v">双排纯铜 + 液冷散热</span></div>
+      <div class="row"><span class="k">膨胀阀</span><span class="v">电子膨胀阀</span></div>
+      <div class="row"><span class="k">外机重</span><span class="v">42kg</span></div>
+      <div class="row"><span class="k">风量</span><span class="v">1760m³/h</span></div>
+      <div class="row"><span class="k">温域</span><span class="v">-35℃ ~ 65℃</span></div>
+    </div>
+    <div class="reason">冷媒环 + 液冷双散热是核心差异化 — 西晒顶楼/监狱机位不热保护停机。AI 省电芯片实测年省 816 度（约 ¥400/年），3 年回本差价。</div>
+    <div class="con">短板：价格偏高，非大促性价比一般；整机仅 6 年包修（压缩机 10 年）。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>米家党（首选推荐）：小米巨省电 Pro<span class="badge badge-green">APF 5.31 最高</span></h4>
+    <div class="price price-best">¥4,100 到手</div>
+    <div class="tagline">APF 5.31 行业顶尖 · 64 根铜管用料最猛 · 10 年质保</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">72LW-PL30/N2A1(W)</span></div>
+      <div class="row"><span class="k">APF</span><span class="v"><strong style="color:var(--green);">5.31</strong>（四款最高）</span></div>
+      <div class="row"><span class="k">压缩机</span><span class="v">三洋 21cc 双缸</span></div>
+      <div class="row"><span class="k">冷凝器</span><span class="v">双排 <strong>64 根</strong>纯铜（61.6m）</span></div>
+      <div class="row"><span class="k">膨胀阀</span><span class="v">三花 2.2mm 电子膨胀阀</span></div>
+      <div class="row"><span class="k">外机噪音</span><span class="v">54dB</span></div>
+      <div class="row"><span class="k">内机噪音</span><span class="v">最低 28.7dB</span></div>
+      <div class="row"><span class="k">质保</span><span class="v">10 年</span></div>
+    </div>
+    <div class="reason">APF 5.31 + 64 根铜管是四款中用料最猛的，年省电 884 度（约 ¥430/年）。米家生态联动是加分项。价格仅 ¥4,100，性价比超过华凌。</div>
+    <div class="con">短板：三洋压缩机非自研（美芝/凌达）；售后网点不如美的/格力密。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>耐用王：格力云锦三代<span class="badge badge-yellow">十年整机包修</span></h4>
+    <div class="price price-budget">¥5,605 到手</div>
+    <div class="tagline">凌达自研压缩机 · 整机 10 年免费包修 · 行业最长</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">KFR-72LW/NhBa1BAt</span></div>
+      <div class="row"><span class="k">APF</span><span class="v">4.56（四款最低）</span></div>
+      <div class="row"><span class="k">压缩机</span><span class="v">凌达 24cc 双转子（自研）</span></div>
+      <div class="row"><span class="k">冷凝器</span><span class="v">双排 56 根纯铜</span></div>
+      <div class="row"><span class="k">膨胀阀</span><span class="v">电子膨胀阀</span></div>
+      <div class="row"><span class="k">外机重</span><span class="v">42kg</span></div>
+      <div class="row"><span class="k">风量</span><span class="v">1410m³/h（偏小）</span></div>
+      <div class="row"><span class="k">质保</span><span class="v"><strong>整机 10 年</strong>（行业最长）</span></div>
+    </div>
+    <div class="reason">整机 10 年免费包修是行业唯一 — 其他品牌整机仅 6 年。凌达自研压缩机品控稳定，56℃ 自清洁。适合追求省心、长期使用的家庭。</div>
+    <div class="con">短板：APF 4.56 是四款最低，年多耗电约 200 度；循环风量仅 1410m³/h 偏小；价格最贵贵 ¥1,500+。为保修和品牌溢价买单，性价比最低。</div>
+  </div>
+
+  <h3>卧室 1.5 匹挂机推荐</h3>
+  <div class="card">
+    <table>
+      <tr><th>型号</th><th>到手价</th><th>APF</th><th>核心配置</th><th>适合谁</th></tr>
+      <tr><td><strong>华凌神机二代 Pro</strong></td><td>¥1,499-1,760</td><td>6.02</td><td>美芝 9.8cc + 双排 48 根 7mm 铜管 + 电子膨胀阀，-35℃~68℃ 高温制冷，800m³/h</td><td>用料党 / 顶楼西晒</td></tr>
+      <tr><td><strong>小米巨省电 Pro 2026</strong></td><td>¥1,529-1,655</td><td><strong style="color:var(--green);">6.30</strong></td><td>11cc 压缩机 + 双排冷凝器 + 电子膨胀阀，-32℃~60℃，900m³/h，<strong>10 年整机包修</strong></td><td>米家生态 / 省电党</td></tr>
+      <tr><td>华凌超省电 Pro</td><td>¥1,299</td><td>-</td><td>千元档性价比天花板，美芝压缩机 + 双排铜管</td><td>预算紧</td></tr>
+      <tr><td>美的酷省电二代 Pro</td><td>¥2,039</td><td>6.35</td><td>AI 省电算法 + 海思芯片，770m³/h，22dB 低噪</td><td>老人小孩 / 防直吹</td></tr>
+    </table>
+    <div class="alert alert-green" style="margin-top:12px;">
+      <strong>华凌 vs 小米怎么选？</strong>
+      <ul>
+        <li><strong>华凌神机二代 Pro</strong>：美芝压缩机品控更成熟，-35℃~68℃ 宽温域极端环境更稳，双排 48 根铜管拆机用料更狠。适合顶楼西晒/监狱机位/硬件党。</li>
+        <li><strong>小米巨省电 Pro 2026</strong>：APF 6.30 比 华凌 6.02 更省电（年多省约 190 度），900m³/h 风量更大制冷更快，<strong>10 年整机包修</strong>（华凌仅 6 年），米家生态联动。适合全屋小米/省电党/怕售后麻烦。</li>
+        <li>两者到手价几乎平价（¥1,499 vs ¥1,529），选谁都不亏。全屋米家选小米，极端环境选华凌。</li>
+      </ul>
+    </div>
+    <div class="alert alert-yellow" style="margin-top:8px;">
+      <strong>底线配置</strong>：正 1.5 匹（制冷量 ≥3500W）+ 新一级能效 + 双排铜管 + 电子膨胀阀，APF ≥5.8。低于此配置的直接淘汰。
+    </div>
+  </div>
+
+  <div class="alert alert-red">
+    <strong>3 匹空调避坑清单</strong>
+    <ul>
+      <li><strong>虚标匹数</strong>：看铭牌「额定制冷量」，3 匹必须 ≥7200W；商家宣传「最大制冷量」可能是 2 匹机芯极限值</li>
+      <li><strong>减配冷凝器 + 毛细管</strong>：单排/1.6 排铜管 + 毛细管节流直接淘汰；认准双排铜管 + 电子膨胀阀，外机净重应 ≥40kg</li>
+      <li><strong>APF 同级差距大</strong>：同为一级能效，APF 4.56 vs 5.31 年省电差 30%；认准 APF ≥5.0，别只看能效标签</li>
+      <li><strong>电路隐患</strong>：3 匹必须 4mm² 铜芯专线 + 32A 空开，<strong>严禁 16A 插座</strong>（制热电流可达 22.7A，有起火风险）</li>
+      <li><strong>监狱机位</strong>：外机装封闭百叶窗位/西晒墙，普通空调会热保护停机；认准支持 65℃ 以上高温制冷的机型</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 6 ========== -->
+<section>
+  <h2><span class="num">6</span>电视机 · 75 英寸</h2>
+
+  <div class="pick best">
+    <h4>画质王：小米 S Pro 2026 款<span class="badge badge-green">2304 分区</span></h4>
+    <div class="price price-best">¥4,767 到手</div>
+    <div class="tagline">Mini LED 背光 · 2304 分区 · 5200nit 峰值亮度 · 330Hz</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">L75MC-SP</span></div>
+      <div class="row"><span class="k">背光</span><span class="v">Mini LED</span></div>
+      <div class="row"><span class="k">面板</span><span class="v"><strong>华星光电 WHVA</strong>（VA 阵营）</span></div>
+      <div class="row"><span class="k">分区数</span><span class="v"><strong style="color:var(--green);">2304 分区</strong></span></div>
+      <div class="row"><span class="k">峰值亮度</span><span class="v"><strong>5200nit</strong>（2026 款升级）</span></div>
+      <div class="row"><span class="k">刷新率</span><span class="v">330Hz 广视角低反屏</span></div>
+      <div class="row"><span class="k">HDMI2.1</span><span class="v">3 个满血</span></div>
+      <div class="row"><span class="k">内存</span><span class="v">4GB + 64GB</span></div>
+      <div class="row"><span class="k">音响</span><span class="v">61W / 5 单元</span></div>
+      <div class="row"><span class="k">能效</span><span class="v">一级</span></div>
+      <div class="row"><span class="k">屏占比</span><span class="v">≥97% / 金属边框</span></div>
+    </div>
+    <div class="reason">2304 分区 + 5200nit 是 5000 元档画质天花板，暗场纯净、亮场通透。华星光电 WHVA 面板原生对比度高、黑色更深，小米把色视角从 100° 扩到 130° 缓解了 VA 侧面发白的通病。330Hz 高刷 + 光感智能调光，HDR 电影和主机游戏通吃。</div>
+    <div class="con">短板：VA 面板侧面看仍会轻微发白（不如 IPS）；有开机广告（可在设置中关闭）；澎湃 OS 有预装应用需手动卸载。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>均衡 + 无广告：雷鸟鹤 6 Ultra 26 款<span class="badge badge-blue">游戏党福音</span></h4>
+    <div class="price">¥4,399 到手</div>
+    <div class="tagline">QD-Mini LED · 704 分区 · 4 满血 HDMI2.1 · 灵控系统无广告</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">75R69A Ultra</span></div>
+      <div class="row"><span class="k">背光</span><span class="v">QD-Mini LED</span></div>
+      <div class="row"><span class="k">面板</span><span class="v">高阶 VA 屏（TCL 华星）</span></div>
+      <div class="row"><span class="k">分区数</span><span class="v">704 分区</span></div>
+      <div class="row"><span class="k">峰值亮度</span><span class="v">2000-3000nit</span></div>
+      <div class="row"><span class="k">刷新率</span><span class="v">144Hz 原生 / 288Hz 动态</span></div>
+      <div class="row"><span class="k">HDMI2.1</span><span class="v"><strong>4 个满血</strong>（最多）</span></div>
+      <div class="row"><span class="k">内存</span><span class="v">4GB + 64GB</span></div>
+      <div class="row"><span class="k">音响</span><span class="v">60W / 5 单元</span></div>
+      <div class="row"><span class="k">屏幕</span><span class="v">蝶翼星曜屏（低反光）</span></div>
+      <div class="row"><span class="k">广告</span><span class="v"><strong style="color:var(--green);">无开机广告</strong></span></div>
+    </div>
+    <div class="reason">4 个满血 HDMI2.1 + 灵控系统无广告 + 蝶翼星曜屏低反光，PS5/Xbox 游戏党首选。MT9655 芯片 + VA 屏对比度高，暗场观影效果好。</div>
+    <div class="con">短板：出厂色彩偏艳丽需手动微调；分区数 704 少于小米 S Pro 的 2304；底座材质为塑料。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>客厅首选：海信小墨 E5Q Pro<span class="badge badge-blue">抗反光 + 帝瓦雷</span></h4>
+    <div class="price">¥4,700 到手</div>
+    <div class="tagline">Mini LED 背光 · 768 分区 · 墨晶抗反光屏 · 帝瓦雷 2.1.2 音响</div>
+    <div class="rows">
+      <div class="row"><span class="k">型号</span><span class="v">75E5Q Pro</span></div>
+      <div class="row"><span class="k">背光</span><span class="v">U+ Mini LED</span></div>
+      <div class="row"><span class="k">面板</span><span class="v"><strong>京东方 ADS Pro</strong>（IPS 阵营）</span></div>
+      <div class="row"><span class="k">分区数</span><span class="v">768 分区</span></div>
+      <div class="row"><span class="k">峰值亮度</span><span class="v">2200nit</span></div>
+      <div class="row"><span class="k">刷新率</span><span class="v">150Hz 原生 / 300Hz 插帧</span></div>
+      <div class="row"><span class="k">HDMI2.1</span><span class="v">2 个满血（共 4 个接口）</span></div>
+      <div class="row"><span class="k">画质芯片</span><span class="v"><strong>信芯 AI 画质芯片</strong></span></div>
+      <div class="row"><span class="k">音响</span><span class="v"><strong>帝瓦雷 2.1.2</strong> 声道</span></div>
+      <div class="row"><span class="k">屏幕</span><span class="v">墨晶抗反光（反射率 2.6%）</span></div>
+      <div class="row"><span class="k">广告</span><span class="v">有开机广告</span></div>
+    </div>
+    <div class="reason">京东方 ADS Pro（IPS 阵营）面板可视角度大，L 型沙发侧面坐也不偏色 — 这是 VA 面板的小米/雷鸟做不到的。墨晶抗反光屏反射率仅 2.6%，采光好的客厅白天不拉窗帘也清晰。信芯 AI 画质芯片对有线电视老片源优化最强。帝瓦雷音响同价位音质第一。</div>
+    <div class="con">短板：IPS/ADS 原生对比度低（约 1500:1），黑色靠 768 分区控光弥补，暗场不如 VA 的纯黑；有开机广告；面板供应商存在批次差异（个别评测称用 VA，选购时以实机为准）。</div>
+  </div>
+
+  <div class="conclusion">
+    <h4>三款怎么选？一句话取舍</h4>
+    <p>
+      <strong style="color:var(--green);">追画质选小米 S Pro</strong> — 2304 分区是雷鸟（704）的 3.3 倍，5200nit 峰值亮度高出近一倍，华星 WHVA 面板原生对比度高、黑位纯正，HDR 暗场纯净度和亮场爆发力碾压。多花 ¥370 买 3 倍分区 + 翻倍亮度，纯画质角度最值。<br><br>
+      <strong style="color:var(--primary);">追无广告+多接口选雷鸟鹤 6 Ultra</strong> — 无开机广告（小米/海信都有需手动关），4 个满血 HDMI2.1（小米仅 3 个），接 PS5 + Xbox + 回音壁 + 机顶盒更从容。高阶 VA 屏对比度高，游戏党/讨厌广告首选。<br><br>
+      <strong style="color:var(--primary);">追抗反光+广视角+音质选海信 E5Q Pro</strong> — 京东方 ADS Pro（IPS 阵营）面板可视角度大，L 型沙发侧面坐不偏色；墨晶屏反射率仅 2.6%，白天不拉窗帘也清晰；帝瓦雷 2.1.2 音响同价位音质第一。客厅采光强/有侧坐位/看直播多首选。
+    </p>
+    <p style="margin-top:10px;font-size:13px;color:var(--gray-text);">
+      <strong>面板类型速记</strong>：VA（小米/雷鸟）原生对比度高、黑位好，但侧面发白；IPS/ADS（海信）可视角度大、侧面不偏色，但黑位靠分区控光。Mini LED 是「背光技术」、VA/IPS 是「面板类型」，两者是不同维度，别混淆。
+    </p>
+  </div>
+
+  <div class="alert alert-green">
+    <ul>
+      <li>原生 120Hz + 满血 HDMI2.1（支持 4K 120Hz 输出）是中端标配，不是溢价点</li>
+      <li>Mini LED 背光在 4000 元+ 价位已成标配</li>
+      <li>4GB + 64GB 内存是流畅运行底线</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-red">
+    <strong>电视避坑清单</strong>
+    <ul>
+      <li><strong>假 120Hz</strong>：MEMC 运动补偿插帧 ≠ 原生 120Hz；认准面板原生刷新率，60Hz 面板插到 120Hz 画质发虚</li>
+      <li><strong>假 4K</strong>：RGBW 四色面板 ≠ RGB 三色真 4K；用手机微距镜头拍屏幕，能看到白色子像素的就是假 4K</li>
+      <li><strong>HDMI2.1 残血</strong>：部分标 HDMI2.1 的接口只支持 4K 60Hz，必须确认支持 4K 120Hz + VRR + ALLM</li>
+      <li><strong>峰值亮度瞬时 vs 持续</strong>：标称 3000nit 可能是瞬时峰值（维持几秒），持续亮度可能只有 1500nit；看实测数据</li>
+      <li><strong>开机广告</strong>：小米/海信有开机广告（可关闭），雷鸟/SONY 无广告；讨厌广告直接选雷鸟</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 7 ========== -->
+<section>
+  <h2><span class="num">7</span>通用避坑清单 · 防智商税总纲</h2>
+
+  <div class="card">
+    <ul class="tip-list">
+      <li><strong>能效标签要看「国标型号」</strong> — 2026 年国补仅补一级能效。部分商家把二级能效机贴「节能」标签混淆，认准能效标识上「1 级」字样。</li>
+      <li><strong>「大促价」可能是虚标原价</strong> — 先用比价工具（慢慢买/什么值得买）查 30 天最低价，再叠加国补 15%。部分商家大促前先涨后降。</li>
+      <li><strong>参数虚标重灾区</strong> — 空调匹数（看额定制冷量）、电视分区数（看物理分区 not 动态分区）、洗衣机洗净比（看检测报告 not 宣传页）。</li>
+      <li><strong>功能冗余 = 智商税</strong> — 洗衣机 WiFi/空气洗/超大屏、冰箱大屏购物/语音助手、空调香氛/空气净化，这些功能使用率 <10% 却溢价数百元。</li>
+      <li><strong>「以旧换新」不用真交旧机</strong> — 京东/天猫的旧机估价极低（冰箱旧机估 ¥10-50），但国补 15% 不依赖旧机价值，直接领补贴立减即可。</li>
+      <li><strong>安装费是隐形刺客</strong> — 空调高空作业费 ¥100-300、加长管 ¥80-120/米、电视挂架 ¥50-200；下单前问清安装费，别被师傅现场加价。</li>
+      <li><strong>延保服务大部分不值</strong> — 家电核心部件（压缩机/电机/屏幕）本身有 3-10 年质保，延保主要覆盖外围小部件，故障率低且维修费未必超过延保费。</li>
+      <li><strong>品牌溢价 ≠ 品质</strong> — 格力空调品牌溢价 ¥1,500+ 但 APF 最低；海尔冰箱品牌溢价买的是保鲜专利技术，两者性质不同。为技术付费可以，为logo付费不值。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 8 ========== -->
+<section>
+  <h2><span class="num">8</span>全套预算方案</h2>
+
+  <div class="budget-grid">
+    <div class="budget-card">
+      <h4>性价比档 · 四大件</h4>
+      <div class="total">¥13,381</div>
+      <div class="budget-item"><span class="name">冰箱 小米 508L Pro</span><span class="val">¥3,183</span></div>
+      <div class="budget-item"><span class="name">洗衣机 小天鹅 628Plus</span><span class="val">¥2,199</span></div>
+      <div class="budget-item"><span class="name">空调 3 匹 华凌神机二代</span><span class="val">¥3,600</span></div>
+      <div class="budget-item"><span class="name">电视 75" 雷鸟鹤 6 Ultra</span><span class="val">¥4,399</span></div>
+      <div class="alert alert-green" style="margin-top:12px;font-size:13px;">
+        核心思路：每一分钱花在刀刃上。小米冰箱双系统 + 雷鸟无广告 + 华凌拆机用料 + 小天鹅 1.28 洗净比，四件全是各自价位的「参数王」。
+      </div>
+    </div>
+    <div class="budget-card">
+      <h4>舒适档 · 四大件</h4>
+      <div class="total total-best">¥16,310</div>
+      <div class="budget-item"><span class="name">冰箱 海尔云溪 502L</span><span class="val">¥4,398</span></div>
+      <div class="budget-item"><span class="name">洗衣机 海尔云溪 5.0</span><span class="val">¥3,045</span></div>
+      <div class="budget-item"><span class="name">空调 3 匹 小米巨省电 Pro</span><span class="val">¥4,100</span></div>
+      <div class="budget-item"><span class="name">电视 75" 小米 S Pro 2026</span><span class="val">¥4,767</span></div>
+      <div class="alert alert-green" style="margin-top:12px;font-size:13px;">
+        核心思路：为核心技术付费。海尔 EPP 除农残 + 云溪 5.0 洗净比 1.36 + APF 5.31 用料王 + 2304 分区画质王，四件全是各自品类的「技术/用料第一」。
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-yellow">
+    <strong>预算弹性说明</strong>
+    <ul>
+      <li>以上价格均为 2026 年 8 月大促 + 国补 15% 后到手参考价，实际随活动浮动 ±5%</li>
+      <li>国补每人每类限 1 件，单品上限 ¥1,500。四大件理论最大补贴 ¥6,000</li>
+      <li>如需卧室 1.5 匹挂机：华凌神机二代 Pro ¥1,499-1,760 / 小米巨省电 Pro 2026 ¥1,529-1,655 / 华凌超省电 Pro ¥1,299</li>
+      <li>床垫和沙发不在国补范围（家具类），需全额自付</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 9 ========== -->
+<section>
+  <h2><span class="num">9</span>床垫 · 2000–5000 元黄金段</h2>
+
+  <div class="pick best">
+    <h4>护脊首选：喜临门白骑士 2.0<span class="badge badge-green">护脊</span></h4>
+    <div class="price price-best">¥3,000</div>
+    <div class="tagline">三区独立袋装弹簧 · 乳胶 + 3D 椰棕 · 适中偏硬</div>
+    <div class="rows">
+      <div class="row"><span class="k">弹簧</span><span class="v"><strong>三区独立袋装</strong>（头/腰/腿分区承托）</span></div>
+      <div class="row"><span class="k">填充</span><span class="v">天然乳胶 + 3D 椰棕（双材质）</span></div>
+      <div class="row"><span class="k">软硬度</span><span class="v">适中偏硬（护脊）</span></div>
+      <div class="row"><span class="k">厚度</span><span class="v">20cm</span></div>
+      <div class="row"><span class="k">质保</span><span class="v">20 年弹簧质保 · 90 天试睡</span></div>
+    </div>
+    <div class="reason">三区独立袋装弹簧按头/腰/腿分区精准承托腰椎，天然乳胶 + 3D 椰棕透气防螨。喜临门经典爆款升级款，京东 kids2.0 版 ¥2,649-2,999，客单价 ¥3,000-4,000。</div>
+    <div class="con">短板：偏硬睡感，喜欢柔软包裹感的可能不适应。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>全家适用：穗宝黑曜尊享者<span class="badge badge-blue">双面 · 甲醛未检出</span></h4>
+    <div class="price">¥3,500</div>
+    <div class="tagline">双面睡感 · 无胶热压工艺 · 独袋弹簧 + 椰棕</div>
+    <div class="rows">
+      <div class="row"><span class="k">弹簧</span><span class="v">独立袋装弹簧（B 面）</span></div>
+      <div class="row"><span class="k">双面</span><span class="v">A 面天然乳胶（软）/ B 面 3D 椰棕（硬）</span></div>
+      <div class="row"><span class="k">甲醛</span><span class="v"><strong style="color:var(--green);">CMA 检测未检出</strong>（无胶热压）</span></div>
+      <div class="row"><span class="k">厚度</span><span class="v">23cm</span></div>
+    </div>
+    <div class="reason">双面设计一面软一面硬，全家不同偏好都能用。无胶热压工艺 + CMA 甲醛未检出是穗宝核心卖点，母婴级安全标准，孕妇/婴幼儿家庭放心用。京东实际到手 ¥2,949-3,628。</div>
+    <div class="con">短板：独袋弹簧抗干扰性一般（非七区分区）；A 面乳胶睡感偏软，腰椎问题人群应睡 B 面。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>浅眠党：雅兰深睡智享版<span class="badge badge-blue">深睡科技</span></h4>
+    <div class="price">¥3,500</div>
+    <div class="tagline">独立袋装弹簧 · 深睡科技 · 适中偏软</div>
+    <div class="rows">
+      <div class="row"><span class="k">弹簧</span><span class="v">独立袋装（静音）</span></div>
+      <div class="row"><span class="k">软硬度</span><span class="v">适中偏软（包裹感）</span></div>
+      <div class="row"><span class="k">特色</span><span class="v">深睡科技面料（透气恒温）</span></div>
+      <div class="row"><span class="k">厚度</span><span class="v">约 26cm</span></div>
+    </div>
+    <div class="reason">深睡科技面料调节睡眠微气候，减少翻身次数。独立袋装 + 偏软包裹感适合入睡困难/易醒人群。</div>
+    <div class="con">短板：偏软不适合腰椎问题人群；注意区分同系列「护脊 T50 Ultra」（整网弹簧）。</div>
+  </div>
+
+  <div class="pick alt">
+    <h4>年轻夫妻：慕思 MZZ1-069<span class="badge badge-blue">七区独立弹簧</span></h4>
+    <div class="price">¥4,500</div>
+    <div class="tagline">七区独立袋装弹簧 · 分区承托 · 适中</div>
+    <div class="rows">
+      <div class="row"><span class="k">弹簧</span><span class="v">七区独立袋装</span></div>
+      <div class="row"><span class="k">分区</span><span class="v">头/肩/腰/臀/大腿/小腿/脚</span></div>
+      <div class="row"><span class="k">软硬度</span><span class="v">适中（双方都适合）</span></div>
+      <div class="row"><span class="k">厚度</span><span class="v">约 28cm</span></div>
+    </div>
+    <div class="reason">七区独立弹簧按人体曲线分区承托，体重差异大的夫妻都能舒适。抗干扰性极强，一方翻身另一方几乎无感。</div>
+    <div class="con">短板：价格偏高；七区弹簧维修成本高于普通独立袋装。</div>
+  </div>
+
+  <div class="pick budget">
+    <h4>预算紧：全友 105169<span class="badge badge-yellow">千元神器</span></h4>
+    <div class="price price-budget">¥1,180</div>
+    <div class="tagline">五区独袋弹簧（810 个）· 软硬两用 · 出租房/次卧</div>
+    <div class="rows">
+      <div class="row"><span class="k">弹簧</span><span class="v"><strong>五区独袋弹簧</strong>（810 个独立弹簧）</span></div>
+      <div class="row"><span class="k">填充</span><span class="v">乳胶 + 3D 竹炭椰棕</span></div>
+      <div class="row"><span class="k">软硬度</span><span class="v">软硬两用（反面偏硬）</span></div>
+      <div class="row"><span class="k">厚度</span><span class="v">22cm</span></div>
+      <div class="row"><span class="k">环保</span><span class="v">QB/T1952.2-2023 国标合格</span></div>
+    </div>
+    <div class="reason">五区独袋弹簧（810 个独立弹簧）静音抗干扰，软硬两用可拆卸薄垫切换睡感。京东活动价 ¥1,039-1,180，标价 ¥1,454-1,511。千元档罕见配独立袋装弹簧，租房党/次卧神器。</div>
+    <div class="con">短板：弹簧线径 1.8-2.3mm 偏细，长期主卧使用耐用性一般；面料/填充偏基础。</div>
+  </div>
+
+  <div class="alert alert-red">
+    <strong>床垫避坑清单</strong>
+    <ul>
+      <li><strong>乳胶厚度虚标</strong>：宣传「乳胶床垫」实际乳胶层仅 1-2cm，认准乳胶层 ≥5cm 天然乳胶（非合成乳胶）</li>
+      <li><strong>假独立弹簧</strong>：整网弹簧冒充独立袋装 — 独立袋装每个弹簧独立布袋封装，翻身无声；整网弹簧连为一体，翻身有「波纹传导」</li>
+      <li><strong>甲醛超标</strong>：认准 E0 级（≤0.05mg/L）或 0 甲醛认证；新床垫开包有刺鼻味 = 甲醛超标，立即退货</li>
+      <li><strong>伪科技噱头</strong>：石墨烯/磁疗/负离子/远红外 — 无科学依据的营销词汇，溢价数百元不值得</li>
+      <li><strong>厚度虚标</strong>：弹簧 + 填充 + 面料总厚度应 ≥20cm；低于 18cm 的「薄垫」支撑性差</li>
+      <li><strong>国补范围</strong>：普通床垫不在家电以旧换新国补范围；部分地方的「智能床垫」（带电动调节/睡眠监测）可享 15% 补贴</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== Chapter 10 ========== -->
+<section>
+  <h2><span class="num">10</span>沙发</h2>
+
+  <div class="pick best">
+    <h4>具体锁定款：京东京造 汐木 D39「彼岸」<span class="badge badge-green">不智商税</span></h4>
+    <div class="price price-best">¥1,700 到手</div>
+    <div class="tagline">橡胶木框架 · 布艺可拆洗 · 坐深 55-60cm · 好评率 99%</div>
+    <div class="rows">
+      <div class="row"><span class="k">系列</span><span class="v">汐木 D39 彼岸</span></div>
+      <div class="row"><span class="k">材质</span><span class="v">布艺（可拆洗）</span></div>
+      <div class="row"><span class="k">框架</span><span class="v"><strong>橡胶木实木</strong></span></div>
+      <div class="row"><span class="k">填充</span><span class="v">高密度海绵</span></div>
+      <div class="row"><span class="k">坐深</span><span class="v"><strong style="color:var(--green);">55-60cm</strong>（黄金区间）</span></div>
+      <div class="row"><span class="k">尺寸</span><span class="v">245 × 156 × 84cm</span></div>
+      <div class="row"><span class="k">好评率</span><span class="v">99%</span></div>
+      <div class="row"><span class="k">安装</span><span class="v">包安装/上门</span></div>
+    </div>
+    <div class="reason">¥1,700 到手买橡胶木实木框架 + 可拆洗布艺 + 黄金坐深，同价位无对手。京东自营品控有保障，非贴牌杂牌。大三人位到手 ¥1,613-1,783（含国补/活动）。</div>
+    <div class="con">短板：布艺需定期拆洗；橡胶木硬度不如橡木/黑胡桃木；无电动功能。</div>
+  </div>
+
+  <h3>四档品牌推荐</h3>
+  <div class="card">
+    <table>
+      <tr><th>档位</th><th>品牌 + 型号</th><th>到手价</th><th>推荐理由</th></tr>
+      <tr><td><strong>¥2,000 档</strong></td><td>全友 布艺可拆洗 2.2m</td><td>¥1,999</td><td>全友是板式家具龙头，布艺可拆洗性价比高，E1 环保达标</td></tr>
+      <tr><td><strong>¥3,000 档</strong></td><td>全友 真皮 2.48m</td><td>¥3,442</td><td>头层牛皮接触面，3000 档买真皮的底线之选</td></tr>
+      <tr><td><strong>¥4,000 档</strong></td><td>林氏木业 G260 电动 3.23m</td><td>¥3,802</td><td>头层牛皮 + 电动功能位，电商数据驱动设计，年轻人喜欢</td></tr>
+      <tr><td><strong>¥5,000+ 档</strong></td><td>芝华仕 头等舱 30653</td><td>¥5,835</td><td>功能沙发标杆，进口静音电机 ≤45dB，零靠墙设计</td></tr>
+    </table>
+    <div style="margin-top:10px;font-size:13px;color:var(--gray-text);">补充：顾家钢琴键真皮 ¥3,525 起 / 顾家电动功能 ¥5,927 起，预算充足可升级。</div>
+  </div>
+
+  <h3>沙发五条铁律</h3>
+  <div class="card">
+    <div class="rules">
+      <div class="rule-item">
+        <div class="rule-content"><strong>科技布低于 ¥3,000 别碰</strong> — 低价科技布（PU 涂层布）1-2 年必开裂脱皮，还不如买布艺。¥3,000+ 的科技布用进口涂层才耐用。</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-content"><strong>坐深 55-60cm 是黄金区间</strong> — 低于 50cm 坐感局促膝盖悬空；高于 65cm 腰部失去支撑易腰疼。买前必须问客服坐深参数。</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-content"><strong>半皮 ≠ 全皮</strong> — 「真皮沙发」通常指接触面真皮（坐面/靠背面），非接触面（侧面/背面）是仿皮。半皮价格应比全皮低 40%+，别按全皮价买半皮。</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-content"><strong>拉开底布看框架</strong> — 底部防尘布拉拉开，看框架材质。认准松木/桦木/橡胶木实木框架，拒绝多层板/密度板（承重差、易变形、甲醛高）。</div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-content"><strong>手捏海绵验回弹</strong> — 用力捏坐垫海绵 3 秒松开，高密度海绵应 1 秒内快速回弹；回弹慢或捏下去不回弹 = 低密度劣质海绵，1 年塌陷。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-yellow">
+    <strong>沙发国补说明</strong>：沙发不在全国统一家电以旧换新 6 类范围内，但部分地区（如上海、广东、淮南等）的地方补贴可覆盖家具类，下单时留意是否有「地方补贴」标签。京东京造 D39 部分时段可叠加 15% 国补。
+  </div>
+</section>
+
+<!-- ========== Chapter 11 ========== -->
+<section>
+  <h2><span class="num">11</span>软装预算参考 · 床垫 + 沙发</h2>
+
+  <div class="budget-grid">
+    <div class="budget-card">
+      <h4>软装性价比档</h4>
+      <div class="total">¥4,700</div>
+      <div class="budget-item"><span class="name">床垫 喜临门白骑士 2.0</span><span class="val">¥3,000</span></div>
+      <div class="budget-item"><span class="name">沙发 京东京造 D39 彼岸</span><span class="val">¥1,700</span></div>
+      <div class="alert alert-green" style="margin-top:12px;font-size:13px;">
+        核心思路：床垫花大钱（每天睡 8 小时）、沙发花小钱（D39 不智商税）。喜临门护脊 + 京造橡胶木框架，软装 ¥4,700 打住。
+      </div>
+    </div>
+    <div class="budget-card">
+      <h4>软装舒适档</h4>
+      <div class="total total-best">¥6,942</div>
+      <div class="budget-item"><span class="name">床垫 穗宝黑曜尊享者</span><span class="val">¥3,500</span></div>
+      <div class="budget-item"><span class="name">沙发 全友真皮 2.48m</span><span class="val">¥3,442</span></div>
+      <div class="budget-item"><span class="name">（或林氏 G260 电动）</span><span class="val">¥3,802</span></div>
+      <div class="alert alert-green" style="margin-top:12px;font-size:13px;">
+        核心思路：穗宝双面甲醛未检出全家适用 + 全友/林氏真皮/电动升级坐感。软装 ¥7,000-8,300 到位，不追奢华追实用。
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-yellow">
+    <strong>软装预算弹性区间</strong>
+    <ul>
+      <li>性价比档：¥4,700-5,500（床垫选全友 105169 ¥1,180 可降至 ¥2,880）</li>
+      <li>舒适档：¥6,900-10,300（床垫选慕思 MZZ1-069 ¥4,500 + 沙发选芝华仕 ¥5,835 = ¥10,335）</li>
+      <li>床垫和沙发均不在全国国补范围，部分地方可补 — 下单前查当地政策</li>
+    </ul>
+  </div>
+
+  <div class="conclusion">
+    <h4>全屋总预算汇总</h4>
+    <p>
+      <strong>性价比全屋（四大件 + 软装）</strong>：¥13,381 + ¥4,700 = <strong style="color:var(--green);">约 ¥18,081</strong><br>
+      <strong>舒适全屋（四大件 + 软装）</strong>：¥16,310 + ¥6,942 = <strong style="color:var(--primary);">约 ¥23,252</strong><br><br>
+      以上价格均含 2026 年 8 月大促 + 国补 15% 后到手价，实际随活动浮动 ±5%。床垫沙发不在国补范围。
+    </p>
+  </div>
+</section>
+
+<!-- Source -->
+<div class="source-note">
+  <h4>数据来源（多源交叉验证，关键结论 ≥2 源）</h4>
+  <ul>
+    <li>京东/天猫商品参数页（2026-08-16 实时抓取）：冰箱/洗衣机/空调/电视/沙发型号参数与价格</li>
+    <li>QSY 屈少宇拆机评测：华凌神机二代 3 匹柜机拆机（压缩机/冷凝器/膨胀阀用料验证）</li>
+    <li>新浪家居 2026 横评：3 匹柜机对比 / 1.5 匹挂机横评 / 75 寸 Mini LED 电视推荐</li>
+    <li>什么值得买（smzdm.com）：京东京造 D39 沙发爆料 / 全友/林氏/芝华仕/顾家好价</li>
+    <li>IT 之家 / 中关村在线：小米 508L 冰箱 / S Pro 75 寸电视参数验证</li>
+    <li>中国家用电器研究院 2024Q3 抽检报告：小天鹅 628Plus 洗净比 1.28 验证</li>
+    <li>今日头条家电选购指南：海尔云溪 502L 大满贯配置验证 / 2026 海尔 74 款冰箱横评</li>
+    <li>商务部等 5 部门通知（商办流通函 2025 年第 469 号）：2026 年国补政策</li>
+    <li>佛山市政府政策解读 / 时代周报：2026 年国补新政 6 类品类确认</li>
+    <li>腾讯新闻 / 搜狐家居：2026 功能沙发品牌横评 / 床垫避坑指南</li>
+  </ul>
+  <p style="margin-top:8px;font-size:11px;color:var(--gray-text);">本报告基于 2026 年 8 月公开数据编制，价格随市场波动，购买前请以实际页面为准。关键结论均经 ≥2 个独立来源交叉验证。</p>
+</div>
+
+</div>
+</body>
+</html>
