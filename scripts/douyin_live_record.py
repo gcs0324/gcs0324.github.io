@@ -25,7 +25,10 @@ douyin_live_record.py — 录制抖音直播
  仍不行则需按当前接口调整 get_stream_url 里的方法。
 """
 import argparse
+import os
+import plistlib
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -38,6 +41,7 @@ UA = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
 BACKOFF = [5, 10, 20, 30, 60, 60, 60, 60]  # 断流重试间隔（秒），与 max_retries 配合
+_SHUTDOWN = False  # SIGTERM 信号标志，record_session 检视此标志快速退出
 
 
 def log(msg):
@@ -137,6 +141,27 @@ def _get_stream_url_from_page(room_id, timeout=15, cookie="", quality="or4"):
     html = r.text
     if re.search(r'"status"\s*:\s*4', html):
         return None, None  # 明确未开播
+    # 从页面内嵌 JSON 提取主播昵称（HTML 里是转义形式 nickname\\":\\"xxx\\"）
+    # 第一个 nickname 可能是 $undefined 占位，循环跳过它
+    nickname = None
+    bs = chr(92)
+    key = 'nickname' + bs + chr(34) + ':' + bs + chr(34)
+    pos = 0
+    while True:
+        i = html.find(key, pos)
+        if i < 0:
+            break
+        rest = html[i + len(key):]
+        end = rest.find(bs + chr(34))
+        cand = rest[:end] if end >= 0 else rest
+        if cand and cand != '$undefined':
+            nickname = cand
+            break
+        pos = i + 1
+    if not nickname:
+        m = re.search(r'"nickname"\s*:\s*"([^"]+)"', html)
+        if m:
+            nickname = m.group(1)
     # 宽松正则抓所有 hls/flv URL（HTML 里可能是标准 // 或转义 \\/，都支持）
     found = re.findall(r'https?://[^\s"\'<>]+', html)
     found = [f for f in found if '.m3u8' in f or '.flv' in f]
@@ -150,15 +175,15 @@ def _get_stream_url_from_page(room_id, timeout=15, cookie="", quality="or4"):
     for f_ in found:
         f2 = _clean_url(f_)
         if ".m3u8" in f2 and re.search(qpat, f2):
-            return f2, None
+            return f2, nickname
     # HLS 任意
     for f_ in found:
         f2 = _clean_url(f_)
         if ".m3u8" in f2:
-            return f2, None
+            return f2, nickname
     # 兜底：任意 flv 地址
     if found:
-        return _clean_url(found[0]), None
+        return _clean_url(found[0]), nickname
     raise RuntimeError("页面里没找到 flv 地址（可能需要登录 Cookie 或验证）")
 
 
@@ -278,6 +303,9 @@ def record_session(room_id, out_dir, segment_minutes, max_retries, cookie,
     ended = False
     try:
         for attempt in range(1, max_retries + 1):
+            if _SHUTDOWN:
+                log("收到停止信号，跳过重试")
+                break
             if attempt > 1:
                 log(f"[{attempt}/{max_retries}] 断流重试：查状态并重新取签名地址")
             if is_live(room_id, cookie, quality) is False:
@@ -286,12 +314,17 @@ def record_session(room_id, out_dir, segment_minutes, max_retries, cookie,
                 break
             stream_url, _ = get_stream_url(room_id, cookie=cookie, quality=quality)
             if not stream_url:
+                if _SHUTDOWN:
+                    break
                 wait = BACKOFF[attempt - 1]
                 log(f"重新取流失败，{wait}s 后重试")
                 time.sleep(wait)
                 continue
 
             rc = run_ffmpeg(stream_url, session_dir, attempt, segment_minutes, duration)
+            if _SHUTDOWN:
+                log("录制被停止信号中断")
+                break
             if rc == 0:
                 log("直播正常结束")
                 ended = True
@@ -317,9 +350,137 @@ EXAMPLES = """
  %(prog)s "https://live.douyin.com/1234567890"
  %(prog)s "https://v.douyin.com/xxxxxxx/"
  %(prog)s 1234567890 --dry-run # 只解析拉流地址，不录制
+ %(prog)s 1234567890 --loop   # 常驻监控，开播自动录
+ %(prog)s 1234567890 --daemon # launchd 托管，exec 会话退出也不断
+ %(prog)s 1234567890 --status # 查看录制状态
+ %(prog)s 1234567890 --stop   # 停止录制
  %(prog)s 1234567890 --cookie 'ttwid=..; __ac_signature=..'
- %(prog)s 1234567890 --no-remux --keep-flv
 """
+
+
+# ============================================
+# launchd 守护模式
+# ============================================
+
+def _launchd_label(room_id):
+    return f"com.douyin.rec.{room_id}"
+
+
+def _plist_path(room_id):
+    return Path.home() / "Library" / "LaunchAgents" / f"{_launchd_label(room_id)}.plist"
+
+
+def _log_path(room_id):
+    return f"/tmp/douyin-rec-{room_id}.log"
+
+
+def setup_daemon(room_id, args):
+    """创建 launchd plist 并加载，录制进程脱离当前 exec 会话。"""
+    script_path = Path(__file__).resolve()
+    plist_path = _plist_path(room_id)
+    label = _launchd_label(room_id)
+    log_file = _log_path(room_id)
+
+    plist_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # 构建在 launchd 里运行的命令（--loop 常驻模式，不加 --daemon）
+    cmd = [
+        sys.executable, str(script_path),
+        str(room_id),
+        "--loop",
+        "--quality", args.quality,
+        "--out-dir", str(Path(args.out_dir).resolve()),
+        "--segment-minutes", str(args.segment_minutes),
+        "--max-retries", str(args.max_retries),
+        "--check-interval", str(args.check_interval),
+    ]
+    if args.cookie:
+        cmd.extend(["--cookie", args.cookie])
+    if args.no_remux:
+        cmd.append("--no-remux")
+    if args.keep_flv:
+        cmd.append("--keep-flv")
+    if args.duration:
+        cmd.extend(["--duration", str(args.duration)])
+
+    plist = {
+        "Label": label,
+        "ProgramArguments": cmd,
+        "EnvironmentVariables": {
+            "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin",
+        },
+        "WorkingDirectory": str(Path(args.out_dir).resolve()),
+        "StandardOutPath": log_file,
+        "StandardErrorPath": log_file,
+        "RunAtLoad": True,
+        "KeepAlive": True,
+    }
+
+    with open(plist_path, "wb") as f:
+        plistlib.dump(plist, f)
+
+    # 加载
+    uid = os.getuid()
+    try:
+        subprocess.run(
+            ["launchctl", "bootout", f"gui/{uid}", str(plist_path)],
+            capture_output=True, timeout=5,
+        )
+    except Exception:
+        pass
+    subprocess.run(
+        ["launchctl", "bootstrap", f"gui/{uid}", str(plist_path)],
+        check=True, timeout=10,
+    )
+
+    log(f"✅ 已启动后台录制 (launchd 守护)")
+    log(f"   房间: {room_id} | 画质: {args.quality}")
+    log(f"   查看状态: {sys.argv[0]} {room_id} --status")
+    log(f"   停止录制: {sys.argv[0]} {room_id} --stop")
+    log(f"   日志: tail -f {log_file}")
+
+
+def stop_daemon(room_id):
+    """卸载 launchd plist，停止录制。"""
+    plist_path = _plist_path(room_id)
+    uid = os.getuid()
+    ok = False
+    try:
+        subprocess.run(
+            ["launchctl", "bootout", f"gui/{uid}", str(plist_path)],
+            check=True, capture_output=True, timeout=10,
+        )
+        ok = True
+    except subprocess.CalledProcessError:
+        pass
+    if plist_path.exists():
+        plist_path.unlink()
+    if ok:
+        log(f"✅ 已停止录制 ({room_id})")
+    else:
+        log(f"⚠️ 未找到运行中的录制任务 ({room_id})")
+
+
+def status_daemon(room_id):
+    """查看录制状态和最近日志。"""
+    label = _launchd_label(room_id)
+    uid = os.getuid()
+    rc = subprocess.run(
+        ["launchctl", "print", f"gui/{uid}/{label}"],
+        capture_output=True, timeout=5,
+    )
+    if rc.returncode == 0:
+        log(f"✅ 录制中 ({room_id})")
+        log_file = _log_path(room_id)
+        log("--- 最近日志 ---")
+        try:
+            lines = Path(log_file).read_text().strip().splitlines()
+            for line in lines[-5:]:
+                print(f"  {line}")
+        except FileNotFoundError:
+            log("  (暂无日志)")
+    else:
+        log(f"⏸ 未在录制 ({room_id})")
 
 
 def main():
@@ -344,6 +505,12 @@ def main():
                     help="画质：or4原画/hd高清/sd标清/ld流畅（默认 or4）")
     ap.add_argument("--check-interval", type=int, default=300,
                     help="--loop 模式下每次检查的间隔秒数（默认 300）")
+    ap.add_argument("--daemon", action="store_true",
+                    help="launchd 托管录制，exec 会话退出也不断")
+    ap.add_argument("--stop", action="store_true",
+                    help="停止 launchd 后台录制")
+    ap.add_argument("--status", action="store_true",
+                    help="查看 launchd 录制状态")
     args = ap.parse_args()
 
     if args.max_retries > len(BACKOFF):
@@ -353,10 +520,29 @@ def main():
         log("--loop 与 --dry-run 不能同时使用")
         return 2
 
+    # === 先解析房间 ID（launchd 命令也需要） ===
     try:
         room_id = resolve_room_id(args.target, args.cookie)
-        log(f"房间 ID: {room_id}")
+    except ValueError as e:
+        log(f"参数错误: {e}")
+        return 2
+    log(f"房间 ID: {room_id}")
 
+    # === launchd 命令（不依赖直播状态） ===
+    if args.stop:
+        stop_daemon(room_id)
+        return 0
+
+    if args.status:
+        status_daemon(room_id)
+        return 0
+
+    if args.daemon:
+        setup_daemon(room_id, args)
+        return 0
+
+    # === 以下需要直播状态 ===
+    try:
         if args.dry_run:
             url, nick = get_stream_url(room_id, cookie=args.cookie, quality=args.quality)
             if not url:
@@ -367,23 +553,36 @@ def main():
             return 0
 
         if args.loop:
+            # SIGTERM 优雅退出（launchd bootout 发 SIGTERM）
+            def _on_term(signum, frame):
+                global _SHUTDOWN
+                _SHUTDOWN = True
+            signal.signal(signal.SIGTERM, _on_term)
+
             log(f"常驻监控模式：每 {args.check_interval}s 检查一次开播状态（Ctrl-C 退出）")
-            while True:
+            while not _SHUTDOWN:
                 try:
                     started = record_session(
                         room_id, args.out_dir, args.segment_minutes,
                         args.max_retries, args.cookie, args.no_remux, args.keep_flv,
                         args.duration, args.quality)
                 except KeyboardInterrupt:
-                    raise
+                    break
                 except Exception as e:
                     log(f"监控循环出错（继续监控）: {e}")
                     started = False
+                if _SHUTDOWN:
+                    break
                 if started:
                     log("本场录制结束，继续监控下一场...")
                 else:
                     log(f"未开播，{args.check_interval}s 后再次检查...")
-                time.sleep(args.check_interval)
+                # 分段 sleep，让 _SHUTDOWN 能及时响应
+                for _ in range(args.check_interval):
+                    if _SHUTDOWN:
+                        break
+                    time.sleep(1)
+            log("收到停止信号，退出监控")
 
         started = record_session(
             room_id, args.out_dir, args.segment_minutes,
