@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script src="../shared/theme.js"></script>
+<link rel="stylesheet" href="../shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英语句子成分 · 语法总表</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-height:1.6;font-size:14px;}
+header{background:var(--bg2);padding:40px 64px 28px;border-bottom:1px solid var(--bd);}
+.htag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--blue);background:var(--blu-bg);border:1px solid var(--blu-b);border-radius:4px;padding:3px 9px;display:inline-block;margin-bottom:10px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--tx2);}
+nav{background:var(--bg2);padding:0 64px;border-bottom:1px solid var(--bd);display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+nav a{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);text-decoration:none;padding:13px 14px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+nav a:hover{color:var(--tx);border-color:var(--bd2);}
+main{padding:40px 64px 80px;max-width:900px;}
+
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;margin-top:44px;padding-bottom:8px;border-bottom:1px solid var(--bd);scroll-margin-top:55px;}
+.sec:first-child{margin-top:0;}
+
+.sub{font-size:13px;color:var(--tx2);margin-bottom:8px;}
+.sub b{color:var(--tx);}
+
+/* 句子成分分块图 */
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 20px;}
+.seg-col{flex:1;min-width:88px;background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:9px 10px;text-align:center;}
+.seg-en{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx);font-weight:600;word-break:break-word;}
+.seg-fn{font-size:11px;color:var(--tx3);margin-top:5px;}
+.seg-fn b{color:var(--blue);}
+
+/* 表格 */
+.wrap{overflow-x:auto;margin:10px 0 22px;}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:420px;}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;text-align:left;padding:8px 10px;border-bottom:2px solid var(--bd2);font-weight:500;}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.65;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+td .en{font-family:'IBM Plex Mono',monospace;color:var(--tx);font-weight:600;}
+td .zh{color:var(--tx2);}
+td .pos{color:var(--tx3);font-size:12px;}
+
+/* 口诀 / 提示框 */
+.tip{background:var(--blu-bg);border:1px solid var(--blu-b);border-left:3px solid var(--blue);border-radius:8px;padding:12px 16px;margin:10px 0 20px;font-size:13px;line-height:1.75;}
+.tip .tip-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--blue);margin-bottom:4px;font-weight:500;}
+.tip b{color:var(--blue);}
+.ok{background:var(--grn-bg);border:1px solid var(--grn-b);border-left:3px solid var(--green);}
+.ok .tip-title{color:var(--green);}
+.ok b{color:var(--green);}
+
+/* 长难句拆解树 */
+.tree{font-size:13px;line-height:1.9;margin:14px 0 22px;}
+.tree .tv{position:relative;padding-left:16px;}
+.tree .tv::before{content:'└─';position:absolute;left:0;color:var(--tx3);font-family:'IBM Plex Mono',monospace;}
+.tree .tv .en{font-family:'IBM Plex Mono',monospace;color:var(--tx);font-weight:600;}
+.tree .tv .fn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx3);}
+.lvl1{margin-left:26px;}
+.lvl2{margin-left:52px;}
+.lvl3{margin-left:78px;}
+.lvl4{margin-left:104px;}
+
+.hl{background:rgba(88,166,255,0.15);padding:1px 3px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--tx);}
+
+@media (max-width:768px) {
+  header, nav, main{padding-left:20px;padding-right:20px;}
+  .lvl3{margin-left:40px;}
+  .lvl4{margin-left:50px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htag">KAOYAN · 英语语法</div>
+  <h1>英语句子成分 · 语法总表</h1>
+  <p class="subtitle">成分 / 词性 / 动词短语 / 判定口诀 / 五大句型 / 长难句拆解 —— 一张表看懂句子骨架</p>
+</header>
+
+<nav>
+  <a href="#overview">成分总览</a>
+  <a href="#role">成分→词</a>
+  <a href="#word">词→成分</a>
+  <a href="#vp">动词短语</a>
+  <a href="#rules">判定口诀</a>
+  <a href="#types">五大句型</a>
+  <a href="#breakdown">长难句拆解</a>
+  <a href="#faq">疑难速查</a>
+</nav>
+
+<main>
+
+<!-- ====== 一、八大句子成分 ====== -->
+<div class="sec" id="overview">一 · 八大句子成分</div>
+<p class="sub">先看一个句子里能拆出哪些成分，用本课例句演示：</p>
+<div class="seg">
+  <div class="seg-col"><div class="seg-en">He</div><div class="seg-fn"><b>主语</b></div></div>
+  <div class="seg-col"><div class="seg-en">asked</div><div class="seg-fn"><b>谓语</b></div></div>
+  <div class="seg-col"><div class="seg-en">them</div><div class="seg-fn"><b>宾语</b></div></div>
+  <div class="seg-col"><div class="seg-en">to identify a photo</div><div class="seg-fn"><b>宾补</b></div></div>
+  <div class="seg-col"><div class="seg-en">of themselves</div><div class="seg-fn">定语(后置)</div></div>
+  <div class="seg-col"><div class="seg-en">from a line-up</div><div class="seg-fn"><b>状语</b></div></div>
+</div>
+<div class="wrap"><table>
+  <thead><tr><th style="width:90px">成分</th><th style="width:200px">作用</th><th>本课例子</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">主语</span></td><td>动作发出者 / 描述对象</td><td>He · the subjects</td></tr>
+    <tr><td><span class="en">谓语</span></td><td>核心动作（唯一带时态的动词）</td><td>asked · had been altered</td></tr>
+    <tr><td><span class="en">宾语</span></td><td>动作承受者</td><td>them · a falsely-flattering image</td></tr>
+    <tr><td><span class="en">表语</span></td><td>系动词后，说明主语是什么/怎么样</td><td>how they looked</td></tr>
+    <tr><td><span class="en">定语</span></td><td>修饰名词（什么样的/哪个）</td><td>significant · of themselves</td></tr>
+    <tr><td><span class="en">状语</span></td><td>修饰动词/句子（何时/何地/从哪/为何）</td><td>quickly · from a line-up</td></tr>
+    <tr><td><span class="en">宾补</span></td><td>补充说明宾语</td><td>to identify a photograph</td></tr>
+    <tr><td><span class="en">同位语</span></td><td>紧跟名词，解释它</td><td>my friend <b>Tom</b></td></tr>
+  </tbody>
+</table></div>
+
+<!-- ====== 二、成分 → 词 ====== -->
+<div class="sec" id="role">二 · 每个成分，什么词/结构能充当</div>
+<p class="sub">这是最常用的一张表：缺什么成分，查它。</p>
+<div class="wrap"><table>
+  <thead><tr><th style="width:70px">成分</th><th>能充当的</th><th style="width:52%">例子</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">主语</span></td><td>名词 / 代词 / 动名词 / 不定式 / 主语从句</td><td><span class="en">The subjects</span> chose.<br><span class="en">Swimming</span> is fun.<br><span class="en">What he said</span> is true.</td></tr>
+    <tr><td><span class="en">谓语</span></td><td>动词（限定形式，带时态）</td><td><span class="en">asked</span> · <span class="en">had been altered</span> · <span class="en">genuinely believed</span></td></tr>
+    <tr><td><span class="en">宾语</span></td><td>名词 / 代词 / 不定式 / 动名词 / 宾语从句</td><td>found <span class="en">no significant gender difference</span><br>believed <span class="en">it was really how they looked</span></td></tr>
+    <tr><td><span class="en">表语</span></td><td>名词 / 形容词 / 介词短语 / 表语从句</td><td>He is <span class="en">a teacher</span>.<br>It was <span class="en">how they looked</span>.</td></tr>
+    <tr><td><span class="en">定语</span></td><td>形容词 / 名词 / 代词所有格 / 介词短语 / 分词 / 定语从句</td><td><span class="en">significant</span> differences · <span class="en">gender</span> difference<br>photograph <span class="en">of themselves</span> · versions <span class="en">that had been altered</span></td></tr>
+    <tr><td><span class="en">状语</span></td><td>副词 / 介词短语 / 不定式 / 分词 / 状语从句</td><td>chose <span class="en">quickly</span> · identified <span class="en">from a line-up</span><br>altered <span class="en">to appear more attractive</span></td></tr>
+    <tr><td><span class="en">宾补</span></td><td>不定式 / 名词 / 形容词 / 分词</td><td>asked them <span class="en">to identify...</span> · made him <span class="en">captain</span></td></tr>
+    <tr><td><span class="en">同位语</span></td><td>名词 / 名词短语</td><td>my friend <span class="en">Tom</span></td></tr>
+  </tbody>
+</table></div>
+
+<!-- ====== 三、词 → 成分 ====== -->
+<div class="sec" id="word">三 · 反向：什么词性，能当什么</div>
+<div class="wrap"><table>
+  <thead><tr><th style="width:90px">词性</th><th>能当的成分</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">名词</span></td><td>主语、宾语、表语、同位语、介词宾语、定语（名词作定语，如 <span class="en">gender</span> difference）</td></tr>
+    <tr><td><span class="en">代词</span></td><td>主语、宾语、表语、定语（my / our）</td></tr>
+    <tr><td><span class="en">动词</span></td><td><b>谓语</b>（限定形式）；非谓语（to do / doing / done）→ 主、宾、表、定、状、补</td></tr>
+    <tr><td><span class="en">形容词</span></td><td>定语、表语、宾补</td></tr>
+    <tr><td><span class="en">副词</span></td><td>状语（作表语少见）</td></tr>
+    <tr><td><span class="en">介词</span></td><td>引导介词短语 → 状语、定语、表语</td></tr>
+    <tr><td><span class="en">连词</span></td><td>连接从句（that / which / if）或并列词</td></tr>
+  </tbody>
+</table></div>
+
+<!-- ====== 四、动词短语 ====== -->
+<div class="sec" id="vp">四 · 动词短语专项</div>
+<p class="sub">动词短语 = <b>动词 + 跟着它的尾巴</b>（宾语、补语、状语都算）。它分两大类，<b>只有带时态的那一类是谓语</b>。</p>
+<div class="wrap"><table>
+  <thead><tr><th>类型</th><th>形式</th><th style="width:40%">例子</th><th>能当什么</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">限定动词短语</span></td><td>带时态</td><td>asked them... · had been altered · don't even recognise</td><td><b>只能当谓语</b></td></tr>
+    <tr><td><span class="en">非谓语动词短语</span></td><td>to do / doing / done</td><td>to identify a photograph · versions including...</td><td>主 / 宾 / 表 / 定 / 状 / 补，绝不谓语</td></tr>
+  </tbody>
+</table></div>
+<p class="sub">非谓语动词短语具体能当哪些成分：</p>
+<div class="wrap"><table>
+  <thead><tr><th>形式</th><th>能当</th><th style="width:46%">课文例子</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">不定式</span> to do</td><td>主 / 宾 / 表 / 定 / 状 / <b>宾补</b></td><td><span class="en">to identify a photograph</span>（宾补）<br><span class="en">to appear more attractive</span>（状）</td></tr>
+    <tr><td><span class="en">动名词</span> doing</td><td>主 / 宾 / 表</td><td><span class="en">Swimming</span> is fun.（主）</td></tr>
+    <tr><td><span class="en">现在分词</span> doing</td><td>定 / 状 / 宾补</td><td>versions <span class="en">including...</span>（定）</td></tr>
+    <tr><td><span class="en">过去分词</span> done</td><td>定 / 状 / 宾补</td><td>photos <span class="en">altered</span> to appear...（定）</td></tr>
+  </tbody>
+</table></div>
+<p class="sub">用课文对号入座一遍：</p>
+<div class="wrap"><table>
+  <thead><tr><th>动词短语</th><th style="width:90px">带时态？</th><th>成分</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">asked</span>（+尾巴）</td><td>✅</td><td>谓语（限定）</td></tr>
+    <tr><td><span class="en">to identify a photograph</span></td><td>❌</td><td>宾补（不定式）</td></tr>
+    <tr><td><span class="en">had been altered</span></td><td>✅</td><td>谓语（限定，被动）</td></tr>
+    <tr><td><span class="en">to appear more attractive</span></td><td>❌</td><td>状语（不定式）</td></tr>
+    <tr><td><span class="en">don't even recognise</span></td><td>✅</td><td>谓语（限定）</td></tr>
+  </tbody>
+</table></div>
+
+<!-- ====== 五、判定口诀 ====== -->
+<div class="sec" id="rules">五 · 四条判定口诀</div>
+<p class="sub">拆长句时按顺序套，这是最值钱的部分。</p>
+
+<div class="tip"><div class="tip-title">口诀① · 找谓语</div>一个句子<b>只有一个带时态的动词</b>。其余动词都是非谓语（to do / doing / done），去当别的成分。</div>
+
+<div class="tip ok"><div class="tip-title">口诀② · 短语还是从句</div>有<b>"主语 + 谓语"成对出现</b> → 从句（如 <span class="hl">that had been altered</span>、<span class="hl">how they looked</span>）；只是<b>中心词 + 修饰语</b> → 短语（如 <span class="hl">no significant gender difference</span>）。</div>
+
+<div class="tip"><div class="tip-title">口诀③ · 定语还是状语</div>
+<b>紧跟名词、回答"什么样的/哪个"</b> → 定语<br>
+<b>修饰动作、回答"何时/何地/从哪/为何"</b> → 状语<br>
+动词有<b>固定搭配</b>（identify...from）→ 优先归动词（状语）</div>
+
+<div class="tip ok"><div class="tip-title">口诀④ · 名词短语定成分，看位置</div>
+动词前 → <b>主语</b>；及物动词后 → <b>宾语</b>；系动词后 → <b>表语</b>；介词后 → <b>介词宾语</b>；紧贴名词后 → <b>同位语</b>。</div>
+
+<!-- ====== 六、五大句型 ====== -->
+<div class="sec" id="types">六 · 五大基本句型</div>
+<p class="sub">句型看的是<b>整句的动词骨架</b>；先找谓语动词，再看它后面接了什么。</p>
+<div class="wrap"><table>
+  <thead><tr><th>句型</th><th style="width:180px">结构</th><th>例子</th></tr></thead>
+  <tbody>
+    <tr><td><span class="en">主系表</span></td><td>主 + 系动词 + 表语</td><td>He <span class="en">is</span> a teacher.</td></tr>
+    <tr><td><span class="en">主谓</span></td><td>主 + 谓</td><td>Birds <span class="en">fly</span>.</td></tr>
+    <tr><td><span class="en">主谓宾</span></td><td>主 + 谓 + 宾</td><td>The study <span class="en">found</span> no significant gender difference.</td></tr>
+    <tr><td><span class="en">主谓宾宾</span></td><td>主 + 谓 + 双宾</td><td>He <span class="en">gave</span> me a book.</td></tr>
+    <tr><td><span class="en">主谓宾补</span></td><td>主 + 谓 + 宾 + 宾补</td><td>He <span class="en">asked</span> them <span class="en">to identify...</span></td></tr>
+  </tbody>
+</table></div>
+
+<!-- ====== 七、长难句拆解 ====== -->
+<div class="sec" id="breakdown">七 · 长难句拆解示例</div>
+<p class="sub">把全套方法用在一个完整句子上。句子：</p>
+<div class="tip ok">
+<div class="tip-title">原文</div>
+<span class="hl">He asked them to identify an original photograph of themselves from a line-up including versions that had been altered to appear more and less attractive.</span>
+</div>
+<p class="sub">第一层拆出主谓宾 + 两个尾巴；再逐层往下，每层的介词/从句找自己的宿主：</p>
+<div class="tree">
+  <div class="tv"><span class="en">He</span> <span class="fn">主语</span></div>
+  <div class="tv"><span class="en">asked</span> <span class="fn">谓语（及物动词，唯一带时态的词）</span></div>
+  <div class="tv"><span class="en">them</span> <span class="fn">宾语</span></div>
+  <div class="tv"><span class="en">to identify an original photograph of themselves</span> <span class="fn">宾补（不定式短语，说明"让他们去做什么"）</span>
+    <div class="tree lvl1">
+      <div class="tv"><span class="en">an original photograph of themselves</span> <span class="fn">不定式的宾语</span>
+        <div class="tree lvl2">
+          <div class="tv"><span class="en">of themselves</span> <span class="fn">定语，紧跟名词 photograph → 修饰它</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tv"><span class="en">from a line-up ...</span> <span class="fn">状语，修饰整个 identify 动作（identify...from 固定搭配）</span>
+    <div class="tree lvl1">
+      <div class="tv"><span class="en">including versions</span> <span class="fn">定语（分词短语），修饰 line-up</span>
+        <div class="tree lvl2">
+          <div class="tv"><span class="en">that had been altered</span> <span class="fn">定语从句（that 指 versions），修饰 versions</span>
+            <div class="tree lvl3">
+              <div class="tv"><span class="en">to appear more and less attractive</span> <span class="fn">状语（不定式），说明 altered 的目的</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="sub">翻译：<b>他让他们从一组照片中认出自己那张未经修改的原照——那组照片里包含好几个经过修改、看起来更漂亮或更不漂亮的版本。</b></p>
+
+<!-- ====== 八、疑难速查 ====== -->
+<div class="sec" id="faq">八 · 疑难速查</div>
+<div class="wrap"><table>
+  <thead><tr><th style="width:44%">疑问</th><th>答案</th></tr></thead>
+  <tbody>
+    <tr><td>ask them <b>to do</b>，不定式是直接宾语吗？</td><td>不是。<b>有宾语（them）时，to do 是宾补</b>；只有 ask <b>to do</b>（中间无人）才是直接宾语。</td></tr>
+    <tr><td>significant gender difference 有形容词，为什么还叫名词短语？</td><td>按<b>中心词</b>命名——中心词是名词 differences，形容词只是装饰。</td></tr>
+    <tr><td>为什么是 <b>don't even</b> recognise，不是 even don't？</td><td>中间位规则：<b>助动词(否定) + even + 实义动词</b>。even 要贴近它强调的动词。</td></tr>
+    <tr><td>为什么是 was <b>really</b> how they looked？</td><td>be + 副词 + 表语是<b>默认位</b>；really 强调后面表语。放 be 前（really was）是强调"是"本身。</td></tr>
+    <tr><td>为什么 the most 放句末（self-enhanced the most）？</td><td><b>副词最高级修饰动词</b>，跟动词走（动词后）；形容词最高级才放名词前。</td></tr>
+    <tr><td>gender difference 两个名词怎么组合？</td><td><b>名词作定语</b>：前一个限定后一个，翻译"后为主、前为限定"，从后往前读。</td></tr>
+    <tr><td>scale 不是"规模"吗？</td><td>多义词。看到 <b>up the scale / on a scale of 1-10</b> 是"刻度/量表"义；on a large scale 才是"规模"。</td></tr>
+    <tr><td>higher up the attractiveness scale 什么结构？</td><td><b>比较级 + up + 名词</b> = "沿刻度往上"；指在吸引力评分上更靠上。</td></tr>
+    <tr><td>短语（phrase）和从句（clause）区别？</td><td><b>从句有主语+谓语，短语没有</b>。能画出"谁+做什么"就是从句。</td></tr>
+  </tbody>
+</table></div>
+
+</main>
+</body>
+</html>
