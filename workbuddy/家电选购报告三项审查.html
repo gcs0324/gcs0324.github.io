@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家电选购报告 · 三项审查（事实核查 / 一致性 / 竞品）</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#111726; --panel:#151d2e; --panel2:#1a2338;
+    --bd:#243049; --bd2:#2e3c5c;
+    --tx:#e8edf7; --tx2:#a8b3cc; --tx3:#6f7c98;
+    --acc:#4da3ff; --acc2:#7c5cff; --gold:#f0b35c; --green:#3ecf8e; --red:#ff5c7a; --orange:#ff9f43; --purple:#b07cff; --cyan:#35d0e0;
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono','IBM Plex Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b0f17 0%,#0e1420 100%);color:var(--tx);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Inter,sans-serif;
+    line-height:1.75;font-size:15px;padding-bottom:80px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+  header{padding:56px 0 40px;border-bottom:1px solid var(--bd)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--acc);text-transform:uppercase}
+  h1{font-size:30px;margin:14px 0 8px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--tx2);font-size:15px;max-width:760px}
+  .meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--tx2);border:1px solid var(--bd);border-radius:999px;padding:5px 13px;background:var(--panel)}
+  .chip b{color:var(--tx)}
+
+  .scoreband{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:34px 0 8px}
+  .scorecard{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:20px 22px}
+  .scorecard .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--tx3);text-transform:uppercase}
+  .scorecard .num{font-size:40px;font-weight:700;margin:6px 0 2px;font-family:var(--mono)}
+  .scorecard .bar{height:6px;border-radius:99px;background:var(--bg2);overflow:hidden;margin-top:10px}
+  .scorecard .bar i{display:block;height:100%;border-radius:99px}
+  .scorecard .note{font-size:12px;color:var(--tx2);margin-top:8px}
+
+  section{margin-top:52px}
+  h2{font-size:22px;margin:0 0 6px;display:flex;align-items:center;gap:12px;letter-spacing:-.01em}
+  h2 .idx{font-family:var(--mono);font-size:14px;color:var(--acc);border:1px solid var(--bd2);border-radius:8px;padding:2px 10px}
+  .lead{color:var(--tx2);font-size:14px;margin:0 0 22px}
+
+  .verdict{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:600;border-radius:6px;padding:2px 10px;letter-spacing:.02em;vertical-align:middle}
+  .v-ok{background:rgba(62,207,142,.14);color:var(--green);border:1px solid rgba(62,207,142,.4)}
+  .v-warn{background:rgba(240,179,92,.14);color:var(--gold);border:1px solid rgba(240,179,92,.4)}
+  .v-err{background:rgba(255,92,122,.14);color:var(--red);border:1px solid rgba(255,92,122,.4)}
+  .v-stale{background:rgba(255,159,67,.14);color:var(--orange);border:1px solid rgba(255,159,67,.4)}
+
+  .card{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:20px 24px;margin-bottom:16px}
+  .card h3{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .card h3 .tag{font-family:var(--mono);font-size:11px;color:var(--tx2);background:var(--bg2);border:1px solid var(--bd);border-radius:6px;padding:1px 8px;font-weight:500}
+  .fld{display:grid;grid-template-columns:96px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid var(--bd)}
+  .fld:last-child{border-bottom:none}
+  .fld .k{color:var(--tx3);font-family:var(--mono);font-size:12px;letter-spacing:.05em}
+  .fld .v{color:var(--tx);font-size:14px}
+  .fld .v .q{color:var(--gold);background:rgba(240,179,92,.1);border-radius:4px;padding:1px 6px;font-size:13px}
+  .fld .v .src{color:var(--cyan);font-size:12px;font-family:var(--mono)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 4px}
+  th{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);text-align:left;padding:10px 12px;border-bottom:1px solid var(--bd2)}
+  td{padding:11px 12px;border-bottom:1px solid var(--bd);vertical-align:top;color:var(--tx)}
+  tr:last-child td{border-bottom:none}
+  .tblwrap{background:var(--panel);border:1px solid var(--bd);border-radius:14px;overflow:hidden;overflow-x:auto}
+
+  .callout{border-left:3px solid var(--acc);background:rgba(77,163,255,.07);border-radius:0 10px 10px 0;padding:14px 18px;margin:18px 0;font-size:14px}
+  .callout.warn{border-color:var(--red);background:rgba(255,92,122,.06)}
+  .callout.gold{border-color:var(--gold);background:rgba(240,179,92,.06)}
+
+  .top5{display:grid;grid-template-columns:1fr;gap:12px}
+  .risk{display:flex;gap:16px;background:var(--panel);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;align-items:flex-start}
+  .risk .rn{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--red);line-height:1;min-width:34px}
+  .risk .rb{flex:1}
+  .risk .rt{font-weight:600;margin-bottom:3px}
+  .risk .rd{color:var(--tx2);font-size:13px}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;border-radius:6px;padding:1px 8px;margin-right:6px}
+  .p-hi{background:rgba(255,92,122,.14);color:var(--red)}
+  .p-mid{background:rgba(240,179,92,.14);color:var(--gold)}
+  .p-low{background:rgba(62,207,142,.14);color:var(--green)}
+
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--bd);color:var(--tx3);font-size:12px;font-family:var(--mono)}
+  a{color:var(--acc);text-decoration:none}
+  .num-mono{font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Fact-check · Consistency · Competitor Audit</div>
+  <h1>家电选购报告 · 三项交叉审查</h1>
+  <p class="sub">针对《2026年全屋家电选购深度研究报告》与《高端全屋方案报告》的事实核查、内部一致性校验与竞品漏选审查。核查基准：<b>2026 年 8 月</b>，来源以京东/天猫实时页、品牌官网、商务部政策文件、权威评测交叉验证。</p>
+  <div class="meta">
+    <span class="chip">基准日 <b>2026-08-17</b></span>
+    <span class="chip">被审报告 <b>2 份</b></span>
+    <span class="chip">核查条目 <b>32 项</b></span>
+    <span class="chip">多源交叉 <b>≥2 源</b></span>
+  </div>
+</header>
+
+<div class="scoreband">
+  <div class="scorecard">
+    <div class="lab">家电深度报告</div>
+    <div class="num" style="color:var(--gold)">72<span style="font-size:20px">/100</span></div>
+    <div class="bar"><i style="width:72%;background:var(--gold)"></i></div>
+    <div class="note">型号参数扎实，但 4 处硬伤（华凌 APF、雷鸟型号、小米电视价、全友弹簧）</div>
+  </div>
+  <div class="scorecard">
+    <div class="lab">高端全屋方案报告</div>
+    <div class="num" style="color:var(--orange)">66<span style="font-size:20px">/100</span></div>
+    <div class="bar"><i style="width:66%;background:var(--orange)"></i></div>
+    <div class="note">智能预算三档无法对账（重大算术矛盾），床垫价与丝涟参考价冲突</div>
+  </div>
+  <div class="scorecard">
+    <div class="lab">整体可信度</div>
+    <div class="num" style="color:var(--acc)">69<span style="font-size:20px">/100</span></div>
+    <div class="bar"><i style="width:69%;background:var(--acc)"></i></div>
+    <div class="note">政策类全部属实（加分），但「到手价」口径偏激进、断言缺出处支撑</div>
+  </div>
+</div>
+
+<!-- ============ PART 1 ============ -->
+<section>
+  <h2><span class="idx">01</span>事实核查 · 政策 / 型号 / 参数 / 价格 / 断言</h2>
+  <p class="lead">每条给出「原文摘录 → 核查等级 → 依据（附来源）→ 建议改法」。等级：<span class="verdict v-ok">核实</span><span class="verdict v-warn">存疑</span><span class="verdict v-err">错误</span><span class="verdict v-stale">需核实</span></p>
+
+  <div class="card">
+    <h3><span class="tag">政策类</span>国补口径 —— 全部属实，是最扎实的部分</h3>
+    <div class="fld"><div class="k">国补比例</div><div class="v"><span class="verdict v-ok">核实</span> 「国补 15%」正确。商务部等 5 部门《关于做好 2026 年家电以旧换新、数码和智能产品购新补贴工作的通知》：按最终售价 15% 补贴。<span class="src">商务部通知 / 人民网 2025-12-31</span></div></div>
+    <div class="fld"><div class="k">单品上限</div><div class="v"><span class="verdict v-ok">核实</span> 「家电单品上限 ¥1,500」正确（数码类 ¥500）。<span class="src">同上</span></div></div>
+    <div class="fld"><div class="k">仅一级能效</div><div class="v"><span class="verdict v-ok">核实</span> 「仅一级能效可补、二级已不补」正确。2026 政策明确只补「1 级能效或水效」，相比 2025 年（1 级+2 级）确实<b>收紧</b>。建议原文补一句「较 2025 年收紧」更严谨。<span class="src">发改/财政部通知 / 央广网 2026-01-01</span></div></div>
+    <div class="fld"><div class="k">6 类品类</div><div class="v"><span class="verdict v-ok">核实</span> 「全国统一 6 类」正确：冰箱、洗衣机、电视、空调、<b>热水器、电脑</b>。但报告把 6 类简称「四大件（冰箱/洗衣机/空调/电视）」，与「6 类」混用易误导——建议直接列全 6 类。<span class="src">商务部通知</span></div></div>
+    <div class="fld"><div class="k">床垫沙发</div><div class="v"><span class="verdict v-ok">核实</span> 「床垫/沙发不在国补范围」正确（不在 6 类家电内）。报告第 10 节已自注「部分地区地方补贴可覆盖家具类」，前后口径一致，值得肯定。<span class="src">商务部通知</span></div></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag">型号/参数类</span>冰箱 · 洗衣机 · 空调 · 电视关键参数</h3>
+    <div class="fld"><div class="k">海尔 502L</div><div class="v"><span class="verdict v-ok">核实</span> BCD-502WGHTD1CWLU1 存在；502L（冷藏318+冷冻184）、双系统双循环、全空间保鲜、EPP 超净（119 种有害物）、-30℃速冻、594mm、35dB 均与官网/京东一致。<span class="src">haier.com / 京东</span></div></div>
+    <div class="fld"><div class="k">海尔 502L 耗电</div><div class="v"><span class="verdict v-warn">存疑</span> 原文写「0.92 度/天」，京东官方参数为 <b>0.83 kW·h/24h</b>。→ 改为 0.83 度/天。<span class="src">京东自营参数页</span></div></div>
+    <div class="fld"><div class="k">EPP 除农残</div><div class="v"><span class="verdict v-ok">核实</span> 「甲拌磷、艾氏剂降解率 99.999%、覆盖 119 种」与海尔官网口径一致。但「中轻检验认证」这一具体机构名未在官网出现（官网仅称「第三方权威检测机构」），建议改为「第三方检测」或核实机构名。<span class="src">haier.com</span></div></div>
+    <div class="fld"><div class="k">小米 508L Pro</div><div class="v"><span class="verdict v-stale">需核实</span> BCD-508WTMBI 型号格式合理，但本次检索未直接命中该型号参数页，容量/双系统/31dB 待逐项确认。<span class="src">—</span></div></div>
+    <div class="fld"><div class="k">海尔云溪 5.0</div><div class="v"><span class="verdict v-ok">核实</span> XQG100-BLE7AD1U1 存在；<b>洗净比 1.36</b> 多源确认（2026 单洗滚筒第一梯队，与小天鹅小乌梅 5.0 并列）；单智投、537mm、AI 直驱 2.0 均属实。<span class="src">新浪 / 京东 / 奥维云网</span></div></div>
+    <div class="fld"><div class="k">海尔云溪 4.0</div><div class="v"><span class="verdict v-warn">存疑</span> 原文型号 <b>XQG100-BLEG583HU1</b>、洗净比 <b>1.21</b>；但第三方横评称云溪 4.0 为 <b>XQG100BDC185SU1</b>、洗净比 <b>1.23</b>。型号与洗净比均需核对。<span class="src">新浪横评</span></div></div>
+    <div class="fld"><div class="k">小天鹅 628Plus</div><div class="v"><span class="verdict v-ok">核实</span> TG10V628PLUS 存在；洗净比 1.28、水魔方、AI 双智投、585mm 深度均属实（个别京东页误标 1.1，主流口径为 1.28）。「中国家用电器研究院检测」有出处，但「2024Q3 抽检报告」具体编号需核实。<span class="src">中关村 / pconline / 京东</span></div></div>
+    <div class="fld"><div class="k">华凌神机二代</div><div class="v"><span class="verdict v-err">错误</span> 型号 KFR-72LW/N8HE1Ⅱ 存在、美芝双转子、68℃制冷属实；但 <b>APF 写「5.10（超一级）」是错的，实测约 4.77</b>（中关村）/4.7（第三方评测）。「超一级」定位与「性价比超华凌」的结论均受影响。<span class="src">中关村在线 / 头条评测</span></div></div>
+    <div class="fld"><div class="k">小米巨省电 Pro</div><div class="v"><span class="verdict v-ok">核实</span> 72LW-PL30/N2A1(W) 存在；<b>APF 5.31</b>、年省电 884 度、10 年包修均多源确认。但「三洋 21cc 双缸压缩机」「64 根铜管」两处细节本次未获独立佐证，建议标注出处（QSY 拆机）或降级为「双排冷凝器」。<span class="src">新浪 / 中关村 / 京东</span></div></div>
+    <div class="fld"><div class="k">格力云锦三代</div><div class="v"><span class="verdict v-ok">核实</span> KFR-72LW/NhBa1BAt 存在；APF 4.56、循环风量 1410m³/h、10 年整机包修均与京东一致。<span class="src">京东自营</span></div></div>
+    <div class="fld"><div class="k">小米 S Pro 2026</div><div class="v"><span class="verdict v-ok">核实</span> L75MC-SP 存在；<b>2304 分区、5200nit、330Hz、3 满血 HDMI2.1、4+64GB、61W/5 单元</b>全部与京东/官方一致。「华星光电 WHVA」面板说法与「QD-Mini LED」口径存在冲突，建议核实面板类型。<span class="src">京东自营 / mi.com</span></div></div>
+    <div class="fld"><div class="k">雷鸟鹤 6 Ultra</div><div class="v"><span class="verdict v-err">错误</span> 704 分区、QD-Mini LED、4 满血 HDMI2.1、无广告均属实；但 <b>型号写「75R69A Ultra」是错的，实为 75S595C Ultra</b>（消费者会搜不到）。另峰值亮度「2000-3000nit」口径偏宽，多数源为 2000nit。<span class="src">京东 / 今日头条</span></div></div>
+    <div class="fld"><div class="k">海信 E5Q Pro</div><div class="v"><span class="verdict v-ok">核实</span> 75E5Q-PRO 存在；768 分区、2200nit、墨晶屏反射率 2.6%、帝瓦雷 2.1.2、信芯 AI 芯片均属实。<span class="src">京东自营</span></div></div>
+    <div class="fld"><div class="k">全友 105169</div><div class="v"><span class="verdict v-warn">存疑</span> 原文写「五区独袋弹簧（810 个）」，但第三方多源称其为「<b>整网独立弹簧</b>+3D 椰棕」。若实为整网弹簧，则与报告自身避坑标准「整网弹簧冒充独立袋装」自相矛盾。<span class="src">新浪 / 新京报 / pchouse</span></div></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag">价格类</span>2026-08 到手价合理性（含大促+国补 15%）</h3>
+    <div class="fld"><div class="k">海尔 502L ¥4398</div><div class="v"><span class="verdict v-ok">核实</span> 中关村实测「实付 4398.75 元」直接命中；天猫叠加券可低至 3584。报告取值合理。<span class="src">jd.zol.com.cn</span></div></div>
+    <div class="fld"><div class="k">小米电视 ¥4767</div><div class="v"><span class="verdict v-err">错误</span> 明显偏低。京东史低 ¥6,099、常卖 ¥7,299，国补 15% 后约 ¥5,184，<b>到不了 ¥4,767</b>（除非叠加罕见「8.1 折+以旧换新」极端券）。该价直接拉低了「舒适档 ¥16,310」总价的真实性。<span class="src">京东自营</span></div></div>
+    <div class="fld"><div class="k">格力云锦 ¥5605</div><div class="v"><span class="verdict v-warn">存疑</span> 偏高。第三方国补后报价 4903~5592 元，京东史低 ¥6,204（未含国补）。¥5,605 落在区间上沿，建议标注「约 ¥5,000-5,600」。<span class="src">新浪 / 京东</span></div></div>
+    <div class="fld"><div class="k">小米空调 ¥4100</div><div class="v"><span class="verdict v-ok">核实</span> 国补后 3,700~4,479 元，¥4,100 居中合理。<span class="src">新浪 / 中关村</span></div></div>
+    <div class="fld"><div class="k">华凌 ¥3600</div><div class="v"><span class="verdict v-ok">核实</span> 实测 3,399~3,733 元，取值合理。<span class="src">中关村 / 头条</span></div></div>
+    <div class="fld"><div class="k">雷鸟 ¥4399 / 海信 ¥4700</div><div class="v"><span class="verdict v-ok">核实</span> 雷鸟国补后 4,299~4,499、海信 4,700~4,980，均在区间内。<span class="src">新浪横评</span></div></div>
+    <div class="fld"><div class="k">Aqara M200 价格</div><div class="v"><span class="verdict v-warn">存疑</span> 报告写「史低 ¥509、618 ¥534」，与实际不符：京东史低 ¥429、618 ¥544.65；官方首发价 ¥499。建议统一为「官方定价 ¥499，京东常卖 ¥569」。<span class="src">京东 / IT之家</span></div></div>
+    <div class="fld"><div class="k">华为 PLC ¥29999</div><div class="v"><span class="verdict v-stale">需核实</span> 「前装 ¥29,999 起」未获独立佐证（华为主机单品 X2 ¥1,699 / SE ¥999）。全屋方案报价随户型浮动大，建议标注「以当地华为全屋智能报价为准」。<span class="src">—</span></div></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag">断言类</span>「碾压 / 无对手 / 历史最低」出处</h3>
+    <div class="fld"><div class="k">洗净比 1.36 碾压</div><div class="v"><span class="verdict v-ok">核实</span> 有支撑：1.36 确为 2026 单洗滚筒顶尖，但<b>并非独占</b>（小天鹅小乌梅 5.0 同为 1.36）。「碾压」用词偏重，建议改为「第一梯队」。<span class="src">新浪 / 奥维云网</span></div></div>
+    <div class="fld"><div class="k">2304 分区 3.3 倍</div><div class="v"><span class="verdict v-ok">核实</span> 2304 ÷ 704 = 3.27 ≈ 3.3，算术成立。<span class="src">计算</span></div></div>
+    <div class="fld"><div class="k">D39 同价位无对手</div><div class="v"><span class="verdict v-stale">需核实</span> 本次检索未直接验证京东京造 D39 的 ¥1,700 到手价与「无对手」结论，建议补京东/什么值得买比价证据。<span class="src">—</span></div></div>
+    <div class="fld"><div class="k">全友 穷装党神器</div><div class="v"><span class="verdict v-warn">存疑</span> 「五区独袋」存疑（见上），若实为整网弹簧则「神器」定位弱化。<span class="src">—</span></div></div>
+  </div>
+</section>
+
+<!-- ============ PART 2 ============ -->
+<section>
+  <h2><span class="idx">02</span>内部一致性校验 · 矛盾与对账</h2>
+  <p class="lead">重点核对：总表 / 结论速览 / 深度对比 / 选购卡四处口径，预算求和自洽，三档推荐与正文结论是否打架。</p>
+
+  <div class="tblwrap">
+  <table>
+    <tr><th style="width:52px">#</th><th style="width:180px">矛盾位置</th><th>原文摘录</th><th style="width:300px">修改建议</th></tr>
+    <tr><td class="num-mono">C1</td><td>性价比全屋金额</td><td>第 2 节标题「<b>¥13,400</b>」，但 3183+2199+3600+4399=<b>¥13,381</b>；第 8 节又写「¥13,381」。</td><td>统一为 ¥13,381（¥13,400 是四舍五入到百位，易被当成精确值）。</td></tr>
+    <tr><td class="num-mono">C2</td><td>床垫「备选」错位</td><td>总表备选=「雅兰深睡 ¥3,500」，但正文床垫章节「全家适用」是<b>穗宝黑曜 ¥3,500</b>、「浅眠党」才是雅兰；软装舒适档床垫又用<b>穗宝</b>。穗宝从未进总表。</td><td>总表备选改为穗宝（与软装舒适档一致），或删穗宝、全篇统一雅兰。</td></tr>
+    <tr><td class="num-mono">C3</td><td>洗衣机「备选」错位</td><td>总表备选=「海尔云溪 4.0 ¥2,399」，但正文第 4 节另有一个「备选：小天鹅小乌梅 3.0 ¥2,399（TG10VE40SE）」未进总表。</td><td>统一：云溪 4.0 为备选、小乌梅 3.0 移出或单列为「补充」，避免两个「备选」打架。</td></tr>
+    <tr><td class="num-mono">C4</td><td>空调首选 vs 性价比档</td><td>总表首选=「小米巨省电 Pro ¥4,100」，但性价比档四大件用「华凌 ¥3,600」；正文称小米「性价比超过华凌」，但华凌 3 匹实际约 ¥3,000-3,600 更便宜（APF 4.77 vs 5.31）。</td><td>明确「首选=综合最优，性价比=价格最低」的口径；「小米性价比超华凌」改为「省电更强但更贵」。</td></tr>
+    <tr><td class="num-mono">C5</td><td>华凌定位打架</td><td>第 5 节标题「华凌=用料王+性价比」，但结论速览首选又是小米；且华凌 APF 被错标 5.10（实际 4.77），若修正则「用料最猛」结论站不住。</td><td>修正 APF 后重排定位：华凌=价格屠夫，小米=省电/用料第一。</td></tr>
+    <tr><td class="num-mono">C6</td><td>高端报告·智能预算（重大）</td><td>第 2 节务实清单标题「≈¥7,000-8,000」，但清单加总仅 <b>¥4,935-5,725</b>；第 6 节进阶档智能「¥7,000-8,000」、高端档「¥13,000-15,000」，而高端档清单加总仅 <b>¥7,539-9,069</b>。三档均无法对账。</td><td>重算并统一：进阶档智能≈¥5,500-6,500，高端档≈¥9,000-10,000（或明确「封顶值」口径）。</td></tr>
+    <tr><td class="num-mono">C7</td><td>高端报告·床垫价冲突</td><td>方案总览高端档床垫「丝涟奇迹 ≈¥1w」，但第 4 节丝涟奇迹参考价仅 <b>¥4,334-5,500</b>，撑不起 ¥10,000。</td><td>高端档床垫改为「席梦思 Beautyrest 入门 ¥6,000-10,000」或将丝涟预算调至 ¥5,000。</td></tr>
+    <tr><td class="num-mono">C8</td><td>FP2 数量不一</td><td>方案总览进阶档「FP2 ×1」，务实清单「FP2 ×2」。</td><td>统一为 2（客厅+主卧，正文第 3 节也是 2）。</td></tr>
+    <tr><td class="num-mono">C9</td><td>门锁型号缺位</td><td>旗舰档用「门锁 U400」，但第 3 节门锁候选只列 U200/U100/Yale，U400 无参数卡。</td><td>补 U400 参数，或旗舰档改回 U200。</td></tr>
+    <tr><td class="num-mono">C10</td><td>窗帘项结构不一</td><td>预算总表高端档新增「窗帘面料 ¥8,000-12,000」，但方案总览三档均未列窗帘项。</td><td>方案总览补窗帘条目，保持四档卡片与预算表结构对齐。</td></tr>
+    <tr><td class="num-mono">C11</td><td>试睡/质保口径</td><td>家电报告喜临门「90 天试睡·20 年弹簧质保」；高端报告「丝涟 90 天/金可儿 100 天试睡」「舒达 25 年弹簧质保」。数字分散且来源未标注。</td><td>逐条补出处（品牌官方政策页），并统一「试睡 vs 质保」表述格式。</td></tr>
+    <tr><td class="num-mono">C12</td><td>全友弹簧自相矛盾</td><td>正文称「五区独袋弹簧」，避坑清单第 7 条又警示「整网弹簧冒充独立袋装」——若全友实为整网，则自我否定。</td><td>核实后统一，若为整网弹簧则下调全友推荐理由。</td></tr>
+  </table>
+  </div>
+  <div class="callout warn"><b>最高优先：C6。</b>高端报告的智能预算是「三档方案」的核心卖点，但清单加总与标题/预算表差了近一倍，会直接动摇读者对整份预算总表的信任，建议优先修复。</div>
+</section>
+
+<!-- ============ PART 3 ============ -->
+<section>
+  <h2><span class="idx">03</span>竞品漏选审查 · 反超概率表</h2>
+  <p class="lead">反超概率：<span class="pill p-hi">高</span>证据充分建议替换　<span class="pill p-mid">中</span>有竞争力需对比　<span class="pill p-low">低</span>报告首选仍占优。凡证据不足一律标注【需核实】。</p>
+
+  <div class="tblwrap">
+  <table>
+    <tr><th style="width:70px">品类</th><th style="width:150px">被推荐型号</th><th style="width:210px">潜在漏选竞品</th><th style="width:84px">反超概率</th><th>依据</th></tr>
+
+    <tr><td>冰箱</td><td>海尔云溪 502L（首选）</td><td>容声方糖 515（双系统+双 IDP，¥8,500+）</td><td><span class="pill p-low">低</span></td><td>价位高出近一倍，非同一档。¥4,000 档海尔 502L 的「双系统+EPP+全空间保鲜」仍无对位竞品。</td></tr>
+
+    <tr><td>洗衣机</td><td>海尔云溪 5.0（洗净比 1.36）</td><td>小天鹅小乌梅 5.0 TG10K60（洗净比同样 1.36）</td><td><span class="pill p-mid">中</span></td><td><b>洗净比并列第一</b>，若小乌梅 5.0 到手价更低则「云溪 5.0 碾压级」不成立，建议补充两者比价后定首选。东芝玉兔 3.0 Pro（1.36）价格高，反超概率低。</td></tr>
+
+    <tr><td>空调</td><td>小米巨省电 Pro（APF 5.31）</td><td>华为风神之眼（APF 6.03）· 海尔小红花（APF 4.78，¥3,863）</td><td><span class="pill p-mid">中</span></td><td>华为 APF 6.03 是能效天花板但 ¥5,000-6,500 更贵；海尔小红花 ¥3,863 性价比逼近。「APF 5.31 行业最高」需加限定（华为 6.03 反超）。</td></tr>
+
+    <tr><td>电视</td><td>小米 S Pro 2026（2304 分区/5200nit）</td><td>TCL 75T7L Ultra（1248 分区/3000nit）· Vidda 发现 X Pro 2026</td><td><span class="pill p-low">低</span></td><td>画质参数小米仍天花板（分区/亮度均最高）；Vidda 700+ 分区主要威胁海信 E5Q Pro（同为抗反光+无广告），对海信反超概率<span class="pill p-mid">中</span>。</td></tr>
+
+    <tr><td>电视</td><td>海信 E5Q Pro（768 分区）</td><td>Vidda 75 发现 X Pro 2026（海信子品牌，700+ 分区，无广告）</td><td><span class="pill p-mid">中</span></td><td>同门配置接近、价格更低且无广告，可作「海信 E5Q Pro 的平替」，报告未提及。</td></tr>
+
+    <tr><td>床垫</td><td>喜临门白骑士 2.0（护脊）</td><td>梦百合快充 M3（0 压记忆棉）</td><td><span class="pill p-low">低</span></td><td>定位不同（护脊 vs 0 压），护脊首选成立。</td></tr>
+
+    <tr><td>沙发</td><td>京东京造 D39（¥1,700）</td><td>全友/林氏同价位布艺</td><td><span class="pill p-stale">需核实</span></td><td>D39 到手价与「无对手」结论本次未独立验证，需补比价证据。</td></tr>
+
+    <tr><td>智能生态</td><td>Aqara M200（三协议不锁死）</td><td>小米中枢网关（¥349）· 华为 PLC</td><td><span class="pill p-low">低</span></td><td>小米中枢网关更便宜但 Matter 桥接属性不完整；华为 PLC 稳定但封闭。M200「不锁死」定位成立。</td></tr>
+  </table>
+  </div>
+
+  <div class="callout gold"><b>竞品审查核心结论：</b>报告整体选型无「被 2026 新机明显反超」的硬伤，但有三处需补强——① 洗衣机「1.36 碾压」漏了并列第一的小天鹅小乌梅 5.0；② 空调「APF 5.31 最高」漏了华为风神之眼 6.03；③ 电视漏了海信子品牌 Vidda 的高性价比平替款。另需注意：雷鸟鹤 6 Ultra、海信 E5Q Pro、小米 S Pro 均为「2026 款」，报告未标注发布年份，建议补上以免读者误以为旧款。</div>
+</section>
+
+<!-- ============ TOP 5 ============ -->
+<section>
+  <h2><span class="idx">04</span>Top 5 高风险条目（需优先整改）</h2>
+  <div class="top5">
+    <div class="risk"><div class="rn">1</div><div class="rb"><div class="rt">华凌神机二代 3 匹 APF「5.10」→ 实际 4.77</div><div class="rd">直接影响「超一级」定位、与小米的性价比对比结论、以及「用料王」标题的成立性。属参数硬错误。</div></div></div>
+    <div class="risk"><div class="rn">2</div><div class="rb"><div class="rt">小米 S Pro 2026 电视到手价「¥4,767」→ 实际 ≥¥5,184</div><div class="rd">京东史低 ¥6,099，国补 15% 后约 ¥5,184，报告价偏低约 ¥400+，直接拉低「舒适档 ¥16,310」总价的真实性。</div></div></div>
+    <div class="risk"><div class="rn">3</div><div class="rb"><div class="rt">雷鸟鹤 6 Ultra 型号「75R69A Ultra」→ 实际 75S595C Ultra</div><div class="rd">型号写错会导致读者按型号搜不到商品，是选购报告最不该犯的错。</div></div></div>
+    <div class="risk"><div class="rn">4</div><div class="rb"><div class="rt">高端报告智能预算三档无法对账（清单 ¥5,000 vs 标题 ¥7,000-8,000 vs 预算表 ¥13,000-15,000）</div><div class="rd">「三档全屋方案」是高端报告的核心框架，预算对不上会整体失信，建议优先重算。</div></div></div>
+    <div class="risk"><div class="rn">5</div><div class="rb"><div class="rt">全友 105169「五区独袋弹簧」vs 第三方「整网独立弹簧」</div><div class="rd">既涉及事实（弹簧类型），又与报告自身「整网弹簧冒充独立袋装」的避坑标准自相矛盾，可能把「穷装神器」推成「踩坑」。</div></div></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="idx">05</span>总评与整改优先级</h2>
+  <div class="card">
+    <div class="fld"><div class="k">政策层</div><div class="v">全部属实，是两份报告最可靠的部分（国补 15% / 上限 ¥1,500 / 仅一级能效 / 6 类）。建议把 6 类列全，避免「四大件」与「6 类」混用。</div></div>
+    <div class="fld"><div class="k">参数层</div><div class="v">主流型号参数基本准确（洗净比 1.36、APF 5.31、2304 分区等硬指标都有出处），但存在 2 处硬错误（华凌 APF、雷鸟型号）+ 4 处存疑（云溪 4.0 型号、502L 耗电、全友弹簧、小米压缩机/铜管细节）。</div></div>
+    <div class="fld"><div class="k">价格层</div><div class="v">多数到手价落在实测区间内，但「小米电视 ¥4,767」明显失真、「格力 ¥5,605」取价偏高，且大量价格依赖单一渠道爆款叠加券，稳健性不足——建议统一标注「到手价区间」而非单一精确值。</div></div>
+    <div class="fld"><div class="k">一致性</div><div class="v">家电报告 5 处口径错位（金额、床垫备选、洗衣机备选、空调首选、华凌定位），高端报告 1 处重大算术矛盾 + 3 处结构不一。</div></div>
+    <div class="fld"><div class="k">整改顺序</div><div class="v">先修 Top5 硬伤 → 再对账高端报告智能预算 → 最后统一「首选/备选/预算紧」三档与正文结论的口径。</div></div>
+  </div>
+</section>
+
+<footer>
+  审查基于 2026-08-17 公开数据（京东/天猫实时页 · 品牌官网 · 商务部/发改委通知 · 人民网/央广网 · 中关村在线/IT之家/新浪/奥维云网）。价格随市场波动，文中「核实/存疑/错误」结论仅对当前基准时点负责。被审原文路径：workbuddy/家电选购深度研究报告.html · workbuddy/高端全屋方案报告.html
+</footer>
+
+</div>
+</body>
+</html>
