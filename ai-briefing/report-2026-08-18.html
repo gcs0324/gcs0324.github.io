@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Intelligence Briefing - 2026-08-18</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #21262d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --border: #30363d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { font-size: 2em; margin-bottom: 10px; }
+    header .tagline {
+      font-size: 1.2em;
+      color: var(--accent-blue);
+      font-style: italic;
+    }
+    header .date { color: var(--text-secondary); margin-top: 10px; }
+    section { padding: 30px 0; border-bottom: 1px solid var(--border); }
+    section h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: var(--accent-blue);
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h3 { margin-bottom: 10px; }
+    .score {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+    .score-high { background: var(--accent-green); color: #000; }
+    .score-medium { background: var(--accent-orange); color: #000; }
+    .score-low { background: var(--accent-red); color: #fff; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      margin-right: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+    }
+    .signal-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      margin: 8px 0;
+    }
+    .signal-fill { height: 100%; border-radius: 4px; }
+    .trend-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .trend-stage {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .trend-stage h4 {
+      color: var(--accent-purple);
+      margin-bottom: 12px;
+    }
+    .trend-stage li { margin-bottom: 8px; font-size: 0.92em; }
+    .action-priority {
+      border-left: 4px solid;
+      padding-left: 16px;
+      margin-bottom: 16px;
+    }
+    .action-p0 { border-color: var(--accent-red); }
+    .action-p1 { border-color: var(--accent-orange); }
+    .action-p2 { border-color: var(--accent-blue); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--text-secondary); font-weight: 600; }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .stars { color: var(--accent-orange); }
+    .meta { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 8px; }
+    .brief { color: var(--text-secondary); }
+    ul { padding-left: 20px; }
+    @media (max-width: 768px) {
+      .trend-map { grid-template-columns: 1fr; }
+      .container { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔬 AI Intelligence Briefing</h1>
+      <div class="tagline">GitHub 热门榜：Agent Skills 生态正取代零散提示词，成为 agent 能力封装的标准单元</div>
+      <div class="date">2026-08-18</div>
+    </header>
+
+    <!-- Section 1: 今日Top10动态 -->
+    <section id="top10">
+      <h2>📰 Section 1: 今日Top10动态</h2>
+
+      <div class="card">
+        <h3>1. <a href="https://github.com/anthropics/skills">anthropics/skills</a> — Anthropic 官方 Agent Skills 仓库</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 170,036 <span class="tag">本周榜</span>
+          <span class="score score-high">重要性 76</span> <span class="score score-medium">ROI 92</span></div>
+        <p>Anthropic 将 Agent Skills 正式作为开源资产发布。技能正取代零散提示词，成为 agent 能力封装的标准单元——可复用、可分享、可审计。对研发工程师：写 agent 工作流的方式正在被这套规范重定义，谁先掌握 skill 的编写与组织，谁就掌握 agent 工程的下一个抓手。</p>
+      </div>
+
+      <div class="card">
+        <h3>2. <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a> — 生产级工程技能集</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 88,069 <span class="tag">本周榜</span>
+          <span class="score score-high">重要性 74</span> <span class="score score-medium">ROI 90</span></div>
+        <p>Google Chrome 团队 Addy Osmani 的工程技能集，把 code review、性能优化、可访问性等工程最佳实践形式化为 agent 可执行技能。示范了「工程经验 → 可执行 skill」的转化模式：内容本身重要，更重要的是一线工程师开始主动给 agent「喂方法论」。</p>
+      </div>
+
+      <div class="card">
+        <h3>3. 开源模型高频迭代：DeepSeek V4 Pro / 智谱 GLM-5.3 / MiniMax H3</h3>
+        <div class="meta"><span class="tag">新闻</span> 猫猫新闻·5天/3天内 <span class="tag">36氪 / 钛媒体 / IT之家</span>
+          <span class="score score-high">重要性 70</span> <span class="score score-medium">ROI 72</span></div>
+        <p>DeepSeek V4 Pro 补齐 Agent 与图像能力、API 首创峰谷计费（高峰费用翻倍）；智谱 GLM-5.3 宣称编程能力较上代提升 50%；MiniMax H3 逼近 Seedance。能力聚焦点高度一致：<b>Agent 能力 + 编程 + 推理成本</b>三大维度同时成为开源模型卷点。Token 定价权之争白热化，「更贵还是更便宜」尚无定论，但有效 token 成本正成为定价锚。</p>
+      </div>
+
+      <div class="card">
+        <h3>4. Agent 记忆基础设施：TencentDB-Agent-Memory + ai-memory</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 22,661 + 2,137 <span class="tag">本周/日榜</span>
+          <span class="score score-high">重要性 68</span> <span class="score score-medium">ROI 85</span></div>
+        <p>跨会话、跨工具的记忆是 agent 落地的最大短板。TencentDB-Agent-Memory 做「团队级记忆中枢」，把对话/文档/代码沉淀为可复用知识；ai-memory 从 agent CLI 与多供应商 handoff 切入。两个项目共同指向 Context Engineering 的基础设施化——记忆不再是模型的缓存，而是独立的产品层。</p>
+      </div>
+
+      <div class="card">
+        <h3>5. <a href="https://github.com/mukul975/Anthropic-Cybersecurity-Skills">mukul975/Anthropic-Cybersecurity-Skills</a> — 817 个安全技能</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 28,489 <span class="tag">日榜 +198</span>
+          <span class="score score-high">重要性 62</span> <span class="score score-medium">ROI 74</span></div>
+        <p>把安全攻防知识组织为 817 个标准化技能，映射到 MITRE ATT&amp;CK、NIST CSF 2.0，兼容 Claude Code / Copilot / Codex / Cursor / Gemini CLI。安全能力正在被「技能化」——渗透测试的领域知识不再藏在工具里，而是拆成 agent 可调用的原子动作。</p>
+      </div>
+
+      <div class="card">
+        <h3>6. <a href="https://github.com/usestrix/strix">usestrix/strix</a> — 开源 AI 渗透测试工具</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 54,276 <span class="tag">日榜 +598</span>
+          <span class="score score-high">重要性 62</span> <span class="score score-medium">ROI 76</span></div>
+        <p>AI agent 驱动的漏洞扫描，598 stars/天领跑日榜。需求源自安全团队希望用 agent 自动化渗透测试流程。对研发工程师：这是「agent 长周期任务」在垂直领域的真实落地样本，值得拆解其任务规划与工具调用的设计。</p>
+      </div>
+
+      <div class="card">
+        <h3>7. <a href="https://github.com/vitali87/code-graph-rag">vitali87/code-graph-rag</a> — 代码知识图谱 RAG</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 4,548 <span class="tag">本周榜</span>
+          <span class="score score-high">重要性 60</span> <span class="score score-medium">ROI 82</span></div>
+        <p>针对 monorepo 的终极 RAG：用知识图谱组织多语言代码库，供 agent 查询、理解、编辑。回应「大仓库喂不进上下文」的核心痛点——纯向量检索在代码上不够，需要图结构保留调用关系。与 CodeGraph 同思路，是代码检索增强工程化的强候选。</p>
+      </div>
+
+      <div class="card">
+        <h3>8. <a href="https://github.com/PrimeIntellect-ai/prime-agent">PrimeIntellect-ai/prime-agent</a> — 自改进 RLM 编码 Agent</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 16,945 <span class="tag">本周榜</span>
+          <span class="score score-high">重要性 60</span> <span class="score score-medium">ROI 80</span></div>
+        <p>「自改进 RLM agent」——把强化学习（RL）训练信号接到长时自治任务中，让编码 agent 从执行结果中自我改进。是 RLAIF/code-policy 思路在 Coding Agent 上的直接落地，代表 Coding Agent 从「用 / 不用 RAG 调优」走向「用 RL 自我优化」。仍处早期，值得跟踪其方法论。</p>
+      </div>
+
+      <div class="card">
+        <h3>9. <a href="https://github.com/cathrynlavery/diagram-design">cathrynlavery/diagram-design</a> — Claude Code 的 27 种图表类型</h3>
+        <div class="meta"><span class="tag">GitHub</span> ⭐ 20,780 <span class="tag">本周榜</span>
+          <span class="score score-medium">重要性 56</span> <span class="score score-medium">ROI 64</span></div>
+        <p>为 Claude Code 提供 27 种自包含 HTML+SVG 图表类型，宣称「No shadows, No Mermaid-slop」。要点不在图表数量，而在「产品人/工程师开始认真打磨 agent 产物的<em>审美与呈现标准</em>」——agent 输出正从能看懂走向值得呈现。</p>
+      </div>
+
+      <div class="card">
+        <h3>10. DeepSeek-V4 API 峰谷计费 + 「AI 干活加速错觉」实测</h3>
+        <div class="meta"><span class="tag">新闻</span> 猫猫新闻·1天内 <span class="tag">TechWeb / 36氪</span>
+          <span class="score score-medium">重要性 48</span> <span class="score score-medium">ROI 58</span></div>
+        <p>DeepSeek-V4 系列首创峰谷计费，高峰期费用翻倍，首次把「推理成本随负载浮动」摆上桌面，直接影响 agent 自动化任务成本模型；同期 36氪 1237 人实测发现人对 AI 存在「省力即省时」的加速错觉——自动化不等于提效，是工程化落地时最容易被误判的一课。</p>
+      </div>
+    </section>
+
+    <!-- Section 2: GitHub高价值项目 -->
+    <section id="github">
+      <h2>🐙 Section 2: GitHub 高价值项目</h2>
+
+      <div class="card">
+        <h3><a href="https://github.com/anthropics/skills">anthropics/skills</a></h3>
+        <div class="meta"><span class="stars">⭐ 170,036</span> · Python · 官方 Agent Skills 发布仓库</div>
+        <p><b>项目定位</b>：Agent Skills 的规范与示例集，定义「技能 = 文档 + 资产 + 触发条件」的结构化封装。</p>
+        <p><b>核心设计</b>：把可复用的 agent 能力做成自包含目录（SKILL.md + 资源文件），按任务类型组织，agent 按需加载。核心创新是把「提示词片段」提升为「可管理、可版本化、可审计的资产」。</p>
+        <p><b>同类对比</b>：vs 纯提示词库——多了结构、版本与触发机制；vs MCP——MCP 管工具接入、Skills 管知识/流程封装，二者互补而非竞争。</p>
+        <p>学习价值 <b>9/10</b> · 推荐指数 <b>9/10</b> · <b>✅ 立即关注</b></p>
+      </div>
+
+      <div class="card">
+        <h3><a href="https://github.com/TencentCloud/TencentDB-Agent-Memory">TencentCloud/TencentDB-Agent-Memory</a></h3>
+        <div class="meta"><span class="stars">⭐ 22,661</span> · TypeScript · 团队级 Agent 记忆中枢</div>
+        <p><b>项目定位</b>：把对话、文档、代码转成 agent 团队可复用的记忆资产。</p>
+        <p><b>核心设计</b>：记忆作为独立数据层（hub）而非模型缓存，强调跨 agent、跨会话的组织级沉淀。代表「记忆即基础设施」路线。</p>
+        <p><b>同类对比</b>：vs 本地向量库——面向组织共享与权限；vs ai-memory——后者从 CLI/handoff 个人场景切入，前者重心在团队协作。</p>
+        <p>学习价值 <b>8/10</b> · 推荐指数 <b>8/10</b> · <b>✅ 立即关注</b></p>
+      </div>
+
+      <div class="card">
+        <h3><a href="https://github.com/vitali87/code-graph-rag">vitali87/code-graph-rag</a></h3>
+        <div class="meta"><span class="stars">⭐ 4,548</span> · Python · Monorepo 代码知识图谱 RAG</div>
+        <p><b>项目定位</b>：解决 agent 对大型代码库「检索不到、理解不深」的问题。</p>
+        <p><b>核心设计</b>：代码解析成符号图 + 图结构检索，比纯向量更懂调用关系与跨文件依赖。</p>
+        <p><b>同类对比</b>：vs 纯 RAG（如 langchain 向量检索）——增加图谱维度处理多语言 monorepo；与 Claude 生态的 CodeGraph 同思路，是自建检索增强的极佳学习范本。</p>
+        <p>学习价值 <b>8/10</b> · 推荐指数 <b>8/10</b> · <b>✅ 立即关注</b></p>
+      </div>
+
+      <div class="card">
+        <h3><a href="https://github.com/usestrix/strix">usestrix/strix</a></h3>
+        <div class="meta"><span class="stars">⭐ 54,276</span> · Python · AI 渗透测试 Agent</div>
+        <p><b>项目定位</b>：用 agent 自动化发现与修复漏洞的开放工具。</p>
+        <p><b>核心设计</b>：把渗透流程拆成 agent 任务链（侦察→扫描→利用验证→报告），配套工具调用与人工确认环节。是「agent 长周期任务编排」的工程样本。</p>
+        <p><b>同类对比</b>：vs 传统扫描器（nuclei 等）——多了自主规划与上下文理解；vs 安全 skill 库（Anthropic-Cybersecurity-Skills）——一个偏任务执行、一个偏知识资产。</p>
+        <p>学习价值 <b>7/10</b> · 推荐指数 <b>7/10</b> · ✅ 立即关注</p>
+      </div>
+
+      <div class="card">
+        <h3><a href="https://github.com/semantica-agi/semantica">semantica-agi/semantica</a></h3>
+        <div class="meta"><span class="stars">⭐ 8,618</span> · Python · 图原生上下文基础设施</div>
+        <p><b>项目定位</b>：「Graph-Native Infrastructure for Context and Accountable AI」——把上下文做成图结构，支持可审计的 AI 系统。</p>
+        <p><b>核心设计</b>：上下文去中心化的图存储 + 溯源/责任链，面向企业级对 AI 行为可解释的需求。与 agent 记忆方向互补：记忆解决「记住」，它解决「记得住且可追溯到为什么」。</p>
+        <p><b>同类对比</b>：vs 传统向量记忆——强调关系与可审计性；与 code-graph-rag 共享图增强思路，但对象从代码扩展到通用上下文。</p>
+        <p>学习价值 <b>8/10</b> · 推荐指数 <b>7/10</b> · ✅ 立即关注</p>
+      </div>
+
+      <div class="card">
+        <h3>本地推理实用化：<a href="https://github.com/AlexsJones/llmfit">llmfit</a> + <a href="https://github.com/jundot/omlx">omlx</a> + <a href="https://github.com/cactus-compute/needle">needle</a></h3>
+        <div class="meta"><span class="stars">⭐ 32,338 / 19,021 / 7,161</span> · Rust/Python · 本地 LLM 选型与推理</div>
+        <p><b>llmfit</b>：一句话找出「上百模型/供应商里哪个在你的硬件上跑得动」，解决本地推理选型陷阱；<b>omlx</b>：Apple Silicon 上带连续批处理与 SSD 缓存的推理服务（菜单栏管理）；<b>needle</b>：14MB 端侧基础模型，面向手机/穿戴/机器人。三者串联即「端侧 AI 工程化项链」：选型→部署→端侧模型。</p>
+        <p>学习价值 <b>7/10</b> · 推荐指数 <b>7/10</b> · ✅ 值得关注</p>
+      </div>
+    </section>
+
+    <!-- Section 3: Signal Radar -->
+    <section id="signals">
+      <h2>📡 Section 3: Signal Radar</h2>
+      <p class="brief" style="margin-bottom:16px;">注：本次 Arxiv 数据源抓取失败（多次搜索无结果），以下信号均为「基于 2/3 项数据源输入」（GitHub Trending + 猫猫新闻），论文增长率缺失权重已按比例分摊至其余输入。</p>
+
+      <div class="card">
+        <h3>Agent Skills 生态标准化 <span class="score score-high">85.75</span> <span class="stars">★★★★</span> <span class="tag">高价值趋势</span></h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:86%; background:var(--accent-green);"></div></div>
+        <p class="brief">基于 2/3 项输入 · anthropics/skills 170k★、addyosmani/agent-skills 88k★、Anthropic-Cybersecurity-Skills 28k★，官方与个人/主题类 skill 库密集上榜。技能正成为 agent 能力封装的标准单元。</p>
+      </div>
+
+      <div class="card">
+        <h3>Agent 记忆 / Context 基础设施 <span class="score score-high">76.75</span> <span class="stars">★★★★</span> <span class="tag">高价值趋势</span></h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:77%; background:var(--accent-green);"></div></div>
+        <p class="brief">基于 2/3 项输入 · ai-memory、TencentDB-Agent-Memory、semantica 一周内同台出现，叠加 DeepSeek 等模型的多轮长程 agent 能力宣传。跨会话记忆从「优化技巧」升级为「独立产品层」。</p>
+      </div>
+
+      <div class="card">
+        <h3>开源模型性能竞赛 <span class="score score-high">73.5</span> <span class="stars">★★★★</span> <span class="tag">高价值趋势</span></h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:74%; background:var(--accent-green);"></div></div>
+        <p class="brief">基于 2/3 项输入 · 新闻面多日密集：DeepSeek V4 Pro、GLM-5.3（编程提升 50%）、MiniMax H3，GitHub 侧 unsloth/needle 呼应端侧落地。开源模型进入周级迭代，Agent/编程能力是共同卷点。</p>
+      </div>
+
+      <div class="card">
+        <h3>AI 安全 / 渗透测试技能化 <span class="score score-high">64</span> <span class="stars">★★★</span> <span class="tag">值得关注</span></h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:64%; background:var(--accent-orange);"></div></div>
+        <p class="brief">基于 2/3 项输入 · strix 日增 598★、Anthropic-Cybersecurity-Skills 日增 198★，安全领域率先把攻防知识技能化+Agent 化。安全团队是 agent 最早付费的一批客户之一。</p>
+      </div>
+
+      <div class="card">
+        <h3>本地 / 轻量 AI 推理 <span class="score score-high">57.75</span> <span class="stars">★★★</span> <span class="tag">值得关注</span></h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:58%; background:var(--accent-orange);"></div></div>
+        <p class="brief">基于 2/3 项输入 · llmfit/omlx/needle 三相呼应，端侧模型（14MB）与本地推理栈开始进入主流视野，与云端定价上涨（峰谷计费）形成对冲。</p>
+      </div>
+
+      <div class="card">
+        <h3>代码知识图谱 RAG <span class="score score-high">52</span> <span class="stars">★★★</span> <span class="tag">值得关注</span></h3>
+        <div class="signal-bar"><div class="signal-fill" style="width:52%; background:var(--accent-orange);"></div></div>
+        <p class="brief">基于 2/3 项输入 · code-graph-rag、semantica 同周上榜，「图结构 &gt; 纯向量」的代码/上下文检索开始被独立建工程，很可能成为 Context Engineering 的标准组件。</p>
+      </div>
+    </section>
+
+    <!-- Section 4: 趋势地图 -->
+    <section id="trends">
+      <h2>🗺️ Section 4: 趋势地图</h2>
+      <div class="trend-map">
+        <div class="trend-stage">
+          <h4>🌱 萌芽</h4>
+          <ul>
+            <li>代码知识图谱 RAG（code-graph-rag）</li>
+            <li>自改进 RLM 编码 agent（prime-agent）</li>
+            <li>图原生可审计上下文（semantica）</li>
+            <li>端侧 14MB 模型（needle）</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>📈 成长</h4>
+          <ul>
+            <li>Agent 记忆基础设施（ai-memory / TencentDB-Agent-Memory）</li>
+            <li>AI 驱动渗透测试（strix）</li>
+            <li>结构化 agent 输出 / 图表（diagram-design）</li>
+            <li>本地推理管理（llmfit / omlx）</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>💥 爆发</h4>
+          <ul>
+            <li>Agent Skills 生态（anthropics/skills 170k★）</li>
+            <li>开源模型周级迭代（V4 Pro / GLM-5.3 / H3）</li>
+            <li>推理成本定价化（峰谷计费）</li>
+            <li>Agent 视频生成（MoneyPrinterTurbo 日增 1.1k★）</li>
+          </ul>
+        </div>
+        <div class="trend-stage">
+          <h4>🏛️ 成熟</h4>
+          <ul>
+            <li>MCP 协议</li>
+            <li>Coding Agent 工具链</li>
+            <li>LLM 训练/运行 UI（unsloth 73k★）</li>
+            <li>AI 求职/工作流 agent（career-ops 64k★）</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: 学习建议 -->
+    <section id="learning">
+      <h2>📚 Section 5: 学习建议</h2>
+
+      <div class="card">
+        <h3>本周最值得学：Agent Skills 编写与组织规范</h3>
+        <p>精读 <a href="https://github.com/anthropics/skills">anthropics/skills</a> 的仓库结构与 SKILL.md 规范，再对照 <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a> 看一线工程经验如何拆成可复用技能。具体行动：为你最常用的 2 个 agent 工作流各写 1 个 skill，体会「提示词 → 资产」的差别。</p>
+      </div>
+
+      <div class="card">
+        <h3>本周值得学：Context / Memory Engineering</h3>
+        <p>读 <a href="https://github.com/TencentCloud/TencentDB-Agent-Memory">TencentDB-Agent-Memory</a> 的架构设计（记忆分层、组织共享），对比 <a href="https://github.com/akitaonrails/ai-memory">ai-memory</a>（CLI/handoff 场景）。理解「记忆不是缓存而是产品层」的判断依据。</p>
+      </div>
+
+      <div class="card">
+        <h3>本月值得学：代码知识图谱增强检索</h3>
+        <p>以 <a href="https://github.com/vitali87/code-graph-rag">code-graph-rag</a> 为范本，理解「符号图 + RAG」为何优于纯向量。若已在用 CodeGraph，可对照其索引维度做迁移学习。</p>
+      </div>
+    </section>
+
+    <!-- Section 6: 实验项目推荐 -->
+    <section id="projects">
+      <h2>🧪 Section 6: 实验项目推荐</h2>
+
+      <div class="card">
+        <h3>1. 打造个人/团队 Agent Skills 库</h3>
+        <p>周末可做：把你日常 agent 工作流中重复的流程（code review、依赖排查、文档生成）写成 3-5 个 skill，用 anthropics/skills 规范组织，接入 Claude Code 或 Codex 实测效果。</p>
+      </div>
+
+      <div class="card">
+        <h3>2. 给自己的项目搭代码检索增强</h3>
+        <p>用 code-graph-rag 思路对自己的一个私人 repo 做符号图 + 向量检索，让 agent 回答「改 X 会影响谁」前先查图。工作量 1-2 天，落地即用。</p>
+      </div>
+
+      <div class="card">
+        <h3>3. 搭建本地推理参考栈</h3>
+        <p>用 llmfit 在现有硬件上选出可跑的最优模型，再用 omlx 起一个 Apple Silicon 推理服务，Benchmark 一下与云端的成本/延迟差——直接体验「端侧 + 云端混合」的工程形态。</p>
+      </div>
+    </section>
+
+    <!-- Section 7: 工具推荐 -->
+    <section id="tools">
+      <h2>🔧 Section 7: 工具推荐</h2>
+
+      <div class="card">
+        <h3>1. <a href="https://github.com/anthropics/skills">anthropics/skills</a> — Agent Skills 官方规范</h3>
+        <p>直接浏览即得规范+示例，是编写 skill 的起点。</p>
+      </div>
+      <div class="card">
+        <h3>2. <a href="https://github.com/addyosmani/agent-skills">addyosmani/agent-skills</a> — 生产级工程技能集</h3>
+        <p>开箱即用的工程实践技能，可直接作为 agent 的 code review / 性能优化技能加载。</p>
+      </div>
+      <div class="card">
+        <h3>3. <a href="https://github.com/usestrix/strix">strix</a> — AI 渗透测试</h3>
+        <p>对自己的非生产环境跑一轮自动化漏洞扫描，低成本体验 agent 长任务编排。</p>
+      </div>
+      <div class="card">
+        <h3>4. <a href="https://github.com/TencentCloud/TencentDB-Agent-Memory">TencentDB-Agent-Memory</a> — 团队级 agent 记忆中枢</h3>
+        <p>作为 agent 记忆方案调研的参照实现，评估其分层与共享设计。</p>
+      </div>
+      <div class="card">
+        <h3>5. <a href="https://github.com/AlexsJones/llmfit">llmfit</a> — 本地模型选型</h3>
+        <p>一句话选出「跑得动的最优模型」，本地推理试水的第一步工具。</p>
+      </div>
+    </section>
+
+    <!-- Section 8: 行动清单 -->
+    <section id="actions">
+      <h2>✅ Section 8: 行动清单</h2>
+
+      <div class="action-priority action-p0">
+        <h3>P0 — 本周（立即执行）</h3>
+        <p><b>掌握 Agent Skills 沉淀规范，把团队 agent 提示词升级为技能资产。</b> 原因：技能生态已进入爆发期，谁先建立可复用的技能库谁先受益。收益：agent 工作流可复用、可审计、新人 1 天上手。投入：1-2 小时读规范 + 半天试点。</p>
+      </div>
+
+      <div class="action-priority action-p1">
+        <h3>P1 — 本月</h3>
+        <p><b>调研 agent 记忆方案并小规模试点。</b> 对比 TencentDB-Agent-Memory 与 ai-memory，明确你的跨会话记忆是「团队级」还是「个人 CLI 级」。收益：解决 agent 落地最大的连续性痛点。投入：1 天调研 + 选型。</p>
+        <p><b>用 strix 对非生产环境跑一轮安全扫描。</b> 原因：安全技能化是本周增长最快的细分。收益：发现 0-2 个真实风险，同时获得 agent 长任务评估经验。投入：半天。</p>
+      </div>
+
+      <div class="action-priority action-p2">
+        <h3>P2 — 季度内</h3>
+        <p><b>跟踪 DeepSeek V4 Pro / GLM-5.3 / MiniMax H3 的 API 定价与能力曲线。</b> 峰谷计费改变成本模型，agent 批处理任务的成本策略需要重算。</p>
+        <p><b>关注代码知识图谱 RAG 的工程成熟度，评估引入 CodeGraph 类方案。</b> 若你的仓库已 &gt;= 10 万行且 agent 检索频繁失效，值得设专项评估。</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

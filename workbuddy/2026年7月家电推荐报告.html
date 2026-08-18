@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年7月 家电推荐报告</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8;
+    color: #1a1a1a;
+    line-height: 1.7;
+    padding: 40px 20px;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 36px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+  }
+  .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .header p { font-size: 15px; opacity: 0.9; }
+  .header .date { font-size: 13px; opacity: 0.7; margin-top: 10px; }
+
+  .principles {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .principles h2 { font-size: 18px; margin-bottom: 14px; color: #333; }
+  .principles ul { list-style: none; }
+  .principles li {
+    padding: 6px 0 6px 24px;
+    position: relative;
+    font-size: 14px;
+    color: #555;
+  }
+  .principles li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+    font-weight: bold;
+  }
+
+  .category {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px 30px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .category-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #1a1a1a;
+  }
+  .category-title .icon { font-size: 26px; }
+  .category-sub {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 20px;
+  }
+
+  .pick {
+    border: 2px solid #e8eaf0;
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .pick.primary {
+    border-color: #667eea;
+    background: #f8f9ff;
+  }
+  .pick-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .pick-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #222;
+  }
+  .pick-name .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .tag-recommend { background: #667eea; color: #fff; }
+  .tag-2024 { background: #ff9800; color: #fff; }
+  .tag-2025 { background: #26a69a; color: #fff; }
+  .tag-2026 { background: #7c4dff; color: #fff; }
+  .tag-alt { background: #e8eaf0; color: #666; }
+  .pick-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e53935;
+    white-space: nowrap;
+  }
+  .pick-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .spec-item {
+    font-size: 13px;
+    color: #555;
+    padding: 4px 0;
+  }
+  .spec-item strong { color: #333; }
+  .pick-features {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .pick-features .label {
+    font-weight: 600;
+    color: #333;
+  }
+  .pick-reason {
+    font-size: 13px;
+    color: #666;
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 10px 14px;
+    border-left: 3px solid #4CAF50;
+  }
+  .pick-reason .label { font-weight: 600; color: #333; }
+
+  .year-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: #888;
+  }
+  .year-legend span { display: flex; align-items: center; gap: 4px; }
+  .year-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+  .yd-2024 { background: #ff9800; }
+  .yd-2025 { background: #26a69a; }
+  .yd-2026 { background: #7c4dff; }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 13px;
+  }
+  .summary-table th {
+    background: #667eea;
+    color: #fff;
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .summary-table th:first-child { border-radius: 8px 0 0 0; }
+  .summary-table th:last-child { border-radius: 0 8px 0 0; }
+  .summary-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+  }
+  .summary-table tr:hover { background: #f8f9ff; }
+  .summary-table .cat { font-weight: 600; color: #333; }
+
+  .footer {
+    text-align: center;
+    font-size: 13px;
+    color: #999;
+    margin-top: 36px;
+    padding: 20px;
+  }
+  .disclaimer {
+    background: #fff3cd;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: #856404;
+  }
+
+  .xiaomi-compare {
+    background: #fafafa;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-top: 14px;
+    font-size: 13px;
+  }
+  .xiaomi-compare .xc-title {
+    font-weight: 700;
+    color: #ff6900;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .xiaomi-compare .xc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .xiaomi-compare .xc-pro, .xiaomi-compare .xc-con {
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+  .xiaomi-compare .xc-pro { background: #e8f5e9; }
+  .xiaomi-compare .xc-con { background: #fff8e1; }
+  .xiaomi-compare .xc-label {
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .xc-label.green { color: #2e7d32; }
+  .xc-label.amber { color: #e65100; }
+  .xiaomi-compare .xc-item {
+    font-size: 12px;
+    color: #555;
+    padding: 3px 0;
+    padding-left: 14px;
+    position: relative;
+  }
+  .xiaomi-compare .xc-item::before {
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+  }
+  .xc-pro .xc-item::before { content: "+"; color: #4CAF50; }
+  .xc-con .xc-item::before { content: "-"; color: #FF9800; }
+  .xiaomi-compare .xc-model {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+  }
+  .xiaomi-compare .xc-verdict {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #f3e5f5;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #6a1b9a;
+    line-height: 1.6;
+  }
+  @media (max-width: 640px) {
+    .xiaomi-compare .xc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>2026年7月 家电选购推荐报告</h1>
+    <p>滚筒洗衣机 &middot; 立式空调 &middot; 冰箱 &middot; 油烟机</p>
+    <p class="date">编制日期：2026年7月15日 | 涵盖 2024-2026 经典口碑机型 | 实用为主 &middot; 中端价位</p>
+  </div>
+
+  <div class="principles">
+    <h2>选购原则</h2>
+    <ul>
+      <li><strong>年份放宽</strong>：不局限于2026新品，2024-2025年经过市场验证的口碑机型同样纳入</li>
+      <li><strong>实用至上</strong>：核心功能必须到位（洗净比、能效、风量、双系统等），砍掉低性价比噱头功能</li>
+      <li><strong>价格适中</strong>：各品类选中端主流价位段，不买入门最低配，也不为旗舰溢价买单</li>
+      <li><strong>2026 新标</strong>：冰箱认准 GB 12021.2—2025 新国标一级能效（6月1日实施，电耗降40%）</li>
+      <li><strong>国补叠加</strong>：以下价格均为国补/活动后参考到手价，实际以各平台实时价为准</li>
+    </ul>
+  </div>
+
+  <div class="year-legend">
+    <span><span class="year-dot yd-2024"></span> 2024款</span>
+    <span><span class="year-dot yd-2025"></span> 2025款</span>
+    <span><span class="year-dot yd-2026"></span> 2026款</span>
+  </div>
+
+  <!-- ========== 滚筒洗衣机 ========== -->
+  <div class="category">
+    <div class="category-title"><span class="icon">🫧</span> 滚筒洗衣机</div>
+    <div class="category-sub">核心看：10kg起步 &middot; 洗净比&ge;1.08 &middot; DD直驱/BLDC变频 &middot; 除菌方案 &middot; 超薄嵌入</div>
+
+    <div class="pick primary">
+      <div class="pick-header">
+        <div class="pick-name">小天鹅 小乌梅3.0<span class="tag tag-2026">2026款</span><span class="tag tag-recommend">首推</span></div>
+        <div class="pick-price">&asymp; 2,800-3,400元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>容量：</strong>10kg</div>
+        <div class="spec-item"><strong>洗净比：</strong>1.21</div>
+        <div class="spec-item"><strong>电机：</strong>BLDC变频</div>
+        <div class="spec-item"><strong>机身：</strong>565mm超薄平嵌</div>
+        <div class="spec-item"><strong>除菌：</strong>银离子+超微净泡</div>
+        <div class="spec-item"><strong>噪音：</strong>&asymp;46dB</div>
+      </div>
+      <div class="pick-features">
+        <span class="label">必选功能：</span>超微净泡物理去渍（无化学残留）&middot; 银离子除菌99.99% &middot; 高温自清洁 &middot; 单智能投放 &middot; 羊毛绿标护洗
+      </div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>2026年中端全能标杆，565mm纯平超薄适配600mm标准橱柜，洗净比1.21远超国标一级(1.03)。超微净泡+漩瀑水流冷水洗护衣不伤纤维，3000元档无明显短板。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">海尔 云溪冠军版376<span class="tag tag-2024">2024经典</span></div>
+        <div class="pick-price">&asymp; 2,600-3,200元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>容量：</strong>10kg</div>
+        <div class="spec-item"><strong>洗净比：</strong>1.1</div>
+        <div class="spec-item"><strong>电机：</strong>FPA直驱（超静音）</div>
+        <div class="spec-item"><strong>脱水：</strong>1400转/分钟</div>
+        <div class="spec-item"><strong>筒径：</strong>525mm大筒径</div>
+        <div class="spec-item"><strong>除菌：</strong>光等离子除菌</div>
+      </div>
+      <div class="pick-features">
+        <span class="label">必选功能：</span>精华洗2.0（预混洗涤液高速喷淋）&middot; 双路智能投放（洗衣液+柔顺剂）&middot; FPA直驱1:1精准控制 &middot; 60cm纯平零嵌
+      </div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>2024年海尔滚筒销量冠军，口碑封神的经典款。FPA直驱电机运行极静，精华洗2.0效率高，双路智能投放是最大亮点（同价位多数只有单路）。适合看重静音和精准投放的用户。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">海尔 云溪3.0<span class="tag tag-2025">2025款</span></div>
+        <div class="pick-price">&asymp; 2,400-3,000元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>容量：</strong>10kg</div>
+        <div class="spec-item"><strong>洗净比：</strong>1.2</div>
+        <div class="spec-item"><strong>电机：</strong>FPA直驱</div>
+        <div class="spec-item"><strong>机身：</strong>537mm超薄</div>
+        <div class="spec-item"><strong>除菌：</strong>巴氏除菌</div>
+        <div class="spec-item"><strong>特色：</strong>AI除毛洗</div>
+      </div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>376的精简升级版，继承直驱电机+活水精华洗核心配置。比小乌梅3.0低400-600元，家有宠物（AI除毛洗）或预算偏紧的首选。</div>
+    </div>
+
+    <div class="xiaomi-compare">
+      <div class="xc-title">🔶 小米洗衣机怎么没推？</div>
+      <div class="xc-model">代表型号：米家 XQG100MJ205（&asymp;1,199元） / 米家 12kg洗烘一体（&asymp;1,999元）</div>
+      <div class="xc-grid">
+        <div class="xc-pro">
+          <div class="xc-label green">👍 优势</div>
+          <div class="xc-item">价格极低，1019-1999元就能买到10-12kg滚筒</div>
+          <div class="xc-item">洗净比惊人，MJ205达到1.25（远超行业平均1.03）</div>
+          <div class="xc-item">超薄机身（516mm），比小天鹅还薄50mm</div>
+          <div class="xc-item">米家生态联动：小爱语音+APP智能洗护</div>
+          <div class="xc-item">型号精简、线上线下同价，选购不费脑</div>
+          <div class="xc-item">部分千元机也给了DD直驱+双路智能投放</div>
+        </div>
+        <div class="xc-con">
+          <div class="xc-label amber">👎 劣势</div>
+          <div class="xc-item">品控参差不齐：漏水、烘干故障投诉不少</div>
+          <div class="xc-item">"过保即坏"风险：保修期一过故障率明显上升</div>
+          <div class="xc-item">售后网点密度远低于海尔、小天鹅</div>
+          <div class="xc-item">多数中低端型号没有智能投放洗衣液</div>
+          <div class="xc-item">长期耐用性（5年+）未经充分市场验证</div>
+          <div class="xc-item">噪音控制一般，脱水时较明显</div>
+        </div>
+      </div>
+      <div class="xc-verdict"><strong>一句话判断：</strong>小米洗衣机是"参数战神"，千元价位配置独一档，适合预算极紧、不介意偶尔折腾的年轻租房用户。但如果追求5年以上稳定使用、少跑售后，海尔/小天鹅的多年代工经验和品控体系更靠谱。</div>
+    </div>
+  </div>
+
+  <!-- ========== 立式空调 ========== -->
+  <div class="category">
+    <div class="category-title"><span class="icon">❄️</span> 立式空调（3匹柜机）</div>
+    <div class="category-sub">核心看：双排铜管+电子膨胀阀（不缩水）&middot; 新一级能效 &middot; 循环风量&ge;1500m&sup3;/h &middot; 防直吹 &middot; 自清洁</div>
+
+    <div class="pick primary">
+      <div class="pick-header">
+        <div class="pick-name">美的 酷省电Pro 3匹 KFR-72LW/N8KS1-1P<span class="tag tag-2025">2025经典</span><span class="tag tag-recommend">首推</span></div>
+        <div class="pick-price">&asymp; 4,400-4,900元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>能效：</strong>新一级 APF 4.81</div>
+        <div class="spec-item"><strong>风量：</strong>1550m&sup3;/h</div>
+        <div class="spec-item"><strong>压缩机：</strong>美芝双转子</div>
+        <div class="spec-item"><strong>外机：</strong>双排纯铜管+电子膨胀阀</div>
+        <div class="spec-item"><strong>适用：</strong>32-48m&sup2;客厅</div>
+        <div class="spec-item"><strong>累计销量：</strong>710万+台</div>
+      </div>
+      <div class="pick-features">
+        <span class="label">必选功能：</span>AI酷省电算法（长期高频省电显著）&middot; 防直吹 &middot; 56&deg;C高温自清洁 &middot; APP远程控制 &middot; 京东金榜机型
+      </div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>2025年立柜空调销冠，累计710万台销量、好评率99%。硬件无缩水（双排铜管+电子膨胀阀），省电算法成熟，美的全国7000+安装网点售后无忧。4000+价位最稳妥的选择。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">格力 云锦三代 3匹 KFR-72LW/NhBa1BG<span class="tag tag-2024">2024经典</span></div>
+        <div class="pick-price">&asymp; 5,800-6,400元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>能效：</strong>新一级 APF 4.56</div>
+        <div class="spec-item"><strong>风量：</strong>1410m&sup3;/h</div>
+        <div class="spec-item"><strong>压缩机：</strong>凌达22cc双转子</div>
+        <div class="spec-item"><strong>外机：</strong>42kg二代冷酷外机</div>
+        <div class="spec-item"><strong>温域：</strong>-35&deg;C~60&deg;C</div>
+        <div class="spec-item"><strong>质保：</strong>10年整机免费包修</div>
+      </div>
+      <div class="pick-features">
+        <span class="label">必选功能：</span>冷酷外机极端天气稳定运行 &middot; 56&deg;C高温自清洁 &middot; 纯铜管用料扎实 &middot; AI动态节能
+      </div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>格力品质标杆，"用料扎实"是用户最核心的评价。二代冷酷外机在60&deg;C高温下仍稳定制冷，10年整机包修让人放心。比美的贵约1500元，适合看重耐用性、一步到位的用户。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">华凌 神机二代 3匹 N8HE1II<span class="tag tag-2025">2025款</span></div>
+        <div class="pick-price">&asymp; 3,600-3,999元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>能效：</strong>新一级 APF 4.85</div>
+        <div class="spec-item"><strong>风量：</strong>1560m&sup3;/h</div>
+        <div class="spec-item"><strong>压缩机：</strong>美芝24cc双转子</div>
+        <div class="spec-item"><strong>外机：</strong>双排铜管+三花电子膨胀阀</div>
+        <div class="spec-item"><strong>特色：</strong>冷媒环高温散热</div>
+        <div class="spec-item"><strong>质保：</strong>6年整机</div>
+      </div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>美的旗下性价比品牌，同价位唯一全套一线硬件。3600元给到双排+电子膨胀阀+冷媒环，共享美的售后。预算有限、中小户型客厅首选。</div>
+    </div>
+
+    <div class="xiaomi-compare">
+      <div class="xc-title">🔶 小米空调怎么没推？</div>
+      <div class="xc-model">代表型号：米家 巨省电Pro 3匹 26款 KFR-72LW/N2A1(W)（&asymp;4,249-4,600元）</div>
+      <div class="xc-grid">
+        <div class="xc-pro">
+          <div class="xc-label green">👍 优势</div>
+          <div class="xc-item">能效极高：APF 5.29-5.31，碾压同级新一级标准</div>
+          <div class="xc-item">超省电：实测8小时仅1.2度电（vs美的1.8度/格力2.1度）</div>
+          <div class="xc-item">米家生态联动最完整：远程控制+小爱语音+传感器联动</div>
+          <div class="xc-item">双排铜管+电子膨胀阀+三洋压缩机，硬件没缩水</div>
+          <div class="xc-item">10年整机质保，覆盖周期长</div>
+          <div class="xc-item">价格透明，线上线下同价不玩套路</div>
+        </div>
+        <div class="xc-con">
+          <div class="xc-label amber">👎 劣势</div>
+          <div class="xc-item">最大风量偏低（&asymp;1100 vs 美的1550m&sup3;/h），大客厅降温慢</div>
+          <div class="xc-item">长虹/TCL代工，压缩机非自研，极端工况稳定性待检验</div>
+          <div class="xc-item">三四线城市售后网点覆盖不如格力美的</div>
+          <div class="xc-item">用户满意度92.1%，低于格力98.7%、美的94.5%</div>
+          <div class="xc-item">长期耐用性（5-10年）尚无大批量验证</div>
+          <div class="xc-item">高温环境（>60&deg;C）制冷能力弱于格力冷酷外机</div>
+        </div>
+      </div>
+      <div class="xc-verdict"><strong>一句话判断：</strong>小米空调是"省电王者+智能标杆"，APF能效和米家生态联动是实打实的优势。如果家里已有米家设备且客厅不超30m&sup2;，非常值得考虑。但若客厅大、有西晒顶楼、或希望一步到位用8-10年，美的酷省电Pro或格力云锦三代更稳妥。</div>
+    </div>
+  </div>
+
+  <!-- ========== 冰箱 ========== -->
+  <div class="category">
+    <div class="category-title"><span class="icon">🧊</span> 冰箱</div>
+    <div class="category-sub">核心看：新国标一级能效 &middot; 双系统双循环（不串味）&middot; 零嵌/超薄设计 &middot; 容量500L+ &middot; 净味除菌</div>
+
+    <div class="pick primary">
+      <div class="pick-header">
+        <div class="pick-name">海尔 小红花501L BCD-501WGHFD14DFU1<span class="tag tag-2026">2026款</span><span class="tag tag-recommend">首推</span></div>
+        <div class="pick-price">&asymp; 3,100-3,200元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>容量：</strong>501L</div>
+        <div class="spec-item"><strong>能效：</strong>新国标一级</div>
+        <div class="spec-item"><strong>系统：</strong>双系统双循环</div>
+        <div class="spec-item"><strong>机身：</strong>594mm超薄零嵌</div>
+        <div class="spec-item"><strong>门型：</strong>法式多门</div>
+        <div class="spec-item"><strong>净味：</strong>DEO净味</div>
+      </div>
+      <div class="pick-features"><span class="label">必选功能：</span>双系统独立控温不串味 &middot; 594mm零嵌平齐橱柜 &middot; 新国标一级能效（日均省电40%）&middot; 阻氧干湿分储</div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>2026年双系统+零嵌性价比标杆。3000元出头就给到双循环不串味+594mm超薄嵌入，新国标一级能效更省电。法式多门实用性强，三口之家每周采购1-2次完全够用。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">美的508 BCD-508WUFPZM(E)<span class="tag tag-2024">2024销冠</span></div>
+        <div class="pick-price">&asymp; 3,200-3,500元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>容量：</strong>508L</div>
+        <div class="spec-item"><strong>能效：</strong>一级能效</div>
+        <div class="spec-item"><strong>系统：</strong>双系统2.0双循环</div>
+        <div class="spec-item"><strong>机身：</strong>60cm超薄零嵌</div>
+        <div class="spec-item"><strong>门型：</strong>十字四门</div>
+        <div class="spec-item"><strong>净味：</strong>PST+智能净化</div>
+      </div>
+      <div class="pick-features"><span class="label">必选功能：</span>双系统独立制冷不串味 &middot; PST+净味除菌（除菌率99.999%）&middot; -30&deg;C深冷锁鲜 &middot; 三档变温空间</div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>2024年双系统冰箱线上销额第一，久经市场考验的经典款。PST+净味是美的看家技术，9分钟急速净味，韭菜榴莲都不怕。十字门分区更精细，价格与小红花接近。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">华凌 521L制冰款 HR-547WUSPZ<span class="tag tag-2025">2025款</span></div>
+        <div class="pick-price">&asymp; 3,700-3,900元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>容量：</strong>521L（含制冰机）</div>
+        <div class="spec-item"><strong>能效：</strong>一级能效</div>
+        <div class="spec-item"><strong>系统：</strong>双系统双蒸发器</div>
+        <div class="spec-item"><strong>机身：</strong>60cm超薄零嵌</div>
+        <div class="spec-item"><strong>门型：</strong>法式多门</div>
+        <div class="spec-item"><strong>净味：</strong>活氧离子+PT铂金</div>
+      </div>
+      <div class="pick-features"><span class="label">必选功能：</span>自动制冰（60分钟出冰约110颗）&middot; 双系统不串味 &middot; 60cm超薄零嵌 &middot; 鸥翼铰链90&deg;+开门</div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>美的旗下性价比品牌，把双系统+零嵌+制冰打到了4000元以内。夏天爱喝冰饮、习惯囤货的年轻家庭超值之选，同配置其他品牌普遍5000+。</div>
+    </div>
+
+    <div class="xiaomi-compare">
+      <div class="xc-title">🔶 小米冰箱怎么没推？</div>
+      <div class="xc-model">代表型号：米家 Pro对开620L（&asymp;2,149元） / 米家 Pro至尊508L（&asymp;3,994元）</div>
+      <div class="xc-grid">
+        <div class="xc-pro">
+          <div class="xc-label green">👍 优势</div>
+          <div class="xc-item">2000元档唯一给到真双系统双循环+全域除菌</div>
+          <div class="xc-item">单季度出货88万台、同比+65%，市场认可度飙升</div>
+          <div class="xc-item">水分子筛生态保鲜：蔬菜7天仍脆嫩</div>
+          <div class="xc-item">米家APP远程控温+食材管理提醒</div>
+          <div class="xc-item">Pro至尊版可选可拆卸制冰模块（最快55分钟出冰）</div>
+          <div class="xc-item">新一级能效日均仅0.58度电，同配置最省</div>
+        </div>
+        <div class="xc-con">
+          <div class="xc-label amber">👎 劣势</div>
+          <div class="xc-item">高温环境（>35&deg;C）控温波动可达&plusmn;2&deg;C</div>
+          <div class="xc-item">低端型号（1500元下）为单系统，品控不稳定</div>
+          <div class="xc-item">售后网点密度不如海尔美的，换货折腾半个月</div>
+          <div class="xc-item">投诉量环比增长690%（集中在物流破损、偶发不制冷）</div>
+          <div class="xc-item">压缩机COP虽高但长期可靠性待验证</div>
+          <div class="xc-item">制冰模块需加价499元另购</div>
+        </div>
+      </div>
+      <div class="xc-verdict"><strong>一句话判断：</strong>小米冰箱是"2000元档配置卷王"，Pro系列给到的双系统+净味是真的值。适合智能家居用户、预算2000-4000元且不排斥偶尔折腾。但如果追求"买来10年不操心"的稳，海尔/美的的品控和售后体系更有保障。</div>
+    </div>
+  </div>
+
+  <!-- ========== 油烟机 ========== -->
+  <div class="category">
+    <div class="category-title"><span class="icon">💨</span> 油烟机</div>
+    <div class="category-sub">核心看：风量&ge;25m&sup3;/min &middot; 静压&ge;1000Pa &middot; 顶侧双吸 &middot; 自清洁 &middot; 超薄平嵌</div>
+
+    <div class="pick primary">
+      <div class="pick-header">
+        <div class="pick-name">美的 小西梅 AK7 Pro<span class="tag tag-2026">2026款</span><span class="tag tag-recommend">首推</span></div>
+        <div class="pick-price">&asymp; 3,400-3,500元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>风量：</strong>28m&sup3;/min</div>
+        <div class="spec-item"><strong>静压：</strong>1100Pa</div>
+        <div class="spec-item"><strong>结构：</strong>顶侧一体双风道</div>
+        <div class="spec-item"><strong>自清洁：</strong>110&deg;C高温蒸汽洗</div>
+        <div class="spec-item"><strong>面板：</strong>曜石黑抗油抗指纹</div>
+        <div class="spec-item"><strong>特色：</strong>全域负压拢烟</div>
+      </div>
+      <div class="pick-features"><span class="label">必选功能：</span>顶侧双吸（低位拦截+顶部聚拢）&middot; 110&deg;C蒸汽自清洁（6分钟全自动，洗净率99.1%）&middot; 高层防倒灌</div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>2026年3000-4000元价位"全能王"。28m&sup3;/min+1100Pa应对中式爆炒绰绰有余，蒸汽自清洁解放双手。3500元给到接近5000元级的性能，综合最均衡。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">老板 小黑翼D1P<span class="tag tag-2025">2025经典</span></div>
+        <div class="pick-price">&asymp; 3,000-3,400元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>风量：</strong>27m&sup3;/min</div>
+        <div class="spec-item"><strong>静压：</strong>智能巡航增压</div>
+        <div class="spec-item"><strong>结构：</strong>顶侧双吸三腔</div>
+        <div class="spec-item"><strong>油脂分离率：</strong>92%</div>
+        <div class="spec-item"><strong>清洁：</strong>免拆洗设计</div>
+        <div class="spec-item"><strong>特色：</strong>AI自动增压</div>
+      </div>
+      <div class="pick-features"><span class="label">必选功能：</span>三腔拢烟全面覆盖 &middot; AI自动感应烟道压力调节风压 &middot; 油脂分离率92%业内领先 &middot; 高层防倒灌</div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>老板是油烟机行业公认的头部品牌，小黑翼D1P是2025年爆款。三腔设计拢烟范围更广，AI自动增压是核心亮点——不用手动调档，实测高层高峰期排烟稳定。免拆洗设计省心，价格与美的接近。</div>
+    </div>
+
+    <div class="pick">
+      <div class="pick-header">
+        <div class="pick-name">华帝 小飞碟 S36<span class="tag tag-2026">2026款</span></div>
+        <div class="pick-price">&asymp; 3,299元</div>
+      </div>
+      <div class="pick-specs">
+        <div class="spec-item"><strong>风量：</strong>28m&sup3;/min</div>
+        <div class="spec-item"><strong>静压：</strong>1200Pa</div>
+        <div class="spec-item"><strong>结构：</strong>顶侧双吸超薄平嵌</div>
+        <div class="spec-item"><strong>自清洁：</strong>冲浪洗</div>
+        <div class="spec-item"><strong>特色：</strong>不碰头设计</div>
+        <div class="spec-item"><strong>面板：</strong>抗指纹材质</div>
+      </div>
+      <div class="pick-features"><span class="label">必选功能：</span>超薄平嵌好搭配橱柜 &middot; 1200Pa静压排烟更强 &middot; 不碰头人体工学 &middot; 顶侧双吸</div>
+      <div class="pick-reason"><span class="label">推荐理由：</span>颜值与性能兼得。静压1200Pa比美的高100Pa，越高楼层越有优势。超薄不碰头设计对厨房空间友好，抗指纹面板好打理。</div>
+    </div>
+
+    <div class="xiaomi-compare">
+      <div class="xc-title">🔶 小米油烟机怎么没推？</div>
+      <div class="xc-model">代表型号：米家 净烟机P2（&asymp;2,400-2,900元） / 米家 S1（&asymp;1,000-1,500元）</div>
+      <div class="xc-grid">
+        <div class="xc-pro">
+          <div class="xc-label green">👍 优势</div>
+          <div class="xc-item">IQV动态微粒捕集+空气帘技术，实测净烟效果五款中排第一</div>
+          <div class="xc-item">智能传感器独一份：PM2.5监测、CO/燃气泄漏报警</div>
+          <div class="xc-item">烟灶联动+米家APP远程控制</div>
+          <div class="xc-item">无油网设计易清洁，白色极简颜值高</div>
+          <div class="xc-item">入门款S1价格仅1000-1500元，便宜</div>
+          <div class="xc-item">风灶联动根据火力自动调节风力</div>
+        </div>
+        <div class="xc-con">
+          <div class="xc-label amber">👎 劣势</div>
+          <div class="xc-item">噪音偏大（用户反馈集中的槽点）</div>
+          <div class="xc-item">集油仓漏油问题（设计缺陷，部分用户反映）</div>
+          <div class="xc-item">售后由美的代理（非小米自营），服务水平不稳定</div>
+          <div class="xc-item">风量24-27m&sup3;/min，低于美的/华帝的28-30</div>
+          <div class="xc-item">风灶联动不是无极调节，只有两档，体验一般</div>
+          <div class="xc-item">长期可靠性验证不足（2-3年用户反馈两极）</div>
+        </div>
+      </div>
+      <div class="xc-verdict"><strong>一句话判断：</strong>小米净烟机P2的IQV净烟技术是实打实的技术突破，实测净烟效果不输甚至优于方太老板。如果你家是米家生态+看重智能传感器+愿意接受偏大噪音，P2非常值得。但如果静音和售后便利性是刚需，方太（静音标杆）和美的（蒸汽自清洁）更稳。</div>
+    </div>
+  </div>
+
+  <!-- 汇总表 -->
+  <div class="category">
+    <div class="category-title"><span class="icon">📋</span> 一览汇总</div>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>品类</th>
+          <th>首推型号</th>
+          <th>年份</th>
+          <th>参考价</th>
+          <th>核心优势</th>
+          <th>备选型号（年份）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="cat">滚筒洗衣机</td>
+          <td>小天鹅 小乌梅3.0</td>
+          <td>2026</td>
+          <td>2,800-3,400元</td>
+          <td>超薄平嵌&middot;净泡除菌&middot;全能无短板</td>
+          <td>海尔 云溪376(2024)&middot;海尔 云溪3.0(2025)</td>
+        </tr>
+        <tr>
+          <td class="cat">立式空调</td>
+          <td>美的 酷省电Pro 3匹</td>
+          <td>2025</td>
+          <td>4,400-4,900元</td>
+          <td>710万+销量销冠&middot;AI省电&middot;双排铜管</td>
+          <td>格力 云锦三代(2024)&middot;华凌 神机二代(2025)</td>
+        </tr>
+        <tr>
+          <td class="cat">冰箱</td>
+          <td>海尔 小红花501L</td>
+          <td>2026</td>
+          <td>3,100-3,200元</td>
+          <td>双系统&middot;零嵌&middot;新国标一级</td>
+          <td>美的508(2024)&middot;华凌制冰款521L(2025)</td>
+        </tr>
+        <tr>
+          <td class="cat">油烟机</td>
+          <td>美的 小西梅 AK7 Pro</td>
+          <td>2026</td>
+          <td>3,400-3,500元</td>
+          <td>顶侧双吸&middot;蒸汽自清洁&middot;防倒灌</td>
+          <td>老板 小黑翼D1P(2025)&middot;华帝 S36(2026)</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:16px; font-size:14px; color:#666;">
+      <strong>全套预算参考：</strong>首推组合约 <span style="color:#e53935; font-weight:700;">13,700-15,000元</span>（国补后），加入备选机型后总选择范围约 <span style="color:#e53935; font-weight:700;">12,000-16,500元</span>。
+    </p>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠️ 购买提示：</strong>
+    <ul style="margin-top:8px; padding-left:20px;">
+      <li>以上价格为 2026 年 7 月各平台国补/活动参考到手价，实际以下单时为准，各平台价差约100-300元</li>
+      <li>冰箱务必认准 <strong>GB 12021.2—2025 新国标一级能效</strong>标识（6月1日实施，电耗降40%）</li>
+      <li>空调安装务必监督<strong>抽真空&ge;15分钟</strong>，否则影响制冷效果和寿命</li>
+      <li>洗衣机/冰箱注意提前测量橱柜尺寸，确认超薄零嵌含门深度是否适配</li>
+      <li>油烟机高层住户（10层以上）务必选静压&ge;1000Pa带智能巡航的机型</li>
+      <li>24-25年款关注是否仍有库存/仍在产，避免买到已换代下架的老型号</li>
+      <li>建议优先京东自营/品牌官方旗舰店购买，售后和延保更有保障</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    本报告基于 2026 年 7 月公开评测与市场数据整理，仅供参考<br>
+    数据来源：新浪科技、太平洋电脑网、今日头条、什么值得买、中国家电网等
+  </div>
+
+</div>
+</body>
+</html>
