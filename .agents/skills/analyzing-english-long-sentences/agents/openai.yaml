@@ -1,0 +1,7 @@
+interface:
+  display_name: "英语长难句拆解"
+  short_description: "逐层拆解英语复杂句，还原语法结构并给出翻译与简化句"
+  default_prompt: "使用 $analyzing-english-long-sentences 拆解下面的英语长难句。"
+
+policy:
+  allow_implicit_invocation: true
