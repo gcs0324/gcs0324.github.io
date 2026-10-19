@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>英语语法 & 单词书单 · 2026 版</title>
+<style>
+:root{
+  --bg:#0b0f17; --bg2:#111827; --card:#151c28; --card2:#1a2333;
+  --line:#253044; --line2:#1e293b;
+  --tx:#e6edf7; --tx2:#a8b6cc; --tx3:#6b7c96;
+  --acc:#38bdf8; --acc2:#22d3ee;
+  --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --pur:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+  line-height:1.75; font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px 100px}
+
+/* header */
+header{
+  padding:64px 0 40px; border-bottom:1px solid var(--line);
+  background:radial-gradient(900px 340px at 12% -10%,rgba(56,189,248,.13),transparent 65%);
+}
+.kicker{
+  display:inline-block;font-size:12px;letter-spacing:.18em;color:var(--acc);
+  border:1px solid rgba(56,189,248,.35);border-radius:999px;padding:4px 12px;margin-bottom:18px;
+}
+h1{font-size:36px;line-height:1.25;letter-spacing:-.5px;font-weight:700}
+h1 em{font-style:normal;color:var(--acc)}
+.sub{color:var(--tx2);margin-top:14px;font-size:15px;max-width:760px}
+.meta{color:var(--tx3);font-size:12.5px;margin-top:18px;display:flex;gap:18px;flex-wrap:wrap}
+.meta span::before{content:"·";margin-right:8px;color:var(--line)}
+
+/* sections */
+section{padding-top:52px}
+h2{
+  font-size:24px;font-weight:700;letter-spacing:-.2px;margin-bottom:6px;
+  display:flex;align-items:center;gap:12px;
+}
+h2 .num{
+  font-size:13px;color:var(--acc);border:1px solid rgba(56,189,248,.3);
+  background:rgba(56,189,248,.08);border-radius:8px;padding:3px 9px;font-weight:600;
+}
+h3{font-size:17px;font-weight:650;margin:30px 0 12px;color:var(--tx)}
+.lead{color:var(--tx2);margin-bottom:20px;max-width:800px}
+p{margin:10px 0;color:var(--tx2)}
+strong{color:var(--tx);font-weight:650}
+code{background:var(--card2);border:1px solid var(--line2);border-radius:5px;padding:1px 6px;font-size:13px;color:var(--acc2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* tldr */
+.tldr{
+  background:linear-gradient(160deg,rgba(56,189,248,.09),rgba(167,139,250,.06));
+  border:1px solid rgba(56,189,248,.28);border-radius:14px;padding:26px 28px;margin-top:32px;
+}
+.tldr h3{margin:0 0 14px;color:var(--acc);font-size:16px;letter-spacing:.02em}
+.tldr ol{margin:0;padding-left:20px}
+.tldr li{margin:9px 0;color:var(--tx)}
+.tldr li span{color:var(--tx2);font-size:14px}
+
+/* book card */
+.books{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.book{
+  background:var(--card);border:1px solid var(--line);border-radius:13px;padding:20px 22px;
+  transition:border-color .18s,transform .18s;
+}
+.book:hover{border-color:rgba(56,189,248,.4);transform:translateY(-1px)}
+.bk-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.bk-name{font-size:17px;font-weight:700;color:var(--tx)}
+.bk-author{font-size:13px;color:var(--tx3)}
+.bk-tags{display:flex;gap:7px;margin:11px 0 12px;flex-wrap:wrap}
+.tag{font-size:11.5px;padding:3px 9px;border-radius:6px;border:1px solid var(--line);color:var(--tx2);background:var(--card2)}
+.tag.hot{border-color:rgba(248,113,113,.4);color:#fca5a5;background:rgba(248,113,113,.08)}
+.tag.rec{border-color:rgba(52,211,153,.4);color:#6ee7b7;background:rgba(52,211,153,.08)}
+.tag.warn{border-color:rgba(251,191,36,.4);color:#fcd34d;background:rgba(251,191,36,.08)}
+.bk-body{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px;font-size:14px}
+.bk-body div{color:var(--tx2)}
+.bk-body b{color:var(--tx3);font-weight:600;margin-right:6px;font-size:13px}
+.bk-price{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:10px;margin-top:4px;font-size:13.5px}
+.bk-price b{color:var(--tx3)}
+.verified{color:var(--ok);font-size:12px}
+.unverified{color:var(--warn);font-size:12px}
+
+/* table */
+.tbl-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:660px}
+th{background:var(--card2);color:var(--tx);font-weight:650;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--line2);color:var(--tx2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--tx)}
+.pill{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:5px;font-weight:600}
+.pill.a{background:rgba(52,211,153,.14);color:#6ee7b7}
+.pill.b{background:rgba(56,189,248,.14);color:#7dd3fc}
+.pill.c{background:rgba(167,139,250,.14);color:#c4b5fd}
+.pill.d{background:rgba(251,191,36,.14);color:#fcd34d}
+
+/* callout */
+.callout{border-left:3px solid var(--acc);background:rgba(56,189,248,.06);border-radius:0 10px 10px 0;padding:14px 18px;margin:18px 0;font-size:14.5px;color:var(--tx2)}
+.callout.warn{border-color:var(--warn);background:rgba(251,191,36,.07)}
+.callout.bad{border-color:var(--bad);background:rgba(248,113,113,.07)}
+.callout.ok{border-color:var(--ok);background:rgba(52,211,153,.07)}
+.callout b{color:var(--tx)}
+
+/* decision svg box */
+.diag{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px}
+.diag svg{width:100%;height:auto;display:block}
+
+/* checklist */
+ul.ck{list-style:none;margin-top:12px}
+ul.ck li{padding:9px 0 9px 30px;position:relative;color:var(--tx2);border-bottom:1px solid var(--line2);font-size:14.5px}
+ul.ck li:last-child{border-bottom:none}
+ul.ck li::before{content:"✓";position:absolute;left:6px;top:9px;color:var(--ok);font-weight:700}
+ul.ck.no li::before{content:"✕";color:var(--bad)}
+ul.ck li b{color:var(--tx)}
+
+footer{margin-top:70px;padding-top:26px;border-top:1px solid var(--line);color:var(--tx3);font-size:13px;line-height:1.9}
+
+@media(max-width:720px){
+  h1{font-size:27px}
+  .bk-body{grid-template-columns:1fr}
+  .wrap{padding:0 16px 60px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">深度研究 · 书单</div>
+  <h1>英语语法 &amp; 单词：<em>到底该买哪几本</em></h1>
+  <p class="sub">市面上的英语书有三大坑：① 抄来抄去的「规则罗列派」；② 大而全但根本读不完的「砖头派」；③ 买回来只翻了前 20 页的「abandon 派」。这份书单按<strong>目的</strong>分类，不按销量排序。</p>
+  <div class="meta">
+    <span>整理时间 2026-09-29</span>
+    <span>价格已联网采集，随电商波动</span>
+    <span>标注核实等级</span>
+  </div>
+</header>
+
+<!-- TL;DR -->
+<div class="tldr">
+  <h3>TL;DR —— 如果你只想知道买什么</h3>
+  <ol>
+    <li><strong>语法只买一本。</strong>在职备考、时间极度稀缺 → <strong>田静《句句真研》（英语二版）</strong>；想顺便把语法体系真正补起来、不赶时间 → <strong>张满胜《英语语法新思维》中级</strong>。<span>别两本都买。</span></li>
+    <li><strong>单词书你已经有了，别再加。</strong><span>《考研词汇闪过》按考频分高频 / 中频 / 低频，一本用到底。多买一本 = 两本都背不完。</span></li>
+    <li><strong>唯一值得额外加的一本：</strong>词根词缀工具书 —— <strong>李平武《英语词根与单词的说文解字》</strong>或 <strong>韦氏小绿（Merriam-Webster's Vocabulary Builder）</strong>。<span>它不是用来"背"的，是用来查的，属于一次投入长期回报。</span></li>
+    <li><strong>不要买：</strong>语法大全类砖头书（薄冰 / 章振邦 / 张道真）当教材从头读。<span>它们是工具书，不是课本。</span></li>
+  </ol>
+</div>
+
+<!-- 0 决策 -->
+<section>
+  <h2><span class="num">00</span>先分清楚：你要的是「应试」还是「能力」</h2>
+  <p class="lead">这两条线推荐的书几乎不重叠。用应试书的思路去学能力，会得到一堆技巧但读不懂外刊；用能力书的思路去备考，会因为进度太慢而在考前崩溃。</p>
+
+  <div class="diag">
+    <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,PingFang SC,sans-serif">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#38bdf8"/>
+        </marker>
+      </defs>
+      <!-- root -->
+      <rect x="20" y="118" width="132" height="60" rx="10" fill="#1a2333" stroke="#38bdf8" stroke-width="1.4"/>
+      <text x="86" y="143" fill="#e6edf7" font-size="14.5" font-weight="700" text-anchor="middle">你的真实目标</text>
+      <text x="86" y="164" fill="#6b7c96" font-size="11.5" text-anchor="middle">先回答这个，再选书</text>
+
+      <line x1="152" y1="140" x2="196" y2="90" stroke="#38bdf8" stroke-width="1.4" marker-end="url(#ar)"/>
+      <line x1="152" y1="156" x2="196" y2="210" stroke="#38bdf8" stroke-width="1.4" marker-end="url(#ar)"/>
+
+      <!-- branch A -->
+      <rect x="200" y="60" width="150" height="60" rx="10" fill="#151c28" stroke="#34d399" stroke-width="1.4"/>
+      <text x="275" y="85" fill="#e6edf7" font-size="14" font-weight="700" text-anchor="middle">A · 应试拿分</text>
+      <text x="275" y="106" fill="#6b7c96" font-size="11.5" text-anchor="middle">考研 / 四六级 / 雅思</text>
+
+      <line x1="350" y1="90" x2="394" y2="90" stroke="#38bdf8" stroke-width="1.4" marker-end="url(#ar)"/>
+      <rect x="398" y="52" width="215" height="76" rx="10" fill="#111827" stroke="#253044"/>
+      <text x="505" y="76" fill="#e6edf7" font-size="13" font-weight="650" text-anchor="middle">田静《句句真研》</text>
+      <text x="505" y="95" fill="#a8b6cc" font-size="11.5" text-anchor="middle">目标：能拆长难句就行</text>
+      <text x="505" y="112" fill="#a8b6cc" font-size="11.5" text-anchor="middle">投入 30–40 小时即可见效</text>
+
+      <line x1="613" y1="90" x2="657" y2="90" stroke="#38bdf8" stroke-width="1.4" marker-end="url(#ar)"/>
+      <rect x="661" y="52" width="215" height="76" rx="10" fill="#111827" stroke="#253044"/>
+      <text x="768" y="76" fill="#e6edf7" font-size="13" font-weight="650" text-anchor="middle">《考研词汇闪过》</text>
+      <text x="768" y="95" fill="#a8b6cc" font-size="11.5" text-anchor="middle">按考频背，先吃高频词</text>
+      <text x="768" y="112" fill="#a8b6cc" font-size="11.5" text-anchor="middle">真题才是终极词汇表</text>
+
+      <!-- branch B -->
+      <rect x="200" y="180" width="150" height="60" rx="10" fill="#151c28" stroke="#a78bfa" stroke-width="1.4"/>
+      <text x="275" y="205" fill="#e6edf7" font-size="14" font-weight="700" text-anchor="middle">B · 重建能力</text>
+      <text x="275" y="226" fill="#6b7c96" font-size="11.5" text-anchor="middle">读外刊 / 写 / 长期用</text>
+
+      <line x1="350" y1="210" x2="394" y2="210" stroke="#38bdf8" stroke-width="1.4" marker-end="url(#ar)"/>
+      <rect x="398" y="172" width="215" height="76" rx="10" fill="#111827" stroke="#253044"/>
+      <text x="505" y="196" fill="#e6edf7" font-size="13" font-weight="650" text-anchor="middle">旋元佑《语法俱乐部》</text>
+      <text x="505" y="215" fill="#a8b6cc" font-size="11.5" text-anchor="middle">目标：搞懂为什么，不是背规则</text>
+      <text x="505" y="232" fill="#a8b6cc" font-size="11.5" text-anchor="middle">读完一次，受益十年</text>
+
+      <line x1="613" y1="210" x2="657" y2="210" stroke="#38bdf8" stroke-width="1.4" marker-end="url(#ar)"/>
+      <rect x="661" y="172" width="215" height="76" rx="10" fill="#111827" stroke="#253044"/>
+      <text x="768" y="196" fill="#e6edf7" font-size="13" font-weight="650" text-anchor="middle">剑桥「英语在用」系列</text>
+      <text x="768" y="215" fill="#a8b6cc" font-size="11.5" text-anchor="middle">目标：把规则变成能输出</text>
+      <text x="768" y="232" fill="#a8b6cc" font-size="11.5" text-anchor="middle">讲练一体，每单元 2 页</text>
+
+      <!-- bottom note -->
+      <text x="86" y="278" fill="#6b7c96" font-size="11.5" text-anchor="middle">两条线可以并存，但要分主次：备考期间以 A 为主，B 只做睡前读物</text>
+    </svg>
+  </div>
+
+  <div class="callout">
+    <b>一句大白话：</b>语法书分两种——一种是"教你认字"，告诉你这个句子由哪几块拼起来（应试书干的事）；一种是"教你造字"，告诉你为什么英语要这么拼（能力书干的事）。考研只考前者，但你工作后读英文文档靠的是后者。
+  </div>
+</section>
+
+<!-- 1 语法 -->
+<section>
+  <h2><span class="num">01</span>语法书：四类，按需取一本</h2>
+  <p class="lead">先说结论：语法书最大的浪费方式，是买一本 600 页的"语法大全"打算从头读到尾。语法书只有三种正确用法 —— <strong>跟着练</strong>（应试）、<strong>读懂逻辑</strong>（重建）、<strong>遇到问题翻一下</strong>（工具书）。</p>
+
+  <h3>A 类 · 应试速成 —— 目标就是"能拆长难句"</h3>
+  <div class="books">
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">句句真研</span><span class="bk-author">田静 主编 · 分英语一 / 英语二版</span></div>
+      <div class="bk-tags"><span class="tag rec">零基础友好</span><span class="tag hot">考研圈主流</span><span class="tag">全流程讲练</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>语法体系碎、看到长句就懵、需要有人手把手带的人</div>
+        <div><b>优点</b>从主谓宾定状补讲起，100% 真题例句，配"每日一句"长效训练</div>
+        <div><b>坑</b>讲得细 = 篇幅大，别指望一周刷完；跟课效果远好于纯看书</div>
+        <div><b>用法</b>每天精拆 10 个真题长难句，先自己切，再对解析</div>
+        <div class="bk-price"><b>价格</b>2027 版约 ¥54–65（京东领券后）　<span class="verified">已核实 · 2026-09-29 电商采集</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">考研英语长难句 · 三看妙解</span><span class="bk-author">张满胜 · 浙江教育出版社 2025-04</span></div>
+      <div class="bk-tags"><span class="tag rec">方法派</span><span class="tag">英一英二通用</span><span class="tag">新书</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>单词认识但句子读不通、想要一套可复用的拆解流程</div>
+        <div><b>优点</b>独门"三看"：透视<strong>动词</strong>（定句型）、<strong>连词</strong>（定从句）、<strong>介词</strong>（定短语），三步拆完</div>
+        <div><b>坑</b>偏方法论，需要先有基本句型概念，纯零基础会卡</div>
+        <div><b>用法</b>先学三看框架，再拿真题句套流程，比背语法条目快得多</div>
+        <div class="bk-price"><b>价格</b>新书定价区间 ¥50–70　<span class="unverified">部分核实 · ISBN 9787572296291，实售价未逐店确认</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">长难句解密</span><span class="bk-author">何凯文</span></div>
+      <div class="bk-tags"><span class="tag">技巧向</span><span class="tag warn">需有基础</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>语法尚可、只想学"快速定位主干"技巧的人</div>
+        <div><b>优点</b>短平快，篇幅不大，适合时间极紧的人突击</div>
+        <div><b>坑</b>技巧型书籍替代不了体系；基础差的人用了会觉得"好像会了又没会"</div>
+        <div><b>用法</b>作为田静 / 张满胜之后的补充，不适合当唯一语法书</div>
+        <div class="bk-price"><b>价格</b>约 ¥30–45　<span class="unverified">未核实 · 参考区间</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>B 类 · 体系重建 —— 想真正搞懂"英语为什么这么说话"</h3>
+  <div class="books">
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">旋元佑文法（原《英文魔法师之语法俱乐部》）</span><span class="bk-author">旋元佑 · 台灣眾文 2019 / 大陆九州版 2001</span></div>
+      <div class="bk-tags"><span class="tag rec">口碑天花板</span><span class="tag hot">大陆版已绝版</span><span class="tag">理解派</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>受够了背规则、想知道"为什么"的人；已有一定基础会更好读</div>
+        <div><b>优点</b>把 24 种时态简化成"简单式 + 完成式"两种状态；讲"定冠词的所谓例外其实不是例外"这类洞察；豆瓣 9.4–9.5（5000+ 人评价）</div>
+        <div><b>坑</b><strong>大陆简体版（九州出版社 2001）已绝版</strong>，市面多为影印/电子版；台湾版《旋元佑文法》2019 年由眾文重新出版（繁体竖排可选、648 页）</div>
+        <div><b>用法</b>当"读物"通读一遍，不要当练习册；读完再看任何语法书都会变简单</div>
+        <div class="bk-price"><b>价格</b>台版定价 NT$750，博客来约 NT$592（≈¥130）；旧版/影印本 ¥20–40 不等　<span class="verified">已核实 · 2026-09-29 查博客来 / 孔夫子</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">英语语法新思维（初级 / 中级 / 高级）</span><span class="bk-author">张满胜 · 新东方</span></div>
+      <div class="bk-tags"><span class="tag rec">中文语境最强</span><span class="tag">分级清晰</span><span class="tag warn">篇幅极大</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>想系统补语法、且愿意投入时间的人；<strong>中级</strong>一册覆盖三大从句 + 完成时态 + 虚拟语气，是性价比最高的一本</div>
+        <div><b>优点</b>用中文母语者的思维讲英语，把"规则"讲成"逻辑"；例句质量高；重印超百次</div>
+        <div><b>坑</b>细到"看完需要很久"，不适合考前突击；三册全买大概率吃灰</div>
+        <div><b>用法</b>只买<strong>中级</strong>；按薄弱点跳读，别从头啃</div>
+        <div class="bk-price"><b>价格</b>单册约 ¥45–60，三册套装约 ¥130–160　<span class="unverified">部分核实 · 第 2 版在售，实售价波动大</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">赖世雄经典英语语法</span><span class="bk-author">赖世雄 · 外文出版社</span></div>
+      <div class="bk-tags"><span class="tag">入门最友好</span><span class="tag">配音频</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>基础真的从零开始、或者多年没碰英语需要"重启"</div>
+        <div><b>优点</b>条列式讲解 + 每回习题有详解，浅显到不需要老师；喜马拉雅有配套音频，通勤能听</div>
+        <div><b>坑</b>偏"规则罗列"，讲到长难句层面就力不从心；考研党读到中后段会不够用</div>
+        <div><b>用法</b>基础薄弱者的第一本，读完再上田静或张满胜</div>
+        <div class="bk-price"><b>价格</b>新版定价约 ¥45–49，电商常年在 ¥30–40　<span class="verified">已核实 · ISBN 9787119120287</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>C 类 · 场景练习 —— 把"看懂的规则"变成"能写出来"</h3>
+  <div class="books">
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">剑桥「英语在用」English Grammar in Use</span><span class="bk-author">Raymond Murphy · 外研社引进</span></div>
+      <div class="bk-tags"><span class="tag rec">全球销量千万级</span><span class="tag">讲练一体</span><span class="tag">三级可选</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>想提升实际输出（写邮件、写作、口语）的人；四六级以上水平建议直接上<strong>中级</strong></div>
+        <div><b>优点</b>每单元固定两页：左页讲解 + 右页练习；按"功能"分章（怎么提建议 / 怎么描述过去经历）而非按词法句法；第五版中文版配视频讲解</div>
+        <div><b>坑</b>体系不如国内教材完整，应试指向性弱；练习答案在书后，别偷看</div>
+        <div><b>用法</b>当工具书按薄弱点查，不要从第一页读到 145 页</div>
+        <div><div class="bk-price"><b>价格</b>中级（第五版中文版）定价 ¥88，电商实付常见 ¥50–70；配套练习册约 ¥24–35　<span class="verified">已核实 · ISBN 9787521361452，外研社 2025-03</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>D 类 · 工具书 —— 只查不读</h3>
+  <div class="callout warn">
+    <b>这一类请去图书馆借，或者买二手，不要当教材。</b>它们的作用是"遇到某个语法点想深挖时翻一下"，不是"从头读到尾"。
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>书名</th><th>作者</th><th>特点</th><th>什么时候翻它</th></tr>
+      <tr><td><b>薄冰《高级英语语法》</b></td><td>薄冰</td><td>偏理论创新，仅"名词可数性"就写 17 页</td><td>想搞清楚某个刁钻语法点的学理</td></tr>
+      <tr><td><b>张道真《实用英语语法》</b></td><td>张道真</td><td>偏教学实用，普通学习者最易上手的一本</td><td>当作"汉语版语法辞典"查条目</td></tr>
+      <tr><td><b>章振邦《新编英语语法教程》</b></td><td>章振邦</td><td>偏体系构建（层次分析法），高校教材常用</td><td>需要系统性参考、写东西要严谨时</td></tr>
+      <tr><td><b>叶永昌《英语阅读参考手册》</b></td><td>叶永昌</td><td>专治"每个词都认识但句子读不懂"</td><td>精读外刊遇到卡壳句</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 2 单词 -->
+<section>
+  <h2><span class="num">02</span>单词书：应试只留一本，另加一本词根工具书</h2>
+  <p class="lead">单词书是最容易买重的品类。原则很硬：<strong>同一时期只背一本</strong>。三本各背两页，不如一本背三遍。真正拉开差距的不是选哪本，是背完没有。</p>
+
+  <h3>A 类 · 考研应试 — 四选一，不要多选</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>书名</th><th>编排逻辑</th><th>适合谁</th><th>短板</th><th>价格参考</th></tr>
+      <tr>
+        <td><b>考研词汇闪过</b><span class="pill a" style="margin-left:6px">推荐</span></td>
+        <td>按<strong>真题考频</strong>把 5500 词切成高频 / 中频 / 低频 / 偶考 / 基础</td>
+        <td>时间紧、要抓大放小的人（← 你的情况）</td>
+        <td>例句密度不如红宝书</td>
+        <td>2027 版约 ¥48–75<br><span class="verified">已核实 · 京东自营 / 天猫比价</span></td>
+      </tr>
+      <tr>
+        <td><b>红宝书</b></td>
+        <td>收词最全（约 8700），按必考 / 基础 / 超纲分级</td>
+        <td>基础一般但决心系统打底、肯花时间的人</td>
+        <td>太厚，容易半途而废</td>
+        <td>2027 版约 ¥90–95<br><span class="verified">已核实 · 版本价差大，注意别买错装帧</span></td>
+      </tr>
+      <tr>
+        <td><b>恋练有词</b></td>
+        <td>真题短文串记，语境记忆，配视频</td>
+        <td>受不了干背词条、喜欢听课的人</td>
+        <td>词汇密度低，查漏补不够直接</td>
+        <td>约 ¥50–70<br><span class="unverified">未核实 · 参考区间</span></td>
+      </tr>
+      <tr>
+        <td><b>新东方乱序版</b></td>
+        <td>打乱字母顺序，避免 abandon 效应，每词配真题例句</td>
+        <td>喜欢传统词汇书、需要例句辅助的人</td>
+        <td>没有考频分级，不知道该先背谁</td>
+        <td>约 ¥50–65<br><span class="unverified">未核实 · 参考区间</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="callout ok">
+    <b>你已经手握最优解。</b>《考研词汇闪过》的考频分级正好对应"时间稀缺"这个约束 —— 高频词优先，剩下的靠真题补。再加一本单词书只会稀释你的复习轮次。
+  </div>
+
+  <h3>B 类 · 词根词缀 — 一次投入，长期回报</h3>
+  <p>大白话：词根就是英语的"偏旁部首"。<code>spect</code>= 看，所以 inspect（往里看=检查）、respect（反复看=尊重）、prospect（往前看=前景）是一家子。掌握常见 400 个词根，你遇到生词能猜个八九不离十 —— 这才是"背单词"的杠杆。</p>
+
+  <div class="books">
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">英语词根与单词的说文解字</span><span class="bk-author">李平武</span></div>
+      <div class="bk-tags"><span class="tag rec">国内公认第一</span><span class="tag warn">曾绝版</span><span class="tag">半学术</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>想把词根体系真正学明白的人</div>
+        <div><b>优点</b>讲透了"音变规律"（为什么 fact / fect / fic 是同一个根），这是国内其他词根书几乎不讲的；第一章值得读三遍</div>
+        <div><b>坑</b>没有音标；只详讲最常用 100 个词根，其余 320 个只是归类；<strong>市面流通少，多为二手 / 电子版</strong></div>
+        <div><b>用法</b>先读第一章建立框架，之后当工具书查</div>
+        <div class="bk-price"><b>价格</b>全新难寻，二手 ¥30–80 浮动　<span class="unverified">部分核实 · 绝版信息来自 2021 年报道，当前在售状态未逐店确认</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">韦氏小绿 · Merriam-Webster's Vocabulary Builder</span><span class="bk-author">Mary Wood Cornog · 北大出版社有英汉双解版</span></div>
+      <div class="bk-tags"><span class="tag rec">入门最优</span><span class="tag">单元式</span><span class="tag">有中英对照版</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>词根零基础，想低门槛上手</div>
+        <div><b>优点</b>按词根分 30 个单元，每单元讲 4 个词左右，结尾还有源自神话的"词汇故事"；精讲而非堆量</div>
+        <div><b>坑</b>词汇量偏少，属于"扩词手册"不是词典；用韦氏音标，需要适应</div>
+        <div><b>用法</b>每天一个单元，一个月过完，之后遇到生词试着自己拆</div>
+        <div class="bk-price"><b>价格</b>英汉双解版约 ¥40–60　<span class="verified">已核实 · 北大出版社 2021-11 版存在</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">Word Power Made Easy</span><span class="bk-author">Norman Lewis</span></div>
+      <div class="bk-tags"><span class="tag hot">经典但难</span><span class="tag">练习量大</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>已有 4000+ 词汇量、想往 8000–10000 冲的人</div>
+        <div><b>优点</b>按主题（性格 / 职业 / 医学…）组织，讲词源讲得系统，练习设计很好</div>
+        <div><b>坑</b>原是写给英语母语者的，词偏难；音标体系自创比较怪；例句偏少；部分版本装订质量差</div>
+        <div><b>用法</b>不适合备考期间用，适合考完或工作中长期提升</div>
+        <div class="bk-price"><b>价格</b>引进版约 ¥40–70　<span class="unverified">未核实 · 参考区间</span></div>
+      </div>
+    </div>
+
+    <div class="book">
+      <div class="bk-head"><span class="bk-name">Verbal Advantage</span><span class="bk-author">Charles Harrington Elster</span></div>
+      <div class="bk-tags"><span class="tag">高阶</span><span class="tag">近义词辨析强</span></div>
+      <div class="bk-body">
+        <div><b>适合</b>词汇量已不错、想提升用词精准度的人</div>
+        <div><b>优点</b>10 个级别递进，每级 50 词；用一串近义词去解释生词，顺便复习；有作者全文配音</div>
+        <div><b>坑</b>难度偏高，考研阶段用不上；开本大、价格也最贵</div>
+        <div><b>用法</b>通勤音频 + 纸质书对照，属于"英语爱好者的享受"</div>
+        <div class="bk-price"><b>价格</b>约 ¥80–120　<span class="unverified">未核实 · 参考区间</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>C 类 · 场景词汇 — 让单词"能用"而不是"认识"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>书名</th><th>定位</th><th>说明</th></tr>
+      <tr><td><b>剑桥 English Vocabulary in Use（中级 / 高级）</b></td><td>场景化词汇</td><td>和语法在用同一套路子：左讲右练。中级约 ¥39.9（定价），高级约 ¥39.9</td></tr>
+      <tr><td><b>4000 Essential English Words（6 册）</b></td><td>高频词分级读物</td><td>Paul Nation 编，每册 600–800 词，配例句和练习，适合打基础</td></tr>
+      <tr><td><b>刘毅单词系列（5000 / 10000 / 22000）</b></td><td>国内考试刷词</td><td>大学精读老师口口相传的一套，趣味性一般但适合反复刷</td></tr>
+      <tr><td><b>504 Absolutely Essential Words</b></td><td>高频核心 504 词</td><td>薄，适合想快速过一遍核心词的人</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3 定制方案 -->
+<section>
+  <h2><span class="num">03</span>给你的一套具体配置</h2>
+  <p class="lead">约束条件：数学二 + 408 占掉绝大部分时间，英语的目标是<strong>稳拿分而非冲高分</strong>，每天能匀给英语的时间大概率不超过 1 小时。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>模块</th><th>买什么</th><th>怎么用</th><th>预算</th></tr>
+      <tr>
+        <td><b>语法</b></td>
+        <td>田静《句句真研》<span class="pill b" style="margin-left:6px">英语二版</span></td>
+        <td>前 3 周集中过一遍框架，之后每天拆 5–10 个真题长难句维持手感</td>
+        <td>≈¥55</td>
+      </tr>
+      <tr>
+        <td><b>单词</b></td>
+        <td>《考研词汇闪过》（你已有）</td>
+        <td>先只背高频词，背完再中频；用 APP（墨墨 / 不背）做碎片复习，书做主攻</td>
+        <td>¥0</td>
+      </tr>
+      <tr>
+        <td><b>词根（可选加）</b></td>
+        <td>韦氏小绿 或 李平武词根</td>
+        <td>每天 15 分钟，当调剂，不占主时间；目标是长期收益不是应试</td>
+        <td>≈¥50</td>
+      </tr>
+      <tr>
+        <td><b>真题（必须）</b></td>
+        <td>英语二真题 + 解析</td>
+        <td>真题 &gt; 一切模拟题。基础弱选逐句精讲型，基础好选命题思路型</td>
+        <td>—</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="callout">
+    <b>如果你考的是英语一：</b>把《句句真研》换成英语一版即可，其余不变。英语一的长难句难度更高，建议在田静之外再看一眼张满胜的"三看"方法。
+  </div>
+
+  <div class="callout warn">
+    <b>时间账要算清楚。</b>语法这件事在考研里只服务于"读懂句子"，它的天花板很低 —— 能拆长难句就够了，不必把虚拟语气的七种形态背到滚瓜烂熟。把省下来的时间给数学和 408，边际收益高得多。
+  </div>
+</section>
+
+<!-- 4 避坑 -->
+<section>
+  <h2><span class="num">04</span>避坑清单</h2>
+  <ul class="ck no">
+    <li><b>不要同时用两本单词书。</b>换书的冲动 = 背不下去的借口。选定一本，背到考前。</li>
+    <li><b>不要买"语法大全"当教材从头读。</b>薄冰 / 张道真 / 章振邦都是工具书，不是课本。</li>
+    <li><b>不要把单词书当阅读材料翻。</b>正确动作是"盖住释义 → 主动回想 → 对不上就标记 → 第二天只复习标记词"。看一眼不算背。</li>
+    <li><b>不要依赖联想法。</b>"custodian 音似卡死偷电的 → 管理员"这种偶尔用可以，但它只解决"消除陌生感"，对"会用"帮助接近零，还容易记歪。</li>
+    <li><b>不要买盗版旋元佑。</b>《语法俱乐部》大陆版已绝版，网上流传的多为影印或拼装版，排版错乱会严重劝退。真想读就买台版《旋元佑文法》。</li>
+    <li><b>不要买非最新版的考研书。</b>考纲有调整，2027 备考就用 2027 版，别贪便宜买 25 版库存。</li>
+  </ul>
+
+  <h3>该做的</h3>
+  <ul class="ck">
+    <li><b>背单词要有"主动回忆"。</b>能不看提示说出意思，才算过了这个词。</li>
+    <li><b>真题是最珍贵的材料。</b>不做模拟题，真题至少过两遍，第二遍买不带解析的便宜套卷。</li>
+    <li><b>语法学到"能拆句"就停手。</b>考研不考语法选择题，考的是你能不能读懂。</li>
+    <li><b>配合大量阅读。</b>单词书解决"认识"，阅读解决"会用"。两者缺一不可。</li>
+  </ul>
+</section>
+
+<footer>
+  <div><strong>核实说明：</strong>标"已核实"的价格与版本信息来自 2026-09-29 对出版社目录、电商自营页面、图书数据库的实时查询；标"未核实 / 部分核实"的为参考区间，下单前请以商品页实际标价为准。电商价格随促销活动波动较大，同一本书不同装帧（线装 / 精装 / 平铺版）价差可达数十元。</div>
+  <div style="margin-top:10px">主要信息来源：外语教学与研究出版社 2024 图书目录（剑桥英语在用系列定价）、京东 / 天猫自营商品页（考研书实售价）、博客来与 momo 购物网（旋元佑文法台版）、豆瓣读书（评分与评价数）、孔夫子旧书网（版本与 ISBN）、新东方考研网资料推荐。</div>
+</footer>
+
+</div>
+</body>
+</html>

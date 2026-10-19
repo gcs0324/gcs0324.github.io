@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研数二 + 408 · 7月第1-2周学习计划</title>
+<style>
+  :root {
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --border: #e2e6ed;
+    --blue-bg: #e8f0fe;
+    --blue-border: #a8c8fa;
+    --blue-text: #1a56db;
+    --green-bg: #e6f4ea;
+    --green-border: #81c995;
+    --green-text: #137333;
+    --yellow-bg: #fef7e0;
+    --yellow-border: #fdd663;
+    --yellow-text: #b06000;
+    --red-bg: #fce8e6;
+    --red-border: #f28b82;
+    --red-text: #c5221f;
+    --code-bg: #f4f4f5;
+    --header-bg: #1a1a2e;
+    --header-text: #e8eaed;
+    --accent: #1a56db;
+    --accent-light: #e8f0fe;
+    --math-color: #1a56db;
+    --ds-color: #9334e6;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    padding: 32px 0 28px;
+    text-align: center;
+    /* header 随页面正常滚动 */
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: 1px; }
+  .header .subtitle { font-size: 14px; color: #94a3b8; margin-top: 6px; }
+  .header .stats {
+    display: flex; justify-content: center; gap: 32px; margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .header .stat-item {
+    text-align: center;
+  }
+  .header .stat-num { font-size: 28px; font-weight: 800; }
+  .header .stat-label { font-size: 12px; color: #94a3b8; }
+  .stat-num.math { color: #60a5fa; }
+  .stat-num.ds { color: #c084fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  /* 周标题 */
+  .week-section { margin-bottom: 40px; }
+  .week-title {
+    font-size: 20px; font-weight: 700; padding: 12px 20px;
+    border-radius: 10px 10px 0 0; display: flex; align-items: center; gap: 10px;
+  }
+  .week-title.math { background: #dbeafe; color: #1e40af; }
+  .week-title.ds { background: #f3e8ff; color: #6b21a8; }
+  .week-title .badge {
+    font-size: 12px; padding: 2px 10px; border-radius: 12px; font-weight: 600;
+  }
+  .week-title.math .badge { background: #60a5fa; color: #fff; }
+  .week-title.ds .badge { background: #c084fc; color: #fff; }
+
+  /* 折叠面板 */
+  details.chapter {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  details.chapter:hover { box-shadow: var(--shadow-lg); }
+  details.chapter[open] { border-left: 4px solid var(--accent); }
+
+  summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    border-radius: 8px;
+    list-style: none;
+    transition: background 0.15s;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: var(--accent-light); }
+  details.chapter[open] > summary { background: var(--accent-light); border-radius: 8px 8px 0 0; }
+
+  .summary-left { display: flex; align-items: center; gap: 10px; }
+  .summary-left .icon { font-size: 18px; }
+  .summary-right { display: flex; align-items: center; gap: 12px; }
+  .time-tag {
+    font-size: 12px; color: var(--text-secondary); font-weight: 400;
+    background: #f1f3f4; padding: 2px 10px; border-radius: 8px;
+  }
+  .expand-icon { font-size: 14px; color: #999; transition: transform 0.2s; }
+  details.chapter[open] .expand-icon { transform: rotate(180deg); }
+
+  .chapter-body { padding: 8px 20px 20px; }
+
+  /* 标注框 */
+  .callout {
+    border-radius: 6px; padding: 10px 16px; margin: 12px 0;
+    font-size: 14px; line-height: 1.7;
+  }
+  .callout.definition { background: var(--blue-bg); border-left: 4px solid var(--blue-border); color: #1a3a6b; }
+  .callout.tip { background: var(--green-bg); border-left: 4px solid var(--green-border); color: #14532d; }
+  .callout.caution { background: var(--yellow-bg); border-left: 4px solid var(--yellow-border); color: #7c4a00; }
+  .callout.error { background: var(--red-bg); border-left: 4px solid var(--red-border); color: #8b1a1a; }
+  .callout strong { display: block; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* 表格 */
+  table {
+    width: 100%; border-collapse: collapse; margin: 12px 0;
+    font-size: 14px; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: #f8f9fa; font-weight: 600; padding: 10px 12px;
+    text-align: left; border-bottom: 2px solid var(--border); font-size: 13px;
+    color: var(--text-secondary);
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f3f4; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfc; }
+
+  /* 代码块 */
+  pre {
+    background: #282c34; color: #abb2bf; border-radius: 8px;
+    padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.6;
+    margin: 12px 0; font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", "SF Mono", monospace;
+  }
+  pre .kw { color: #c678dd; }
+  pre .fn { color: #61afef; }
+  pre .cm { color: #5c6370; font-style: italic; }
+  pre .str { color: #98c379; }
+  pre .num { color: #d19a66; }
+  pre .op { color: #56b6c2; }
+
+  code.inline {
+    background: #f4f4f5; color: #c5221f; padding: 1px 6px;
+    border-radius: 4px; font-size: 13px; font-family: "Fira Code", "SF Mono", monospace;
+  }
+
+  /* 例题步骤 */
+  .example { margin: 16px 0; }
+  .example-title {
+    font-weight: 700; font-size: 14px; color: var(--accent);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .example-title::before { content: "📐"; }
+  .step { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0; }
+  .step-num {
+    background: var(--accent); color: #fff; min-width: 22px; height: 22px;
+    border-radius: 50%; text-align: center; font-size: 12px; line-height: 22px;
+    font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+
+  .formula {
+    text-align: center; font-size: 17px; margin: 12px 0;
+    font-family: "KaTeX_Main", "Times New Roman", serif;
+    font-style: italic; letter-spacing: 0.5px; color: #1a1a2e;
+  }
+
+  /* 检查点汇总 */
+  .checkpoint {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px solid #dee2e6; border-radius: 12px; padding: 24px;
+    margin-top: 32px;
+  }
+  .checkpoint h2 { font-size: 20px; margin-bottom: 16px; color: #1a1a2e; }
+  .checkpoint table th { background: #e9ecef; }
+  .checkmark { color: #137333; font-weight: 700; }
+  .cross { color: #c5221f; }
+
+  /* 目标分值 */
+  .goal-bar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    padding: 10px 16px; background: #f8f9fa; border-radius: 8px;
+    font-size: 13px;
+  }
+  .goal-bar .label { font-weight: 600; color: var(--text-secondary); }
+  .goal-bar .value { font-weight: 700; }
+  .goal-bar .value.blue { color: var(--accent); }
+  .goal-bar .value.green { color: #137333; }
+
+  /* 公式卡片 */
+  .formula-card {
+    background: #fafbfc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; margin: 10px 0;
+  }
+  .formula-card .card-title { font-weight: 600; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+
+  /* 响应式 */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 20px; }
+    .header .stats { gap: 16px; }
+    .summary-right { display: none; }
+    .container { padding: 12px 8px 32px; }
+    pre { font-size: 12px; }
+  }
+
+  .toc { margin: 20px 0; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- ======== HEADER ======== -->
+<div class="header">
+  <h1>数二 + 408 · 7月第1-2周 · 在职18h/周</h1>
+  <p class="subtitle">得分导向 · 手算/手写规范 · 面向非全计算机目标300分</p>
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-num math">18h</div>
+      <div class="stat-label">数学二 · 总时长</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num ds">18h</div>
+      <div class="stat-label">408专业课 · 总时长</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#e2e8f0">300</div>
+      <div class="stat-label">目标总分</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" style="color:#fbbf24">29</div>
+      <div class="stat-label">覆盖知识点</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ================================================================ -->
+<!-- 第一周：数学二 — 极限 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title math">
+    📐 第一周 · 数学二：极限
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 1.1 七种不定式 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">1.1</span> 七种不定式</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-5分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">选择/填空必考</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        当 x→x₀（或 x→∞）时，若 f(x) 和 g(x) 的极限无法直接确定，称为<strong>不定式</strong>。共七种类型，解题思路统一为<strong>"识别→转化→求解"</strong>三步法。
+      </div>
+
+      <table>
+        <tr><th>类型</th><th>识别特征</th><th>转化策略</th><th>真题风格例题</th></tr>
+        <tr>
+          <td><strong>0/0</strong></td>
+          <td>分子分母同时→0</td>
+          <td>洛必达 / 等价无穷小 / 泰勒展开</td>
+          <td><code class="inline">lim(x→0) (e^x − 1 − x) / x²</code> ➜ 泰勒：=1/2</td>
+        </tr>
+        <tr>
+          <td><strong>∞/∞</strong></td>
+          <td>分子分母同时→∞</td>
+          <td>洛必达 / 抓大头（多项式比阶）</td>
+          <td><code class="inline">lim(x→∞)(3x³+2x)/(5x³−x²)</code> ➜ 抓大头：=3/5</td>
+        </tr>
+        <tr>
+          <td><strong>0·∞</strong></td>
+          <td>一因子→0，另一→∞</td>
+          <td>转化为 0/0：把趋于0的因子移到分母</td>
+          <td><code class="inline">lim(x→0⁺) x·ln x</code> ➜ 写成 lnx/(1/x) ➜ 洛必达 =0</td>
+        </tr>
+        <tr>
+          <td><strong>∞−∞</strong></td>
+          <td>两项均→∞，差不定</td>
+          <td>通分（分式差）/ 有理化（根式差）</td>
+          <td><code class="inline">lim(x→0)(1/x − 1/sin x)</code> ➜ 通分 ➜ 洛必达 =0</td>
+        </tr>
+        <tr>
+          <td><strong>1^∞</strong></td>
+          <td>底→1，指数→∞</td>
+          <td>取对数，用重要极限 lim(1+x)^(1/x)=e</td>
+          <td><code class="inline">lim(x→0)(1+sin x)^(1/x)</code> ➜ =e</td>
+        </tr>
+        <tr>
+          <td><strong>∞^0</strong></td>
+          <td>底→∞，指数→0</td>
+          <td>取对数化为 0·∞，再化为 0/0</td>
+          <td><code class="inline">lim(x→∞) x^(1/x)</code> ➜ 取对数 ➜ =1</td>
+        </tr>
+        <tr>
+          <td><strong>0^0</strong></td>
+          <td>底→0，指数→0</td>
+          <td>取对数化为 0·∞</td>
+          <td><code class="inline">lim(x→0⁺) x^x</code> ➜ 取对数 ➜ =1</td>
+        </tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧</strong>
+        <strong>三步法口诀：</strong>①先看是不是不定式（直接代入判断）→ ②确定类型选策略 → ③执行计算。遇到 0·∞ 永远先转化为 0/0；遇到 1^∞ 永远取对数用重要极限。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 不是不定式还强行用洛必达（如 lim(x→1) x²=1，直接代入即可）；② ∞−∞ 不分式就硬减（必须通分或有理化）；③ 1^∞ 直接认为等于1（大错！极限不一定为1）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.2 等价无穷小 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">1.2</span> 等价无穷小</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">极限计算的加速器</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        当 x→0 时，若 lim f(x)/g(x)=1，则称 f(x) 与 g(x) 为<strong>等价无穷小</strong>，记作 f(x)∼g(x)。等价无穷小替换是求极限最常用的"简化"手段。
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 10个核心等价无穷小公式（x→0）</div>
+        <table>
+          <tr><th>#</th><th>原函数</th><th>等价无穷小</th><th>#</th><th>原函数</th><th>等价无穷小</th></tr>
+          <tr><td>1</td><td>sin x</td><td>∼ x</td><td>6</td><td>ln(1+x)</td><td>∼ x</td></tr>
+          <tr><td>2</td><td>tan x</td><td>∼ x</td><td>7</td><td>e^x − 1</td><td>∼ x</td></tr>
+          <tr><td>3</td><td>arcsin x</td><td>∼ x</td><td>8</td><td>a^x − 1</td><td>∼ x·ln a</td></tr>
+          <tr><td>4</td><td>arctan x</td><td>∼ x</td><td>9</td><td>(1+x)^α − 1</td><td>∼ αx</td></tr>
+          <tr><td>5</td><td>1−cos x</td><td>∼ x²/2</td><td>10</td><td>x−sin x</td><td>∼ x³/6</td></tr>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 替换原则</strong>
+        <strong>乘除直接换（无条件）：</strong>在乘积或因式中，等价无穷小可以直接替换。<br>
+        <strong>加减有条件（谨慎）：</strong>只有被替换的部分是<strong>更高阶的无穷小</strong>时才能换。一般原则：加减法中能不用就不用，先用泰勒展开验证再决定。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题1：先等价简化再洛必达</div>
+        <div class="step"><span class="step-num">1</span> lim(x→0)(tan x − sin x)/x³ — 识别：0/0型</div>
+        <div class="step"><span class="step-num">2</span> 注意：tan x − sin x 是加减，不能分别替换！正确做法：提出sin x → sin x(1/cos x − 1)=sin x·(1−cos x)/cos x</div>
+        <div class="step"><span class="step-num">3</span> sin x ∼ x, 1−cos x ∼ x²/2 → 原式 = x·(x²/2)/x³ = <strong>1/2</strong></div>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题2：纯等价替换</div>
+        <div class="step"><span class="step-num">1</span> lim(x→0)(e^x − 1)(sin 2x)/[x·ln(1+3x)]</div>
+        <div class="step"><span class="step-num">2</span> 全在乘除中，直接换：e^x−1∼x, sin2x∼2x, ln(1+3x)∼3x</div>
+        <div class="step"><span class="step-num">3</span> = x·2x/(x·3x) = <strong>2/3</strong></div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 加减法中直接套用等价替换（如 tan x−sin x 直接写成 x−x=0 ❌）；② 忽略替换条件"x→0"，当 x 趋近于其他值时公式不成立；③ 1−cos x 记成 x² 而忘记除以2。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.3 洛必达法则 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.3</span> 洛必达法则</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">0/0和∞/∞的标配解法</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        若 lim f(x)/g(x) 为 0/0 或 ∞/∞ 型，且 f'(x) 和 g'(x) 在去心邻域内可导，g'(x)≠0，则<strong>lim f(x)/g(x) = lim f'(x)/g'(x)</strong>（若右侧极限存在或为∞）。
+      </div>
+
+      <div class="callout caution">
+        <strong>⚠️ 使用前提（三个条件缺一不可）</strong>
+        ① 必须是不定式 <strong>0/0</strong> 或 <strong>∞/∞</strong>；② 分子分母在去心邻域内<strong>可导</strong>且分母导数≠0；③ 求导后的极限<strong>存在或为∞</strong>。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见陷阱</strong>
+        <strong>陷阱1：</strong>非不定式直接代入就行，不要用洛必达。<br>
+        <strong>陷阱2：</strong>求导后极限不存在（如震荡），<strong>不代表原极限不存在</strong>！典型反例：lim(x→∞)(x+sin x)/x = 1，但洛必达求导后 lim(1+cos x)/1 极限不存在——此时洛必达失效，应改用夹逼或其他方法。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧</strong>
+        <strong>组合拳：</strong>等价无穷小（简化表达式）→ 洛必达（处理不定式）→ 等价无穷小（再次简化）。单独使用洛必达容易越导越复杂，必须搭配等价无穷小使用。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：等价+洛必达组合</div>
+        <div class="step"><span class="step-num">1</span> lim(x→0)(e^x − e^(−x) − 2x)/(x − sin x)</div>
+        <div class="step"><span class="step-num">2</span> 等价：x−sin x ∼ x³/6；分子洛必达：e^x+e^(−x)−2 ➜ 再用泰勒或再洛两次</div>
+        <div class="step"><span class="step-num">3</span> 泰勒法更快：e^x=1+x+x²/2+x³/6+o(x³)，e^(−x)=1−x+x²/2−x³/6+o(x³)，代入分子=2·x³/6，分母=x³/6 ➜ <strong>= 2</strong></div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.4 泰勒展开 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.4</span> 泰勒展开</span>
+      <span class="summary-right"><span class="time-tag">约2h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">极限计算的终极武器</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        泰勒公式将函数在某点展开为多项式+余项。对于极限计算，我们使用<strong>带皮亚诺余项的麦克劳林公式</strong>（在x=0处展开）。展开到<strong>与分母同阶</strong>即可消掉不定式。
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 6个标准展开式（x→0，带皮亚诺余项 o(xⁿ)）</div>
+        <table>
+          <tr><th>函数</th><th>泰勒展开式</th></tr>
+          <tr><td>eˣ</td><td>1 + x + x²/2! + x³/3! + ... + xⁿ/n! + o(xⁿ)</td></tr>
+          <tr><td>sin x</td><td>x − x³/3! + x⁵/5! − x⁷/7! + ... + o(x²ⁿ⁺¹)</td></tr>
+          <tr><td>cos x</td><td>1 − x²/2! + x⁴/4! − x⁶/6! + ... + o(x²ⁿ)</td></tr>
+          <tr><td>ln(1+x)</td><td>x − x²/2 + x³/3 − x⁴/4 + ... + (−1)ⁿ⁻¹xⁿ/n + o(xⁿ)</td></tr>
+          <tr><td>(1+x)ᵅ</td><td>1 + αx + α(α−1)x²/2! + α(α−1)(α−2)x³/3! + ... + o(xⁿ)</td></tr>
+          <tr><td>1/(1−x)</td><td>1 + x + x² + x³ + ... + xⁿ + o(xⁿ) &nbsp;&nbsp;（几何级数）</td></tr>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 展开到几阶？</strong>
+        <strong>黄金法则：</strong>若分母是 xᵏ（或最低阶为 xᵏ），则将分子<strong>展开到 xᵏ 阶</strong>（含 o(xᵏ)）。如果相减后 xᵏ 项消掉了，则继续展开到更高阶，直到不为零。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题1：cos x的极限</div>
+        <div class="step"><span class="step-num">1</span> lim(x→0)(1−cos x)/x² — 分母 x²，分子展开到 x²</div>
+        <div class="step"><span class="step-num">2</span> cos x = 1 − x²/2! + o(x²)，代入：1−[1−x²/2+o(x²)] = x²/2+o(x²)</div>
+        <div class="step"><span class="step-num">3</span> = (x²/2)/x² = <strong>1/2</strong></div>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题2：几个函数组合</div>
+        <div class="step"><span class="step-num">1</span> lim(x→0)[sin x − x·cos x]/x³</div>
+        <div class="step"><span class="step-num">2</span> sin x = x−x³/6+o(x³)，cos x = 1−x²/2+o(x²)，x·cos x = x−x³/2+o(x³)</div>
+        <div class="step"><span class="step-num">3</span> 分子 = (x−x³/6) − (x−x³/2) + o(x³) = x³/3+o(x³)，除以 x³ = <strong>1/3</strong></div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 展开阶数不够导致有效项被高阶无穷小淹没（算出来0/0还没消掉）；② 忘记写 o(xⁿ) 余项（手写时可用"..."但考场上最好标明）；③ cos x 的展开式把 x²/2! 记成 x²/2 没关系（2!=2），但 sin x 的 x³/3! 必须记成 x³/6。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.5 连续与间断点 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.5</span> 连续与间断点</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-4分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">基础概念，选择填空</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义 — 连续的三条件</strong>
+        f(x) 在 x₀ 处连续 ⇔ <strong>①</strong> f(x₀) 有定义 <strong>②</strong> lim(x→x₀)f(x) 存在 <strong>③</strong> lim(x→x₀)f(x) = f(x₀)。三个条件缺一不可。
+      </div>
+
+      <table>
+        <tr><th colspan="3">间断点分类表</th></tr>
+        <tr><th>大类</th><th>小类</th><th>判定条件</th></tr>
+        <tr><td rowspan="2"><strong>第一类</strong><br>（左右极限都存在）</td><td>可去间断点</td><td>左右极限相等 ≠ 函数值（或函数值未定义）</td></tr>
+        <tr><td>跳跃间断点</td><td>左右极限存在但不相等</td></tr>
+        <tr><td rowspan="2"><strong>第二类</strong><br>（至少一侧极限不存在）</td><td>无穷间断点</td><td>至少一侧极限为∞（如 1/x 在 x=0）</td></tr>
+        <tr><td>振荡间断点</td><td>极限震荡不存在（如 sin(1/x) 在 x=0）</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 分段函数分界点讨论</strong>
+        遇到分段函数问连续性/间断点类型：① 非分界点直接看表达式类型判断连续；② 分界点分别求<strong>左极限、右极限、函数值</strong>，三者比较即可判断。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.6 两个重要极限 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.6</span> 两个重要极限</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-3分</span>
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 两个重要极限</div>
+        <div class="formula">lim(x→0) sin x / x = 1</div>
+        <div class="formula">lim(x→∞)(1 + 1/x)ˣ = e &nbsp; 或 &nbsp; lim(x→0)(1 + x)^(1/x) = e</div>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 变体识别：凑形式</strong>
+        第一个极限的变体：lim(x→0) sin(ax)/(bx) = a/b，以及 sin(□)/□ → 1（□→0）<br>
+        第二个极限的变体：lim(1+□)^(1/□) → e（□→0），核心是<strong>底=1+无穷小，指数=无穷小的倒数</strong>。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        lim(x→∞)(1+1/x)^x = e，但 lim(x→∞)(1+2/x)^x ≠ e！需要凑：=lim[(1+2/x)^(x/2)]² = e²。
+      </div>
+    </div>
+  </details>
+
+  <!-- 1.7 本周自测清单 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">1.7</span> 本周自测清单</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标：</span>
+        <span class="value green">10道全对 = 极限部分过关</span>
+      </div>
+
+      <table>
+        <tr><th>#</th><th>题目</th><th>涉及知识点</th></tr>
+        <tr><td>1</td><td>lim(x→0)(e^(3x)−1)/sin(2x)</td><td>等价无穷小</td></tr>
+        <tr><td>2</td><td>lim(x→1)(x²−1)/(x−1)</td><td>0/0型，因式分解</td></tr>
+        <tr><td>3</td><td>lim(x→0)(tan x−x)/x³</td><td>泰勒展开 / 洛必达×3</td></tr>
+        <tr><td>4</td><td>lim(x→∞)(x+sin x)/(x+cos x)</td><td>∞/∞抓大头+夹逼</td></tr>
+        <tr><td>5</td><td>lim(x→0⁺) x²·ln x</td><td>0·∞型转化</td></tr>
+        <tr><td>6</td><td>lim(x→1)(1/(x−1)−2/(x²−1))</td><td>∞−∞通分</td></tr>
+        <tr><td>7</td><td>lim(x→0)(1+3x)^(2/x)</td><td>1^∞，重要极限</td></tr>
+        <tr><td>8</td><td>lim(x→0)(cos x)^(1/x²)</td><td>1^∞+泰勒</td></tr>
+        <tr><td>9</td><td>lim(x→0)(x−arcsin x)/x³</td><td>泰勒展开</td></tr>
+        <tr><td>10</td><td>f(x)=(e^(1/x)−1)/(e^(1/x)+1)，x=0间断点类型？</td><td>间断点分类</td></tr>
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 第二周：数学二 — 一元微分 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title math">
+    📐 第二周 · 数学二：一元微分
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 2.1 导数定义与几何意义 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">2.1</span> 导数定义与几何意义</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-7分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">定义直接出题 + 几何应用</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        <div class="formula">f'(x₀) = lim(h→0) [f(x₀+h) − f(x₀)] / h</div>
+        <strong>左导数：</strong>f'₋(x₀) = lim(h→0⁻) [f(x₀+h)−f(x₀)]/h<br>
+        <strong>右导数：</strong>f'₊(x₀) = lim(h→0⁺) [f(x₀+h)−f(x₀)]/h<br>
+        <strong>可导 ⇔ 左右导数存在且相等</strong>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 导数与连续的关系</strong>
+        可导 ⇒ 连续（逆否：不连续 ⇒ 不可导）<br>
+        连续 ⇏ 可导（反例：y=|x| 在 x=0 连续但不可导）<br>
+        这组关系在选择题中高频出现！
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 几何意义</strong>
+        f'(x₀) 是曲线在点 (x₀, f(x₀)) 处的<strong>切线斜率</strong>。<br>
+        <strong>切线方程：</strong>y − f(x₀) = f'(x₀)(x − x₀)<br>
+        <strong>法线方程：</strong>y − f(x₀) = (−1/f'(x₀))(x − x₀)（f'(x₀)≠0）
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.2 求导法则 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.2</span> 求导法则</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-7分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心法则速记表</strong>
+      </div>
+
+      <table>
+        <tr><th>法则</th><th>公式</th><th>技巧</th></tr>
+        <tr><td>四则运算</td><td>(u±v)'=u'±v'， (uv)'=u'v+uv'， (u/v)'=(u'v−uv')/v²</td><td>乘法口诀："前导后不导 + 前不导后导"</td></tr>
+        <tr><td>链式法则</td><td>y=f(g(x))，则 y'=f'(g(x))·g'(x)</td><td><strong>画链式图：</strong>y→u→x，dy/dx=dy/du·du/dx</td></tr>
+        <tr><td>反函数求导</td><td>dx/dy = 1/(dy/dx)</td><td>如 arcsin x 的导数，利用 sin y = x 两边求导</td></tr>
+      </table>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 基本导数表（必背）</div>
+        <table>
+          <tr><th>函数</th><th>导数</th><th>函数</th><th>导数</th></tr>
+          <tr><td>xⁿ</td><td>nxⁿ⁻¹</td><td>eˣ</td><td>eˣ</td></tr>
+          <tr><td>aˣ</td><td>aˣ·ln a</td><td>ln x</td><td>1/x</td></tr>
+          <tr><td>sin x</td><td>cos x</td><td>cos x</td><td>−sin x</td></tr>
+          <tr><td>tan x</td><td>sec²x</td><td>cot x</td><td>−csc²x</td></tr>
+          <tr><td>arcsin x</td><td>1/√(1−x²)</td><td>arctan x</td><td>1/(1+x²)</td></tr>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.3 分段函数求导 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.3</span> 分段函数求导</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 分段函数求导口诀</strong>
+        <strong>非分界点：</strong>直接对各段表达式正常求导。<br>
+        <strong>分界点：</strong>老老实实回到导数定义，分别求左右导数。左右导数相等才可导。
+      </div>
+
+      <div class="example">
+        <div class="example-title">典型例题</div>
+        <div class="step"><span class="step-num">1</span> f(x) = { x²sin(1/x), x≠0; 0, x=0 }，讨论 f 在 x=0 的可导性</div>
+        <div class="step"><span class="step-num">2</span> 用定义：f'(0)=lim(h→0)[h²sin(1/h)−0]/h = lim h·sin(1/h) = 0（无穷小×有界）</div>
+        <div class="step"><span class="step-num">3</span> 所以 f'(0)=0 存在。但 x≠0 时 f'(x)=2x·sin(1/x)−cos(1/x)，在 x=0 附近震荡，导数不连续 —— <strong>可导不代表导数连续</strong>。</div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.4 隐函数与参数方程 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.4</span> 隐函数与参数方程求导</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">高频计算题</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 隐函数求导</strong>
+        方程 F(x,y)=0 确定 y=y(x)，两边对 x 求导，<strong>y 视为 x 的函数</strong>，含 y 的项用链式法则。求导后解出 dy/dx。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：e^y + xy − e = 0，求 dy/dx</div>
+        <div class="step"><span class="step-num">1</span> 两边对 x 求导：e^y·y' + y + x·y' = 0</div>
+        <div class="step"><span class="step-num">2</span> 合并 y'：y'(e^y + x) = −y</div>
+        <div class="step"><span class="step-num">3</span> dy/dx = −y/(e^y + x)</div>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 参数方程求导</strong>
+        <div class="formula">x = φ(t), y = ψ(t) → dy/dx = (dy/dt) / (dx/dt) = ψ'(t) / φ'(t)</div>
+        <strong>二阶导公式：</strong>d²y/dx² = d(dy/dx)/dx = [d(dy/dx)/dt] / (dx/dt)
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        参数方程的二阶导不是简单的分子二阶导除以分母二阶导！必须对一阶导再求一次导。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.5 对数求导法 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.5</span> 对数求导法</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-4分</span>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 适用场景</strong>
+        <strong>① 幂指函数：</strong>y = f(x)^g(x) 型（底和指数都含 x）→ 取对数后变成乘积形式。<br>
+        <strong>② 多个因式乘除：</strong>取对数将乘除化为加减，大幅简化计算。<br>
+        <strong>步骤：</strong>两边取 ln → 用对数性质展开 → 隐函数求导 → 解出 y'。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：y = x^x，求 y'</div>
+        <div class="step"><span class="step-num">1</span> 两边取 ln：ln y = x·ln x</div>
+        <div class="step"><span class="step-num">2</span> 两边求导：y'/y = ln x + 1</div>
+        <div class="step"><span class="step-num">3</span> y' = x^x·(ln x + 1)</div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.6 高阶导数 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.6</span> 高阶导数</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-3分</span>
+      </div>
+
+      <div class="formula-card">
+        <div class="card-title">🔑 常见函数的 n 阶导模式</div>
+        <table>
+          <tr><th>函数 f(x)</th><th>n 阶导数 f⁽ⁿ⁾(x)</th></tr>
+          <tr><td>eᵃˣ</td><td>aⁿ·eᵃˣ</td></tr>
+          <tr><td>sin(ax+b)</td><td>aⁿ·sin(ax+b+nπ/2)</td></tr>
+          <tr><td>xᵐ（m≥n整数）</td><td>m(m−1)...(m−n+1)·xᵐ⁻ⁿ；当 n&gt;m 时为 0</td></tr>
+          <tr><td>ln(1+x)</td><td>(−1)ⁿ⁻¹·(n−1)!/(1+x)ⁿ</td></tr>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 莱布尼茨公式（了解级别）</strong>
+        (uv)⁽ⁿ⁾ = Σ(k=0→n) C(n,k)·u⁽ᵏ⁾·v⁽ⁿ⁻ᵏ⁾。考试中直接出题概率低，主要用于特定类型的乘积函数求高阶导。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.7 微分 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.7</span> 微分</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-3分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        dy = f'(x)·dx。函数微分 dy 是函数增量 Δy 的线性主部。<br>
+        <strong>可微 ⇔ 可导</strong>（对于一元函数，两者等价）。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 几何意义</strong>
+        dy 是切线上的增量（线性近似），Δy − dy 是高阶无穷小。用于近似计算：f(x₀+Δx) ≈ f(x₀) + f'(x₀)·Δx。
+      </div>
+    </div>
+  </details>
+
+  <!-- 2.8 自测 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">2.8</span> 本周自测清单</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <table>
+        <tr><th>#</th><th>题目</th><th>知识点</th></tr>
+        <tr><td>1</td><td>f(x)=|x²−1|，讨论在 x=±1 的可导性</td><td>导数定义+绝对值</td></tr>
+        <tr><td>2</td><td>y=ln(sin(x²+1))，求 y'</td><td>链式法则</td></tr>
+        <tr><td>3</td><td>f(x)={x²+1,x≤0; eˣ,x&gt;0}，讨论可导性</td><td>分段函数求导</td></tr>
+        <tr><td>4</td><td>x²+xy+y²=4，求 dy/dx 在 (2,−2)</td><td>隐函数求导</td></tr>
+        <tr><td>5</td><td>x=t², y=t³−t，求 d²y/dx²</td><td>参数方程二阶导</td></tr>
+        <tr><td>6</td><td>y=(sin x)^(cos x)，求 y'</td><td>对数求导法</td></tr>
+        <tr><td>7</td><td>求 y=eˣsin x 的 5 阶导数</td><td>莱布尼茨（选做）</td></tr>
+        <tr><td>8</td><td>利用微分近似计算 √4.01</td><td>微分应用</td></tr>
+        <tr><td>9</td><td>求 y=1/(x²−1) 的 n 阶导</td><td>高阶导+部分分式</td></tr>
+        <tr><td>10</td><td>曲线 y=x³−3x 上切线平行 x 轴的点</td><td>导数几何意义</td></tr>
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 第一周：数据结构 — 线性表 + 栈和队列 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title ds">
+    💻 第一周 · 数据结构：线性表 + 栈和队列
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 3.1 顺序表 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.1</span> 顺序表</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-4分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">基础概念+代码</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        顺序表用<strong>一组地址连续的存储单元</strong>依次存储线性表的数据元素。支持随机存取，但插入删除需移动大量元素。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 复杂度速记</strong>
+        按位置存取：<strong>O(1)</strong>；按值查找：<strong>O(n)</strong><br>
+        插入/删除的平均移动次数：<strong>n/2</strong>（等概率下），时间复杂度 <strong>O(n)</strong>。
+      </div>
+
+<pre>
+<span class="cm">/* 顺序表插入 — 第i个位置插入e */</span>
+<span class="kw">int</span> <span class="fn">ListInsert</span>(SqList *L, <span class="kw">int</span> i, ElemType e) {
+    <span class="kw">if</span> (i &lt; <span class="num">1</span> || i &gt; L-&gt;length + <span class="num">1</span>) <span class="kw">return</span> <span class="num">0</span>;  <span class="cm">// 位置非法</span>
+    <span class="kw">if</span> (L-&gt;length &gt;= MaxSize) <span class="kw">return</span> <span class="num">0</span>;             <span class="cm">// 表满</span>
+    <span class="kw">for</span> (<span class="kw">int</span> j = L-&gt;length; j &gt;= i; j--)
+        L-&gt;data[j] = L-&gt;data[j - <span class="num">1</span>];         <span class="cm">// 元素后移</span>
+    L-&gt;data[i - <span class="num">1</span>] = e;
+    L-&gt;length++;
+    <span class="kw">return</span> <span class="num">1</span>;
+}
+
+<span class="cm">/* 顺序表删除 — 删除第i个位置元素，用e返回 */</span>
+<span class="kw">int</span> <span class="fn">ListDelete</span>(SqList *L, <span class="kw">int</span> i, ElemType *e) {
+    <span class="kw">if</span> (i &lt; <span class="num">1</span> || i &gt; L-&gt;length) <span class="kw">return</span> <span class="num">0</span>;
+    *e = L-&gt;data[i - <span class="num">1</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> j = i; j &lt; L-&gt;length; j++)
+        L-&gt;data[j - <span class="num">1</span>] = L-&gt;data[j];       <span class="cm">// 元素前移</span>
+    L-&gt;length--;
+    <span class="kw">return</span> <span class="num">1</span>;
+}</pre>
+    </div>
+  </details>
+
+  <!-- 3.2 单链表 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">3.2</span> 单链表</span>
+      <span class="summary-right"><span class="time-tag">约2h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-10分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">408代码题重中之重</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 节点结构</strong>
+        每个节点包含 <strong>data</strong>（数据域）和 <strong>next</strong>（指针域，指向后继）。<strong>头指针 vs 头节点：</strong>头指针是指向第一个节点的指针（必有）；头节点是附加在第一个数据节点之前的节点（可有可无），引入头节点可以统一空表和非空表的操作。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 建表方式</strong>
+        <strong>头插法：</strong>每次插入在头节点之后 → 结果<strong>逆序</strong><br>
+        <strong>尾插法：</strong>维护尾指针，每次追加到末尾 → 结果<strong>顺序</strong>
+      </div>
+
+<pre>
+<span class="cm">/* === 链表反转（迭代三指针法）=== 必手写！*/</span>
+<span class="kw">ListNode</span>* <span class="fn">reverseList</span>(<span class="kw">ListNode</span>* head) {
+    <span class="kw">ListNode</span> *prev = NULL, *curr = head, *next;
+    <span class="kw">while</span> (curr != NULL) {
+        next = curr-&gt;next;      <span class="cm">// ① 保存下一个</span>
+        curr-&gt;next = prev;      <span class="cm">// ② 反转指针</span>
+        prev = curr;            <span class="cm">// ③ prev 前进</span>
+        curr = next;            <span class="cm">// ④ curr 前进</span>
+    }
+    <span class="kw">return</span> prev;  <span class="cm">// prev 即新头节点</span>
+}
+
+<span class="cm">/* === 头插法反转（另一种写法）=== */</span>
+<span class="kw">ListNode</span>* <span class="fn">reverseByHeadInsert</span>(<span class="kw">ListNode</span>* head) {
+    <span class="kw">ListNode</span> *newHead = NULL, *p = head, *tmp;
+    <span class="kw">while</span> (p != NULL) {
+        tmp = p-&gt;next;
+        p-&gt;next = newHead;      <span class="cm">// 头插到新链表</span>
+        newHead = p;
+        p = tmp;
+    }
+    <span class="kw">return</span> newHead;
+}</pre>
+
+      <div class="callout caution">
+        <strong>⚠️ 手写注意</strong>
+        三指针法反转链表的四个步骤顺序不能乱：<strong>先保存 next → 反转 curr → 移动 prev → 移动 curr</strong>。忘记保存 next 就丢失了后继节点！
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.3 双链表与循环链表 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.3</span> 双链表与循环链表</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-4分</span>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 双链表插入的四步（口诀：先连后断）</strong>
+        在 p 之后插入 s：<br>
+        ① s→next = p→next；② p→next→prior = s；③ s→prior = p；④ p→next = s<br>
+        <strong>关键：</strong>①② 先连"远"的，③④ 再断"近"的。顺序错了会导致断链。
+      </div>
+
+      <table>
+        <tr><th>链表类型</th><th>判空条件</th><th>特点</th></tr>
+        <tr><td>带头节点单链表</td><td>head→next == NULL</td><td>基础结构</td></tr>
+        <tr><td>循环单链表</td><td>head→next == head</td><td>尾节点→next 指向头</td></tr>
+        <tr><td>循环双链表</td><td>head→next == head（或 head→prior == head）</td><td>两个方向都闭环</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <!-- 3.4 栈 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.4</span> 栈</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-8分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">栈应用必考大题</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        栈是<strong>后进先出（LIFO）</strong>的线性表。顺序栈用 top 指针指示栈顶位置。<br>
+        <strong>入栈：</strong>top++ 再赋值（先移指针再放元素）<br>
+        <strong>出栈：</strong>取值后 top--（先取元素再移指针）
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 共享栈</strong>
+        两个栈共享同一数组空间，<strong>对向增长</strong>。栈1的栈底在数组0位置，栈2的栈底在数组maxSize-1位置。栈满条件：top1 + 1 == top2。
+      </div>
+
+<pre>
+<span class="cm">/* === 括号匹配 — 必手写！=== */</span>
+<span class="kw">int</span> <span class="fn">bracketMatch</span>(<span class="kw">char</span> *str) {
+    <span class="kw">char</span> stack[MaxSize]; <span class="kw">int</span> top = <span class="num">-1</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; str[i] != <span class="str">'\0'</span>; i++) {
+        <span class="kw">if</span> (str[i] == <span class="str">'('</span> || str[i] == <span class="str">'['</span> || str[i] == <span class="str">'{'</span>)
+            stack[++top] = str[i];              <span class="cm">// 左括号入栈</span>
+        <span class="kw">else</span> <span class="kw">if</span> (str[i] == <span class="str">')'</span> || str[i] == <span class="str">']'</span> || str[i] == <span class="str">'}'</span>) {
+            <span class="kw">if</span> (top == <span class="num">-1</span>) <span class="kw">return</span> <span class="num">0</span>;            <span class="cm">// 栈空不匹配</span>
+            <span class="kw">char</span> c = stack[top--];
+            <span class="kw">if</span> ((c==<span class="str">'('</span> && str[i]!=<span class="str">')'</span>) ||
+                (c==<span class="str">'['</span> && str[i]!=<span class="str">']'</span>) ||
+                (c==<span class="str">'{'</span> && str[i]!=<span class="str">'}'</span>)) <span class="kw">return</span> <span class="num">0</span>;
+        }
+    }
+    <span class="kw">return</span> top == <span class="num">-1</span>;  <span class="cm">// 栈空则全部匹配</span>
+}</pre>
+
+      <div class="callout caution">
+        <strong>📘 后缀表达式求值（中缀转后缀）</strong>
+        <table>
+          <tr><th>步骤</th><th>详细说明</th></tr>
+          <tr><td>1. 运算符优先级</td><td>*/ &gt; +-；同级从左到右；遇到 ( 直接入栈</td></tr>
+          <tr><td>2. 操作数</td><td>直接输出</td></tr>
+          <tr><td>3. 运算符</td><td>栈空或栈顶为(则入栈；否则弹出所有优先级≥当前运算符的栈顶，再入栈</td></tr>
+          <tr><td>4. 右括号</td><td>弹出栈顶直到遇到左括号（括号不输出）</td></tr>
+          <tr><td>5. 结束时</td><td>弹出栈中所有剩余运算符</td></tr>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.5 队列 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.5</span> 队列</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        队列是<strong>先进先出（FIFO）</strong>的线性表。顺序队列有<strong>假溢出</strong>问题 → 使用<strong>循环队列</strong>解决。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 循环队列核心公式（408高频考点）</strong>
+        <table>
+          <tr><td>front 指向</td><td><strong>队头元素</strong></td></tr>
+          <tr><td>rear 指向</td><td><strong>队尾元素的下一个位置</strong></td></tr>
+          <tr><td>判空</td><td><code class="inline">rear == front</code></td></tr>
+          <tr><td>判满</td><td><code class="inline">(rear + 1) % maxSize == front</code>（牺牲一个单元）</td></tr>
+          <tr><td>元素个数</td><td><code class="inline">(rear − front + maxSize) % maxSize</code></td></tr>
+          <tr><td>入队</td><td><code class="inline">Q.data[rear] = x; rear = (rear + 1) % maxSize;</code></td></tr>
+          <tr><td>出队</td><td><code class="inline">x = Q.data[front]; front = (front + 1) % maxSize;</code></td></tr>
+        </table>
+      </div>
+
+<pre>
+<span class="cm">/* === 循环队列入队出队 — 必手写！=== */</span>
+<span class="kw">int</span> <span class="fn">EnQueue</span>(SqQueue *Q, ElemType x) {
+    <span class="kw">if</span> ((Q-&gt;rear + <span class="num">1</span>) % MaxSize == Q-&gt;front)
+        <span class="kw">return</span> <span class="num">0</span>;                          <span class="cm">// 队满</span>
+    Q-&gt;data[Q-&gt;rear] = x;
+    Q-&gt;rear = (Q-&gt;rear + <span class="num">1</span>) % MaxSize;
+    <span class="kw">return</span> <span class="num">1</span>;
+}
+
+<span class="kw">int</span> <span class="fn">DeQueue</span>(SqQueue *Q, ElemType *x) {
+    <span class="kw">if</span> (Q-&gt;rear == Q-&gt;front)
+        <span class="kw">return</span> <span class="num">0</span>;                          <span class="cm">// 队空</span>
+    *x = Q-&gt;data[Q-&gt;front];
+    Q-&gt;front = (Q-&gt;front + <span class="num">1</span>) % MaxSize;
+    <span class="kw">return</span> <span class="num">1</span>;
+}</pre>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① 混淆 front 和 rear 谁指队头谁指队尾下一个位置；② 判满忘记 +1 再取模；③ 元素个数公式忘了加 maxSize 导致负数。
+      </div>
+    </div>
+  </details>
+
+  <!-- 3.6 本周代码手写清单 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">3.6</span> 本周代码手写清单</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="callout tip">
+        <strong>💡 5道必手写题（白纸手写，不看答案，每道写3遍）</strong>
+      </div>
+      <table>
+        <tr><th>#</th><th>题目</th><th>核心考察点</th><th>自检标准</th></tr>
+        <tr><td>1</td><td>单链表反转（三指针法）</td><td>prev/curr/next 四步循环</td><td>3分钟内无错误写出</td></tr>
+        <tr><td>2</td><td>删除单链表中所有值为 x 的节点</td><td>遍历+删除+前驱指针维护</td><td>处理头节点特殊情况</td></tr>
+        <tr><td>3</td><td>括号匹配</td><td>栈的入栈出栈操作</td><td>三种括号、栈空处理</td></tr>
+        <tr><td>4</td><td>中缀转后缀表达式</td><td>运算符优先级+栈</td><td>手动模拟 a+b*c−d 转换</td></tr>
+        <tr><td>5</td><td>循环队列入队出队</td><td>取模运算、判空判满</td><td>一次写出不做修改</td></tr>
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 第二周：数据结构 — 串/KMP + 树 -->
+<!-- ================================================================ -->
+<div class="week-section">
+  <div class="week-title ds">
+    💻 第二周 · 数据结构：串/KMP + 树
+    <span class="badge">约9h</span>
+  </div>
+
+  <!-- 4.1 串与KMP -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.1</span> 串与模式匹配（KMP）</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">next数组手算必考</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        KMP 算法通过<strong>next 数组</strong>实现模式匹配时主串指针 i 不回溯。简单匹配 O(mn)，KMP 优化为 O(m+n)。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — next 数组手工计算步骤</strong>
+        <table>
+          <tr><th>j</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>...</th></tr>
+          <tr><td>模式串 P</td><td>P₁</td><td>P₂</td><td>P₃</td><td>P₄</td><td>P₅</td><td>...</td></tr>
+          <tr><td>看前 j−1 个字符</td><td>—</td><td>P₁</td><td>P₁P₂</td><td>P₁P₂P₃</td><td>P₁P₂P₃P₄</td><td>...</td></tr>
+          <tr><td>最长公共前后缀长度</td><td>—</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>next[j]</td><td>0</td><td>1</td><td></td><td></td><td></td><td></td></tr>
+        </table>
+        <strong>口诀：</strong>next[1]=0, next[2]=1；之后取<strong>前 j−1 个字符</strong>的最长公共前后缀长度 +1。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：计算模式串 "abaabc" 的 next 数组</div>
+        <table>
+          <tr><th>j</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+          <tr><td>P</td><td>a</td><td>b</td><td>a</td><td>a</td><td>b</td><td>c</td></tr>
+          <tr><td>前 j−1 个</td><td>—</td><td>"a"</td><td>"ab"</td><td>"aba"</td><td>"abaa"</td><td>"abaab"</td></tr>
+          <tr><td>最长前后缀</td><td>—</td><td>无</td><td>无</td><td>"a"(长1)</td><td>"a"(长1)</td><td>"ab"(长2)</td></tr>
+          <tr><td>next[j]</td><td><strong>0</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>2</strong></td><td><strong>2</strong></td><td><strong>3</strong></td></tr>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 nextval 优化</strong>
+        当 Pⱼ = P<sub>next[j]</sub> 时，nextval[j] = nextval[next[j]]（递归取），否则 nextval[j] = next[j]。优化后的 nextval 避免了重复比较已知不匹配的字符。
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① next[1] 记成 1（正确是 0）——不同教材定义不同，408 用 next[1]=0；② 公共前后缀不能是整个字符串本身；③ 前 j−1 个字符而不是 j 个。
+      </div>
+
+      <div class="callout caution">
+        <strong>📘 KMP 匹配过程</strong>
+        主串指针 i <strong>不回溯</strong>，模式串指针 j 失配时回退到 next[j]（即 j = next[j]），j=0 时 i++、j++。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.2 二叉树基础 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.2</span> 二叉树基础</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 5条核心性质（n₀=n₂+1 最重要）</strong>
+      </div>
+
+      <table>
+        <tr><th>#</th><th>性质</th><th>证明要点</th></tr>
+        <tr><td>1</td><td>第 i 层最多 2ⁱ⁻¹ 个节点</td><td>归纳法</td></tr>
+        <tr><td>2</td><td>高度为 k 的二叉树最多 2ᵏ−1 个节点</td><td>等比数列求和</td></tr>
+        <tr><td>3</td><td>n₀ = n₂ + 1（★★★★★）</td><td>利用 n = n₀+n₁+n₂ 和 n = 分支数+1 = n₁+2n₂+1</td></tr>
+        <tr><td>4</td><td>n 个节点的完全二叉树高度为 ⌈log₂(n+1)⌉</td><td>由性质2反推</td></tr>
+        <tr><td>5</td><td>完全二叉树节点编号：i的双亲=⌊i/2⌋，左孩子=2i，右孩子=2i+1</td><td>编号从1开始</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 满二叉树 vs 完全二叉树</strong>
+        <strong>满二叉树：</strong>每层节点数都达到最大值（形如正三角形）。<br>
+        <strong>完全二叉树：</strong>只在最后一层缺少右侧节点（编号连续）。<strong>满二叉树一定是完全二叉树，反之不成立。</strong>
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.3 二叉树遍历 -->
+  <details class="chapter" open>
+    <summary>
+      <span class="summary-left"><span class="icon">4.3</span> 二叉树遍历</span>
+      <span class="summary-right"><span class="time-tag">约2h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">5-10分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">遍历+还原，大题必考</span>
+      </div>
+
+      <table>
+        <tr><th>遍历方式</th><th>递归口诀</th><th>非递归策略</th></tr>
+        <tr><td><strong>前序</strong></td><td>根→左→右</td><td>栈：访问当前→右孩子入栈→走左</td></tr>
+        <tr><td><strong>中序</strong></td><td>左→根→右</td><td>栈：沿左链全入栈→出栈访问→转右子树</td></tr>
+        <tr><td><strong>后序</strong></td><td>左→右→根</td><td>双栈法（栈1根左右→栈2收集）或 pre指针标记</td></tr>
+        <tr><td><strong>层序</strong></td><td>逐层从左到右</td><td>队列辅助，出队时孩子入队</td></tr>
+      </table>
+
+<pre>
+<span class="cm">/* 中序非递归遍历 — 必手写！*/</span>
+<span class="kw">void</span> <span class="fn">InOrder</span>(BiTree T) {
+    BiTree stack[MaxSize]; <span class="kw">int</span> top = <span class="num">-1</span>;
+    BiTree p = T;
+    <span class="kw">while</span> (p || top != <span class="num">-1</span>) {
+        <span class="kw">if</span> (p) {
+            stack[++top] = p;       <span class="cm">// 沿左链入栈</span>
+            p = p-&gt;lchild;
+        } <span class="kw">else</span> {
+            p = stack[top--];       <span class="cm">// 出栈访问</span>
+            visit(p);
+            p = p-&gt;rchild;          <span class="cm">// 转右子树</span>
+        }
+    }
+}</pre>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 遍历序列还原二叉树</strong>
+        <table>
+          <tr><th>给定序列</th><th>能否唯一确定？</th><th>方法</th></tr>
+          <tr><td>前序 + 中序</td><td>✅ 能</td><td>前序首节点=根 → 中序分左右 → 递归</td></tr>
+          <tr><td>中序 + 后序</td><td>✅ 能</td><td>后序尾节点=根 → 中序分左右 → 递归</td></tr>
+          <tr><td>前序 + 后序</td><td>❌ 不能</td><td>无法唯一区分左右子树（只有满二叉树才行）</td></tr>
+          <tr><td>层序 + 中序</td><td>✅ 能</td><td>层序第一个=根 → 中序分左右 → 递归</td></tr>
+        </table>
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：前序=ABDEC，中序=DBEAC，还原二叉树</div>
+        <div class="step"><span class="step-num">1</span> 前序首 A=根，中序 DBE | A | C → 左子树=DBE，右子树=C</div>
+        <div class="step"><span class="step-num">2</span> 左子树前序=BDE，左子树中序=DBE → B=根，中序 D | B | E → 左=D，右=E</div>
+        <div class="step"><span class="step-num">3</span> 右子树只有 C</div>
+        <div class="step"><span class="step-num">4</span> 还原：A为根，左孩子B（左D右E），右孩子C</div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.4 线索二叉树 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.4</span> 线索二叉树</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-3分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        利用二叉树空指针（n+1个）存储前驱/后继信息。<br>
+        <strong>ltag=0</strong>左孩子 / <strong>ltag=1</strong>前驱；<strong>rtag=0</strong>右孩子 / <strong>rtag=1</strong>后继。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧</strong>
+        中序线索化时维护一个 <strong>pre 指针</strong>指向前一个访问的节点。当前节点左空则指 pre；pre 右空则指当前节点。最后更新 pre=p。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.5 AVL树 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.5</span> AVL树</span>
+      <span class="summary-right"><span class="time-tag">约1.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">4-6分</span>
+        <span style="margin-left:auto;color:var(--text-secondary);font-size:12px;">四种旋转画图必考</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        AVL 树是<strong>平衡二叉搜索树</strong>，任意节点的平衡因子（左子树高−右子树高）∈ {−1, 0, 1}。插入后从下往上检查，找到<strong>最小不平衡子树</strong>进行旋转调整。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 四种旋转（画图演示每一步）</strong>
+      </div>
+
+      <table>
+        <tr><th>类型</th><th>判定</th><th>操作</th><th>记忆口诀</th></tr>
+        <tr><td><strong>LL</strong></td><td>A的BF=2，A左孩子B的BF=1</td><td><strong>右单旋</strong>：B的右子树挂到A左边，B→right=A</td><td>"左左则右转"</td></tr>
+        <tr><td><strong>RR</strong></td><td>A的BF=−2，A右孩子B的BF=−1</td><td><strong>左单旋</strong>：B的左子树挂到A右边，B→left=A</td><td>"右右则左转"</td></tr>
+        <tr><td><strong>LR</strong></td><td>A的BF=2，A左孩子B的BF=−1</td><td><strong>先左旋后右旋</strong>：先对B左旋变成LL，再对A右旋</td><td>"左右→左右转"</td></tr>
+        <tr><td><strong>RL</strong></td><td>A的BF=−2，A右孩子B的BF=1</td><td><strong>先右旋后左旋</strong>：先对B右旋变成RR，再对A左旋</td><td>"右左→右左转"</td></tr>
+      </table>
+
+      <div class="example">
+        <div class="example-title">例题：依次插入 3, 2, 1, 4, 5, 6, 7 到空AVL树</div>
+        <div class="step"><span class="step-num">1</span> 插3：平衡。插2：平衡（3的左）。插1：3的BF=2，LL型 → <strong>右单旋</strong>，2为根。</div>
+        <div class="step"><span class="step-num">2</span> 插4：2的右。插5：2右右两侧，2的BF=−2，RR型 → <strong>左单旋</strong>（注意最小不平衡子树）。</div>
+        <div class="step"><span class="step-num">3</span> 插6：需要RL旋转。插7：需要RR旋转（左单旋）。</div>
+        <div class="step"><span class="step-num">4</span> 最终树结构：建议动手画一遍验证。</div>
+      </div>
+
+      <div class="callout error">
+        <strong>⚠️ 常见错误</strong>
+        ① LL 和 LR 搞混：关键看<strong>插入在左子树的哪一侧</strong>，不是看 BF 符号；② 旋转时忘记更新子树挂接关系；③ 最小不平衡子树选错（应该是离插入点最近的不平衡节点）。
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.6 哈夫曼树 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.6</span> 哈夫曼树</span>
+      <span class="summary-right"><span class="time-tag">约1h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">3-5分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 核心定义</strong>
+        <strong>WPL（带权路径长度）= Σ wᵢ·lᵢ</strong>，其中 wᵢ 是叶子权值，lᵢ 是从根到该叶子的路径长度（边数）。哈夫曼树是 WPL 最小的二叉树。
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 得分技巧 — 构造步骤</strong>
+        ① 将 n 个权值放入集合（每个是一个单节点树）；<br>
+        ② 每次选<strong>两个最小权值</strong>合并为一个新的内部节点（权值为两子权值之和）；<br>
+        ③ 重复直到只剩一棵树。<br>
+        <strong>编码规则：</strong>左分支=0，右分支=1，哈夫曼编码是<strong>前缀编码</strong>（任一编码不是另一编码的前缀）。
+      </div>
+
+      <div class="example">
+        <div class="example-title">例题：权值 {2, 3, 5, 7, 9}，构造哈夫曼树，求WPL和编码</div>
+        <div class="step"><span class="step-num">1</span> 选2和3 → 合并为5；集合 {5, 5, 7, 9}</div>
+        <div class="step"><span class="step-num">2</span> 选5和5 → 合并为10；集合 {7, 9, 10}</div>
+        <div class="step"><span class="step-num">3</span> 选7和9 → 合并为16；集合 {10, 16}；合并得 26</div>
+        <div class="step"><span class="step-num">4</span> WPL = (2+3)×3 + 5×2 + 7×2 + 9×2 = 15+10+14+18 = <strong>57</strong></div>
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.7 B树 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.7</span> B树</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <div class="goal-bar">
+        <span class="label">🎯 目标分值：</span>
+        <span class="value blue">2-3分</span>
+      </div>
+
+      <div class="callout definition">
+        <strong>📘 m 阶 B 树性质速记</strong>
+        <table>
+          <tr><th>属性</th><th>上限</th><th>下限（除根外）</th></tr>
+          <tr><td>子树数</td><td>m</td><td>⌈m/2⌉</td></tr>
+          <tr><td>关键字数</td><td>m−1</td><td>⌈m/2⌉−1</td></tr>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <strong>💡 B 树 vs B+ 树（面试/408高频）</strong>
+        <table>
+          <tr><th>区别点</th><th>B 树</th><th>B+ 树</th></tr>
+          <tr><td>数据存储</td><td>所有节点都存数据</td><td>只有叶子节点存数据</td></tr>
+          <tr><td>叶子链接</td><td>不链接</td><td>叶子之间有链表相连</td></tr>
+          <tr><td>查找稳定性</td><td>可能在非叶子找到</td><td>必须查到叶子节点</td></tr>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- 4.8 自测 -->
+  <details class="chapter">
+    <summary>
+      <span class="summary-left"><span class="icon">4.8</span> 本周自测清单</span>
+      <span class="summary-right"><span class="time-tag">约0.5h</span><span class="expand-icon">▼</span></span>
+    </summary>
+    <div class="chapter-body">
+      <table>
+        <tr><th>#</th><th>题目</th><th>知识点</th></tr>
+        <tr><td>1</td><td>计算 "ababaaababaa" 的 next 数组</td><td>KMP next 手算</td></tr>
+        <tr><td>2</td><td>求上题模式串的 nextval 数组</td><td>KMP nextval</td></tr>
+        <tr><td>3</td><td>前序=ABCDEF，中序=CBAEDF，还原二叉树并写出后序</td><td>遍历还原</td></tr>
+        <tr><td>4</td><td>证明 n₀=n₂+1</td><td>二叉树性质证明</td></tr>
+        <tr><td>5</td><td>画 AVL 旋转：依次插入 10, 20, 30, 25, 5</td><td>AVL LL/RR/LR</td></tr>
+        <tr><td>6</td><td>权值 {4,6,7,11,13}，构造哈夫曼树并求 WPL</td><td>哈夫曼构造</td></tr>
+        <tr><td>7</td><td>写出上题的哈夫曼编码</td><td>哈夫曼编码</td></tr>
+        <tr><td>8</td><td>5 阶 B 树节点最少/最多关键字数？</td><td>B 树性质</td></tr>
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================ -->
+<!-- 两周学习检查点汇总 -->
+<!-- ================================================================ -->
+<div class="checkpoint">
+  <h2>📋 两周学习检查点汇总</h2>
+  <p style="color:var(--text-secondary);margin-bottom:16px;">以下每一项是本阶段的核心掌握标准，请逐项自检。掌握的打 ✅，薄弱环节标注练习计划。</p>
+
+  <table>
+    <tr><th style="width:5%">#</th><th style="width:12%">学科</th><th style="width:25%">检查项</th><th style="width:38%">掌握标准</th><th style="width:10%">自检</th><th style="width:10%">优先级</th></tr>
+
+    <tr style="background:#f0f4ff"><td colspan="6"><strong>📐 数学二：极限（第1周）</strong></td></tr>
+    <tr><td>M1</td><td>极限</td><td>七种不定式识别与转化</td><td>看到表达式立即判断类型+转化策略，10秒内确定方向</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M2</td><td>极限</td><td>10个等价无穷小公式</td><td>闭眼默写，不错不漏</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M3</td><td>极限</td><td>洛必达法则使用前提</td><td>能说出三个条件，能识别"不能用"的场景</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M4</td><td>极限</td><td>6个泰勒展开式</td><td>默写到 x³ 或 x⁴ 项，知道扩展方法</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M5</td><td>极限</td><td>间断点分类</td><td>给定分段函数，准确判定间断点类型</td><td>☐</td><td>⭐⭐⭐</td></tr>
+    <tr><td>M6</td><td>极限</td><td>两个重要极限的变体</td><td>能识别"凑形式"的变体并正确计算</td><td>☐</td><td>⭐⭐⭐</td></tr>
+
+    <tr style="background:#f0f4ff"><td colspan="6"><strong>📐 数学二：一元微分（第2周）</strong></td></tr>
+    <tr><td>M7</td><td>微分</td><td>导数定义与可导判定</td><td>能用定义求分段函数分界点导数，区分可导vs连续</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>M8</td><td>微分</td><td>链式法则复合求导</td><td>画出链式图，3层嵌套正确求导不出错</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M9</td><td>微分</td><td>隐函数求导</td><td>方程两边对x求导，正确处理含y的项</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M10</td><td>微分</td><td>参数方程一阶+二阶导</td><td>一阶=ψ'/φ'，二阶用链式再求一次</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>M11</td><td>微分</td><td>对数求导法</td><td>幂指函数和连乘积两种场景</td><td>☐</td><td>⭐⭐⭐</td></tr>
+    <tr><td>M12</td><td>微分</td><td>常见高阶导模式</td><td>e^ax, sin(ax+b), x^n, ln(1+x) 的n阶导</td><td>☐</td><td>⭐⭐</td></tr>
+
+    <tr style="background:#f5f0ff"><td colspan="6"><strong>💻 数据结构：线性表 + 栈队列（第1周）</strong></td></tr>
+    <tr><td>D1</td><td>DS</td><td>顺序表插入删除代码</td><td>手写不出错，注意边界条件和移动方向</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D2</td><td>DS</td><td>单链表反转（三指针法）</td><td>3分钟内白纸手写，一次通过</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D3</td><td>DS</td><td>括号匹配代码</td><td>完整处理三种括号，栈空/非空的分支</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D4</td><td>DS</td><td>中缀转后缀表达式</td><td>手动模拟正确，说出运算符优先级规则</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D5</td><td>DS</td><td>循环队列判空判满公式</td><td>默写4个公式（空、满、个数、入队出队）</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+
+    <tr style="background:#f5f0ff"><td colspan="6"><strong>💻 数据结构：串/KMP + 树（第2周）</strong></td></tr>
+    <tr><td>D6</td><td>DS</td><td>KMP next 数组手算</td><td>3道不同模式串的 next 数组，2分钟内每道</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D7</td><td>DS</td><td>二叉树遍历序列还原</td><td>前序+中序→后序，中序+后序→前序</td><td>☐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>D8</td><td>DS</td><td>中序非递归遍历代码</td><td>手写栈+while循环版本</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D9</td><td>DS</td><td>AVL 四种旋转判定与操作</td><td>给定插入序列，画出每一步旋转结果</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D10</td><td>DS</td><td>哈夫曼树构造 + WPL</td><td>给定权值集合，构造哈夫曼树并计算WPL</td><td>☐</td><td>⭐⭐⭐⭐</td></tr>
+    <tr><td>D11</td><td>DS</td><td>n₀ = n₂+1 证明</td><td>能写出完整的两步等式推导</td><td>☐</td><td>⭐⭐⭐</td></tr>
+    <tr><td>D12</td><td>DS</td><td>B树 vs B+树区别</td><td>说出3条核心区别</td><td>☐</td><td>⭐⭐</td></tr>
+  </table>
+
+  <div class="callout tip" style="margin-top:20px;">
+    <strong>💡 学习建议</strong>
+    ① 每天开始前花 5 分钟复习前一天的<strong>核心公式和算法</strong>（间隔重复强化记忆）；<br>
+    ② 数学：公式默写 + 10道自测题独立完成 → 对答案 → 错题分析（为什么错？哪个知识点薄弱？）；<br>
+    ③ 408：代码<strong>白纸手写</strong>（不是键盘敲！），写完逐行检查指针操作是否正确；<br>
+    ④ 每周末做一套<strong>真题相关章节</strong>的小测，验证真实掌握程度。
+  </div>
+</div>
+
+</div><!-- container -->
+
+<script>
+// 默认展开本周（第一周）的所有章节，第二周默认折叠
+document.addEventListener('DOMContentLoaded', function() {
+  // 所有 details 已经在 HTML 中用 open 属性标记了第一周内容
+  // 不需要额外JS处理折叠逻辑
+});
+</script>
+
+</body>
+</html>

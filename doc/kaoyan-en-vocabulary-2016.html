@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2016 年英语二真题词汇</title>
+  <script src="../shared/theme.js"></script>
+  <link rel="stylesheet" href="../shared/theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--tx); font-family: Inter, system-ui, sans-serif; line-height: 1.75; }
+    a { color: inherit; }
+    .mast { border-bottom: 1px solid var(--bd); background: var(--bg2); }
+    .mast-in, .layout { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+    .mast-in { padding: 34px 0 30px; }
+    .crumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; color: var(--tx3); font: 600 12px/1.3 "IBM Plex Mono", monospace; }
+    .crumbs a { color: var(--blue); text-decoration: none; }
+    h1 { margin: 0; font-size: clamp(30px, 5vw, 48px); line-height: 1.12; letter-spacing: -.035em; }
+    .subtitle { margin: 10px 0 0; color: var(--tx2); }
+    .layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 38px; padding: 34px 0 80px; }
+    aside { align-self: start; position: sticky; top: 22px; }
+    .nav-title { margin: 0 0 12px; color: var(--tx3); font: 700 11px/1.2 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; }
+    #entry-nav { border-left: 1px solid var(--bd); }
+    #entry-nav a { display: block; padding: 7px 12px; color: var(--tx2); text-decoration: none; border-left: 2px solid transparent; }
+    #entry-nav a:hover { color: var(--blue); border-left-color: var(--blue); }
+    #entry-nav .text-link { color: var(--tx); font-weight: 750; }
+    #entry-nav .paragraph-link { padding-left: 24px; font-size: 13px; }
+    #entry-nav .word-link { padding-left: 38px; color: var(--blue); font: 600 12px/1.4 "IBM Plex Mono", monospace; }
+    main { min-width: 0; }
+    .text-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .text-head h2 { margin: 0; font-size: 23px; }
+    .source { padding: 4px 8px; border: 1px solid var(--bd); border-radius: 6px; color: var(--tx3); font: 600 11px/1.2 "IBM Plex Mono", monospace; }
+    .paragraph-section { scroll-margin-top: 22px; }
+    .paragraph-title { margin: 0 0 12px; color: var(--tx3); font: 700 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .word-entry { position: relative; margin-bottom: 24px; padding: 28px 30px 30px 42px; border: 1px solid var(--bd); border-radius: 16px; background: var(--bg2); overflow: hidden; scroll-margin-top: 22px; }
+    .word-entry::before { content: ""; position: absolute; inset: 0 auto 0 18px; width: 1px; background: var(--red); opacity: .7; }
+    .word-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+    .word { margin: 0; font: 750 34px/1 "IBM Plex Mono", monospace; letter-spacing: -.03em; }
+    .answer { color: var(--blue); font-weight: 750; }
+    .word-frequency { display: inline-block; padding: 4px 8px; border: 1px solid var(--bd); border-radius: 999px; font: 700 10px/1.2 "IBM Plex Mono", monospace; }
+    .word-frequency.high { border-color: var(--green-b); background: var(--green-bg); color: var(--green); }
+    .word-frequency.medium { border-color: var(--blu-b); background: var(--blu-bg); color: var(--blue); }
+    .word-frequency.low { border-color: var(--ora-b); background: var(--ora-bg); color: var(--orange); }
+    [hidden] { display: none !important; }
+    .original summary { cursor: pointer; color: var(--tx2); }
+    .original { margin-bottom: 18px; }
+    .search-box { margin-bottom: 24px; }
+    .search-box input { width: 100%; padding: 10px 12px; background: var(--bg2); color: var(--tx); border: 1px solid var(--bd); border-radius: 6px; font: inherit; }
+    .search-box p { color: var(--tx2); font-size: 13px; }
+    .context { margin: 0 0 22px; padding: 17px 19px; border-left: 4px solid var(--blue); background: var(--bg3); color: var(--tx2); font-family: Georgia, serif; font-size: 16px; }
+    mark { padding: 1px 4px; border-radius: 4px; background: var(--yel-bg); color: var(--yellow); font-weight: 700; }
+    h3 { margin: 25px 0 10px; font-size: 17px; }
+    h3 mark.meaning { padding: 1px 5px; border-radius: 4px; background: #9ad59f; color: #12351c; font-weight: 800; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+    [data-theme="dark"] h3 mark.meaning { background: #245d3b; color: #dcffe6; }
+    h3 .freq { margin-left: 7px; }
+    .freq { display: inline-block; padding: 3px 7px; border: 1px solid var(--bd); border-radius: 999px; font: 700 10px/1.2 "IBM Plex Mono", monospace; vertical-align: 2px; }
+    .freq.high { border-color: var(--green-b); background: var(--green-bg); color: var(--green); }
+    .freq.common { border-color: var(--blu-b); background: var(--blu-bg); color: var(--blue); }
+    .freq.lower { border-color: var(--ora-b); background: var(--ora-bg); color: var(--orange); }
+    .structure { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .token { padding: 14px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); }
+    .token b { display: block; font-family: "IBM Plex Mono", monospace; }
+    .token span { color: var(--tx2); font-size: 13px; }
+    .whole { margin: 11px 0 0; color: var(--tx2); }
+    .examples { margin: 7px 0 0; padding-left: 22px; }
+    .examples li { margin: 11px 0; padding-left: 5px; }
+    .example-en { display: block; color: var(--tx); font-family: Georgia, serif; }
+    .example-zh { display: block; color: var(--tx2); }
+    code { padding: 2px 6px; border: 1px solid var(--bd); border-radius: 5px; background: var(--bg3); color: var(--tx); }
+    .correction { margin-top: 18px; padding: 16px 18px; border: 1px solid var(--yel-b); border-radius: 10px; background: var(--yel-bg); }
+    .correction strong { color: var(--yellow); }
+    .source-link { display: inline-block; margin-top: 20px; color: var(--blue); font-weight: 700; text-decoration: none; }
+    @media (max-width: 760px) { .mast-in, .layout { width: min(100% - 24px, 1180px); } .layout { display: block; } aside { position: static; margin-bottom: 30px; } #entry-nav { display: grid; grid-template-columns: repeat(3, auto); overflow-x: auto; } #entry-nav a, #entry-nav .paragraph-link, #entry-nav .word-link { padding: 8px 12px; white-space: nowrap; } .word-entry { padding: 23px 18px 25px 34px; } .structure { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="mast">
+    <div class="mast-in">
+      <nav class="crumbs" aria-label="面包屑"><a href="kaoyan-en-vocabulary.html">词汇总览</a><span>/</span><span>2016</span><span>/</span><span>英语二</span></nav>
+      <h1>2016 年英语二 · 真题词汇</h1>
+      <p class="subtitle">按原文位置归档：Text → 段落 → 单词。</p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside><p class="nav-title">本年目录</p><nav id="entry-nav" aria-label="本年词汇目录"></nav></aside>
+    <main>
+      <div class="search-box"><label for="word-search">查找本年词汇（单词或中文含义）</label><input id="word-search" type="search" placeholder="例如：forge、手术" aria-controls="text-2 text-3"><p id="search-status" role="status">共 14 个词条。义项暂按学习顺序组织，不表示已核实的频率排名。</p></div>
+      <section class="text-section" data-text="Text 2" id="text-2">
+        <div class="text-head"><h2>Text 2</h2><span class="source">READING</span></div>
+        <section class="paragraph-section" data-paragraph="第 2 段" id="text-2-p2">
+          <p class="paragraph-title">Text 2 · 第 2 段</p>
+          <article class="word-entry" data-word="state" id="text-2-p2-state">
+            <div class="word-top"><h2 class="word">state</h2><span class="answer">n. 州；州的（名词作定语）</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">In particular, they called for forging closer collaborations with western <mark>state</mark> governments, which are often uneasy with federal action, and with the private landowners who control an estimated 95% of the prairie chicken's habitat.</blockquote></details>
+
+            <h3>本句中怎么理解</h3>
+            <div class="structure" aria-label="western state governments 结构">
+              <div class="token"><b>western</b><span>形容词：西部的</span></div>
+              <div class="token"><b>state</b><span>名词作前置定语：州的</span></div>
+              <div class="token"><b>governments</b><span>中心名词：政府</span></div>
+            </div>
+            <p class="whole"><code>western state governments</code> 整体指“西部各州政府”。文章同时提到 <code>federal action</code>（联邦行动），州与联邦的对照进一步确定了这个词义。</p>
+
+            <h3>常见用法</h3>
+            <h3>1. 名词：<mark class="meaning">状态、状况</mark>（in a state of… / the state of…）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">表示人或事物所处的状态。</p>
+            <ul class="examples">
+              <li><span class="example-en">She was in a <strong>state</strong> of shock.</span><span class="example-zh">她处于震惊状态。</span></li>
+              <li><span class="example-en">The report examines the current <strong>state</strong> of the economy.</span><span class="example-zh">这份报告研究了当前的经济状况。</span></li>
+            </ul>
+
+            <h3>2. 名词：<mark class="meaning">州</mark>（美国等联邦制国家）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">指美国等联邦制国家的州；放在另一名词前时，常作名词定语，表示“州的”。</p>
+            <ul class="examples">
+              <li><span class="example-en"><strong>State</strong> governments control many local policies.</span><span class="example-zh">州政府管理许多地方政策。</span></li>
+              <li><span class="example-en">Each <strong>state</strong> has its own laws.</span><span class="example-zh">每个州都有自己的法律。</span></li>
+            </ul>
+
+            <h3>3. 动词：<mark class="meaning">陈述、规定</mark>（理由、事实、法律条文）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">表示清楚、正式地说出某事，常见于文章、规则和法律。</p>
+            <ul class="examples">
+              <li><span class="example-en">Please <strong>state</strong> your reasons clearly.</span><span class="example-zh">请清楚地陈述你的理由。</span></li>
+              <li><span class="example-en">The law <strong>states</strong> that all children must attend school.</span><span class="example-zh">法律规定所有儿童都必须上学。</span></li>
+            </ul>
+
+            <h3>4. 名词：<mark class="meaning">国家、政治实体</mark>（sovereign state / member state）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">Each member <strong>state</strong> has one vote.</span><span class="example-zh">每个成员国都有一票。</span></li>
+            </ul>
+
+            <h3>5. 名词：<mark class="meaning">政府、国家权力机构</mark>（the state）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">The <strong>state</strong> provides basic public services.</span><span class="example-zh">政府提供基本公共服务。</span></li>
+            </ul>
+
+            <div class="correction"><strong>快速判断：</strong><code>state of + 名词</code> 通常表示“……的状态”；在美国州与联邦的对照中，<code>state government / law / university</code> 可表示“州政府／州法／州立大学”；不能脱离国家和上下文一律译“州的”；<code>sovereign / member state</code> 表示“国家”；<code>state + that 从句</code> 中的 <code>state</code> 是动词“陈述、规定”。本句还有 <code>federal</code>（联邦的）与它对照，因此确定为“州的”。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年原文 →</a>
+          </article>
+
+          <article class="word-entry" data-word="forge" id="text-2-p2-forge">
+            <div class="word-top"><h2 class="word">forge</h2><span class="answer">v. 建立、促成（关系或合作）</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">In particular, they called for <mark>forging</mark> closer collaborations with western state governments, which are often uneasy with federal action, and with the private landowners who control an estimated 95% of the prairie chicken's habitat.</blockquote></details>
+
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>forge + collaboration / relationship / alliance</code> 表示“建立、促成合作或关系”。<code>called for forging closer collaborations</code> 意为“呼吁建立更紧密的合作关系”。</p>
+
+            <h3>常见用法</h3>
+            <h3>1. 动词：<mark class="meaning">建立、促成</mark>（联盟、关系、合作）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">They <strong>forged</strong> a strong friendship.</span><span class="example-zh">他们建立了深厚的友谊。</span></li>
+              <li><span class="example-en">The two countries <strong>forged</strong> a new alliance.</span><span class="example-zh">两国建立了新的联盟。</span></li>
+            </ul>
+
+            <h3>2. 动词：<mark class="meaning">伪造</mark>（签名、文件、货币）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">He was arrested for <strong>forging</strong> passports.</span><span class="example-zh">他因伪造护照被捕。</span></li>
+            </ul>
+
+            <h3>3. 动词：<mark class="meaning">锻造</mark>（金属）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">指加热并敲打金属，使其成形。</p>
+            <ul class="examples">
+              <li><span class="example-en">Blacksmiths <strong>forge</strong> iron into tools.</span><span class="example-zh">铁匠把铁锻造成工具。</span></li>
+            </ul>
+
+            <h3>4. <mark class="meaning">向前推进</mark>（forge ahead）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">The team <strong>forged ahead</strong> despite difficulties.</span><span class="example-zh">队伍不顾困难稳步前进。</span></li>
+            </ul>
+
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年原文 →</a>
+          </article>
+        </section>
+
+        <section class="paragraph-section" data-paragraph="第 3 段" id="text-2-p3">
+          <p class="paragraph-title">Text 2 · 第 3 段</p>
+          <article class="word-entry" data-word="as long as" id="text-2-p3-as-long-as">
+            <div class="word-top"><h2 class="word">as long as</h2><span class="answer">只要（引导条件状语从句）</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">Under the plan, for example, the agency said it would not prosecute landowners or businesses that unintentionally kill, harm, or disturb the bird, <mark>as long as</mark> they had signed a range-wide management plan to restore prairie chicken habitat.</blockquote></details>
+
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>as long as</code> 引导条件状语从句 <code>they had signed ...</code>，给 <code>would not prosecute ...</code> 附加条件：<strong>只要相关土地所有者或企业签署了保护计划，该机构就不会起诉他们。</strong></p>
+
+            <h3>常见用法</h3>
+            <h3>1. <mark class="meaning">只要</mark>（引导条件状语从句）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">表示“在某个条件下，主句的事情成立”，相当于 <code>provided that</code>。</p>
+            <ul class="examples">
+              <li><span class="example-en">You can borrow my car <strong>as long as</strong> you return it by Friday.</span><span class="example-zh">只要你周五前把车还给我，就可以借用我的车。</span></li>
+              <li><span class="example-en"><strong>As long as</strong> you work hard, you will succeed.</span><span class="example-zh">只要你努力，就会成功。</span></li>
+            </ul>
+
+            <h3>2. <mark class="meaning">和……一样长；长达</mark>（as + 形容词/副词 + as）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">这是 <code>as + 形容词/副词 + as</code> 比较结构，<code>long</code> 保留“长、持续时间久”的意思。比较两个对象时译为“和……一样长”；后接具体时长、强调时间之久时，可译为“长达、足足”，如下文的 <code>three hours</code>。</p>
+            <ul class="examples">
+              <li><span class="example-en">The rope is <strong>as long as</strong> that one.</span><span class="example-zh">这根绳子和那根一样长。</span></li>
+              <li><span class="example-en">It took <strong>as long as</strong> three hours to get there.</span><span class="example-zh">到那里花了足足三个小时。</span></li>
+            </ul>
+
+            <div class="correction"><strong>判断方法：</strong>若它说明主句成立的前提，就译为“只要”；若它回答“多长、多久”，就按长度或时长理解。不能只看后面是不是完整句子，例如 <code>Stay as long as you like.</code> 意为“你想待多久就待多久”。“既然”有时只是自然的语境翻译，不必单独背成常用词义。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年原文 →</a>
+          </article>
+
+          <article class="word-entry" data-word="operation" id="text-2-p3-operation">
+            <div class="word-top"><h2 class="word">operation</h2><span class="answer">n. 经营活动；作业活动</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">Negotiated by USFWS and the states, the plan requires individuals and businesses that damage habitat as part of their <mark>operations</mark> to pay into a fund to replace every acre destroyed with 2 new acres of suitable habitat.</blockquote></details>
+
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>their</code> 指前面的 <code>individuals and businesses</code>；复数 <code>operations</code> 指这些个人和企业日常进行的经营或作业活动。<code>as part of their operations</code> 可译为“在经营、作业过程中”，不是“手术”。</p>
+
+            <h3>常见用法</h3>
+            <h3>1. 名词：<mark class="meaning">业务、经营活动</mark>（company operations / daily operations）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">复数 <code>operations</code> 常指企业持续开展的各项业务和经营活动。</p>
+            <ul class="examples">
+              <li><span class="example-en">The company expanded its <strong>operations</strong> overseas.</span><span class="example-zh">这家公司把业务扩展到了海外。</span></li>
+              <li><span class="example-en">The manager handles the company's daily <strong>operations</strong>.</span><span class="example-zh">这位经理负责公司的日常运营。</span></li>
+            </ul>
+
+            <h3>2. 名词：<mark class="meaning">操作、运行</mark>（机器、系统、工厂）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">指操作设备的过程，或机器、系统正在运转的状态。</p>
+            <ul class="examples">
+              <li><span class="example-en">Safe <strong>operation</strong> of the machine requires training.</span><span class="example-zh">安全操作这台机器需要接受培训。</span></li>
+              <li><span class="example-en">The system is now in full <strong>operation</strong>.</span><span class="example-zh">该系统现已全面投入运行。</span></li>
+            </ul>
+
+            <h3>3. 名词：<mark class="meaning">行动</mark>（军事行动、营救人质等）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">The police launched an <strong>operation</strong> to rescue the hostages.</span><span class="example-zh">警方展开了营救人质的行动。</span></li>
+            </ul>
+
+            <h3>4. 名词：<mark class="meaning">手术</mark>（have an operation / an operation on…）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">She had an <strong>operation</strong> on her knee.</span><span class="example-zh">她的膝盖做了手术。</span></li>
+            </ul>
+
+            <h3>5. 名词：<mark class="meaning">运算</mark>（加减乘除、逻辑运算）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples">
+              <li><span class="example-en">Addition is a basic mathematical <strong>operation</strong>.</span><span class="example-zh">加法是一种基本的数学运算。</span></li>
+            </ul>
+
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年原文 →</a>
+          </article>
+          <article class="word-entry" data-word="association" id="text-2-p3-association">
+            <div class="word-top"><h2 class="word">association</h2><span class="answer">名词：协会、联合会</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">And it gives the Western <mark>Association</mark> of Fish and Wildlife Agencies (WAFWA), a coalition of state agencies, the job of monitoring progress.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>Association</code> 是组织名称的一部分，指“协会、联合会”。后面的 <code>a coalition of state agencies</code>（由各州机构组成的联盟）进一步说明它是一个组织，不是抽象的“关联”。</p>
+            <h3>常见用法</h3>
+            <h3>1. 名词：<mark class="meaning">协会、联合会</mark>（行业组织、专业团体）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">指为了共同职业、兴趣或目标成立的组织，是可数名词。</p>
+            <ul class="examples"><li><span class="example-en">She joined a local teachers' <strong>association</strong>.</span><span class="example-zh">她加入了当地的教师协会。</span></li></ul>
+            <h3>2. 名词：<mark class="meaning">关联、联系</mark>（an association between A and B）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">表示两件事之间存在联系；有“关联”不等于存在因果关系。</p>
+            <ul class="examples"><li><span class="example-en">The study found an <strong>association</strong> between stress and poor sleep.</span><span class="example-zh">这项研究发现压力与睡眠不佳之间存在关联。</span></li></ul>
+            <h3>3. 名词：<mark class="meaning">联想</mark>（记忆、感受；associations with…）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">看到或听到某物时，脑中随之浮现的记忆、想法或感受，常用复数。</p>
+            <ul class="examples"><li><span class="example-en">The song has happy <strong>associations</strong> for me.</span><span class="example-zh">这首歌让我产生愉快的联想。</span></li></ul>
+            <h3>4. <mark class="meaning">与……合作、联合</mark>（in association with…）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">记住这个实用搭配，常用于说明活动由哪些机构联合举办。</p>
+            <ul class="examples"><li><span class="example-en">The event was organized <strong>in association with</strong> a local museum.</span><span class="example-zh">这次活动是与当地一家博物馆联合举办的。</span></li></ul>
+            <div class="correction"><strong>联想记忆：</strong><code>associate A with B</code> 表示“把 A 与 B 联系起来”；<code>be associated with</code> 表示“与……有关”。例如 <code>People associate this song with summer.</code>：人们把这首歌与夏天联系起来。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年英语二原文 →</a>
+          </article>
+          <article class="word-entry" data-word="coalition" id="text-2-p3-coalition">
+            <div class="word-top"><h2 class="word">coalition</h2><span class="answer">n. 联盟；联合体</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">And it gives the Western Association of Fish and Wildlife Agencies (WAFWA), <mark>a coalition of state agencies</mark>, the job of monitoring progress.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>a coalition of state agencies</code> 是前面 WAFWA 的同位语，补充说明该协会是“由各州机构组成的联盟”。</p>
+            <h3>常见用法</h3>
+            <h3>1. 名词：<mark class="meaning">联盟、联合体</mark>（政党、组织、国家等为共同目标联合）<span class="freq">义项频率待核</span></h3>
+            <p class="whole"><code>coalition</code> 强调多个原本独立的团体为了共同目标联合起来；常见搭配有 <code>a coalition of…</code>、<code>form a coalition</code> 和 <code>coalition government</code>。</p>
+            <ul class="examples">
+              <li><span class="example-en">Several environmental groups formed a <strong>coalition</strong> to protect the forest.</span><span class="example-zh">几个环保组织组成联盟，共同保护这片森林。</span></li>
+              <li><span class="example-en">The two parties agreed to form a <strong>coalition government</strong>.</span><span class="example-zh">这两个政党同意组成联合政府。</span></li>
+            </ul>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年英语二原文 →</a>
+          </article>
+          <article class="word-entry" data-word="monitor progress" id="text-2-p3-monitor-progress">
+            <div class="word-top"><h2 class="word">monitor progress</h2><span class="answer">持续跟踪、监测进展</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">And it gives the Western Association of Fish and Wildlife Agencies (WAFWA), a coalition of state agencies, the job of <mark>monitoring progress</mark>.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>monitoring</code> 是动名词，作介词 <code>of</code> 的宾语；<code>the job of monitoring progress</code> 指“跟踪工作进展的任务”。这里不是只看一次，而是持续观察并检查进展。</p>
+            <h3>常见用法</h3>
+            <h3>1. <mark class="meaning">跟踪、监测进展</mark>（项目、计划、恢复情况）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">The team meets every week to <strong>monitor progress</strong> on the project.</span><span class="example-zh">团队每周开会跟踪项目进展。</span></li></ul>
+            <h3>2. 动词：<mark class="meaning">监测、监控</mark>（情况、活动、数据、表现）<span class="freq">义项频率待核</span></h3>
+            <p class="whole"><code>monitor</code> 强调持续观察，以便发现变化或问题。</p>
+            <ul class="examples"><li><span class="example-en">Doctors closely <strong>monitored</strong> the patient's condition.</span><span class="example-zh">医生密切监测病人的状况。</span></li></ul>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年英语二原文 →</a>
+          </article>
+        </section>
+        <section class="paragraph-section" data-paragraph="第 4 段" id="text-2-p4">
+          <p class="paragraph-title">Text 2 · 第 4 段</p>
+          <article class="word-entry" data-word="buy" id="text-2-p4-buy">
+            <div class="word-top"><h2 class="word">buy</h2><span class="answer">v. 相信、接受（观点或说法）</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">Not everyone <mark>buys</mark> the win-win rhetoric.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>buy</code> 此处不是“购买”，而是非正式用法“相信、接受”。<code>buy the win-win rhetoric</code> 即“相信／接受这种‘双赢’说辞”。</p>
+            <h3>常见用法</h3>
+            <h3>1. 动词：<mark class="meaning">相信、接受</mark>（观点、说法、解释）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">常见于 <code>I don't buy it.</code>、<code>buy an idea/story/explanation</code>；<code>buy into an idea</code> 也表示“相信并接受某种观念”。</p>
+            <ul class="examples">
+              <li><span class="example-en">I don't <strong>buy</strong> his explanation.</span><span class="example-zh">我不相信他的解释。</span></li>
+              <li><span class="example-en">Many people have <strong>bought into</strong> the idea that success requires constant work.</span><span class="example-zh">许多人接受了“成功需要不停工作”这一观念。</span></li>
+            </ul>
+            <h3>2. 动词：<mark class="meaning">购买</mark>（商品、服务）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">She <strong>bought</strong> a second-hand car last year.</span><span class="example-zh">她去年买了一辆二手车。</span></li></ul>
+            <h3>3. <mark class="meaning">争取时间</mark>（buy time）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">The temporary agreement will <strong>buy us some time</strong>.</span><span class="example-zh">这项临时协议能为我们争取一些时间。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong><code>buy</code> 后面如果是商品或服务，通常表示“购买”；如果是 <code>idea / story / explanation / argument</code> 等观点或说法，通常表示“相信、接受”。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年英语二原文 →</a>
+          </article>
+          <article class="word-entry" data-word="challenge" id="text-2-p4-challenge">
+            <div class="word-top"><h2 class="word">challenge</h2><span class="answer">v. 对……提出异议；依法质疑</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">Some Congress members are trying to block the plan, and at least a dozen industry groups, four states, and three environmental groups are <mark>challenging</mark> it in federal court.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>are challenging</code> 是现在进行时，宾语 <code>it</code> 指前面的计划；<code>challenge it in federal court</code> 表示“在联邦法院对该计划提出法律异议／提起诉讼”。这里的 <code>challenging</code> 是动词，不是形容词“有挑战性的”。</p>
+            <h3>常见用法</h3>
+            <h3>1. 动词：<mark class="meaning">质疑、反对</mark>（观点、决定、权威、合法性）<span class="freq">义项频率待核</span></h3>
+            <p class="whole">强调不接受某件事，并要求对方证明其正确或合法；<code>challenge a decision/law in court</code> 常译为“在法院对……提出异议”。</p>
+            <ul class="examples"><li><span class="example-en">The company plans to <strong>challenge</strong> the decision in court.</span><span class="example-zh">该公司计划在法院对这一决定提出异议。</span></li></ul>
+            <h3>2. 动词：<mark class="meaning">向……挑战</mark>（比赛、竞争；challenge sb to…）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">She <strong>challenged</strong> him to a game of chess.</span><span class="example-zh">她向他发起了一场国际象棋挑战。</span></li></ul>
+            <h3>3. 名词：<mark class="meaning">挑战、难题</mark>（face / meet a challenge）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">Climate change presents a serious <strong>challenge</strong>.</span><span class="example-zh">气候变化带来了严峻挑战。</span></li></ul>
+            <h3>4. 形容词：<mark class="meaning">有挑战性的、费力的</mark>（challenging task / job）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">The course is <strong>challenging</strong> but rewarding.</span><span class="example-zh">这门课程很有挑战性，但也很有收获。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong><code>be challenging + 宾语</code> 中，若 <code>challenging</code> 后面直接接宾语，通常是进行时“正在质疑／挑战”；<code>a challenging + 名词</code> 中，它才是形容词“有挑战性的”。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年英语二原文 →</a>
+          </article>
+          <article class="word-entry" data-word="go too far" id="text-2-p4-go-too-far">
+            <div class="word-top"><h2 class="word">go too far</h2><span class="answer">做得过头；超出合理限度</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">Not surprisingly, industry groups and states generally argue it <mark>goes too far</mark>; environmentalists say it doesn&#x27;t go far enough.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>it</code> 指前文的小草原松鸡保护计划；<code>goes too far</code> 不是字面上的“走得太远”，而是说这项计划超过了行业组织和各州认为合理的限度，结合语境即“管得太宽、限制过严”。它与后面的 <code>doesn&#x27;t go far enough</code>（力度还不够）形成直接对照。</p>
+            <h3>常见用法（以下为学习顺序，义项频率待核）</h3>
+            <h3>1. <mark class="meaning">做得过头、超出合理限度</mark>（行为、政策、批评、玩笑）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">The new rules <strong>go too far</strong> and place an unnecessary burden on small businesses.</span><span class="example-zh">这些新规定做得过头了，给小企业造成了不必要的负担。</span></li></ul>
+            <h3>2. <mark class="meaning">把某事做得太过分</mark>（take something too far）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">The joke was funny at first, but he <strong>took it too far</strong>.</span><span class="example-zh">这个玩笑起初挺有趣，但他后来开得太过分了。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong><code>go too far</code> 表示“超过合理限度”；<code>not go far enough</code> 表示“做得还不够”。主语是政策、规定、批评或行为时，通常不是在描述实际距离。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t2">查看 2016 年英语二原文 →</a>
+          </article>
+        </section>
+      </section>
+      <section class="text-section" data-text="Text 3" id="text-3">
+        <div class="text-head"><h2>Text 3</h2><span class="source">READING</span></div>
+        <section class="paragraph-section" data-paragraph="第 1 段" id="text-3-p1">
+          <p class="paragraph-title">Text 3 · 第 1 段</p>
+          <article class="word-entry" data-word="there is never any time to do sth." id="text-3-p1-there-is-never-any-time-to-do">
+            <div class="word-top"><h2 class="word">There is never any time to do sth.</h2><span class="answer">从来没有时间做某事</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context"><mark>There&#x27;s never any time to read</mark>.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>There&#x27;s</code> 是 <code>There is</code> 的缩写，构成存在句；<code>never any time</code> 表示“从来没有任何时间”。<code>to read</code> 是不定式短语，后置修饰名词 <code>time</code>，说明这是“用来读书的时间”，而不是修饰整个存在句的目的状语。因此原句表示“从来没有时间读书”。</p>
+            <h3>常见用法（以下为学习顺序，义项频率待核）</h3>
+            <h3>1. <mark class="meaning">从来没有时间做某事</mark>（There is never any time to do sth.）<span class="freq">义项频率待核</span></h3>
+            <p class="whole"><code>never any</code> 强调这种“没时间”的情况一贯存在，语气比单纯的 <code>There is no time...</code> 更强。</p>
+            <ul class="examples"><li><span class="example-en"><strong>There is never any time to relax</strong> during the busy season.</span><span class="example-zh">旺季期间从来没有时间休息。</span></li></ul>
+            <h3>2. <mark class="meaning">没有时间做某事</mark>（There is no time to do sth.）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en"><strong>There is no time to waste</strong>.</span><span class="example-zh">没有时间可以浪费。</span></li></ul>
+            <h3>3. <mark class="meaning">没有足够时间做某事</mark>（There is not enough time to do sth.）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en"><strong>There is not enough time to finish</strong> the report today.</span><span class="example-zh">今天没有足够的时间完成这份报告。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong><code>never any time</code> 强调“一直没有时间”；<code>no time</code> 表示当前或特定情况下“没有时间”；<code>not enough time</code> 表示“有一些时间，但不够”。三种结构中的 <code>to do</code> 都后置修饰 <code>time</code>。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t3">查看 2016 年英语二原文 →</a>
+          </article>
+        </section>
+        <section class="paragraph-section" data-paragraph="第 2 段" id="text-3-p2">
+          <p class="paragraph-title">Text 3 · 第 2 段</p>
+          <article class="word-entry" data-word="technique vs. technology" id="text-3-p2-technique-vs-technology">
+            <div class="word-top"><h2 class="word">technique vs. technology</h2><span class="answer">具体方法、技巧 vs. 科学技术、技术体系</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">What makes the problem thornier is that the usual time-management <mark>techniques</mark> don&#x27;t seem sufficient.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>techniques</code> 是可数名词 <code>technique</code> 的复数形式；<code>time-management</code> 在前面作定语。<code>the usual time-management techniques</code> 指“常用的时间管理方法”，强调具体怎样安排和利用时间，不是泛指科学技术。</p>
+            <h3>核心辨析</h3>
+            <div class="wrap"><table>
+              <thead><tr><th>词</th><th>实际含义</th><th>典型对象</th></tr></thead>
+              <tbody>
+                <tr><td><code>technique</code></td><td>做某事的具体方法、技巧，强调实践中的“怎么做”</td><td>学习、教学、绘画、谈判、时间管理的方法</td></tr>
+                <tr><td><code>technology</code></td><td>科学技术、技术体系或技术工具，强调成体系的知识及其设备和应用</td><td>数字、医疗、通信、信息技术及相关设备</td></tr>
+              </tbody>
+            </table></div>
+            <h3>1. 名词：<mark class="meaning">具体方法、技巧</mark>（解决问题、教学、绘画、管理）<span class="freq">义项频率待核</span></h3>
+            <p class="whole"><code>technique</code> 通常可数，关注完成某项具体活动所采用的方法或熟练技巧。</p>
+            <ul class="examples"><li><span class="example-en">This breathing <strong>technique</strong> can help reduce stress.</span><span class="example-zh">这种呼吸方法有助于减轻压力。</span></li></ul>
+            <h3>2. 名词：<mark class="meaning">科学技术、技术体系</mark>（数字、医疗、通信、信息领域）<span class="freq">义项频率待核</span></h3>
+            <p class="whole"><code>technology</code> 泛指某一领域的科技时通常不可数；表示不同的具体技术时也可以使用复数 <code>technologies</code>。</p>
+            <ul class="examples"><li><span class="example-en">New medical <strong>technology</strong> has improved the accuracy of diagnosis.</span><span class="example-zh">新的医疗技术提高了诊断的准确性。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong>如果强调“完成一件事具体采用什么做法”，通常用 <code>technique</code>；如果强调成体系的科技、工具、设备或应用，通常用 <code>technology</code>。<code>technology</code> 不只是理论，也包含科学知识的实际应用。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t3">查看 2016 年英语二原文 →</a>
+          </article>
+          <article class="word-entry" data-word="free up" id="text-3-p2-free-up">
+            <div class="word-top"><h2 class="word">free up</h2><span class="answer">腾出；释放，使可供使用</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">But in my experience, using such methods to <mark>free up</mark> the odd 30 minutes doesn&#x27;t work.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>free up</code> 是短语动词，表示把原本被占用的时间释放出来，使其可以用于别的事情。<code>to free up the odd 30 minutes</code> 说明采用这些方法的目的；宾语 <code>the odd 30 minutes</code> 指偶尔挤出的、零散的30分钟。因此这里可理解为“腾出零散的30分钟”。</p>
+            <h3>常见用法（以下为学习顺序，义项频率待核）</h3>
+            <h3>1. <mark class="meaning">腾出、释放，使可供使用</mark>（时间、空间、资金、资源）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">Automating routine tasks can <strong>free up time</strong> for more important work.</span><span class="example-zh">把日常任务自动化可以腾出时间处理更重要的工作。</span></li></ul>
+            <h3>2. <mark class="meaning">使某人能腾出精力做某事</mark>（free sb. up to do sth.）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">Hiring an assistant <strong>freed her up to focus</strong> on her clients.</span><span class="example-zh">聘请助理后，她得以把精力集中在客户身上。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong><code>free up</code> 是可分短语动词。名词宾语可以放在后面，如 <code>free up some space</code>；代词宾语必须放在中间，如 <code>free it up</code>，不能说 <code>free up it</code>。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t3">查看 2016 年英语二原文 →</a>
+          </article>
+          <article class="word-entry" data-word="so adjective or adverb that" id="text-3-p2-so-that">
+            <div class="word-top"><h2 class="word">so + adj./adv. + that...</h2><span class="answer">如此……，以至于……</span><span class="word-frequency" title="英语一、英语二合并；语料范围、次数及分级尚未核实">考研词频：待核</span></div>
+            <details class="original"><summary>查看真题原句</summary><blockquote class="context">Sit down to read and the flywheel of work-related thoughts keeps spinning – or else you&#x27;re <mark>so exhausted that a challenging book&#x27;s the last thing you need</mark>.</blockquote></details>
+            <h3>本句中怎么理解</h3>
+            <p class="whole"><code>so</code> 是程度副词，修饰形容词 <code>exhausted</code>（筋疲力尽的）；<code>that</code> 引导结果状语从句，说明疲惫到什么结果。<code>book&#x27;s</code> 是 <code>book is</code> 的缩写，<code>the last thing you need</code> 不是“最后需要的东西”，而是“最不需要、最不想面对的东西”。整段表示“你累得筋疲力尽，以至于最不想碰的就是一本难读的书”。</p>
+            <h3>常见用法（以下为学习顺序，义项频率待核）</h3>
+            <h3>1. <mark class="meaning">如此……，以至于……</mark>（so + 形容词 + that 结果从句）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">She was <strong>so tired that</strong> she fell asleep immediately.</span><span class="example-zh">她太累了，以至于马上就睡着了。</span></li></ul>
+            <h3>2. <mark class="meaning">如此……，以至于……</mark>（so + 副词 + that 结果从句）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">He spoke <strong>so quietly that</strong> nobody could hear him.</span><span class="example-zh">他说话声音太小，以至于没人能听见。</span></li></ul>
+            <h3>3. <mark class="meaning">如此……以至于……</mark>（such + 名词短语 + that 结果从句）<span class="freq">义项频率待核</span></h3>
+            <ul class="examples"><li><span class="example-en">It was <strong>such a difficult book that</strong> few students finished it.</span><span class="example-zh">这是一本如此难读的书，以至于很少有学生读完。</span></li></ul>
+            <div class="correction"><strong>快速判断：</strong><code>so</code> 后面通常接形容词或副词，如 <code>so tired / so quickly</code>；<code>such</code> 后面接名词短语，如 <code>such a difficult book</code>。两者后面的 <code>that</code> 从句都说明结果。</div>
+            <a class="source-link" href="kaoyan-en-2016-reading.html#t3">查看 2016 年英语二原文 →</a>
+          </article>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var nav = document.getElementById('entry-nav');
+      document.querySelectorAll('.text-section').forEach(function (textSection) {
+        var textLink = document.createElement('a');
+        textLink.className = 'text-link';
+        textLink.href = '#' + textSection.id;
+        textLink.textContent = textSection.dataset.text;
+        nav.appendChild(textLink);
+        textSection.querySelectorAll('.paragraph-section').forEach(function (paragraph) {
+          var paragraphLink = document.createElement('a');
+          paragraphLink.className = 'paragraph-link';
+          paragraphLink.href = '#' + paragraph.id;
+          paragraphLink.textContent = paragraph.dataset.paragraph;
+          nav.appendChild(paragraphLink);
+          paragraph.querySelectorAll('.word-entry').forEach(function (entry) {
+            var wordLink = document.createElement('a');
+            wordLink.className = 'word-link';
+            wordLink.href = '#' + entry.id;
+            wordLink.textContent = entry.dataset.word;
+            nav.appendChild(wordLink);
+          });
+        });
+      });
+      var search = document.getElementById('word-search');
+      var entries = Array.from(document.querySelectorAll('.word-entry'));
+      function filterEntries() {
+        var query = search.value.trim().toLowerCase();
+        entries.forEach(function (entry) {
+          entry.hidden = query !== '' && !entry.textContent.toLowerCase().includes(query);
+        });
+        document.querySelectorAll('.paragraph-section, .text-section').forEach(function (section) {
+          section.hidden = !Array.from(section.querySelectorAll('.word-entry')).some(function (entry) { return !entry.hidden; });
+        });
+        nav.querySelectorAll('a').forEach(function (link) {
+          link.hidden = document.getElementById(link.hash.slice(1)).hidden;
+        });
+        var count = entries.filter(function (entry) { return !entry.hidden; }).length;
+        document.getElementById('search-status').textContent = query
+          ? (count ? '找到 ' + count + ' 个词条' : '没有匹配词条，请换个关键词。')
+          : '共 ' + entries.length + ' 个词条。义项暂按学习顺序组织，不表示已核实的频率排名。';
+      }
+      search.addEventListener('input', filterEntries);
+      window.addEventListener('hashchange', function () {
+        var target = document.getElementById(location.hash.slice(1));
+        var entry = target && target.closest('.word-entry');
+        if (entry && entry.hidden) {
+          search.value = '';
+          filterEntries();
+          target.scrollIntoView();
+        }
+      });
+    }());
+  </script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英语语法与词汇 · 长期学习深度研究（非应试向）</title>
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#161b22; --bg3:#1c2330; --line:#2d333b;
+    --txt:#c9d1d9; --txt2:#8b949e; --accent:#58a6ff; --accent2:#3fb950;
+    --warn:#f0883e; --danger:#f85149; --purple:#bc8cff; --gold:#e3b341;
+    --code:#a5d6ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.7;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 28px 120px}
+  h1{font-size:30px;font-weight:800;letter-spacing:.5px;background:linear-gradient(90deg,#58a6ff,#bc8cff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px}
+  h2{font-size:22px;margin:46px 0 16px;padding-left:12px;border-left:4px solid var(--accent);color:#e6edf3}
+  h3{font-size:17px;margin:26px 0 10px;color:#e6edf3}
+  h4{font-size:15px;margin:18px 0 8px;color:var(--accent)}
+  p{margin:10px 0;color:var(--txt)}
+  .sub{color:var(--txt2);font-size:14px;margin-bottom:6px}
+  .meta{color:var(--txt2);font-size:13px;margin-bottom:30px;border-bottom:1px solid var(--line);padding-bottom:16px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--bg3);color:#e6edf3;font-weight:600;font-size:13px}
+  tr:nth-child(even){background:rgba(255,255,255,.02)}
+  code{background:#21323f;color:var(--code);padding:1px 6px;border-radius:4px;font-size:12.5px;font-family:"SF Mono",Consolas,monospace}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:16px 0}
+  .callout{border-radius:10px;padding:14px 18px;margin:16px 0;border:1px solid;font-size:14px}
+  .callout.tip{background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.4)}
+  .callout.warn{background:rgba(240,136,62,.08);border-color:rgba(240,136,62,.4)}
+  .callout.danger{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.4)}
+  .callout.info{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.4)}
+  .callout b{color:#e6edf3}
+  .tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:20px;font-weight:600;margin-right:4px}
+  .t-high{background:rgba(63,185,80,.18);color:#3fb950;border:1px solid rgba(63,185,80,.4)}
+  .t-mid{background:rgba(227,179,65,.18);color:var(--gold);border:1px solid rgba(227,179,65,.4)}
+  .t-low{background:rgba(248,81,73,.18);color:var(--danger);border:1px solid rgba(248,81,73,.4)}
+  .t-ok{background:rgba(88,166,255,.18);color:var(--accent);border:1px solid rgba(88,166,255,.4)}
+  .pill{display:inline-block;background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:2px 10px;font-size:12px;color:var(--txt2);margin:2px 4px 2px 0}
+  ul,ol{margin:10px 0 10px 22px}
+  li{margin:5px 0}
+  .toc{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 24px;margin:24px 0}
+  .toc a{display:block;padding:3px 0;color:var(--txt)}
+  .toc a:hover{color:var(--accent)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--accent);color:#0d1117;border-radius:50%;font-weight:700;font-size:13px;margin-right:8px}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+  .kpi .box{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+  .kpi .n{font-size:26px;font-weight:800;color:var(--accent)}
+  .kpi .l{font-size:12px;color:var(--txt2);margin-top:4px}
+  .src{font-size:11.5px;color:var(--txt2);margin-top:4px}
+  .src a{color:var(--txt2);text-decoration:underline dotted}
+  .foot{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--txt2);font-size:12.5px}
+  .hl{color:var(--gold);font-weight:600}
+  .strong{color:#e6edf3;font-weight:600}
+  .quote{border-left:3px solid var(--purple);padding-left:14px;color:var(--txt2);font-style:italic;margin:12px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>英语语法与词汇 · 长期学习深度研究</h1>
+<p class="sub">面向「中国成年在职 · 理工背景 · 时间有限 · 目标是长期真正掌握英语读写能力」的自学者 — 非应试导向</p>
+<div class="meta">
+  调研方法：4 路并行子代理（中文语法书 / 英文原版经典 / 词汇与词根 / 用法词典与学习法），每本尽量 2–3 个独立来源交叉验证<br>
+  核实等级：<span class="tag t-high">高</span> 出版社/豆瓣官方/图书馆目录/同行评审论文　<span class="tag t-mid">中</span> 单一可靠来源（书评/博客/百科引述）　<span class="tag t-low">低</span> 营销软文/论坛 anecdotal<br>
+  价格提示：电商价波动大，凡标注"未核实"者下单前以商品页实时标价为准；本报告价格多为标价或聚合估算，非逐本实时核实
+</div>
+
+<!-- ============ 省流版 ============ -->
+<h2><span class="num">0</span>省流版：你到底该买什么</h2>
+<p>核心原则：<span class="strong">不要买一堆书</span>。长期学习 ≠ 堆书，而是「理解 1 本语法 + 练习 1 本语法 + 打底 1 本词汇 + 体系 1 本词根 + 查证工具 + 长期坚持方法论」。其余靠<strong>大量阅读 + 英文写作</strong>补齐。</p>
+
+<table>
+<thead><tr><th>模块</th><th>推荐（首选）</th><th>务实替代 / 补充</th><th>一句话理由</th></tr></thead>
+<tbody>
+<tr><td><b>语法理解</b><br><span class="tag t-ok">必买1本</span></td>
+<td>旋元佑《语法俱乐部》/ 台版《旋元佑文法》<br><span class="pill">豆瓣9.4</span><span class="pill">理解型天花板</span></td>
+<td>张满胜《语法体系及底层逻辑全解密》(2020, 8.5分) — 大陆易购</td>
+<td>反死记、重理解，最适合「理工脑想搞懂 why」的成年人；台版需代购</td></tr>
+<tr><td><b>语法练习</b><br><span class="tag t-ok">主线</span></td>
+<td>Murphy《English Grammar in Use》中级 第5版 + 外研社中文版</td>
+<td>进阶后上 Hewings《Advanced Grammar in Use》</td>
+<td>两页式自学友好（讲解+练习），全球最畅销语法练习书</td></tr>
+<tr><td><b>词汇打底</b><br><span class="tag t-ok">必买1本</span></td>
+<td>《韦氏英汉双解扩词手册》（韦小绿中文版，北大社2021, ¥128）</td>
+<td>—</td>
+<td>中英对照、门槛低、先建立词根兴趣与约1200词</td></tr>
+<tr><td><b>词根体系</b><br><span class="tag t-ok">案头工具</span></td>
+<td>李平武《英语词根与单词的说文解字》+《英语词缀与英语派生词》（外研社）</td>
+<td>Word Power Made Easy（英文，需4000+词汇）</td>
+<td>唯一体系化中文形态学理论；已再版在售，旧"绝版"说法过时</td></tr>
+<tr><td><b>搭配/用法查证</b></td>
+<td>Oxford/Longman Collocations Dictionary + Cambridge《Collocations in Use》</td>
+<td>词典：欧路+GoldenDict 挂 MDX 词库；语料库：COCA / Ludwig / YouGlish</td>
+<td>避免"中式英语"，写作时核查地道搭配</td></tr>
+<tr><td><b>方法论</b></td>
+<td>Paul Nation 四 strands（各25%）：阅读输入+写作输出+刻意学习+流利度</td>
+<td>—</td>
+<td>有同行评审实证支撑的长期均衡框架，详见 §5</td></tr>
+</tbody>
+</table>
+
+<div class="callout danger"><b>⚠ 三个最容易踩的坑</b>
+<ol>
+<li><b>旋元佑大陆版已绝版</b>，网上流传的简体版多为盗版/网友拼装（个别章节被删），正版只走台版《旋元佑文法》代购（约¥128–145）。</li>
+<li><b>薄冰 / 章振邦 / 张道真不是"课本"是"工具书"</b>——大而全，适合查阅不适合通读，买回来从头读完是最大浪费。</li>
+<li><b>词根法有学术支持，但只是"辅助策略"</b>，不能单靠它。Nation 等研究明确：必须配合<strong>大量可理解阅读</strong>才能内化词汇。</li>
+</ol>
+</div>
+
+<!-- ============ TOC ============ -->
+<div class="toc">
+<b style="color:#e6edf3">目录</b>
+<a href="#s1">1. 中文语境语法书（9 本逐本交叉验证）</a>
+<a href="#s2">2. 英文原版语法经典（含分层推荐）</a>
+<a href="#s3">3. 词汇 / 词根词缀书（含二语习得学术定论）</a>
+<a href="#s4">4. 用法搭配词典 + 语料库工具</a>
+<a href="#s5">5. 长期学习方法论（学术依据，逐条附出处）</a>
+<a href="#s6">6. 一周 1 小时实操配置方案</a>
+<a href="#s7">7. 交叉验证结论 + 未核实项清单</a>
+<a href="#s8">8. 来源与可信度说明</a>
+</div>
+
+<!-- ============ 1 ============ -->
+<h2 id="s1"><span class="num">1</span>中文语境语法书（9 本逐本交叉验证）</h2>
+<p class="sub">核实来源：豆瓣代理 / 出版社 MARC / 孔夫子二手 / 当当博客来 / 百度百科 / 知乎长评 / 专业书评（多源交叉）</p>
+
+<table>
+<thead><tr><th>书名 / 作者</th><th>版次·出版社·ISBN</th><th>页数·定价</th><th>豆瓣评分</th><th>在售状态</th><th>定位与适用</th><th>最被诟病</th></tr></thead>
+<tbody>
+<tr><td><b>旋元佑《语法俱乐部》</b><br>(九州2001)</td><td>2001-05 九州<br>ISBN 9787801146274</td><td>440页·¥35</td><td><span class="tag t-high">9.4</span>(5230人)</td><td>大陆绝版，仅二手(¥20–30)</td><td>理解型体系向；适合心智成熟、想懂"为什么"</td><td>个别解释牵强；零基础不适合</td></tr>
+<tr><td><b>《旋元佑文法》</b><br>(台版)</td><td>2019 众文<br>ISBN 9789575325329</td><td>633页·NT$750</td><td>好评率高(当当/博客来)</td><td><span class="strong">正版唯一来源</span>：代购约¥128–145</td><td>台版"经典重现"，内容经20年精炼</td><td>需代购、周期长</td></tr>
+<tr><td><b>张满胜《新思维》初级</b></td><td>第2版2018 群言<br>ISBN 9787800808357</td><td>298页·¥38</td><td>系列9.0+</td><td>在售</td><td>初中级：词/句型/时态</td><td>—</td></tr>
+<tr><td><b>张满胜《新思维》中级</b></td><td>第2版2018 群言<br>ISBN 9787519304782</td><td>364页·¥68</td><td>同上</td><td>在售</td><td>高中级：三大从句/完成/虚拟/情态</td><td>例句偏难(学术场景)</td></tr>
+<tr><td><b>张满胜《新思维》高级</b></td><td>第2版2018 群言<br>ISBN 9787519304799</td><td>384页·¥68</td><td>第1版9.0(487人)；第2版7.6(88人)<span class="src">样本小存疑</span></td><td>在售</td><td>大学级：从句进阶/非谓语</td><td>第2版评分下滑</td></tr>
+<tr><td><b>张满胜《语法体系及底层逻辑全解密》</b></td><td>2020 群言<br>ISBN 9787519305260</td><td>598页·精装·¥158</td><td><span class="tag t-high">8.5</span>(147人)</td><td>在售</td><td>单本打通全体系，务实替代三册</td><td>篇幅大、定价高</td></tr>
+<tr><td><b>赖世雄《经典英语语法》</b></td><td>2014/2019外文<br>2025中国宇航</td><td>510页·¥45–59.8</td><td><span class="tag t-high">9.0</span>(480人)</td><td>在售</td><td>口语化+37h音频；基础薄弱者友好</td><td>零基础直接啃会懵；深度有限</td></tr>
+<tr><td><b>章振邦《新编英语语法教程》</b></td><td>第6版2017 上外<br>ISBN 9787544649094</td><td>497页·¥65</td><td>早期第3版7.2(19人)<span class="tag t-low">样本小</span></td><td>在售(教材)</td><td>英专教材，现代语言学体系</td><td>术语陌生、门槛高，不像读物</td></tr>
+<tr><td><b>章振邦《新编高级英语语法》</b></td><td>2024第2版 上外<br>ISBN 9787544671255</td><td>880页·¥128–228</td><td>营销称9.5+<span class="tag t-low">未核实</span></td><td>在售</td><td>高阶工具书/研究型</td><td>厚、像教材</td></tr>
+<tr><td><b>薄冰《高级英语语法》</b></td><td>2002 世界知识</td><td>—</td><td>7.4(多抓鱼)</td><td>二手为主</td><td>传统体系+当代观点，研究型参考</td><td>体系传统、偏"资料汇编"</td></tr>
+<tr><td><b>张道真《实用英语语法》</b></td><td>2002第5版 外研社<br>ISBN 9787560024486</td><td>669页·¥39.9</td><td>确切分<span class="tag t-low">未核实</span>(论坛称约8)</td><td>在售</td><td>以动词为纲，工具书</td><td>枯燥、近1000页难通读</td></tr>
+<tr><td><b>叶永昌《英语阅读参考手册》</b></td><td>2015 电子工业<br>ISBN 9787121259500</td><td>387页·¥65</td><td><span class="tag t-high">9.1</span>(728人)</td><td>在售</td><td>以"关联词/小词"为索引的查阅手册，理工阅读友好</td><td>非系统教程、老派</td></tr>
+</tbody>
+</table>
+
+<div class="callout info"><b>补充口碑书</b>：《英语思维：英语语法的原理》（华东理工，谢氏体系）——从"时/态"本源讲语法原理，多名理工背景学习者称"框架最清晰"，适合有一定基础者配视频；小众、需配合课程。</div>
+
+<h3>争议点交叉验证结论</h3>
+<div class="card">
+<p><b>① 旋元佑大陆版是否绝版？网上的是否盗版？</b> <span class="tag t-high">高可信</span><br>
+结论：大陆九州版(2001)确已绝版且<b>存版权争议</b>——91reading 明确指出该简体版属"阉割版/盗版"，个别 Grammar 章节被删、无正版引进。正版唯一来源是台版《旋元佑文法》(众文2019)。网上流传的简体版多为网友自行拼装/转换。<b>购买建议</b>：走代购（当当"中商原版"/博客来直邮/中华商务，约¥128–145）；二手旧版版权存疑不建议。</p>
+<p><b>② 张满胜三册怎么选？</b> <span class="tag t-high">高可信</span><br>
+初级(词/句型/时态)→中级(三大从句/完成/虚拟/情态)→高级(从句进阶/非谓语)。时间有限<b>不必三册全读</b>，按需取；想"一本打通"选2020《底层逻辑全解密》(8.5分,598页,大陆易购)。</p>
+<p><b>③ 薄冰/章振邦/张道真是否只适合工具书？</b> <span class="tag t-high">高可信</span><br>
+基本成立。三者"大而全、体系传统或大改"，北外背景访谈明确指出"适合学生翻阅、不适合通读"。章振邦对英专高年级/研究者可通读，但对普通自学者是浪费。</p>
+</div>
+
+<div class="callout tip"><b>✓ 如果只选一本中文语法书</b><br>
+首选<b>旋元佑《语法俱乐部》/台版《旋元佑文法》</b>——9.4分中文语法书最高分梯队，重理解、不堆砌，最适合"理工脑想搞懂 why"的成年人。唯一障碍是台版代购；若不能接受，务实替代是<b>张满胜《底层逻辑全解密》</b>（大陆易购、思维派、单本建框架）。</div>
+
+<!-- ============ 2 ============ -->
+<h2 id="s2"><span class="num">2</span>英文原版语法经典（含分层推荐）</h2>
+<p class="sub">核实来源：Goodreads / Amazon / 出版社官网(OUP·CUP·Pearson) / 图书馆 OPAC / 学术书评(ELTJ·Linguist List)（多源交叉）</p>
+
+<table>
+<thead><tr><th>书名 / 作者</th><th>版次</th><th>Goodreads</th><th>适用 CEFR</th><th>中文引进</th><th>定位</th></tr></thead>
+<tbody>
+<tr><td><b>Murphy《English Grammar in Use》中级</b></td><td>第5版 2019</td><td>~4.3–4.4 <span class="tag t-mid">聚合</span></td><td>B1–B2</td><td><span class="strong">外研社中文版</span>（已核实）</td><td>两页式自学练习主线</td></tr>
+<tr><td><b>Hewings《Advanced Grammar in Use》</b></td><td>第4版 2023</td><td>4.18 / 752 <span class="tag t-high">已核实</span></td><td><span class="strong">C1–C2</span></td><td>疑全套含(待确认)</td><td>系列最高阶，注意作者非 Murphy</td></tr>
+<tr><td><b>Swan《Practical English Usage》</b></td><td>第4版 2016，OUP</td><td>教师圈"圣经"</td><td>B2–C2+教师</td><td><span class="strong">外研社《英语用法指南》第4版</span> 2019</td><td><b>查阅型</b>用法疑难词典，非系统教材</td></tr>
+<tr><td><b>Azar《Understanding and Using English Grammar》</b></td><td>第5版 Pearson</td><td>~4.5 <span class="tag t-mid">聚合</span></td><td>B2–C1(美式)</td><td>旧译失败(2.7星)；台版英汉5e</td><td>美式教材型，重</td></tr>
+<tr><td><b>Huddleston & Pullum《Cambridge Grammar of the English Language》</b></td><td>2002，1860页</td><td>—</td><td>学术参考</td><td>仅简写本《学生英语语法》中译</td><td>学术描述性参考语法，<b>不适合自学者主线</b></td></tr>
+<tr><td><b>Longman Grammar of SWE (Biber)</b></td><td>1999，1203页</td><td>—</td><td>学术参考</td><td>无中文版</td><td>语料库学术语法，厚重</td></tr>
+<tr><td><b>Williams《Style: Lessons in Clarity and Grace》</b></td><td>第13版</td><td>4.22 / 2069 <span class="tag t-high">已核实</span></td><td>写作者(需基础)</td><td>有中译</td><td>写作原理，<b>非语法书</b></td></tr>
+<tr><td><b>Zinsser《On Writing Well》</b></td><td>多版</td><td>4.24 / 31610 <span class="tag t-high">已核实</span></td><td>所有写作者</td><td>有中译《写作法宝》</td><td>非虚构写作"圣经"，最普适</td></tr>
+<tr><td><b>Strunk & White《The Elements of Style》</b></td><td>经典薄册</td><td>高(文化符号)</td><td>基础风格</td><td>多中译</td><td>语言学家 Pullum 严批其语法条款，<b>勿奉为权威</b></td></tr>
+<tr><td><b>Pinker《The Sense of Style》</b></td><td>2014</td><td>~4.0 <span class="tag t-mid">聚合</span></td><td>经验写作者</td><td>有中译《风格感觉》</td><td>认知科学视角写作指南</td></tr>
+</table>
+
+<div class="callout info"><b>关键澄清</b>
+<ul>
+<li><b>Murphy 中级 vs Hewings 高级</b>：同属 Cambridge「Grammar in Use」系列、同两页式结构，但是<b>递进关系非替代</b>。中级 Murphy 写(B1–B2)，高级 Hewings 写(C1–C2，CUP 称"系列最高阶")。先中级打牢，再高级突破。</li>
+<li><b>Practical English Usage 不是语法书，是用法疑难词典</b>：OUP 定位"your guide to problems in English"，A–Z/专题查疑，无系统练习。Swan 专为 learners 写，比 Garner/Chicago 对非母语者友好。</li>
+<li><b>CGEL(H&P) 不适合普通自学者</b>：1860页、3.1kg、US$150，面向语言学家；自学者想了解现代框架应读其<b>简写本《学生英语语法》中译</b>。</li>
+<li><b>写作/文体类 ≠ 语法书</b>：Williams/Zinsser/Pinker 解决"清不清楚、优不优雅"，应在语法框架(B2+)稳定后读。其中 Zinsser 最普适、先读。</li>
+</ul>
+</div>
+
+<div class="callout tip"><b>✓ 英文原版分层推荐</b><br>
+入门(A2→B1)：Murphy《Essential Grammar in Use》+外研社中文版　|　中阶(B1→B2)：Murphy《English Grammar in Use》中级(第5版)　|　高阶(C1→C2)：Hewings《Advanced Grammar in Use》+ Swiss《Practical English Usage》中译查疑　|　写作提升：Zinsser《On Writing Well》→ Williams《Style》→ Pinker</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="s3"><span class="num">3</span>词汇 / 词根词缀书（含二语习得学术定论）</h2>
+<p class="sub">核实来源：Goodreads / AbeBooks / Amazon / 豆瓣(经百科·OPAC间接) / 知乎长文 / TESL-EJ学术书评 / Nation本人论文与访谈（多源交叉）</p>
+
+<table>
+<thead><tr><th>书名</th><th>评分(已核实源)</th><th>版次/ISBN/页数</th><th>定价</th><th>门槛</th><th>最被诟病</th></tr></thead>
+<tbody>
+<tr><td><b>Word Power Made Easy</b> (Lewis)</td><td><span class="tag t-high">4.42</span>(~9200)</td><td>Anchor 2014<br>ISBN 9781101873854<br>560页</td><td>$9.99(标)</td><td>母语者向；非母语需4000+词、全英文</td><td>篇幅长需耐心；偏美式；多人"看不完"</td></tr>
+<tr><td><b>Verbal Advantage</b> (Elster)</td><td><span class="tag t-high">4.51</span>(523)</td><td>Random 2002<br>ISBN 0375709320<br>459页</td><td>未核实(典型$15–20)</td><td>母语者"顶尖"词汇；非母语进阶才宜</td><td>"警察式"纠正发音惹厌；很美式；门槛高</td></tr>
+<tr><td><b>韦氏小绿(英文版)</b></td><td><span class="tag t-high">4.47</span>(731)</td><td>2021第3版<br>ISBN 9780877798552<br>576–720页</td><td>~$10–15</td><td>SAT/TOEFL/ESL友好</td><td>字小密；非初级</td></tr>
+<tr><td><b>《韦氏英汉双解扩词手册》</b>(小绿中文版)</td><td>未核实</td><td>北大社2021<br>ISBN 9787301322864<br>761页</td><td><span class="strong">¥128</span>(当当/博客来核实)</td><td>中国读者友好(中英对照)</td><td>定价偏高</td></tr>
+<tr><td><b>李平武《英语词根与单词的说文解字》</b></td><td><span class="tag t-high">8.8</span>(1458)</td><td>外研社2017新版<br>ISBN 9787513591218<br>662页</td><td>¥59.90</td><td>中/高级；半学术</td><td><b>无音标</b>；仅100根精讲、余320简列</td></tr>
+<tr><td><b>李平武《英语词缀与英语派生词》</b></td><td>未核实</td><td>外研社2016<br>ISBN 9787513580489<br>625页</td><td>¥25.90</td><td>中/高级</td><td>与《说文解字》理论重叠；宜辅助</td></tr>
+<tr><td><b>刘毅系列(5000/10000/22000)</b></td><td>未核实</td><td>外研社引进；10000新版2023</td><td>—</td><td>分级</td><td>"数字虚高"(5000实约1500词)；机械背诵需语境</td></tr>
+<tr><td><b>蒋争《英语词汇的奥秘》</b></td><td>升级版9.0<span class="tag t-mid">单一源</span></td><td>2011 ISBN 9787507808031<br>402页</td><td>¥20.00</td><td>初级起</td><td>释义不精确、生僻词多、偏罗列</td></tr>
+<tr><td><b>English Vocabulary in Use</b>(Cambridge)</td><td>业界标杆</td><td>Elementary→Advanced；外研社引进</td><td>~$28</td><td>A1–C2</td><td>Advanced对中级过难；低阶对B2+太浅</td></tr>
+<tr><td><b>4000 Essential English Words</b>(Nation)</td><td>未核实</td><td>Compass，6册，每册~600词</td><td>未核实</td><td>A2–C1</td><td><span class="hl">TESL-EJ批评</span>：词表来自教材直觉非语料库；无答案键/复习；成人觉幼稚</td></tr>
+<tr><td><b>Academic Word List</b>(Coxhead)</td><td>非商业</td><td>570词族，10子表</td><td><span class="strong">免费</span></td><td>学术英语(已掌2000高频词后)</td><td>是词表非教材，需自配练习</td></tr>
+</tbody>
+</table>
+
+<div class="callout info"><h4>争议点交叉验证结论（学术，非营销）</h4>
+<p><b>① WPME vs Verbal Advantage 谁适合非母语者？</b> <span class="tag t-high">高可信</span><br>
+两者<b>均为母语者(美式)设计，非 ESL 教材</b>。WPME 更可自学、方法导向，是更有实践性的入口；VA 更进阶精英化、用近义词互释、门槛更高。对本题读者：<b>WPME 优先，VA 留作高阶抛光</b>。</p>
+<p><b>② 韦小绿 vs 李平武 vs WPME 定位差异</b> <span class="tag t-high">高可信</span><br>
+三者互补：韦小绿=入门趣味词根(中英对照，先建兴趣+1200词)；李平武=体系化中文理论工具书(案头参考)；WPME=英文思维/方法训练(需4000+词)。</p>
+<p><b>③ 词根词缀法在二语习得中有没有实证支持？</b> <span class="tag t-high">高可信</span><br>
+<b>有，但定位是"平衡课程中的一项辅助策略"，不能单靠它。</b> 对<span class="strong">中阶以上(已掌握2000–3000词)及学术词汇</span>尤其有效；对中文母语者因中文靠复合而非前后缀，<b>显式词缀教学价值反而更高</b>。
+依据：<span class="quote">Paul Nation(2008, 2023与Bauer)：词素分析是"最有效的词汇策略之一"，在掌握前2000–3000词后变得尤其重要；Bauer & Nation(1993)：书面语34.7%的词含屈折/派生词缀；元分析 Bowers, Kirby & Deacon(2010)(22项研究)：形态教学对词汇量与阅读有正向效应。</span></p>
+<p><b>④ 背单词书 vs 大量阅读，学术共识？</b> <span class="tag t-high">高可信</span><br>
+<b>两者都必要、互补，不可偏废。</b> 刻意背词高效打底，但<b>大量阅读是巩固内化的关键</b>。依据 Nation 四 strands(各25%)；Nation & Waring(1997)：最常见2000词覆盖文本79.7%、3000词84%；Hu & Nation(2000)：顺畅理解需<b>98%覆盖率≈8000–9000词族</b>；Waring & Nation(2004)：阅读约每小时习得3–6词——必须"刻意学习打底+足量阅读巩固"。</p>
+</div>
+
+<div class="callout tip"><b>✓ 词汇分层推荐</b><br>
+入门打底：<b>《韦氏英汉双解扩词手册》</b>(中文版,¥128)　|　词根体系：<b>李平武《说文解字》+《词缀与派生词》</b>(外研社,已再版)　|　高阶精进：<b>Word Power Made Easy</b>(英文)+<b>English Vocabulary in Use: Advanced</b>(剑桥)。学术/职场写作加 <b>Academic Word List</b>(免费570词族)。</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="s4"><span class="num">4</span>用法搭配词典 + 语料库工具</h2>
+<p class="sub">核实来源：出版社目录 / 图书馆 OPAC / 中文论坛横评(多源一致) / 官网</p>
+
+<table>
+<thead><tr><th>工具</th><th>核心特点</th><th>适用</th><th>中文引进/费用</th><th>可信度</th></tr></thead>
+<tbody>
+<tr><td><b>Oxford Collocations Dictionary</b></td><td>语料库词典(约20亿词)；25万+搭配、7.5万+例句</td><td>B2–C2</td><td>中文引进多影印/代购<span class="tag t-mid">未核实</span></td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>Longman Collocations Dictionary & Thesaurus</b></td><td>70万搭配；collocation+thesaurus合一；含学术搭配表</td><td>中–高阶</td><td>中文引进<span class="tag t-mid">未核实</span></td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>OALD / LDOCE 学习词典</b></td><td>最畅销学习型词典；简明释义+搭配</td><td>中–高阶</td><td>外研社双解(约¥150+)</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>Collins COBUILD</b></td><td><b>整句释义</b>；基于45亿词语料库；词频五星</td><td>中–高阶</td><td>双解第9版(外研社2023,¥199.9)；豆瓣9.7</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>Cambridge《Collocations in Use》</b></td><td>每级1500+搭配；语境+练习；自学友好</td><td>B1–C2</td><td>剑桥原版为主</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>COCA 语料库</b></td><td>约10亿词，平衡5体裁；查词频/搭配/同义对比</td><td>全水平查证</td><td><span class="strong">免费</span></td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>Ludwig.guru</b></td><td>"语言学搜索引擎"；查句子是否地道、A vs B对比</td><td>写作查证</td><td>免费(限次)+付费</td><td><span class="tag t-mid">中</span></td></tr>
+<tr><td><b>YouGlish</b></td><td>YouTube字幕检索真实发音/语境；多口音</td><td>纠音/听</td><td>免费(20次/日)+高级</td><td><span class="tag t-mid">中</span></td></tr>
+<tr><td><b>欧路词典 / GoldenDict</b></td><td>跨平台；支持MDX词库；生词本+AI</td><td>查词一站式</td><td>移动/Win免费；iOS+Mac付费(约¥168)</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td><b>FreeMdict / PDAWIKI</b></td><td>非盈利 MDX 词库下载站(牛津/朗文/柯林斯)</td><td>获取离线词库</td><td>永久免费</td><td><span class="tag t-mid">中</span></td></tr>
+</tbody>
+</table>
+
+<div class="callout tip"><b>✓ 实操方案</b>：PC 端用 <b>GoldenDict</b> 挂载 MDX 词库（从 FreeMdict/PDAWIKI 获取），移动端用 <b>欧路词典</b>；写作时遇搭配不确定，用 <b>COCA / Ludwig / YouGlish</b> 查证。词典类<b>不必全买纸质</b>——Collins COBUILD 双解(整句释义对自学者极友好)配电子版即可。</div>
+
+<!-- ============ 5 ============ -->
+<h2 id="s5"><span class="num">5</span>长期学习方法论（学术依据，逐条附出处）</h2>
+<p>本节能查到的数字均来自同行评审论文/作者访谈；<span class="hl">查不到确切数字处已如实标注，未编造</span>。</p>
+
+<table>
+<thead><tr><th>结论</th><th>研究者 / 年份 / 出处</th><th>关键数字</th><th>可信度</th></tr></thead>
+<tbody>
+<tr><td><b>四 strands</b>：意义输入/输出/语言聚焦/流利度，<b>各约25%时间</b></td><td>Paul Nation (2007)《The four strands》, ILLT 1(1)</td><td>访谈原文列四项各25%；很多课程把语言聚焦学到70–80%失衡</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td>自然阅读习得词汇需"大量阅读"，单次接触收益极低</td><td>Nagy, Herman & Anderson (1985)；Herman et al.(1987)</td><td>单次语境接触习得概率约 .05–.15</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td>读1本分级读物几乎记不住新词</td><td>Waring & Takaki (2003), RiFL 15(2)</td><td>1本400词读物后，3个月25个目标词平均只记得1个；出现<8次的词全忘</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td>读懂文本需约98%覆盖率；独立阅读需大词汇量</td><td>Hu & Nation (2000)；Nation (2006)</td><td>98%≈<b>8000–9000词族</b>；3000–5000可读简易文本</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td>间隔重复(SRS)/Anki 对长期记忆有效——<b>但直接语言学习大样本元分析缺失</b></td><td>Maye & Hurley (2026) 医学教育元分析(13研究,21415人,SMD=0.78)；Seibert Hanson & Brown(2020)西语n=62</td><td>语言直证有限，机制(提取练习)强</td><td><span class="tag t-mid">中/高</span>(非语言领域)</td></tr>
+<tr><td>泛读/分级读物有中等偏上实证支持</td><td>Nakanishi (2015) 元分析(34研究,3942人,d=0.46–0.71)；Liu & Zhang (2018)(21研究,N=1268)</td><td>一学期(<3月)最佳</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td>显性语法教学总体有效，且显性>隐性</td><td>Norris & Ortega (2000) 元分析(51研究)；Spada & Tomita (2010)(41研究)</td><td>效应量 selected 1.46 / constrained 1.20；但自由产出效应明显更小</td><td><span class="tag t-high">高</span></td></tr>
+<tr><td>输出假说：可理解输出对句法准确性不可或缺</td><td>Swain (1985/1995)</td><td>输出三功能：注意/假设检验/元语言反思</td><td><span class="tag t-high">高</span></td></tr>
+</tbody>
+</table>
+
+<div class="callout warn"><b>⚠ 两条诚实声明（避免被营销话术误导）</b>
+<ol>
+<li><b>Anki 在"语言学习"领域没有找到大样本元分析</b>。最强的 SRS 元分析是医学教育(Maye & Hurley 2026)，<b>不能直接外推到英语词汇</b>。语言类证据仅为 n=62、n=34 小研究 + 认知科学"提取练习"研究。结论：机制可信，但语言直证有限，把它当辅助工具而非万能药。</li>
+<li><b>"通过阅读自然习得词汇所需阅读量"没有单一神奇数字</b>。实证给出的答案是：单次接触收益极低(~5–15%)、一本分级读物记不住几个词、读懂需98%覆盖(≈8000–9000词族)——因此必须<b>海量、可理解、反复</b>阅读，而非指望"读几本书就自然掌握"。</li>
+</ol>
+</div>
+
+<div class="callout info"><b>语法到底有没有用？</b> 有用但有限——显性语法对考试/复杂形式帮助大(Norris & Ortega 2000)，对<b>自发口语/写作流利度帮助小</b>且依赖测量方式。结论：<b>把语法当"卡住时再查"的小块，别过度投入</b>。理工自学者默认已具中级以上基础，可直接进 B1+ 分级读物与学术文本。</div>
+
+<!-- ============ 6 ============ -->
+<h2 id="s6"><span class="num">6</span>一周「每天 1 小时」实操配置</h2>
+<p>按 Nation 四 strands（各25%≈15分钟）重组，针对中国在职理工自学者：</p>
+
+<table>
+<thead><tr><th>时段</th><th>活动(≈15分钟)</th><th>学术依据</th><th>工具/资源</th></tr></thead>
+<tbody>
+<tr><td><b>① 意义聚焦输入</b>(阅读)</td><td>读分级读物/适龄原版，求"98%能懂"；每周1/3时间读更简单的书提速</td><td>四 strands；泛读元分析；覆盖需8000–9000词族</td><td>牛津/朗文分级读物、YouGlish(听)、COCA</td></tr>
+<tr><td><b>② 意义聚焦输出</b>(写作)</td><td>英文写日记/文献摘要/邮件，重点"把想说的写对写清楚"</td><td>输出假说(Swain)：促注意缺口与假设检验</td><td>自由写作 + Ludwig.guru 查证地道表达</td></tr>
+<tr><td><b>③ 语言聚焦学习</b>(刻意学)</td><td>Anki 复习+少量新词(词卡含例句+搭配)；按需查搭配/用法</td><td>SRS机制强；搭配书避免中式英语</td><td>Anki；Oxford/Longman Collocations；Collocations in Use；欧路+GoldenDict</td></tr>
+<tr><td><b>④ 流利度发展</b>(提速)</td><td>反复读已读过的简单材料/快速重读；计时朗读</td><td>Nation：泛读中1/3应为极简单以提速</td><td>已读分级读物重读、速读练习</td></tr>
+</tbody>
+</table>
+
+<div class="callout tip"><b>周节奏示例</b>：周一/三/五 ①+③；周二/四 ②+④；周末 1小时长阅读 + 1次长写作。核心是<b>四块长期均衡、不偏废</b>——这正是 Nation 反复强调"多数自学者过度投入语言聚焦、欠流利度"的反面。词汇是主线，语法只作"卡住再查"。</div>
+
+<!-- ============ 7 ============ -->
+<h2 id="s7"><span class="num">7</span>交叉验证结论 + 未核实项清单</h2>
+
+<h3>✓ 已交叉验证的关键结论</h3>
+<ul>
+<li>旋元佑大陆版绝版、正版只走台版代购；网传简体版多为盗版拼装。<span class="tag t-high">高</span></li>
+<li>张满胜三册分工明确，时间有限不必全读；想单本选《底层逻辑全解密》。<span class="tag t-high">高</span></li>
+<li>薄冰/章振邦/张道真只适合当工具书，不适合通读。<span class="tag t-high">高</span></li>
+<li>Murphy 中级与 Hewings 高级是递进关系，作者不同。<span class="tag t-high">高</span></li>
+<li>Practical English Usage 是用法疑难词典非系统教材；中译《英语用法指南》已引进。<span class="tag t-high">高</span></li>
+<li>李平武《说文解字》已再版在售，旧"绝版"说法过时。<span class="tag t-high">高</span></li>
+<li>词根法有学术支持但是辅助策略；必须配大量阅读。<span class="tag t-high">高</span></li>
+<li>四 strands 各25%、98%覆盖≈8000–9000词族、显性语法有效但自由产出有限。<span class="tag t-high">高</span></li>
+</ul>
+
+<h3>⚠ 本报告未核实 / 冲突项（购前请二次确认）</h3>
+<ul>
+<li>章振邦《新编英语语法教程》最新第6/7版确切豆瓣评分——仅查到早期第3版7.2(19人，样本过小)。</li>
+<li>张道真《实用英语语法》确切豆瓣评分——多论坛称"约8分"，非豆瓣确切数据。</li>
+<li>章振邦《新编高级英语语法》评分——淘宝软文称"9.5+"属营销，已排除。</li>
+<li>Murphy 高级(AGIU)中文版 ISBN/定价——外研社"英语在用"大概率含，本次未单独核实。</li>
+<li>Williams/Zinsser/Pinker 中译的具体出版社与版次——未逐本核实。</li>
+<li>Verbal Advantage、韦小绿英文版、刘毅系列精确美元/人民币定价——未取到出版社标价，标"典型区间"。</li>
+<li>各书最新零售价随汇率与年份浮动，本报告多为标价或聚合估算，<b>购前以官网/电商实时价为准</b>。</li>
+</ul>
+
+<!-- ============ 8 ============ -->
+<h2 id="s8"><span class="num">8</span>来源与可信度说明</h2>
+<p>本报告由 4 路并行子代理实际查证（WebSearch + WebFetch），每本尽量 2–3 个独立来源交叉验证。主要来源类别：</p>
+<ul>
+<li><b>中文书</b>：豆瓣(经代理)、出版社 MARC、孔夫子二手、当当/博客来、百度百科、知乎长评、专业书评（91reading、zhibs、cnblogs 等）。</li>
+<li><b>英文原版</b>：Goodreads / Amazon、出版社官网(OUP·CUP·Pearson)、图书馆 OPAC、学术书评(ELTJ、Linguist List)。</li>
+<li><b>学术方法论</b>：Paul Nation 论文与访谈(2007/2019)、Nation & Waring(1997)、Hu & Nation(2000)、Nagy et al.(1985)、Waring & Takaki(2003)、Norris & Ortega(2000)、Spada & Tomita(2010)、Swain(1985/1995)、Nakanishi(2015)、Liu & Zhang(2018)、Maye & Hurley(2026)、Bowers/Kirby/Deacon(2010)、Bauer & Nation(1993)。</li>
+<li><b>语料库/工具</b>：COCA(English-Corpora)、Sketch Engine、Ludwig.guru、YouGlish、欧路/GoldenDict 官网、FreeMdict 社区、中文论坛横评。</li>
+</ul>
+<p class="sub">可信度标记：<span class="tag t-high">高</span> 官方/学术多源交叉；<span class="tag t-mid">中</span> 单一可靠来源；<span class="tag t-low">低</span> 营销/论坛 anecdotal。凡"未核实"项均已明示，未编造任何评分或价格。</p>
+
+<div class="foot">
+  生成日期：2026-09-29　|　面向人群：中国成年在职自学者(理工背景、长期掌握英语读写、非应试)<br>
+  本页为深度研究草稿，价格与评分以购前实时核实为准。建议配合 §6 的「每天1小时四 strands」方案长期使用。
+</div>
+
+</div>
+</body>
+</html>

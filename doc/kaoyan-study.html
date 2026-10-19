@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>英语与数学 · 学习网页总入口</title>
+  <script src="../shared/theme.js"></script>
+  <link rel="stylesheet" href="../shared/theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--tx); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    a { color: inherit; }
+    .wrap { max-width: 1120px; margin: auto; padding: 0 26px; }
+    header { padding: 48px 0 36px; border-bottom: 1px solid var(--bd); background: var(--bg2); }
+    .kicker { margin: 0 0 10px; color: var(--blue); font: 700 12px/1.2 ui-monospace, SFMono-Regular, monospace; letter-spacing: .13em; }
+    h1 { margin: 0 0 13px; font-size: clamp(31px, 4.2vw, 48px); line-height: 1.2; letter-spacing: -.035em; }
+    .lead { max-width: 690px; margin: 0; color: var(--tx2); font-size: 16px; }
+    nav { position: sticky; top: 0; z-index: 10; display: flex; gap: 21px; overflow-x: auto; padding: 13px 26px; border-bottom: 1px solid var(--bd); background: var(--bg2); white-space: nowrap; }
+    nav a { color: var(--tx2); font-size: 13px; text-decoration: none; }
+    nav a:hover { color: var(--blue); }
+    main { padding-top: 24px; padding-bottom: 60px; }
+    .group { padding: 27px 0 34px; border-bottom: 1px solid var(--bd); scroll-margin-top: 64px; }
+    .group-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 15px; }
+    .num { color: var(--blue); font: 700 18px/1 ui-monospace, SFMono-Regular, monospace; }
+    h2 { margin: 0; font-size: 23px; line-height: 1.35; letter-spacing: -.025em; }
+    .group-head p { margin: 0 0 0 auto; color: var(--tx2); font-size: 13px; text-align: right; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .card { display: block; min-height: 95px; padding: 15px 17px; border: 1px solid var(--bd); border-radius: 8px; background: var(--bg2); text-decoration: none; }
+    .card:hover { border-color: var(--blue); }
+    .card strong { display: block; font-size: 15px; line-height: 1.4; }
+    .card small { display: block; margin-top: 7px; color: var(--tx2); font-size: 12px; }
+    .card .tag { display: inline-block; margin-top: 9px; padding: 1px 6px; border-radius: 4px; background: var(--blu-bg); color: var(--blue); font-size: 11px; }
+    .note { margin-top: 27px; padding: 14px 17px; border-left: 3px solid var(--blue); background: var(--bg2); color: var(--tx2); font-size: 13px; }
+    .note p { margin: 3px 0; }
+    footer { padding: 20px 0 34px; border-top: 1px solid var(--bd); color: var(--tx2); font-size: 12px; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    @media (max-width: 780px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .group-head { flex-wrap: wrap; } .group-head p { width: 100%; margin-left: 32px; text-align: left; } }
+    @media (max-width: 540px) { .wrap { padding: 0 17px; } header { padding: 35px 0 27px; } nav { padding-left: 17px; padding-right: 17px; gap: 14px; } .grid { grid-template-columns: 1fr; } .card { min-height: 78px; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap"><p class="kicker">STUDY LIBRARY</p><h1>英语与数学，集中在这里。</h1><p class="lead">按学习顺序进入教程，再查真题、词汇和公式。所有链接均指向本仓库中的网页，上传后可以从同一个入口打开。</p></div></header>
+  <nav aria-label="页面导航"><a href="../index.html">← 首页</a><a href="#math-course">数学教程</a><a href="#math-reference">数学速查</a><a href="#reading">英语阅读</a><a href="#vocabulary">词汇语法</a><a href="#archive">参考归档</a></nav>
+  <main class="wrap">
+    <section class="group" id="math-course"><div class="group-head"><span class="num">01</span><h2>数学 · 按章学习</h2><p>从总纲进入，高数和线代按讲义顺序排。</p></div><div class="grid">
+      <a class="card" href="kaoyan-math2-110.html"><strong>学习总纲</strong><small>复习主线与目标分数</small></a>
+      <a class="card" href="kaoyan-math2-limit.html"><strong>函数、极限与连续</strong><small>高数 · 第一章</small></a>
+      <a class="card" href="kaoyan-math2-derivative.html"><strong>一元函数微分学</strong><small>高数 · 第二章</small></a>
+      <a class="card" href="kaoyan-math2-integral.html"><strong>一元函数积分学</strong><small>高数 · 第三章</small></a>
+      <a class="card" href="kaoyan-math2-ode.html"><strong>常微分方程</strong><small>高数 · 第四章</small></a>
+      <a class="card" href="kaoyan-math2-multivariable.html"><strong>多元函数与二重积分</strong><small>高数 · 第五、六章</small></a>
+      <a class="card" href="kaoyan-math2-matrix.html"><strong>行列式与矩阵</strong><small>线代 · 第一、二章</small></a>
+      <a class="card" href="kaoyan-math2-vector-equations.html"><strong>向量组与线性方程组</strong><small>线代 · 第三、四章</small></a>
+      <a class="card" href="kaoyan-math2-eigen-quadratic.html"><strong>特征值与二次型</strong><small>线代 · 第五、六章</small></a>
+    </div></section>
+    <section class="group" id="math-reference"><div class="group-head"><span class="num">02</span><h2>数学 · 速查与真题</h2><p>教程看完后，用公式与题目巩固。</p></div><div class="grid">
+      <a class="card" href="kaoyan-math2-formula-handbook-optimized.html"><strong>公式与常用结论手册</strong><small>定义、结论与例题</small><span class="tag">推荐版本</span></a>
+      <a class="card" href="kaoyan-math2-question-index.html"><strong>高数线代真题专题索引</strong><small>按章节、年份与题号查找；题目跳原站</small><span class="tag">需联网查看原题</span></a>
+      <a class="card" href="kaoyan-math2-exam-map.html"><strong>真题考点地图</strong><small>查看历年题目的考点分布</small></a>
+    </div></section>
+    <section class="group" id="reading"><div class="group-head"><span class="num">03</span><h2>英语 · 阅读精读</h2><p>2012–2021 年，按年份查原文与解析。</p></div><div class="grid">
+      <a class="card" href="kaoyan-en-2012-reading.html"><strong>2012 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2013-reading.html"><strong>2013 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2014-reading.html"><strong>2014 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2015-reading.html"><strong>2015 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2016-reading.html"><strong>2016 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2017-reading.html"><strong>2017 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2018-reading.html"><strong>2018 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2019-reading.html"><strong>2019 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2020-reading.html"><strong>2020 年阅读</strong><small>真题精读</small></a>
+      <a class="card" href="kaoyan-en-2021-reading.html"><strong>2021 年阅读</strong><small>真题精读</small></a>
+    </div></section>
+    <section class="group" id="vocabulary"><div class="group-head"><span class="num">04</span><h2>英语 · 词汇与语法</h2><p>先查词汇，再按阅读中的问题补语法。</p></div><div class="grid">
+      <a class="card" href="kaoyan-en-vocabulary.html"><strong>真题词汇档案</strong><small>按年份查词</small></a>
+      <a class="card" href="kaoyan-en-vocabulary-2016.html"><strong>2016 年真题词汇</strong><small>年份专题</small></a>
+      <a class="card" href="kaoyan-vocab-book.html"><strong>词汇闪过 · 数字化全书</strong><small>可检索词条</small></a>
+      <a class="card" href="kaoyan-en-vocab-high-mid.html"><strong>词汇闪过 · 高频中频词</strong><small>独立整理的 1606 词页面</small></a>
+      <a class="card" href="kaoyan-en-grammar-components.html"><strong>句子成分总表</strong><small>语法基础</small></a>
+      <a class="card" href="kaoyan-en-verb-adverbial-guide.html"><strong>动词、谓语与修饰成分</strong><small>语法辨析</small></a>
+    </div></section>
+    <section class="group" id="archive"><div class="group-head"><span class="num">05</span><h2>参考与归档</h2><p>书单、原书版和历史计划按需打开。</p></div><div class="grid">
+      <a class="card" href="kaoyan-en-books.html"><strong>英语语法与单词书单</strong><small>选书参考</small></a>
+      <a class="card" href="kaoyan-en-longterm-study.html"><strong>英语语法与词汇长期学习研究</strong><small>非应试向</small></a>
+      <a class="card" href="kaoyan-en-vocab-outline.html"><strong>词汇闪过目录总览</strong><small>书籍结构参考</small></a>
+      <a class="card" href="kaoyan-vocab-book-pages.html"><strong>词汇闪过 · 原书页面版</strong><small>按页面查找</small></a>
+      <a class="card" href="kaoyan-en-vocabulary-2016-preview.html"><strong>2016 年词汇双栏预览</strong><small>预览版</small></a>
+      <a class="card" href="kaoyan-math2-formula-handbook.html"><strong>公式手册 · 站点旧副本</strong><small>与上方推荐版本内容不同</small></a>
+      <a class="card" href="kaoyan-math2-408-two-week-plan.html"><strong>两周学习计划</strong><small>历史计划，含 408 内容</small></a>
+    </div></section>
+    <div class="note"><p>这页只做入口，原网页保留独立文件，方便继续修改。真题专题索引中的具体题目仍跳转到原站，查看时需要联网。</p></div>
+  </main>
+  <footer><div class="wrap">英语与数学学习网页总入口 · 本仓库内相对链接</div></footer>
+</body>
+</html>
